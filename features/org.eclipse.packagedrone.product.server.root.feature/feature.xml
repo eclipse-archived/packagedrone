@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.packagedrone.product.server.root"
+      label="Package Drone Server Runtme Root Files"
+      version="1.0.0.qualifier"
+      provider-name="IBH SYSTEMS GmbH">
+
+   <description>
+      Eclipse Package Drone Server Product - root files
+   </description>
+
+   <copyright>
+      %copyright
+   </copyright>
+
+   <license url="%licenseURL">
+      %license
+   </license>
+
+</feature>

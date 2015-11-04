@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "$0 <rsync-target>"
+    exit 1
+fi
+
+rsync -azv --exclude-from excludes.txt --delete --delete-excluded  --progress PD-GPG-KEY apt yum "$1"

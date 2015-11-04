@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+	version="2.1">
+
+	<tlib-version>1.0</tlib-version>
+	<short-name>channel</short-name>
+	<uri>http://eclipse.org/packagedrone/repo/channel</uri>
+
+	<function>
+		<name>channel</name>
+		<function-class>org.eclipse.packagedrone.repo.channel.web.tags.Functions</function-class>
+		<function-signature>java.lang.String channel(org.eclipse.packagedrone.repo.channel.ChannelId)</function-signature>
+	</function>
+	
+    <function>
+        <name>nameSorted</name>
+        <function-class>org.eclipse.packagedrone.repo.channel.web.tags.Functions</function-class>
+        <function-signature>java.util.List nameSorted(java.util.Collection)</function-signature>
+    </function>
+    
+    <function>
+        <description>Convert a severity into a bootstrap contextual class (e.g. warning, danger). Defaulting to "default".</description> 
+        <name>severity</name>
+        <function-class>org.eclipse.packagedrone.repo.channel.web.tags.Functions</function-class>
+        <function-signature>java.lang.String severity(org.eclipse.packagedrone.repo.Severity)</function-signature>
+    </function>
+    
+    <function>
+        <description>Convert a severity into a bootstrap contextual class (e.g. warning, danger). Defaulting to the provided default value.</description>
+        <name>severityWithDefault</name>
+        <function-class>org.eclipse.packagedrone.repo.channel.web.tags.Functions</function-class>
+        <function-signature>java.lang.String severityWithDefault(org.eclipse.packagedrone.repo.Severity, java.lang.String)</function-signature>
+    </function>
+
+</taglib>

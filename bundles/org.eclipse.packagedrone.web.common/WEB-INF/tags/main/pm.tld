@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+    version="2.1">
+
+	<tlib-version>1.0</tlib-version>
+	<short-name>pm</short-name>
+	<uri>http://dentrassi.de/pm</uri>
+
+	<function>
+        <name>modifier</name>
+        <function-class>org.eclipse.packagedrone.web.common.tags.Functions</function-class>
+        <function-signature>java.lang.String modifier(java.lang.String,org.eclipse.packagedrone.web.common.Modifier)</function-signature>
+    </function>
+    
+    <function>
+        <name>metadata</name>
+        <function-class>org.eclipse.packagedrone.web.common.tags.Functions</function-class>
+        <function-signature>java.util.SortedSet metadata(java.util.Map,java.lang.String,java.lang.String)</function-signature>
+    </function>
+</taglib>

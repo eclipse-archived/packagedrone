@@ -1,0 +1,100 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          package-drone-server
+# Required-Start:    $remote_fs $syslog $network
+# Required-Stop:     $remote_fs $syslog $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start and stop package drone server
+# Description:       Package Drone is a software artifact repository system.
+### END INIT INFO
+
+. /etc/rc.d/init.d/functions
+. /etc/sysconfig/network
+
+RETVAL=0
+PIDFILE=/var/run/package-drone-server/server.pid
+
+prog=package-drone-server
+exec=/usr/lib/package-drone-server/instance/server
+lockfile=/var/lock/subsys/$prog
+
+if [ -f  /etc/sysconfig/$prog ]; then
+    . /etc/sysconfig/$prog
+fi
+
+start () {
+    [ -x $exec ] || exit 5
+    [ "$EUID" != "0" ] && exit 4
+    [ ${NETWORKING} = "no" ] && exit 1
+    
+    echo -n $"Starting Package Drone: "
+    if [ ! -e "$PIDFILE" ]; then
+        export PIDFILE
+        runuser -g pdrone -s /bin/bash pdrone -c "export PIDFILE=/var/run/package-drone-server/server.pid ; exec $exec" &>/dev/null &
+    fi
+    
+    success
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop () {
+    [ "$EUID" != "0" ] && exit 4
+    
+    echo -n $"Shutting down Package Drone: "
+    killproc -p "$PIDFILE" $exec
+    # killproc will call success/failure for us
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && rm -f $lockfile $PIDFILE
+    echo
+    return $RETVAL
+}
+
+runstatus() {
+    status -p "$PIDFILE" -l $prog $exec
+}
+
+restart () {
+    stop
+    start
+}
+
+case $1 in
+    start)
+        start
+    ;;
+    
+    stop)
+        stop
+    ;;
+    
+    restart)
+        restart
+    ;;
+        
+    status)
+        runstatus
+    ;;
+    
+    reload)
+        exit 3
+    ;;
+    
+    force-reload)
+        restart
+    ;;
+    
+    condrestart)
+        runstatus >/dev/null 2&>1 || exit 0
+        restart
+    ;;
+    
+    *)
+        echo $"Usage: $0 {start|stop|restart|status|condrestart}"
+        exit 2
+    ;;
+esac

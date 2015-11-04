@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Unit tests for 'de.dentrassi.pm.aspect.common'
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.aspect.common.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit;bundle-version="4.11.0",
+ org.eclipse.packagedrone.repo.xml;bundle-version="1.0.0"
+Fragment-Host: org.eclipse.packagedrone.repo.aspect.common

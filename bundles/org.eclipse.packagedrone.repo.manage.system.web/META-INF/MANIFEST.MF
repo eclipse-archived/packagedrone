@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Web UI for System Services
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.manage.system.web
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.packagedrone.web;bundle-version="1.0.0",
+ org.eclipse.packagedrone.web.forms;bundle-version="1.0.0",
+ org.eclipse.packagedrone.sec.web;bundle-version="1.0.0",
+ org.jboss.spec.javax.servlet.jstl.jboss-jstl-api_1.2_spec;bundle-version="1.1.2",
+ org.eclipse.packagedrone.web.common;bundle-version="1.0.0"
+Import-Package: com.google.common.io;version="18.0.0",
+ javax.servlet;version="3.1.0",
+ javax.servlet.annotation;version="3.1.0",
+ javax.servlet.http;version="3.1.0",
+ javax.servlet.jsp;version="2.2.0",
+ javax.servlet.jsp.tagext;version="2.2.0",
+ org.eclipse.packagedrone.repo.channel;version="1.0.0",
+ org.eclipse.packagedrone.repo.manage.system;version="1.0.0",
+ org.eclipse.packagedrone.sec;version="1.0.0",
+ org.eclipse.packagedrone.sec.service;version="1.0.0",
+ org.eclipse.packagedrone.storage.apm;version="1.0.0",
+ org.eclipse.packagedrone.web.common;version="1.0.0",
+ org.eclipse.packagedrone.web.common.menu;version="1.0.0",
+ org.osgi.framework;version="1.8.0",
+ org.osgi.util.tracker;version="1.5.1",
+ org.slf4j;version="1.7.2"
+Service-Component: OSGI-INF/backupController.xml,
+ OSGI-INF/infoController.xml
+

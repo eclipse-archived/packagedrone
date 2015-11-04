@@ -1,0 +1,33 @@
+#!/bin/bash
+
+DIR=$(cd $(dirname "$0"); pwd)
+
+test -f /usr/lib/package-drone-server/profile && . /usr/lib/package-drone-server/profile
+test -f /etc/default/package-drone-server && . /etc/default/package-drone-server
+
+JAVA="java"
+
+if [ -n "$JAVA_HOME" ]; then
+    JAVA="$JAVA_HOME/bin/java"
+fi
+
+echo "Using Java: $JAVA"
+echo "   Provided Options: $JAVA_OPTS"
+
+if [ -n "$DRONE_STORAGE_BASE" ]; then
+    echo "   Storage Base: $DRONE_STORAGE_BASE"
+    JAVA_OPTS="$JAVA_OPTS -Ddrone.storage.base=\"$DRONE_STORAGE_BASE\""
+fi
+
+if [ -n "$PIDFILE" ]; then
+    echo $$ > "$PIDFILE"
+    echo "   PID File: $PIDFILE"
+fi
+
+eval exec "$JAVA" \
+    $JAVA_OPTS \
+    -Dosgi.requiredJavaVersion=1.8 \
+    -jar "$DIR"/plugins/org.eclipse.equinox.launcher_*.jar \
+    -console \
+    -consoleLog \
+    "$@"

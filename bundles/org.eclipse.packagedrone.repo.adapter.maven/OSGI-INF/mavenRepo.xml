@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.adapter.maven.repo">
+   <implementation class="org.eclipse.packagedrone.repo.adapter.maven.internal.MavenRepositoryAspectFactory"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.aspect.ChannelAspectFactory"/>
+   </service>
+   <properties entry="OSGI-INF/mavenRepo.properties"/>
+   <reference bind="setSitePrefixService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.manage.system.SitePrefixService" name="SitePrefixService" policy="static"/>
+</scr:component>

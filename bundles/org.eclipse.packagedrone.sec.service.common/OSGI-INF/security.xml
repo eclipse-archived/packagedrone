@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="activate" deactivate="deactivate" name="org.eclipse.packagedrone.sec.service.common.security">
+   <implementation class="org.eclipse.packagedrone.sec.service.common.internal.SecurityServiceImpl"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.sec.service.SecurityService"/>
+   </service>
+</scr:component>

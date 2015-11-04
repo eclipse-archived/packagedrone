@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XML Tools Implemenation for Package Drone
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.xml
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.apache.xalan;bundle-version="2.7.1"
+Import-Package: org.eclipse.packagedrone.utils.xml
+Service-Component: OSGI-INF/impl.xml

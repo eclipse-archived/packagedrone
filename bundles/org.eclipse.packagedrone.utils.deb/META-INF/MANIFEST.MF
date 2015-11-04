@@ -1,0 +1,30 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Debian Tools
+Bundle-SymbolicName: org.eclipse.packagedrone.utils.deb
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Jens Reimann
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.commons.compress.archivers;version="1.9.0",
+ org.apache.commons.compress.archivers.ar;version="1.9.0",
+ org.apache.commons.compress.archivers.tar;version="1.9.0",
+ org.apache.commons.compress.archivers.zip;version="1.9.0",
+ org.apache.commons.compress.compressors;version="1.9.0",
+ org.apache.commons.io;version="2.2.0",
+ org.apache.commons.io.output;version="2.2.0",
+ org.apache.tools.ant,
+ org.apache.tools.ant.filters,
+ org.apache.tools.ant.taskdefs,
+ org.apache.tools.ant.types,
+ org.apache.tools.ant.types.selectors,
+ org.apache.tools.ant.util,
+ org.apache.tools.tar,
+ org.bouncycastle;version="1.51.0",
+ org.bouncycastle.bcpg;version="1.51.0",
+ org.bouncycastle.crypto.digests;version="1.51.0",
+ org.bouncycastle.jce.provider;version="1.51.0",
+ org.bouncycastle.openpgp;version="1.51.0",
+ org.bouncycastle.openpgp.operator.bc;version="1.51.0",
+ org.bouncycastle.util.encoders;version="1.51.0",
+ org.eclipse.packagedrone.utils;version="1.0.0"
+Export-Package: org.eclipse.packagedrone.utils.deb;version="1.0.0"

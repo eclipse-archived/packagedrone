@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.importer.aether.controller">
+   <implementation class="org.eclipse.packagedrone.repo.importer.aether.web.ConfigurationController"/>
+   <reference bind="setJobManager" cardinality="1..1" interface="org.eclipse.packagedrone.job.JobManager" name="JobManager" policy="static"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.importer.aether.web.ConfigurationController"/>
+   </service>
+</scr:component>

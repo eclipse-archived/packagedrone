@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: java.util.Loggin Handler
+Bundle-SymbolicName: org.eclipse.packagedrone.utils.logging.jul
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Jens Reimann
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.osgi.framework,
+ org.slf4j.bridge;version="1.7.2"
+Bundle-Activator: org.eclipse.packagedrone.utils.logging.jul.Activator

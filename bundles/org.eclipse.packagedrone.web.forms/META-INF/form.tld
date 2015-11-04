@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+	version="2.1">
+
+	<description>Web Framework JSP Form Tag Library</description>
+	<tlib-version>1.0</tlib-version>
+	<short-name>form</short-name>
+	<uri>http://dentrassi.de/osgi/web/form</uri>
+
+	<tag>
+		<name>form</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.Form</tag-class>
+		<body-content>JSP</body-content>
+
+		<attribute>
+			<name>cssClass</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+
+		<attribute>
+			<name>action</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+
+		<attribute>
+			<name>method</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		
+        <attribute>
+            <name>enctype</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+
+		<attribute>
+			<name>command</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>label</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.Label</tag-class>
+		<body-content>JSP</body-content>
+
+		<attribute>
+		      <name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>cssClass</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>input</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.Input</tag-class>
+		<body-content>empty</body-content>
+
+		<attribute>
+			<name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>cssClass</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>type</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+		  <name>disabled</name>
+		  <rtexprvalue>true</rtexprvalue>
+		  <type>boolean</type>
+		</attribute>
+		
+		<attribute>
+		  <name>readonly</name>
+		  <rtexprvalue>true</rtexprvalue>
+		  <type>boolean</type>
+		</attribute>
+		
+		<attribute>
+		  <name>placeholder</name>
+		  <rtexprvalue>true</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+		  <name>required</name>
+		  <rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	
+	<tag>
+        <name>checkbox</name>
+        <tag-class>org.eclipse.packagedrone.web.forms.tags.Checkbox</tag-class>
+        <body-content>empty</body-content>
+
+        <attribute>
+            <name>path</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>cssClass</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+          <name>disabled</name>
+          <rtexprvalue>true</rtexprvalue>
+          <type>boolean</type>
+        </attribute>
+    </tag>
+	
+    <tag>
+        <name>hidden</name>
+        <tag-class>org.eclipse.packagedrone.web.forms.tags.Hidden</tag-class>
+        <body-content>empty</body-content>
+
+        <attribute>
+            <name>path</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+	<tag>
+		<name>select</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.Select</tag-class>
+		<body-content>JSP</body-content>
+
+		<attribute>
+			<name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>cssClass</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+            <name>multiple</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>option</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.Option</tag-class>
+		<body-content>empty</body-content>
+
+		<attribute>
+			<name>value</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			
+		</attribute>
+		<attribute>
+			<name>label</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>optionList</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.OptionList</tag-class>
+		<body-content>empty</body-content>
+
+		<attribute>
+			<name>items</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>itemValue</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>textarea</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.TextArea</tag-class>
+		<body-content>empty</body-content>
+
+		<attribute>
+			<name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			
+		</attribute>
+
+		<attribute>
+			<name>cols</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>rows</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>cssClass</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+          <name>placeholder</name>
+          <rtexprvalue>true</rtexprvalue>
+        </attribute>
+	</tag>
+
+	<tag>
+		<name>errors</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.Errors</tag-class>
+		<body-content>JSP</body-content>
+
+		<attribute>
+			<name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<description>The name of the item variable. The default value is 'error'.</description>
+			<name>var</name>
+		</attribute>
+	</tag>
+
+	<tag>
+		<name>errorList</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.ErrorList</tag-class>
+		<body-content>empty</body-content>
+
+		<attribute>
+			<name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>cssClass</name>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>skipIfEmpty</name>
+		</attribute>
+	</tag>
+	
+	<tag>
+	   <name>withBinding</name>
+	   <tag-class>org.eclipse.packagedrone.web.forms.tags.WithBinding</tag-class>
+	   <body-content>JSP</body-content>
+	   
+        <attribute>
+            <name>command</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        
+        <attribute>
+            <description>The name of the page context variable that will get the binding. The default is 'result'.</description>
+            <name>var</name>
+        </attribute>
+        
+	</tag>
+    
+    <function>
+        <name>validationState</name>
+        <function-class>org.eclipse.packagedrone.web.forms.tags.Functions</function-class>
+        <function-signature>java.lang.String validationState(javax.servlet.jsp.PageContext,java.lang.String,java.lang.String,java.lang.String,java.lang.String)</function-signature>
+    </function>
+    
+    <function>
+        <name>errors</name>
+        <function-class>org.eclipse.packagedrone.web.forms.tags.Functions</function-class>
+        <function-signature>java.lang.String errors(javax.servlet.jsp.PageContext,java.lang.String,java.lang.String,boolean)</function-signature>
+    </function>
+    	
+</taglib>

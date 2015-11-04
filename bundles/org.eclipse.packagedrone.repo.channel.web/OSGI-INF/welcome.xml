@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.channel.web.welcome">
+   <implementation class="org.eclipse.packagedrone.repo.channel.web.internal.WelcomeController"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.channel.web.internal.WelcomeController"/>
+   </service>
+</scr:component>

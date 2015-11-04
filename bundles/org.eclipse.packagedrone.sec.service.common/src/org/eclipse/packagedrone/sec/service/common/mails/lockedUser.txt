@@ -1,0 +1,8 @@
+You requested a reset of your password.
+
+Unfortunately your account is locked. So your request cannot be processed.
+
+Please contact the system administrators to sort out this issue.
+
+Sincerely yours,
+Package Drone

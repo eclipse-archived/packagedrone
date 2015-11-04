@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Unit tests for de.dentrassi.pm.osgi
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.utils.osgi.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Jens Reimann
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.junit;bundle-version="4.11.0"
+Import-Package: org.eclipse.packagedrone.repo.utils.osgi;version="1.0.0",
+ org.eclipse.packagedrone.repo.utils.osgi.bundle;version="1.0.0",
+ org.eclipse.packagedrone.utils;version="1.0.0"

@@ -1,0 +1,19 @@
+# this is the package drone profile file
+
+# I works like the package drone defaults file
+# But is not considered a configuration file but a file
+# with defaults from the package maintainer
+
+# This file is read before the defaults file
+# So the defaults file can override everything
+# in here
+
+JAVA_OPTS=""
+
+# Set the Apache Felix Configuration Admin storage directory
+
+JAVA_OPTS="$JAVA_OPTS -Dfelix.cm.dir=/var/lib/package-drone-server/cm"
+
+# The main storage base
+
+DRONE_STORAGE_BASE="/var/lib/package-drone-server/storage"

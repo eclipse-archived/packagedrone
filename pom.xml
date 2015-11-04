@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.eclipse.packagedrone</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.11.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<url>http://packagedrone.org</url>
+	<name>Eclipse Package Drone</name>
+	<inceptionYear>2014</inceptionYear>
+
+	<description>Package Drone is an extensible software artifact repository with a primary focus on OSGi.</description>
+
+	<developers>
+		<developer>
+			<name>Jens Reimann</name>
+			<email>ctron@dentrassi.de</email>
+			<id>ctron</id>
+			<organization>IBH SYSTEMS GmbH</organization>
+			<organizationUrl>http://ibh-systems.com</organizationUrl>
+			<url>http://dentrassi.de</url>
+			<roles>
+				<role>Project Lead</role>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<prerequisites>
+		<maven>3.2</maven>
+	</prerequisites>
+
+	<scm>
+		<connection>scm:git:git://github.com/ctron/package-drone</connection>
+		<url>https://github.com/ctron/package-drone</url>
+	</scm>
+
+	<issueManagement>
+		<url>https://github.com/ctron/package-drone/issues</url>
+		<system>GitHub Issues</system>
+	</issueManagement>
+
+	<licenses>
+		<license>
+			<name>The Eclipse Public License Version 1.0</name>
+			<url>http://www.eclipse.org/legal/epl-v10.html</url>
+			<distribution>manual</distribution>
+		</license>
+	</licenses>
+
+	<properties>
+		<tycho-version>0.22.0</tycho-version>
+		<tycho-extras-version>0.22.0</tycho-extras-version>
+
+		<tycho.scmUrl>scm:git:ssh://github.com/ctron/package-drone</tycho.scmUrl>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>package.drone.runtime</id>
+			<name>Package Drone Runtime</name>
+			<layout>p2</layout>
+			<url>file:${basedir}/../../runtime/target/repository</url>
+		</repository>
+	</repositories>
+
+	<modules>
+
+		<module>bundles/org.apache.jasper.glassfish</module>
+		<module>bundles/org.eclipse.equinox.jsp.jasper</module>
+		<module>bundles/org.tukani.xz</module>
+
+		<module>bundles/org.eclipse.packagedrone</module>
+
+		<module>bundles/org.eclipse.packagedrone.external.maven</module>
+
+		<module>bundles/org.eclipse.packagedrone.job</module>
+		<module>bundles/org.eclipse.packagedrone.job.apm</module>
+		<module>bundles/org.eclipse.packagedrone.job.web</module>
+
+		<module>bundles/org.eclipse.packagedrone.mail</module>
+		<module>bundles/org.eclipse.packagedrone.mail.web</module>
+
+		<module>bundles/org.eclipse.packagedrone.repo</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.deb</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.deb.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.maven</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.maven.tests</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.maven.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.npm</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.p2</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.p2.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.r5</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.r5.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.rpm</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.rpm.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.unzip</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.unzip.tests</module>
+		<module>bundles/org.eclipse.packagedrone.repo.api</module>
+		<module>bundles/org.eclipse.packagedrone.repo.aspect</module>
+		<module>bundles/org.eclipse.packagedrone.repo.aspect.cleanup</module>
+		<module>bundles/org.eclipse.packagedrone.repo.aspect.cleanup.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.aspect.common</module>
+		<module>bundles/org.eclipse.packagedrone.repo.aspect.common.tests</module>
+		<module>bundles/org.eclipse.packagedrone.repo.aspect.mvnosgi</module>
+		<module>bundles/org.eclipse.packagedrone.repo.aspect.mvnosgi.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.aspect.upgrade</module>
+		<module>bundles/org.eclipse.packagedrone.repo.channel</module>
+		<module>bundles/org.eclipse.packagedrone.repo.channel.apm</module>
+		<module>bundles/org.eclipse.packagedrone.repo.channel.apm.tests</module>
+		<module>bundles/org.eclipse.packagedrone.repo.channel.impl</module>
+		<module>bundles/org.eclipse.packagedrone.repo.channel.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.channel.web.description</module>
+		<module>bundles/org.eclipse.packagedrone.repo.generator</module>
+		<module>bundles/org.eclipse.packagedrone.repo.generator.p2</module>
+		<module>bundles/org.eclipse.packagedrone.repo.importer</module>
+		<module>bundles/org.eclipse.packagedrone.repo.importer.aether</module>
+		<module>bundles/org.eclipse.packagedrone.repo.importer.http</module>
+		<module>bundles/org.eclipse.packagedrone.repo.importer.http.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.manage.core</module>
+		<module>bundles/org.eclipse.packagedrone.repo.manage.core.apm</module>
+		<module>bundles/org.eclipse.packagedrone.repo.manage.core.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.manage.setup.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.manage.system</module>
+		<module>bundles/org.eclipse.packagedrone.repo.manage.system.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.manage.todo</module>
+		<module>bundles/org.eclipse.packagedrone.repo.manage.todo.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.manage.usage</module>
+		<module>bundles/org.eclipse.packagedrone.repo.osgi.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.signing</module>
+		<module>bundles/org.eclipse.packagedrone.repo.signing.pgp</module>
+		<module>bundles/org.eclipse.packagedrone.repo.signing.pgp.web</module>
+		<module>bundles/org.eclipse.packagedrone.repo.tests</module>
+		<module>bundles/org.eclipse.packagedrone.repo.utils.osgi</module>
+		<module>bundles/org.eclipse.packagedrone.repo.utils.osgi.tests</module>
+		<module>bundles/org.eclipse.packagedrone.repo.web.analytics</module>
+		<module>bundles/org.eclipse.packagedrone.repo.web.googlebot</module>
+		<module>bundles/org.eclipse.packagedrone.repo.xml</module>
+
+		<module>bundles/org.eclipse.packagedrone.sec</module>
+		<module>bundles/org.eclipse.packagedrone.sec.service</module>
+		<module>bundles/org.eclipse.packagedrone.sec.service.admin</module>
+		<module>bundles/org.eclipse.packagedrone.sec.service.apm</module>
+		<module>bundles/org.eclipse.packagedrone.sec.service.common</module>
+		<module>bundles/org.eclipse.packagedrone.sec.service.core</module>
+		<module>bundles/org.eclipse.packagedrone.sec.web</module>
+		<module>bundles/org.eclipse.packagedrone.sec.web.ui</module>
+
+		<module>bundles/org.eclipse.packagedrone.storage.apm</module>
+		<module>bundles/org.eclipse.packagedrone.storage.apm.config</module>
+		<module>bundles/org.eclipse.packagedrone.storage.apm.tests</module>
+
+		<module>bundles/org.eclipse.packagedrone.utils</module>
+		<module>bundles/org.eclipse.packagedrone.utils.console</module>
+		<module>bundles/org.eclipse.packagedrone.utils.converter</module>
+		<module>bundles/org.eclipse.packagedrone.utils.deb</module>
+		<module>bundles/org.eclipse.packagedrone.utils.deb.tests</module>
+		<module>bundles/org.eclipse.packagedrone.utils.logging.jul</module>
+		<module>bundles/org.eclipse.packagedrone.utils.profiler</module>
+		<module>bundles/org.eclipse.packagedrone.utils.rpm</module>
+		<module>bundles/org.eclipse.packagedrone.utils.rpm.tests</module>
+		<module>bundles/org.eclipse.packagedrone.utils.scheduler</module>
+		<module>bundles/org.eclipse.packagedrone.utils.scheduler.simple</module>
+		<module>bundles/org.eclipse.packagedrone.utils.validation</module>
+		<module>bundles/org.eclipse.packagedrone.utils.validation.hibernate</module>
+		<module>bundles/org.eclipse.packagedrone.utils.xml</module>
+
+		<module>bundles/org.eclipse.packagedrone.web</module>
+		<module>bundles/org.eclipse.packagedrone.web.common</module>
+		<module>bundles/org.eclipse.packagedrone.web.common.ckeditor</module>
+		<module>bundles/org.eclipse.packagedrone.web.dispatcher</module>
+		<module>bundles/org.eclipse.packagedrone.web.forms</module>
+		<module>bundles/org.eclipse.packagedrone.web.tests</module>
+
+		<module>features/org.eclipse.packagedrone.external.feature</module>
+		<module>features/org.eclipse.packagedrone.product.server.feature</module>
+		<module>features/org.eclipse.packagedrone.product.server.root.feature</module>
+		<module>features/org.eclipse.packagedrone.runtime.feature</module>
+		<module>features/org.eclipse.packagedrone.utils.feature</module>
+		<module>features/org.eclipse.packagedrone.web.feature</module>
+
+		<module>products/org.eclipse.packagedrone.server</module>
+	</modules>
+
+	<build>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.9.1</version>
+				<executions>
+					<execution>
+						<id>parse-version</id>
+						<goals>
+							<goal>parse-version</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>1.3.1</version>
+				<executions>
+					<execution>
+						<id>enforce-versions</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireJavaVersion>
+									<version>1.8</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-buildtimestamp-jgit</artifactId>
+						<version>${tycho-extras-version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.eclipse.tycho.extras</groupId>
+						<artifactId>tycho-sourceref-jgit</artifactId>
+						<version>${tycho-extras-version}</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<timestampProvider>jgit</timestampProvider>
+					<jgit.ignore>
+						pom.xml
+						CHANGES.txt
+					</jgit.ignore>
+					<format>yyyyMMdd-HHmm</format>
+					<sourceReferences>
+						<generate>true</generate>
+					</sourceReferences>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<environments>
+						<environment>
+							<os>all</os>
+							<ws>all</ws>
+							<arch>all</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>all</ws>
+							<arch>all</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>1.8</version>
+				</plugin>
+				<plugin>
+					<groupId>org.eclipse.tycho.extras</groupId>
+					<artifactId>tycho-p2-extras-plugin</artifactId>
+					<version>${tycho-extras-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.10.1</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+	</build>
+
+</project>

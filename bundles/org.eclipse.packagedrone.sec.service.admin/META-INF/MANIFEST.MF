@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: God Mode user service
+Bundle-SymbolicName: org.eclipse.packagedrone.sec.service.admin
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Jens Reimann
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.eclipse.packagedrone.sec;version="1.0.0",
+ org.eclipse.packagedrone.sec.service;version="1.0.0",
+ org.eclipse.packagedrone.sec.service.common;version="1.0.0",
+ org.eclipse.scada.utils;version="0.2.0"
+Service-Component: OSGI-INF/godmode.xml

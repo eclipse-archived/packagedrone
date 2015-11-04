@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common security service functionality
+Bundle-SymbolicName: org.eclipse.packagedrone.sec.service.common
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.google.common.escape;version="18.0.0",
+ com.google.common.html;version="18.0.0",
+ com.google.common.io;version="18.0.0",
+ org.eclipse.packagedrone.mail;version="1.0.0",
+ org.eclipse.packagedrone.repo.manage.system;version="1.0.0",
+ org.eclipse.packagedrone.repo.utils;version="1.0.0",
+ org.eclipse.packagedrone.sec;version="1.0.0",
+ org.eclipse.packagedrone.sec.service;version="1.0.0",
+ org.eclipse.scada.utils;version="0.2.0",
+ org.eclipse.scada.utils.str;version="0.2.0",
+ org.osgi.framework;version="1.8.0",
+ org.osgi.util.tracker;version="1.5.1",
+ org.slf4j;version="1.7.2"
+Service-Component: OSGI-INF/security.xml,
+ OSGI-INF/secMail.xml
+Export-Package: org.eclipse.packagedrone.sec.service.common;version="1.0.0";uses:="de.dentrassi.pm.mail.service,de.dentrassi.pm.system"
+Bundle-ActivationPolicy: lazy

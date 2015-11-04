@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.adapter.p2.aspect">
+   <implementation class="org.eclipse.packagedrone.repo.adapter.p2.aspect.P2RepositoryAspect"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.aspect.ChannelAspectFactory"/>
+   </service>
+   <properties entry="OSGI-INF/aspect.properties"/>
+   <property name="drone.aspect.requires" type="String">mime
+hasher
+   </property>
+</scr:component>

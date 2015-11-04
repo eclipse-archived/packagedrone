@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Admin Console
+Bundle-SymbolicName: org.eclipse.packagedrone.utils.console
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Jens Reimann
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Service-Component: OSGI-INF/console.xml
+Import-Package: org.eclipse.scada.utils.str;version="0.2.0",
+ org.osgi.framework;version="1.8.0",
+ org.osgi.service.cm;version="1.5.0"

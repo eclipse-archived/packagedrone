@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Java RPM Library
+Bundle-SymbolicName: org.eclipse.packagedrone.utils.rpm
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.eclipse.packagedrone.utils.rpm;version="1.0.0";uses:="org.apache.commons.compress.archivers.cpio"
+Import-Package: com.google.common.io;version="18.0.0",
+ org.apache.commons.compress.archivers.cpio;version="1.9.0",
+ org.apache.commons.compress.compressors.bzip2;version="1.9.0",
+ org.apache.commons.compress.compressors.gzip;version="1.9.0",
+ org.apache.commons.compress.compressors.lzma;version="1.9.0",
+ org.slf4j;version="1.7.2",
+ org.tukaani.xz;version="1.3.0",
+ org.tukaani.xz.lzma;version="1.5.0"

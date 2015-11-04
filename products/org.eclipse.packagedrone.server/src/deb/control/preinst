@@ -1,0 +1,18 @@
+#!/bin/sh
+
+USER=pdrone
+
+set -e
+
+case "$1" in
+    install)
+        if ! getent passwd "$USER" >/dev/null; then
+            adduser --system --group --home "/var/lib/$USER" "$USER" --quiet --gecos "Package Drone User"
+        fi
+        
+        mkdir -p "/var/lib/$USER"
+        chown -R "$USER:$USER" "/var/lib/$USER"
+    ;;
+esac
+
+exit 0

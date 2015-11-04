@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+	version="2.1">
+
+	<description>Web Framework JSP Tag Library</description>
+	<tlib-version>1.0</tlib-version>
+	<short-name>web</short-name>
+	<uri>http://eclipse.org/package-drone/web</uri>
+
+	<tag>
+		<description>Define a macro</description>
+		<name>define</name>
+		<tag-class>org.eclipse.packagedrone.web.tags.DefineTag</tag-class>
+		<body-content>scriptless</body-content>
+		<attribute>
+			<description>The name of the macro</description>
+			<name>name</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+	</tag>
+
+	<tag>
+		<description>Call a defined macro</description>
+		<name>call</name>
+		<tag-class>org.eclipse.packagedrone.web.tags.CallTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<description>The name of the macro</description>
+			<name>name</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<dynamic-attributes>true</dynamic-attributes>
+	</tag>
+	
+	<tag>
+	   <description>Push content on a stack</description>
+	   <name>push</name>
+	   <tag-class>org.eclipse.packagedrone.web.tags.PushTag</tag-class>
+	   <body-content>scriptless</body-content>
+	   <attribute>
+	       <description>The name of the stack</description>
+	       <name>name</name>
+	       <required>true</required>
+	       <rtexprvalue>true</rtexprvalue>
+	       <type>java.lang.String</type>
+	   </attribute>
+	</tag>
+	
+	<tag>
+       <description>Pop all content from a stack</description>
+       <name>pop</name>
+       <tag-class>org.eclipse.packagedrone.web.tags.PopTag</tag-class>
+       <body-content>empty</body-content>
+       <attribute>
+           <description>The name of the stack</description>
+           <name>name</name>
+           <required>true</required>
+           <rtexprvalue>true</rtexprvalue>
+           <type>java.lang.String</type>
+       </attribute>
+    </tag>
+    
+    <tag>
+        <description>Show number of bytes</description>
+        <name>bytes</name>
+        <tag-class>org.eclipse.packagedrone.web.tags.BytesTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>The number of bytes</description>
+            <name>amount</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Long</type>
+        </attribute>
+    </tag>
+
+	<function>
+		<name>active</name>
+		<function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
+		<function-signature>java.lang.String active(javax.servlet.http.HttpServletRequest,java.lang.String)</function-signature>
+	</function>
+
+	<function>
+		<name>toFirstUpper</name>
+		<function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
+		<function-signature>java.lang.String toFirstUpper(java.lang.String)</function-signature>
+	</function>
+
+	<function>
+		<name>gravatar</name>
+		<function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
+		<function-signature>java.lang.String gravatar(java.lang.String)</function-signature>
+	</function>
+	
+	<function>
+        <name>json</name>
+        <function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
+        <function-signature>java.lang.String json(java.lang.Object)</function-signature>
+    </function>
+    
+    <function>
+        <name>sort</name>
+        <function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
+        <function-signature>java.util.List sort(java.util.Collection)</function-signature>
+    </function>
+    
+    <function>
+        <name>encode</name>
+        <function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
+        <function-signature>java.lang.String encode(java.lang.String)</function-signature>
+    </function>
+</taglib>

@@ -1,0 +1,13 @@
+Description: test for generating md5 of description
+ This is a test description in order to verify
+ the correct calculation of the MD5 checksum.
+ .
+ The description field has its own checkum,
+ contained in the field named "Description-md5".
+ .
+ The reason for this may be:
+  * Because we can
+  * Because it helps
+  * Because its fun
+Foo: bar
+More-foo: more bar

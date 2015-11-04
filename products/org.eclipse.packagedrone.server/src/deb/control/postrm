@@ -1,0 +1,19 @@
+#!/bin/sh
+
+USER=pdrone
+
+set -e
+
+case "$1" in
+    purge)
+        if which deluser >/dev/null 2>&1; then
+            deluser --quiet "$USER" > /dev/null || true
+        fi
+        
+        delgroup --quiet "$USER" > /dev/null || true
+
+        rm -r "/var/lib/$USER" || true
+    ;;
+esac
+
+exit 0

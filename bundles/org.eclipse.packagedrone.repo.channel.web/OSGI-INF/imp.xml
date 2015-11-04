@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" name="org.eclipse.packagedrone.repo.channel.web.importController">
+   <implementation class="org.eclipse.packagedrone.repo.channel.web.channel.ImportController"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.web.common.InterfaceExtender"/>
+   </service>
+   <reference bind="setService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.channel.ChannelService" name="ChannelService" policy="static"/>
+   <reference bind="setJobManager" cardinality="1..1" interface="org.eclipse.packagedrone.job.JobManager" name="JobManager" policy="static"/>
+</scr:component>

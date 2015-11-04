@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" name="org.eclipse.packagedrone.sec.service.apm">
+   <implementation class="org.eclipse.packagedrone.sec.service.apm.DatabaseUserService"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.sec.UserStorage"/>
+      <provide interface="org.eclipse.packagedrone.sec.service.UserService"/>
+      <provide interface="org.eclipse.packagedrone.utils.scheduler.ScheduledTask"/>
+   </service>
+   <property name="scheduler.period.ms" type="Long" value="60000"/>
+   <reference bind="setPasswordChecker" cardinality="1..1" interface="org.eclipse.packagedrone.sec.service.password.PasswordChecker" name="PasswordChecker" policy="static"/>
+   <reference bind="setStorageManager" cardinality="1..1" interface="org.eclipse.packagedrone.storage.apm.StorageManager" name="StorageManager" policy="static"/>
+   <reference bind="setSecurityMailService" cardinality="1..1" interface="org.eclipse.packagedrone.sec.service.common.SecurityMailService" name="SecurityMailService" policy="static"/>
+</scr:component>

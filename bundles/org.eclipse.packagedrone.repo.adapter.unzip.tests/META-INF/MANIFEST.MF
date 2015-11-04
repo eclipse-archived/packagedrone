@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests for 'de.dentrassi.pm.unzip'
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.adapter.unzip.tests
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: org.eclipse.packagedrone.repo.adapter.unzip
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit;bundle-version="4.11.0"

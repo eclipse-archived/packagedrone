@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+    version="2.1">
+
+    <tlib-version>1.0</tlib-version>
+    <short-name>job</short-name>
+    <uri>http://dentrassi.de/osgi/job</uri>
+
+    <tag-file>
+        <name>monitor</name>
+        <path>/META-INF/tags/jobs/monitor.tag</path>
+    </tag-file>
+    
+</taglib>

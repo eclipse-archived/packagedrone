@@ -1,0 +1,6 @@
+Export-Package: de.dentrassi.pm.aspect.common.osgi;version="1.0.0";
+  uses:="org.w3c.dom,
+   de.dentrassi.pm.aspect,
+   de.dentrassi.pm.osgi,
+   de.dentrassi.pm.aspect.extract,
+   de.dentrassi.pm.aspect.virtual"

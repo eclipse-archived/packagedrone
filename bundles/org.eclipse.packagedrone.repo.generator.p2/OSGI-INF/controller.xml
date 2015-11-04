@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" name="org.eclipse.packagedrone.repo.generator.p2.controller">
+   <implementation class="org.eclipse.packagedrone.repo.generator.p2.GeneratorController"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.generator.p2.GeneratorController"/>
+   </service>
+   <reference bind="setService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.channel.ChannelService" name="StorageService" policy="static"/>
+</scr:component>

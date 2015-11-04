@@ -1,0 +1,12 @@
+# Package drone is an application which brings all JARs in
+# a directory layout for Equinox
+
+package-drone-server binary: jar-not-in-usr-share
+
+# Yes, Java 8 is unknown, still it works that way
+
+package-drone-server binary: unknown-java-class-version
+
+# A codeless jar should never be an issue
+
+package-drone-server binary: codeless-jar

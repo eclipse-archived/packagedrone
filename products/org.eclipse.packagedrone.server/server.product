@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="Eclipse Package Drone Server" uid="org.eclipse.packagedrone.server" version="0.11.0.m3" useFeatures="true" includeLaunchers="false">
+
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-consoleLog -console
+      </programArgs>
+      <vmArgs>-Dosgi.requiredJavaVersion=1.8
+      </vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
+      </vmArgsMac>
+   </launcherArgs>
+
+   <windowImages/>
+
+
+   <launcher>
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+
+   <vm>
+   </vm>
+
+   <plugins>
+   </plugins>
+
+   <features>
+      <feature id="org.eclipse.packagedrone.product.server"/>
+      <feature id="org.eclipse.packagedrone.product.server.root"/>
+      <feature id="org.eclipse.packagedrone.runtime"/>
+      <feature id="org.eclipse.packagedrone.external"/>
+      <feature id="org.eclipse.packagedrone.utils"/>
+      <feature id="org.eclipse.packagedrone.web"/>
+   </features>
+
+   <configurations>
+      <plugin id="org.apache.aries.spifly.dynamic.bundle" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.aries.util" autoStart="true" startLevel="0" />
+      <plugin id="org.apache.felix.configadmin" autoStart="true" startLevel="6" />
+      <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.jetty.http" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.io" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.schemas" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.security" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.server" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.servlet" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.util" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.webapp" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.jetty.xml" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.job" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.job.apm" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.job.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.mail" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.mail.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.deb" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.deb.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.maven" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.maven.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.npm" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.p2" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.p2.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.r5" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.r5.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.rpm" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.rpm.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.adapter.unzip" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.api" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.aspect" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.aspect.cleanup" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.aspect.cleanup.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.aspect.common" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.aspect.mvnosgi" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.aspect.mvnosgi.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.aspect.upgrade" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.channel" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.channel.apm" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.channel.impl" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.channel.web" autoStart="false" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.channel.web.description" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.generator" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.generator.p2" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.importer" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.importer.aether" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.importer.http" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.importer.http.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.manage.core" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.manage.core.apm" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.manage.core.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.manage.setup.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.manage.system" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.manage.system.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.manage.todo" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.manage.todo.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.manage.usage" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.osgi.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.signing" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.signing.pgp" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.signing.pgp.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.utils.osgi" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.web.analytics" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.web.googlebot" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.xml" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.packagedrone.sec" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.sec.service" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.sec.service.admin" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.sec.service.apm" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.sec.service.common" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.sec.service.core" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.sec.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.sec.web.ui" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.storage.apm" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.storage.apm.config" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.console" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.converter" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.deb" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.logging.jul" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.packagedrone.utils.profiler" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.rpm" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.scheduler" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.scheduler.simple" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.validation" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.validation.hibernate" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.utils.xml" autoStart="true" startLevel="1" />
+      <plugin id="org.eclipse.packagedrone.web" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.web.common" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.web.common.ckeditor" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.web.dispatcher" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.packagedrone.web.forms" autoStart="true" startLevel="0" />
+      <plugin id="org.ops4j.pax.web.pax-web-api" autoStart="true" startLevel="5" />
+      <plugin id="org.ops4j.pax.web.pax-web-extender-whiteboard" autoStart="true" startLevel="5" />
+      <plugin id="org.ops4j.pax.web.pax-web-jetty" autoStart="true" startLevel="5" />
+      <plugin id="org.ops4j.pax.web.pax-web-runtime" autoStart="true" startLevel="5" />
+      <plugin id="org.ops4j.pax.web.pax-web-spi" autoStart="true" startLevel="5" />
+      <property name="eclipse.ignoreApp" value="true" />
+      <property name="logback.configurationFile" value="platform:/base/logback.xml" />
+      <property name="osgi.noShutdown" value="true" />
+      <property name="osgi.startLevel" value="10" />
+   </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
+
+</product>

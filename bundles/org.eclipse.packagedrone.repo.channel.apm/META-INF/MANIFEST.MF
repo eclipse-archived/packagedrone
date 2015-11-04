@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: APM based channel storage
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.channel.apm
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Service-Component: OSGI-INF/provider.xml
+Import-Package: com.google.common.io;version="18.0.0",
+ com.google.gson;version="2.3.1",
+ org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect.aggregate;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect.extract;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect.listener;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect.virtual;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel.provider;version="1.0.0",
+ org.eclipse.packagedrone.repo.event;version="1.0.0",
+ org.eclipse.packagedrone.repo.generator;version="1.0.0",
+ org.eclipse.packagedrone.repo.utils;version="1.0.0",
+ org.eclipse.packagedrone.storage.apm;version="1.0.0",
+ org.eclipse.packagedrone.storage.apm.util;version="1.0.0",
+ org.eclipse.packagedrone.utils;version="1.0.0",
+ org.eclipse.packagedrone.utils.profiler;version="1.0.0",
+ org.eclipse.scada.utils.io;version="0.2.0",
+ org.osgi.framework;version="1.8.0",
+ org.osgi.service.event;version="1.3.1",
+ org.slf4j;version="1.7.2"
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.eclipse.packagedrone.repo.channel.apm.internal.Activator

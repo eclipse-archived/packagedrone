@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.manage.usage.controller">
+   <implementation class="org.eclipse.packagedrone.repo.manage.usage.UsageController"/>
+   <reference bind="setPingJob" cardinality="1..1" interface="org.eclipse.packagedrone.repo.manage.usage.PingJob" name="PingJob" policy="static"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.web.common.InterfaceExtender"/>
+   </service>
+</scr:component>

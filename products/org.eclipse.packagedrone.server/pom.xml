@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.packagedrone</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.11.0-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
+	</parent>
+
+	<version>0.11.0.m3</version>
+	<groupId>org.eclipse.packagedrone.products</groupId>
+	<artifactId>package-drone-server</artifactId>
+	<packaging>eclipse-repository</packaging>
+	
+	<properties>
+	   <releaseBase>1</releaseBase>
+	   <productName>org.eclipse.packagedrone.server</productName>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-repository-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<includeAllDependencies>true</includeAllDependencies>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<formats>
+						<win32>zip</win32>
+						<linux>tar.gz</linux>
+						<macosx>tar.gz</macosx>
+					</formats>
+				</configuration>
+				<executions>
+					<execution>
+						<id>materialize-products</id>
+						<goals>
+							<goal>materialize-products</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>archive-products</id>
+						<goals>
+							<goal>archive-products</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<configuration>
+							<target>
+								<copy
+									file="${project.build.directory}/products/${productName}-all.all.all.zip"
+									tofile="${project.build.directory}/${project.artifactId}-${project.version}.zip" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- jdeb -->
+
+			<plugin>
+				<artifactId>jdeb</artifactId>
+				<groupId>org.vafer</groupId>
+				<version>1.3</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jdeb</goal>
+						</goals>
+						<configuration>
+							<snapshotExpand>true</snapshotExpand>
+							<dataSet>
+								<data>
+									<!-- we need a tar.gz for permissions -->
+									<src>${project.build.directory}/products/${productName}-linux.all.all.tar.gz</src>
+									<type>archive</type>
+									<mapper>
+										<type>perm</type>
+										<prefix>/usr/lib/${project.artifactId}/instance</prefix>
+										<user>pdrone</user>
+										<group>pdrone</group>
+									</mapper>
+								</data>
+
+								<data>
+									<src>src/default/${project.artifactId}</src>
+									<dst>etc/default/${project.artifactId}</dst>
+									<type>file</type>
+									<conffile>true</conffile>
+									<mapper>
+										<type>perm</type>
+										<user>root</user>
+										<group>root</group>
+									</mapper>
+								</data>
+								
+                                <data>
+                                    <src>src/default/profile</src>
+                                    <dst>usr/lib/${project.artifactId}/profile</dst>
+                                    <type>file</type>
+                                    <conffile>false</conffile>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <user>root</user>
+                                        <group>root</group>
+                                    </mapper>
+                                </data>
+
+								<data>
+									<src>src/deb/${project.artifactId}.conf</src>
+									<dst>etc/init/${project.artifactId}.conf</dst>
+									<type>file</type>
+									<conffile>true</conffile>
+									<mapper>
+										<type>perm</type>
+										<user>root</user>
+										<group>root</group>
+									</mapper>
+								</data>
+								
+								<data>
+								    <type>template</type>
+								    <paths>
+								        <path>var/lib/${project.artifactId}</path>
+								    </paths>
+								    <mapper>
+								        <type>perm</type>
+								        <user>pdrone</user>
+								        <group>pdrone</group>
+								        <dirmode>0750</dirmode>
+								    </mapper>
+								</data>
+
+								<data>
+									<src>src/deb/copyright</src>
+									<dst>usr/share/doc/${project.artifactId}/copyright</dst>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<user>root</user>
+										<group>root</group>
+									</mapper>
+								</data>
+
+								<data>
+									<src>src/deb/lintian-overrides</src>
+									<dst>usr/share/lintian/overrides/${project.artifactId}</dst>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<user>root</user>
+										<group>root</group>
+									</mapper>
+								</data>
+							</dataSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rpm-maven-plugin</artifactId>
+				<version>2.1.2</version>
+
+				<configuration>
+					<license>EPL</license>
+					<distribution>Package Drone</distribution>
+					<summary>An extensible software artifact repository</summary>
+					<url>http://packagedrone.org</url>
+					<group>System Environment/Daemons</group>
+
+					<defaultUsername>root</defaultUsername>
+					<defaultGroupname>root</defaultGroupname>
+
+					<release>${releaseBase}.%{?dist}</release>
+				</configuration>
+
+				<executions>
+					<execution>
+						<id>attach-rpm-centos7</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached-rpm</goal>
+						</goals>
+						<configuration>
+
+							<defineStatements>
+								<defineStatement>dist el7</defineStatement>
+							</defineStatements>
+
+							<workarea>${project.build.directory}/rpm.el7</workarea>
+
+							<requires>
+								<require>systemd</require>
+								<require>firewalld</require>
+
+								<!-- right now we cannot add a dependency to java, since the official 
+									java packages don't provide a generic "provide" capability which could be 
+									queried. We would be required to add a dependency to a package name which 
+									even includes the version number of java. So this would not allow the user 
+									to install any updated java version, but fix it to a specific minor version. -->
+								<!-- <require>jre &gt;= 1.8.0</require> -->
+							</requires>
+
+							<prereqs>
+								<!-- for the command "getent" -->
+								<require>glibc-common</require>
+
+								<!-- for the "adduser" scripts -->
+								<prereq>shadow-utils</prereq>
+							</prereqs>
+
+							<distribution>centos7</distribution>
+
+							<mappings>
+
+								<mapping>
+									<directory>/usr/lib/${project.artifactId}</directory>
+									<username>pdrone</username>
+									<groupname>pdrone</groupname>
+								</mapping>
+
+								<mapping>
+									<directory>/usr/lib/${project.artifactId}/instance</directory>
+									<username>pdrone</username>
+									<groupname>pdrone</groupname>
+									<sources>
+										<source>
+											<location>target/products/${productName}/all/all/all</location>
+											<excludes>
+												<exclude>eclipse.ini</exclude><!-- not needed -->
+											</excludes>
+										</source>
+									</sources>
+								</mapping>
+
+								<mapping>
+									<directory>/etc/default</directory>
+									<directoryIncluded>false</directoryIncluded>
+									<configuration>true</configuration>
+									<username>root</username>
+									<groupname>root</groupname>
+									<sources>
+										<source>
+											<location>src/default/${project.artifactId}</location>
+										</source>
+									</sources>
+								</mapping>
+								
+                                <mapping>
+                                    <directory>/usr/lib/${project.artifactId}</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <configuration>false</configuration>
+                                    <sources>
+                                        <source>
+                                            <location>src/default/profile</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+								<mapping>
+									<directory>/usr/lib/systemd/system</directory>
+									<username>root</username>
+									<groupname>root</groupname>
+									<directoryIncluded>false</directoryIncluded>
+									<sources>
+										<source>
+											<location>src/systemd</location>
+										</source>
+									</sources>
+								</mapping>
+
+								<mapping>
+									<directory>/etc/firewalld/services</directory>
+									<configuration>true</configuration>
+									<username>root</username>
+									<groupname>root</groupname>
+									<filemode>0640</filemode>
+									<directoryIncluded>false</directoryIncluded>
+									<sources>
+										<source>
+											<location>src/firewalld/${project.artifactId}.xml</location>
+										</source>
+									</sources>
+								</mapping>
+								
+								<mapping>
+								    <directory>/var/lib/${project.artifactId}</directory>
+								    <username>pdrone</username>
+								    <groupname>pdrone</groupname>
+								    <directoryIncluded>true</directoryIncluded>
+								    <filemode>0750</filemode>
+								</mapping>
+
+							</mappings>
+
+							<preinstallScriptlet>
+								<script><![CDATA[
+if ! getent passwd pdrone >/dev/null; then
+    # create new user
+    useradd --system --user-group --home /var/lib/pdrone --comment "Package Drone Daemon User" pdrone
+fi
+mkdir -p /var/lib/pdrone
+chown -R pdrone:pdrone /var/lib/pdrone
+]]></script>
+							</preinstallScriptlet>
+
+							<postinstallScriptlet>
+								<script><![CDATA[
+if [ $1 -eq 1 ] ; then
+    systemctl preset package-drone.service >/dev/null 2>&1 || :
+    /usr/bin/firewall-cmd --reload >/dev/null || :
+    /usr/bin/firewall-cmd --permanent --add-service=package-drone-server >/dev/null || :
+    /usr/bin/firewall-cmd --reload >/dev/null || :
+else
+    systemctl try-restart package-drone-server >/dev/null || :
+fi
+]]></script>
+							</postinstallScriptlet>
+
+							<preremoveScriptlet>
+								<script><![CDATA[
+if [ $1 -eq 0 ] ; then
+    systemctl --no-reload --user --global disable package-drone.service > /dev/null 2>&1 || :
+fi
+]]>
+								</script>
+							</preremoveScriptlet>
+
+							<postremoveScriptlet>
+								<script><![CDATA[
+if [ "$1" -eq 0 ]; then
+    # this is the final uninstall
+    if which userdel >/dev/null 2>&1; then
+        userdel pdrone > /dev/null || :
+    fi
+    # delete group if it still exists
+    getent group pdrone>/dev/null && groupdel pdrone > /dev/null || :
+    
+    /usr/bin/firewall-cmd --permanent --remove-service=package-drone-server > /dev/null || :
+    /usr/bin/firewall-cmd --reload > /dev/null || :
+fi
+
+systemctl daemon-reload >/dev/null 2>&1 || :
+]]></script>
+							</postremoveScriptlet>
+
+						</configuration>
+					</execution>
+
+					<!-- centos 6 -->
+
+					<execution>
+						<id>attach-rpm-centos6</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached-rpm</goal>
+						</goals>
+						<configuration>
+
+							<defineStatements>
+								<defineStatement>dist el6</defineStatement>
+							</defineStatements>
+
+							<workarea>${project.build.directory}/rpm.el6</workarea>
+
+							<requires>
+							</requires>
+
+							<prereqs>
+								<!-- for the command "getent" -->
+								<require>glibc-common</require>
+
+								<!-- for the "adduser" scripts -->
+								<prereq>shadow-utils</prereq>
+							</prereqs>
+
+							<requires>
+								<require>lsb-core-noarch &gt;= 4.0</require>
+							</requires>
+
+							<distribution>centos6</distribution>
+
+							<mappings>
+
+								<mapping>
+									<directory>/etc/init.d</directory>
+									<configuration>true</configuration>
+									<username>root</username>
+									<groupname>root</groupname>
+									<filemode>07550</filemode>
+									<directoryIncluded>false</directoryIncluded>
+									<sources>
+										<source>
+											<location>src/sysv/${project.artifactId}</location>
+										</source>
+									</sources>
+								</mapping>
+
+								<mapping>
+									<directory>/usr/lib/${project.artifactId}</directory>
+									<username>pdrone</username>
+									<groupname>pdrone</groupname>
+								</mapping>
+
+								<mapping>
+									<directory>/usr/lib/${project.artifactId}/instance</directory>
+									<username>pdrone</username>
+									<groupname>pdrone</groupname>
+									<sources>
+										<source>
+											<location>target/products/${productName}/all/all/all</location>
+											<excludes>
+												<exclude>eclipse.ini</exclude><!-- not needed -->
+											</excludes>
+										</source>
+									</sources>
+								</mapping>
+
+								<mapping>
+									<directory>/var/run/package-drone-server</directory>
+									<username>pdrone</username>
+									<groupname>pdrone</groupname>
+									<filemode>0750</filemode>
+								</mapping>
+
+								<mapping>
+									<directory>/etc/default</directory>
+									<directoryIncluded>false</directoryIncluded>
+									<configuration>true</configuration>
+									<username>root</username>
+									<groupname>root</groupname>
+									<sources>
+										<source>
+											<location>src/default/${project.artifactId}</location>
+										</source>
+									</sources>
+								</mapping>
+								
+                                <mapping>
+                                    <directory>/usr/lib/${project.artifactId}</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <configuration>false</configuration>
+                                    <sources>
+                                        <source>
+                                            <location>src/default/profile</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+								
+                                <mapping>
+                                    <directory>/var/lib/${project.artifactId}</directory>
+                                    <username>pdrone</username>
+                                    <groupname>pdrone</groupname>
+                                    <directoryIncluded>true</directoryIncluded>
+                                    <filemode>0750</filemode>
+                                </mapping>
+
+							</mappings>
+
+							<preinstallScriptlet>
+								<script><![CDATA[
+if ! getent passwd pdrone >/dev/null; then
+    # create new user
+    useradd --system --user-group --shell /sbin/nologin --home /var/lib/pdrone --comment "Package Drone Daemon User" pdrone
+fi
+mkdir -p /var/lib/pdrone
+chown -R pdrone:pdrone /var/lib/pdrone
+
+test -x /etc/init.d/package-drone-server && /etc/init.d/package-drone-server stop || :
+]]></script>
+							</preinstallScriptlet>
+
+							<postinstallScriptlet>
+								<script><![CDATA[
+/sbin/chkconfig --add package-drone-server
+/sbin/chkconfig package-drone-server && /etc/init.d/package-drone-server start || :
+]]></script>
+							</postinstallScriptlet>
+
+							<preremoveScriptlet>
+								<script><![CDATA[
+if [ "$1" -eq 0 ] ; then
+    chkconfig --del package-drone-server || :
+    /etc/init.d/package-drone-server stop || :
+fi
+]]>
+								</script>
+							</preremoveScriptlet>
+
+							<postremoveScriptlet>
+								<script><![CDATA[
+if [ "$1" -eq 0 ]; then
+    # this is the final uninstall
+    if which userdel >/dev/null 2>&1; then
+        userdel pdrone > /dev/null || :
+    fi
+    # delete group if it still exists
+    getent group pdrone>/dev/null && groupdel pdrone > /dev/null || :
+fi
+]]></script>
+							</postremoveScriptlet>
+
+						</configuration>
+					</execution>
+
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>jdeb-sign</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>jdeb</artifactId>
+						<groupId>org.vafer</groupId>
+						<version>1.3</version>
+						<configuration>
+							<signPackage>true</signPackage>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.3.2</version>
+						<executions>
+							<execution>
+								<id>sign-el7</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>bash</executable>
+									<arguments>
+										<argument>-c</argument>
+										<argument><![CDATA[echo "" | rpmsign --addsign "${project.build.directory}/rpm.el7/${project.artifactId}/RPMS/noarch/${project.artifactId}-${project.version}-${releaseBase}.el7.noarch.rpm" && cp "${project.build.directory}/rpm.el7/${project.artifactId}/RPMS/noarch/${project.artifactId}-${project.version}-${releaseBase}.el7.noarch.rpm" ${project.build.directory}/]]></argument>
+									</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>sign-el6</id>
+								<phase>package</phase>
+								<goals>
+									<goal>exec</goal>
+								</goals>
+								<configuration>
+									<executable>bash</executable>
+									<arguments>
+										<argument>-c</argument>
+										<argument><![CDATA[echo "" | rpmsign --addsign "${project.build.directory}/rpm.el6/${project.artifactId}/RPMS/noarch/${project.artifactId}-${project.version}-${releaseBase}.el6.noarch.rpm" && cp "${project.build.directory}/rpm.el6/${project.artifactId}/RPMS/noarch/${project.artifactId}-${project.version}-${releaseBase}.el6.noarch.rpm" ${project.build.directory}/ ]]></argument>
+									</arguments>
+								</configuration>
+							</execution>
+						</executions>
+
+					</plugin>
+
+				</plugins>
+			</build>
+
+		</profile>
+
+	</profiles>
+
+</project>

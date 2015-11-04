@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Core Service
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.manage.core
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Jens Reimann
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.eclipse.packagedrone.repo;version="1.0.0"
+Export-Package: org.eclipse.packagedrone.repo.manage.core;version="1.0.0"
+

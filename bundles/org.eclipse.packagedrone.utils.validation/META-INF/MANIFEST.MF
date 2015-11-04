@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Validation
+Bundle-SymbolicName: org.eclipse.packagedrone.utils.validation
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Jens Reimann
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: javax.validation;version="1.1.0.Final",
+ javax.validation.bootstrap;version="1.1.0.Final",
+ javax.validation.metadata;version="1.1.0.Final",
+ javax.validation.spi;version="1.1.0.Final",
+ org.eclipse.scada.utils.str;version="0.2.0",
+ org.osgi.framework;version="1.8.0",
+ org.osgi.framework.wiring;version="1.2.0",
+ org.osgi.util.tracker;version="1.5.1"
+Export-Package: org.eclipse.packagedrone.utils.validation;version="1.0.0",
+ org.eclipse.packagedrone.utils.validation.constraints;version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.eclipse.packagedrone.utils.validation.ValidationBundle

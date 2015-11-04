@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Simple Scheduler
+Bundle-SymbolicName: org.eclipse.packagedrone.utils.scheduler.simple
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: Jens Reimann
+Service-Component: OSGI-INF/simple.xml
+Import-Package: org.eclipse.packagedrone.utils.scheduler;version="1.0.0",
+ org.osgi.framework;version="1.8.0",
+ org.osgi.util.tracker,
+ org.slf4j;version="1.7.2"
+Bundle-ActivationPolicy: lazy

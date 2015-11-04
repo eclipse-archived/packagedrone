@@ -1,0 +1,10 @@
+This is the verification e-mail for your Package Drone account.
+
+Click on the following link to complete the registration process:
+
+<${link}>
+
+Sincerely yours,
+Package Drone
+
+PS: If you did not create an account you can simply ignore this message.

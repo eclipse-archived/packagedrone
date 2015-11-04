@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.manage.system.sitePrefix">
+   <implementation class="org.eclipse.packagedrone.repo.manage.system.internal.SitePrefixServiceImpl"/>
+   <reference bind="setCoreService" cardinality="0..1" interface="org.eclipse.packagedrone.repo.manage.core.CoreService" name="CoreService" policy="dynamic" unbind="unsetCoreService"/>
+   <reference bind="setSystemService" cardinality="0..1" interface="org.eclipse.packagedrone.repo.manage.system.SystemService" name="SystemService" policy="dynamic" unbind="unsetSystemService"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.manage.system.SitePrefixService"/>
+   </service>
+</scr:component>

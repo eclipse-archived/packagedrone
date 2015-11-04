@@ -1,0 +1,8 @@
+# this is the package drone defaults file
+
+# Specify additional java command line arguments
+# This can be used in order to tune the garbage collector
+# or to set system properties
+# e.g. JAVA_OPTS="-Dpackage.drone.foo=bar"
+
+# JAVA_OPTS=""

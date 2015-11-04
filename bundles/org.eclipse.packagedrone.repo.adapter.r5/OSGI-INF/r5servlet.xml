@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.adapter.r5.servlet">
+   <implementation class="org.eclipse.packagedrone.repo.adapter.r5.internal.R5Servlet"/>
+   <property name="alias" type="String" value="/r5"/>
+   <service>
+      <provide interface="javax.servlet.Servlet"/>
+   </service>
+</scr:component>

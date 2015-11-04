@@ -1,0 +1,26 @@
+Package: org.eclipse.scada.base.p2-incubation
+Status: install ok installed
+Priority: optional
+Section: misc
+Installed-Size: 1100
+Maintainer: Jens Reimann <jens.reimann@ibh-systems.com>
+Architecture: all
+Version: 0.2.0~SNAPSHOT
+Depends: org.eclipse.scada, org.eclipse.scada.external.p2-incubation
+Conffiles:
+ /file1 1234
+ /file2 1234
+Description: Eclipse SCADA P2 Repository - org.eclipse.scada.base.p2-incubation
+
+Package: bar
+Status: install ok installed
+Priority: optional
+Section: misc
+Installed-Size: 1100
+Maintainer: Jens Reimann <jens.reimann@ibh-systems.com>
+Architecture: all
+Version: 1.2.3
+Conffiles:
+ /file1 1234
+ /file2 1234
+Description: Another foo bar package

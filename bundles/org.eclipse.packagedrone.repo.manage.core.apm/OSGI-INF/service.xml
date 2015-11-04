@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" deactivate="stop" name="org.eclipse.packagedrone.repo.manage.core.apm">
+   <implementation class="org.eclipse.packagedrone.repo.manage.core.apm.CoreServiceImpl"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.manage.core.CoreService"/>
+   </service>
+   <reference bind="setStorageManager" cardinality="1..1" interface="org.eclipse.packagedrone.storage.apm.StorageManager" name="StorageManager" policy="static"/>
+</scr:component>

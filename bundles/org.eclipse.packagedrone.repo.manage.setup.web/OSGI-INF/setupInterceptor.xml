@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.manage.setup.web.SetupInterceptor">
+   <implementation class="org.eclipse.packagedrone.repo.manage.setup.web.SetupInterceptor"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.web.interceptor.Interceptor"/>
+   </service>
+   <property name="service.ranking" type="Integer" value="-10000"/>
+</scr:component>

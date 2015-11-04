@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.signing.pgp.web.controller">
+   <implementation class="org.eclipse.packagedrone.repo.signing.pgp.web.ServiceController"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.signing.pgp.web.ServiceController"/>
+      <provide interface="org.eclipse.packagedrone.web.common.InterfaceExtender"/>
+   </service>
+   <reference bind="setManager" cardinality="1..1" interface="org.eclipse.packagedrone.repo.signing.pgp.web.ServiceManager" name="ServiceManager" policy="static"/>
+</scr:component>

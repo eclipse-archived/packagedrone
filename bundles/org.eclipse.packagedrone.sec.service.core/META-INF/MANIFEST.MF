@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Core Security Impl
+Bundle-SymbolicName: org.eclipse.packagedrone.sec.service.core
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Jens Reimann
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.repo.manage.core;version="1.0.0",
+ org.eclipse.packagedrone.sec.service.password
+Service-Component: OSGI-INF/coreCheck.xml

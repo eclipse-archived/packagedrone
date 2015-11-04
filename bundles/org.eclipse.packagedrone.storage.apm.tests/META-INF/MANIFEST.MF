@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Unit tests for 'de.dentrassi.pm.apm'
+Bundle-SymbolicName: org.eclipse.packagedrone.storage.apm.tests
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: org.eclipse.packagedrone.storage.apm
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: IBH SYSTEMS GmbH
+Require-Bundle: org.junit
+Import-Package: org.eclipse.scada.utils.io

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.web.analytics.config">
+   <implementation class="org.eclipse.packagedrone.repo.web.analytics.ConfigController"/>
+   <reference bind="setService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.manage.core.CoreService" name="CoreService" policy="static"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.web.common.InterfaceExtender"/>
+   </service>
+</scr:component>

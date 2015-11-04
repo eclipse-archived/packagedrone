@@ -1,0 +1,335 @@
+/*******************************************************************************
+ * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Markus Rathgeb - support multiple POMs per artifact
+ *******************************************************************************/
+package org.eclipse.packagedrone.repo.adapter.maven.internal;
+
+import static org.eclipse.packagedrone.repo.XmlHelper.addElement;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.io.FilenameUtils;
+import org.eclipse.packagedrone.VersionInformation;
+import org.eclipse.packagedrone.repo.MetaKey;
+import org.eclipse.packagedrone.repo.MetaKeys;
+import org.eclipse.packagedrone.repo.XmlHelper;
+import org.eclipse.packagedrone.repo.adapter.maven.ChannelData;
+import org.eclipse.packagedrone.repo.adapter.maven.MavenInformation;
+import org.eclipse.packagedrone.repo.aspect.aggregate.AggregationContext;
+import org.eclipse.packagedrone.repo.aspect.aggregate.ChannelAggregator;
+import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+import org.eclipse.packagedrone.repo.manage.system.SitePrefixService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+public class MavenRepositoryChannelAggregator implements ChannelAggregator
+{
+    private final static Logger logger = LoggerFactory.getLogger ( MavenRepositoryChannelAggregator.class );
+
+    private final XmlHelper xml = new XmlHelper ();
+
+    private static final String NL = "\n";
+
+    private final SitePrefixService sitePrefixService;
+
+    public MavenRepositoryChannelAggregator ( final SitePrefixService sitePrefixService )
+    {
+        this.sitePrefixService = sitePrefixService;
+    }
+
+    @Override
+    public Map<String, String> aggregateMetaData ( final AggregationContext context ) throws Exception
+    {
+        final Map<String, ArtifactInformation> map = makeMap ( context.getArtifacts () );
+
+        final Map<String, String> result = new HashMap<> ();
+
+        final ChannelData cs = new ChannelData ();
+
+        final Set<String> groupIds = new HashSet<> ();
+
+        for ( final ArtifactInformation art : context.getArtifacts () )
+        {
+            final Collection<MavenInformation> infos = getInfos ( art, map );
+
+            if ( logger.isDebugEnabled () )
+            {
+                logger.debug ( "Found {} coordinates for {}", infos.size (), art );
+                for ( final MavenInformation info : infos )
+                {
+                    logger.debug ( "   {}", info );
+                }
+            }
+
+            for ( final MavenInformation info : infos )
+            {
+                // add
+                try
+                {
+                    cs.add ( info, art );
+                    groupIds.add ( info.getGroupId () );
+                }
+                catch ( final IllegalStateException ex )
+                {
+                    // Cannot add the same information made name (info.makeName()) multiple times.
+                    // First-come, first-served.
+
+                    // but log it for debugging
+                    logger.debug ( "Failed to add " + info, ex );
+                }
+            }
+        }
+
+        String json = cs.toJson ();
+        result.put ( "channel", json );
+
+        json = cs.toString ();
+        context.createCacheEntry ( "channel", "channel.json", "application/json", new ByteArrayInputStream ( json.getBytes ( StandardCharsets.UTF_8 ) ) );
+        context.createCacheEntry ( "repo-metadata", "repository-metadata.xml", "text/xml", ( stream ) -> {
+            try
+            {
+                this.xml.write ( makeRepoMetaData ( context ), stream );
+            }
+            catch ( final Exception e )
+            {
+                throw new IOException ( e );
+            }
+        } );
+        context.createCacheEntry ( "prefixes", "prefixes.txt", "text/plain", ( stream ) -> makePrefixes ( stream, groupIds ) );
+
+        return result;
+    }
+
+    private void makePrefixes ( final OutputStream stream, final Set<String> groupIds ) throws IOException
+    {
+        final OutputStreamWriter writer = new OutputStreamWriter ( stream, StandardCharsets.UTF_8 );
+
+        writer.write ( "## repository-prefixes/2.0" + NL );
+        writer.write ( "#" + NL );
+        writer.write ( "# Generated by Package Drone " + VersionInformation.VERSION + NL );
+
+        final String[] groups = groupIds.toArray ( new String[groupIds.size ()] );
+        Arrays.sort ( groups );
+        for ( final String groupId : groups )
+        {
+            writer.write ( "/" );
+            writer.write ( groupId.replace ( ".", "/" ) );
+            writer.write ( NL );
+        }
+
+        writer.close ();
+    }
+
+    /**
+     * Create the repository meta data file, for scraping
+     *
+     * @param context
+     * @return the document
+     */
+    private Document makeRepoMetaData ( final AggregationContext context )
+    {
+        final Document doc = this.xml.create ();
+
+        // create document
+
+        final Element root = doc.createElement ( "repository-metadata" );
+        doc.appendChild ( root );
+
+        addElement ( root, "version", "1.0.0" );
+        addElement ( root, "id", context.getChannelId () );
+        addElement ( root, "name", makeName ( context ) );
+        addElement ( root, "layout", "maven2" );
+        addElement ( root, "policy", "mixed" );
+        addElement ( root, "url", makeUrl ( context.getChannelId () ) );
+
+        return doc;
+    }
+
+    private String makeName ( final AggregationContext context )
+    {
+        final String name = context.getChannelDescription ();
+        if ( name != null && !name.isEmpty () )
+        {
+            return name;
+        }
+
+        return context.getChannelId ();
+    }
+
+    private String makeUrl ( final String channelId )
+    {
+        return String.format ( "%s/maven/%s", this.sitePrefixService.getSitePrefix (), channelId );
+    }
+
+    static Map<String, ArtifactInformation> makeMap ( final Collection<ArtifactInformation> artifacts )
+    {
+        final Map<String, ArtifactInformation> result = new HashMap<> ( artifacts.size () );
+
+        for ( final ArtifactInformation art : artifacts )
+        {
+            result.put ( art.getId (), art );
+        }
+
+        return result;
+    }
+
+    static Set<MavenInformation> getInfos ( final ArtifactInformation art, final Map<String, ArtifactInformation> map )
+    {
+        final Set<MavenInformation> infos = new HashSet<> ();
+
+        {
+            // first check if the artifact already has direct maven coordinates
+            final MavenInformation coords = parseMavenCoordinates ( art.getMetaData (), null );
+            if ( coords != null )
+            {
+                infos.add ( coords );
+            }
+        }
+
+        final Collection<ArtifactInformation> pomArts = findPomArtifacts ( art, map );
+        for ( final ArtifactInformation pomArt : pomArts )
+        {
+            final MavenInformation coords = parseMavenCoordinates ( pomArt.getMetaData (), art );
+            if ( coords != null )
+            {
+                infos.add ( coords );
+            }
+        }
+
+        return infos;
+    }
+
+    /**
+     * Parse the maven coordinates from the provided meta data
+     * <p>
+     * If the parameter <code>refArtifact</code> is not <code>null</code> then
+     * the extension loaded from the meta data will be overridden with the file
+     * extension of the name of the provided <code>refArtifact</code>.
+     * </p>
+     *
+     * @param metaData
+     *            the metadata to use
+     * @param refArtifact
+     *            an optionally referenced artifact
+     * @return the maven coordinates or <code>null</code>
+     */
+    private static MavenInformation parseMavenCoordinates ( final Map<MetaKey, String> metaData, final ArtifactInformation refArtifact )
+    {
+        try
+        {
+            final MavenInformation info = new MavenInformation ();
+            MetaKeys.bind ( info, metaData );
+
+            if ( info.getGroupId () == null || info.getArtifactId () == null || info.getVersion () == null )
+            {
+                return null;
+            }
+
+            if ( refArtifact != null )
+            {
+                /*
+                 * so we point to another artifact and have to override the extension with that name
+                 *
+                 * this is used on the case where the meta data is provided by the POM artifact and the
+                 * JAR artifact is a slave to this meta data. In this case the "pom" extension has to
+                 * be replaces with the extension "jar".
+                 */
+                final String ext = FilenameUtils.getExtension ( refArtifact.getName () );
+                info.setExtension ( ext );
+            }
+
+            return info;
+        }
+        catch ( final Exception e )
+        {
+            logger.debug ( "Failed to parse maven coordinates", e );
+            return null;
+        }
+    }
+
+    /**
+     * Return a collection with all POMs candidates for an artifact.
+     *
+     * @param art
+     *            The artifact that POMs should be found.
+     * @param artifacts
+     *            A containing all artifacts that could be used. The key consist
+     *            of the artifact id, the value of the artifact themselves.
+     * @return a collection with all POM candidates, an empty collection if no
+     *         candidates are found.
+     */
+    private static Collection<ArtifactInformation> findPomArtifacts ( final ArtifactInformation art, final Map<String, ArtifactInformation> artifacts )
+    {
+        final Collection<ArtifactInformation> poms = new LinkedList<> ();
+
+        fillPomsFromChildren ( poms, art, artifacts );
+
+        return poms;
+    }
+
+    /**
+     * Fill a collection with all POMs for the children of an artifact.
+     *
+     * @param poms
+     *            the collection that should be filled
+     * @param art
+     *            the artifact that should be evaluated
+     * @param artifacts
+     *            A containing all artifacts that could be used. The key consist
+     *            of the artifact id, the value of the artifact themselves.
+     * @return the number of POMs that has been added
+     */
+    private static int fillPomsFromChildren ( final Collection<ArtifactInformation> poms, final ArtifactInformation art, final Map<String, ArtifactInformation> artifacts )
+    {
+        int cnt = 0;
+
+        for ( final String childId : art.getChildIds () )
+        {
+            final ArtifactInformation child = artifacts.get ( childId );
+            if ( child != null )
+            {
+                final String childName = child.getName ();
+                if ( isPomFileName ( childName ) )
+                {
+                    poms.add ( child );
+                    ++cnt;
+                }
+            }
+        }
+
+        return cnt;
+    }
+
+    /**
+     * Check if a file name indicates a POM file.
+     *
+     * @param fileName
+     *            the name of the file
+     * @return true if the file name indicates a POM file, otherwise false.
+     */
+    private static boolean isPomFileName ( final String fileName )
+    {
+        return "pom.xml".equals ( fileName ) || "pom".equals ( FilenameUtils.getExtension ( fileName ) );
+    }
+
+}

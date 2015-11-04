@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Unit tests for 'den.dentrassi.pm.common'
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit;bundle-version="4.11.0",
+ ch.qos.logback.classic;bundle-version="1.0.7",
+ ch.qos.logback.core;bundle-version="1.0.7"
+Import-Package: org.eclipse.packagedrone.repo.utils;version="1.0.0",
+ org.slf4j;version="1.7.2"

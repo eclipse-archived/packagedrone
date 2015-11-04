@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Maven OSGi Virtualizer Channel Aspect
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.aspect.mvnosgi
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Markus Rathgeb
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.maven.model,
+ org.apache.maven.model.io.xpp3,
+ org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect.common.osgi;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect.extract;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect.virtual;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel;version="1.0.0",
+ org.eclipse.packagedrone.repo.utils.osgi.bundle;version="1.0.0",
+ org.eclipse.packagedrone.repo.utils.osgi.feature;version="1.0.0",
+ org.osgi.framework;version="1.8.0",
+ org.slf4j;version="1.7.2"
+Service-Component: OSGI-INF/aspect.xml

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.sec.web.ui.user">
+   <implementation class="org.eclipse.packagedrone.sec.web.ui.UserController"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.sec.web.ui.UserController"/>
+      <provide interface="org.eclipse.packagedrone.web.common.InterfaceExtender"/>
+   </service>
+   <reference bind="setStorage" cardinality="1..1" interface="org.eclipse.packagedrone.sec.UserStorage" name="UserStorage" policy="static"/>
+   <reference bind="setPasswordChecker" cardinality="1..1" interface="org.eclipse.packagedrone.sec.service.password.PasswordChecker" name="PasswordChecker" policy="static"/>
+</scr:component>

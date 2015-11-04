@@ -1,0 +1,177 @@
+/*******************************************************************************
+ * Copyright (c) 2014, 2015 Jens Reimann.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Jens Reimann - initial API and implementation
+ *******************************************************************************/
+ 
+.page-header {
+	margin-top: 0px;
+}
+
+h1 {
+	margin-top: 10pt;
+}
+ 
+ul.validation-error {
+     margin: 0px;
+}
+
+.navbar-brand > img {
+	margin-top: -5px;
+}
+
+.navbar-link > span.badge {
+	/* fix an issue with the navbar */
+	margin-bottom: -3px;
+}
+
+.navbar img.gravatar {
+	margin-top: -5px;
+	margin-bottom: -5px;
+}
+
+ul.validation-error li {
+	color: red;
+	display: inline-block;
+	border: 1pt solid #EE5555;
+	background: #FFEEEE;
+	padding: .4em;
+	border-radius: 3pt;
+	margin-right: 1em;
+}
+
+.form-padding {
+	padding-top: 1em;
+}
+
+/* tables */
+
+tr.table-row-additional > td  {
+	border-top: 0 !important;
+}
+
+/* breadcrumbs */
+
+.breadcrumb-compact {
+	margin-bottom: 0px;
+}
+
+/* boxes */
+
+.box {
+	margin: 1em;
+}
+
+/* button bar */
+
+.button-bar {
+	padding-left: 1em;
+	padding-bottom: .4em;
+	margin-bottom: 1em;
+}
+
+#breadcrumbs {
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+.button-bar {
+	border-bottom: 1px solid #EEE;
+	padding-bottom: 1em;
+}
+
+footer {
+	border-top: 1px solid #EEE;
+	padding: 3em;
+	margin-top: 3em;
+	font-size: x-small;
+	color: #AAA;
+}
+
+footer a {
+	color: #AAA;
+}
+
+footer a:hover,
+footer a:active,
+footer a:focus {
+    color: #AAA;
+}
+
+/* details */
+
+.details {
+	font-size: large;
+}
+
+.details-heading  {
+	border-bottom: 1px solid #EEE;
+	padding-bottom: .5em;
+}
+
+img.gravatar {
+	margin-left: .5em;
+	margin-right: .5em;
+}
+
+/* panel */
+
+.panel pre {
+	border: none;
+	background: white;
+	margin-bottom: 0;
+}
+
+/* link lists */
+
+.link-list {
+	list-style: none;
+	padding-left: 0;
+	margin-bottom: 0;
+}
+
+ul.link-list > li {
+	display: inline-block;
+	padding-right: .5em;
+}
+
+ul.link-list > li:not(:last-child):after {
+    content: ' - ';
+}
+
+/* forms */
+
+.optional label.control-label {
+	font-style: italic;
+}
+
+/* tables */
+
+table.table-properties {
+	table-layout: fixed;
+}
+
+table.table-properties th,
+table.table-properties td {
+	width: 50%;
+} 
+
+/* dependency lists */
+
+ul.dependency-list {
+    display: inline-block;
+    padding: 0;
+}
+
+ul.dependency-list li {
+    display: inline;
+}
+
+ul.dependency-list > li:not(:last-child):after {
+    content: ', ';
+}

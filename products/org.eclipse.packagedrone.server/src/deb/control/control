@@ -1,0 +1,11 @@
+Package: [[name]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Pre-Depends: adduser
+Depends: java8-jdk | java8-runtime-headless | java8-runtime
+Maintainer: Jens Reimann <ctron@dentrassi.de>
+Distribution: development
+Description: Package Drone software artifact repository
+ This is the server instance required to run the package drone system.

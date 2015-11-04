@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XML Helper Tools for OSGi
+Bundle-SymbolicName: org.eclipse.packagedrone.utils.xml
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.eclipse.packagedrone.utils.xml;version="1.0.0";uses:="javax.xml.parsers,javax.xml.transform,javax.xml.xpath"
+Import-Package: javax.xml,
+ javax.xml.parsers,
+ javax.xml.transform,
+ javax.xml.xpath

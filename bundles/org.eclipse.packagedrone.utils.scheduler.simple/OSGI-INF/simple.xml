@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" immediate="true" name="org.eclipse.packagedrone.utils.scheduler.simple">
+   <implementation class="org.eclipse.packagedrone.utils.scheduler.simple.internal.SimpleScheduler"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.utils.scheduler.simple.Scheduler"/>
+   </service>
+</scr:component>

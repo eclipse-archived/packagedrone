@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: APM based job scheduler
+Bundle-SymbolicName: org.eclipse.packagedrone.job.apm
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.google.gson;version="2.3.1",
+ org.eclipse.packagedrone.job;version="1.0.0",
+ org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.storage.apm;version="1.0.0",
+ org.osgi.framework;version="1.8.0",
+ org.osgi.util.tracker;version="1.5.1",
+ org.slf4j
+Service-Component: OSGI-INF/service.xml

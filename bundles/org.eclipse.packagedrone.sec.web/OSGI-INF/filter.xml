@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.sec.web.SecurityFilter">
+   <implementation class="org.eclipse.packagedrone.sec.web.filter.SecurityFilter"/>
+   <service>
+      <provide interface="javax.servlet.Filter"/>
+   </service>
+   <reference bind="setService" cardinality="0..1" interface="org.eclipse.packagedrone.sec.service.SecurityService" name="SecurityService" policy="dynamic" unbind="unsetService"/>
+   <properties entry="OSGI-INF/filter.properties"/>
+</scr:component>

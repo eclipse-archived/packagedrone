@@ -1,0 +1,31 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common Web
+Bundle-SymbolicName: org.eclipse.packagedrone.web.common
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Jens Reimann
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.google.common.escape;version="18.0.0",
+ com.google.common.html;version="18.0.0",
+ javax.servlet;version="3.1.0",
+ javax.servlet.http;version="3.1.0",
+ javax.servlet.jsp;version="2.2.0",
+ javax.servlet.jsp.tagext;version="2.2.0",
+ org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.sec;version="1.0.0",
+ org.eclipse.scada.utils;version="0.2.0",
+ org.osgi.framework;version="1.8.0",
+ org.osgi.util.tracker;version="1.5.1"
+Web-Static-Resources: /resources;target:="/resources",
+ /resources/favicon.ico;target:="/favicon.ico"
+Web-Export-Taglib: WEB-INF/tags/main/pm.tld
+Web-TagLib-Directory: /WEB-INF/tags/main
+Require-Bundle: org.eclipse.packagedrone.web;bundle-version="1.0.0",
+ org.eclipse.packagedrone.web.forms;bundle-version="1.0.0",
+ org.jboss.spec.javax.servlet.jstl.jboss-jstl-api_1.2_spec;bundle-version="1.1.2"
+Export-Package: org.eclipse.packagedrone.web.common;version="1.0.0";uses:="de.dentrassi.osgi.web,javax.servlet.http",
+ org.eclipse.packagedrone.web.common.menu;version="1.0.0";uses:="javax.servlet.http,de.dentrassi.osgi.web,de.dentrassi.pm.common.web",
+ org.eclipse.packagedrone.web.common.tags;version="1.0.0";uses:="de.dentrassi.pm.storage"
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/menuInterceptor.xml
+Bundle-Activator: org.eclipse.packagedrone.web.common.Activator

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" activate="start" configuration-policy="require" deactivate="stop" modified="updated" name="org.eclipse.packagedrone.mail.default">
+   <implementation class="org.eclipse.packagedrone.mail.java.DefaultMailService"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.mail.MailService"/>
+      <provide interface="org.eclipse.packagedrone.mail.java.DefaultMailService"/>
+   </service>
+   <property name="service.pid" type="String" value="org.eclipse.packagedrone.mail.default"/>
+</scr:component>

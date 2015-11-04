@@ -1,0 +1,37 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ToDo Web Components
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.manage.todo.web
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.packagedrone.web;bundle-version="1.0.0",
+ org.eclipse.packagedrone.web.forms;bundle-version="1.0.0",
+ org.eclipse.packagedrone.sec.web;bundle-version="1.0.0",
+ org.eclipse.packagedrone.job.web;bundle-version="1.0.0",
+ org.jboss.spec.javax.servlet.jstl.jboss-jstl-api_1.2_spec;bundle-version="1.1.2"
+Import-Package: javax.el;version="3.0.0",
+ javax.servlet;version="3.1.0",
+ javax.servlet.annotation;version="3.1.0",
+ javax.servlet.http;version="3.1.0",
+ javax.servlet.jsp;version="2.2.0",
+ javax.servlet.jsp.tagext;version="2.2.0",
+ javax.validation;version="1.1.0",
+ javax.validation.bootstrap;version="1.1.0",
+ javax.validation.constraints;version="1.1.0",
+ javax.validation.constraintvalidation;version="1.1.0",
+ javax.validation.executable;version="1.1.0",
+ javax.validation.groups;version="1.1.0",
+ javax.validation.metadata;version="1.1.0",
+ javax.validation.spi;version="1.1.0",
+ org.eclipse.packagedrone.repo.manage.todo;version="1.0.0",
+ org.eclipse.packagedrone.sec;version="1.0.0",
+ org.eclipse.packagedrone.sec.web.controller;version="1.0.0",
+ org.eclipse.packagedrone.web;version="1.0.0",
+ org.eclipse.packagedrone.web.common;version="1.0.0",
+ org.eclipse.packagedrone.web.controller;version="1.0.0",
+ org.eclipse.packagedrone.web.interceptor;version="1.0.0",
+ org.slf4j;version="1.7.2"
+Service-Component: OSGI-INF/todoInterceptor.xml,
+ OSGI-INF/controller.xml
+Export-Package: org.eclipse.packagedrone.repo.manage.todo.web;version="1.0.0"
