@@ -431,7 +431,6 @@ public class JspCServletContext implements ServletContext {
 
     }
 
-
     /**
      * Log the specified message.
      *
@@ -633,6 +632,10 @@ public class JspCServletContext implements ServletContext {
 
     public ClassLoader getClassLoader() {
         throw new UnsupportedOperationException();
+    }
+    
+    public String getVirtualServerName() {
+ 	   throw new UnsupportedOperationException();
     }
 
     public void declareRoles(String... roleNames) {

@@ -2990,8 +2990,15 @@ class Generator {
                 out.println(".setPageContext(_jspx_page_context);");
             }
 
+            // STARTJR: fix missing parent
             // Set parent
-            if (!simpleTag) {
+            if (isTagFile && parent == null) {
+                out.printin(tagHandlerVar);
+                out.print(".setParent(");
+                out.print("new javax.servlet.jsp.tagext.TagAdapter(");
+                out.print("(javax.servlet.jsp.tagext.SimpleTag) this ));");
+            } else if (!simpleTag) {
+            // ENDJR: fix missing parent
                 out.printin(tagHandlerVar);
                 out.print(".setParent(");
                 if (parent != null) {

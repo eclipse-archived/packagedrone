@@ -197,7 +197,6 @@ public class TldScanner implements ServletContainerInitializer {
     static {
         systemUrisJsf.add("http://java.sun.com/jsf/core");
         systemUrisJsf.add("http://java.sun.com/jsf/html");
-        systemUris.add("http://java.sun.com/jsp/jstl/core");
     }
 
     /**

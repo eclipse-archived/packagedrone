@@ -931,10 +931,16 @@ public class JspRuntimeLibrary {
             }
         }
         else {
+            // STARTJR: fix improper handling of jsp:include
             uri = hrequest.getServletPath();
+            String pathInfo = hrequest.getPathInfo ();
+            if ( pathInfo != null) {
+                uri = uri + pathInfo;
+            }
             if (uri.lastIndexOf('/') >= 0) {
                 uri = uri.substring(0, uri.lastIndexOf('/'));
             }
+            // ENDJR
         }
         return uri + '/' + relativePath;
 
