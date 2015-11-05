@@ -93,6 +93,14 @@
         	
             <orbitGet bundle="javax.activation" version="1.1.0" qualifier="v201211130549"/>
 
+        	<!-- other -->
+        	
+        	<mavenGet group="com/google/code/gson" artifact="gson" version="2.3.1"/>
+        	<mavenGet group="com/google/guava" artifact="guava" version="18.0"/>
+        	
+        	<orbitGet bundle="org.junit" version="4.11.0" qualifier="v201303080030"/>
+        	<mavenGet group="org/apache/felix" artifact="org.apache.felix.configadmin" version="1.8.4"/>
+        	
             <!-- jsp stuff -->
 
         	<orbitGet bundle="org.apache.xalan" version="2.7.1" qualifier="v201005080400"/>
