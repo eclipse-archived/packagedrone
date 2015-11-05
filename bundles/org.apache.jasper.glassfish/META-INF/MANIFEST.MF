@@ -23,3 +23,10 @@ Import-Package: javax.el;version="2.2.0",
  org.eclipse.jdt.internal.compiler.impl;resolution:=optional,
  org.eclipse.jdt.internal.compiler.problem;resolution:=optional
 DynamicImport-Package: *
+Export-Package: org.apache.jasper.servlet;version="2.3.2";
+  uses:="javax.servlet,
+   javax.servlet.http,
+   javax.servlet.descriptor,
+   javax.servlet.jsp.tagext,
+   org.apache.jasper,
+   org.apache.jasper.compiler"
