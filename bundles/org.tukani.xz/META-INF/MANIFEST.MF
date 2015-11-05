@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: XZ for Java
+Bundle-SymbolicName: org.tukani.xz
+Bundle-Version: 1.5.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.tukaani.xz;version="1.5.0";uses:="org.tukaani.xz.simple,org.tukaani.xz.check",
+ org.tukaani.xz.check;version="1.5.0",
+ org.tukaani.xz.common;version="1.5.0",
+ org.tukaani.xz.delta;version="1.5.0",
+ org.tukaani.xz.index;version="1.5.0";uses:="org.tukaani.xz.common,org.tukaani.xz",
+ org.tukaani.xz.lz;version="1.5.0",
+ org.tukaani.xz.lzma;version="1.5.0";uses:="org.tukaani.xz.lz,org.tukaani.xz.rangecoder",
+ org.tukaani.xz.rangecoder;version="1.5.0",
+ org.tukaani.xz.simple;version="1.5.0"
