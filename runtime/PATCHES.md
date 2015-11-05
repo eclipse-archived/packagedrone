@@ -49,6 +49,142 @@ This tries to load the TldScanner, which is handled differently in this scenario
 But having this file causes strange warnings on the console which confuses people looking at
 the log output. 
 
+## src/org/apache/jasper/compiler/AntJavaCompiler.java
+
+Delete the file.
+
+This file implements a possible compiler for Jasper based on Ant. We are sure to use
+the Eclipse Java Compiler (JDT) and don't want any dependencies on Ant.
+
+## src/org/apache/jasper/compiler/JDTJavaCompiler.java
+
+### Implement new method
+
+Implement a new method provided by a more recent version of Eclipse JDT.
+
+```
+diff --git a/org.apache.jasper.glassfish/src/org/apache/jasper/compiler/JDTJavaCompiler.java b/org.apache.jasper.glassfish/src/org/apache/jasper/compiler/JDTJavaCompiler.java
+index 9008e9b..8759ee1 100644
+--- a/org.apache.jasper.glassfish/src/org/apache/jasper/compiler/JDTJavaCompiler.java
++++ b/org.apache.jasper.glassfish/src/org/apache/jasper/compiler/JDTJavaCompiler.java
+@@ -299,6 +299,10 @@
+                 }
+                 return result;
+             }
++            
++            public boolean ignoreOptionalProblems() {
++                return true;
++            }
+         }
+ 
+         final INameEnvironment env = new INameEnvironment() {
+
+```
+
+### Allow using Java up to 1.8
+
+Allow processing Java 1.6, 1.7 and 1.8.
+
+```java
+    public void setSourceVM(String sourceVM) {
+        if(sourceVM.equals("1.1")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_1);
+        } else if(sourceVM.equals("1.2")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_2);
+        } else if(sourceVM.equals("1.3")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_3);
+        } else if(sourceVM.equals("1.4")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_4);
+        } else if(sourceVM.equals("1.5")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_5);
+        } else if(sourceVM.equals("1.6")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_6);
+        } else if(sourceVM.equals("1.7")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_7);
+        } else if(sourceVM.equals("1.8")) {
+            settings.put(CompilerOptions.OPTION_Source,
+                         CompilerOptions.VERSION_1_8);
+        } else {
+            log.warning("Unknown source VM " + sourceVM + " ignored.");
+            settings.put(CompilerOptions.OPTION_Source,
+                    CompilerOptions.VERSION_1_5);
+        }
+    }
+
+    public void setTargetVM(String targetVM) {
+        if(targetVM.equals("1.1")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_1);
+        } else if(targetVM.equals("1.2")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_2);
+        } else if(targetVM.equals("1.3")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_3);
+        } else if(targetVM.equals("1.4")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_4);
+        } else if(targetVM.equals("1.5")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_5);
+        } else if(targetVM.equals("1.6")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_6);
+        } else if(targetVM.equals("1.7")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_7);
+        } else if(targetVM.equals("1.8")) {
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                         CompilerOptions.VERSION_1_8);
+        } else {
+            log.warning("Unknown target VM " + targetVM + " ignored.");
+            settings.put(CompilerOptions.OPTION_TargetPlatform,
+                    CompilerOptions.VERSION_1_5);
+        }
+    }
+    
+```
+
+
+## src/org/apache/jasper/runtime/PerThreadTagHandlerPool.java
+
+### Correct type
+
+Use correct type and prevent adding additional dependencies.
+
+```
+diff --git a/org.apache.jasper.glassfish/src/org/apache/jasper/runtime/PerThreadTagHandlerPool.java b/org.apache.jasper.glassfish/src/org/apache/jasper/runtime/PerThreadTagHandlerPool.java
+index d22b157..ccde532 100644
+--- a/org.apache.jasper.glassfish/src/org/apache/jasper/runtime/PerThreadTagHandlerPool.java
++++ b/org.apache.jasper.glassfish/src/org/apache/jasper/runtime/PerThreadTagHandlerPool.java
+@@ -64,7 +64,7 @@
+ 
+ import javax.servlet.ServletConfig;
+ import javax.servlet.jsp.JspException;
+-import javax.servlet.jsp.tagext.JspTag;
++import javax.servlet.jsp.tagext.Tag;
+ 
+ import org.apache.jasper.Constants;
+ 
+@@ -84,7 +84,7 @@
+     private ThreadLocal<PerThreadData> perThread;
+ 
+     private static class PerThreadData {
+-        JspTag handlers[];
++        Tag handlers[];
+         int current;
+     }
+ 
+
+```
+
 ## META-INF/MANIFEST.MF
 
 ### Automatically import TLD classes
@@ -138,73 +274,33 @@ index bd9c000..6cdb627 100644
 
 ``` 
 
-## src/org/apache/jasper/compiler/JDTJavaCompiler.java
+## src/org/apache/jasper/servlet/JspCServletContext.java
 
-Allow processing Java 1.6, 1.7 and 1.8.
+### Implement new method in interface
 
-```java
-    public void setSourceVM(String sourceVM) {
-        if(sourceVM.equals("1.1")) {
-            settings.put(CompilerOptions.OPTION_Source,
-                         CompilerOptions.VERSION_1_1);
-        } else if(sourceVM.equals("1.2")) {
-            settings.put(CompilerOptions.OPTION_Source,
-                         CompilerOptions.VERSION_1_2);
-        } else if(sourceVM.equals("1.3")) {
-            settings.put(CompilerOptions.OPTION_Source,
-                         CompilerOptions.VERSION_1_3);
-        } else if(sourceVM.equals("1.4")) {
-            settings.put(CompilerOptions.OPTION_Source,
-                         CompilerOptions.VERSION_1_4);
-        } else if(sourceVM.equals("1.5")) {
-            settings.put(CompilerOptions.OPTION_Source,
-                         CompilerOptions.VERSION_1_5);
-        } else if(sourceVM.equals("1.6")) {
-            settings.put(CompilerOptions.OPTION_Source,
-                         CompilerOptions.VERSION_1_6);
-        } else if(sourceVM.equals("1.7")) {
-            settings.put(CompilerOptions.OPTION_Source,
-                         CompilerOptions.VERSION_1_7);
-        } else if(sourceVM.equals("1.8")) {
-            settings.put(CompilerOptions.OPTION_Source,
-                         CompilerOptions.VERSION_1_8);
-        } else {
-            log.warning("Unknown source VM " + sourceVM + " ignored.");
-            settings.put(CompilerOptions.OPTION_Source,
-                    CompilerOptions.VERSION_1_5);
-        }
-    }
+```
+diff --git a/org.apache.jasper.glassfish/src/org/apache/jasper/servlet/JspCServletContext.java b/org.apache.jasper.glassfish/src/org/apache/jasper/servlet/JspCServletContext.java
+index ff89225..310a421 100644
+--- a/org.apache.jasper.glassfish/src/org/apache/jasper/servlet/JspCServletContext.java
++++ b/org.apache.jasper.glassfish/src/org/apache/jasper/servlet/JspCServletContext.java
+@@ -431,7 +431,6 @@
+ 
+     }
+ 
+-
+     /**
+      * Log the specified message.
+      *
+@@ -634,6 +633,10 @@
+     public ClassLoader getClassLoader() {
+         throw new UnsupportedOperationException();
+     }
++    
++    public String getVirtualServerName() {
++ 	   throw new UnsupportedOperationException();
++    }
+ 
+     public void declareRoles(String... roleNames) {
+         throw new UnsupportedOperationException();
 
-    public void setTargetVM(String targetVM) {
-        if(targetVM.equals("1.1")) {
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                         CompilerOptions.VERSION_1_1);
-        } else if(targetVM.equals("1.2")) {
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                         CompilerOptions.VERSION_1_2);
-        } else if(targetVM.equals("1.3")) {
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                         CompilerOptions.VERSION_1_3);
-        } else if(targetVM.equals("1.4")) {
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                         CompilerOptions.VERSION_1_4);
-        } else if(targetVM.equals("1.5")) {
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                         CompilerOptions.VERSION_1_5);
-        } else if(targetVM.equals("1.6")) {
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                         CompilerOptions.VERSION_1_6);
-        } else if(targetVM.equals("1.7")) {
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                         CompilerOptions.VERSION_1_7);
-        } else if(targetVM.equals("1.8")) {
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                         CompilerOptions.VERSION_1_8);
-        } else {
-            log.warning("Unknown target VM " + targetVM + " ignored.");
-            settings.put(CompilerOptions.OPTION_TargetPlatform,
-                    CompilerOptions.VERSION_1_5);
-        }
-    }
-    
 ```
