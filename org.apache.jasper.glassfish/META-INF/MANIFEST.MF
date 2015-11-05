@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Apache Jasper from Glassfish
+Bundle-SymbolicName: org.apache.jasper.glassfish
+Bundle-Version: 2.3.2.qualifier
+Bundle-Vendor: Eclipse Package Drone
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-License: https://glassfish.dev.java.net/public/CDDLv1.0.html
+Bundle-DocURL: http://jsp.java.net/
+Import-Package: javax.el;version="2.2.0",
+ javax.servlet;version="2.6.0",
+ javax.servlet.descriptor;version="2.6.0",
+ javax.servlet.http;version="2.6.0",
+ javax.servlet.jsp;version="2.2.0",
+ javax.servlet.jsp.el;version="2.2.0",
+ javax.servlet.jsp.resources;version="3.1.0",
+ javax.servlet.jsp.tagext;version="2.2.0",
+ javax.tools;resolution:=optional,
+ org.eclipse.jdt.core.compiler;resolution:=optional,
+ org.eclipse.jdt.internal.compiler;resolution:=optional,
+ org.eclipse.jdt.internal.compiler.classfmt;resolution:=optional,
+ org.eclipse.jdt.internal.compiler.env;resolution:=optional,
+ org.eclipse.jdt.internal.compiler.impl;resolution:=optional,
+ org.eclipse.jdt.internal.compiler.problem;resolution:=optional
+DynamicImport-Package: *
