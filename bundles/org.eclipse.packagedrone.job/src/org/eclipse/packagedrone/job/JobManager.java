@@ -21,6 +21,7 @@ public interface JobManager
         return startJob ( new JobRequest ( factoryId, data ) );
     }
 
+    @Deprecated
     public JobHandle startJob ( String factoryId, Object data );
 
     public Collection<? extends JobHandle> getActiveJobs ();

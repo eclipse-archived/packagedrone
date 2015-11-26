@@ -6,7 +6,7 @@
 	<description>Web Framework JSP Tag Library</description>
 	<tlib-version>1.0</tlib-version>
 	<short-name>web</short-name>
-	<uri>http://eclipse.org/package-drone/web</uri>
+	<uri>http://eclipse.org/packagedrone/web</uri>
 
 	<tag>
 		<description>Define a macro</description>
@@ -113,5 +113,11 @@
         <name>encode</name>
         <function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
         <function-signature>java.lang.String encode(java.lang.String)</function-signature>
+    </function>
+    
+    <function>
+        <name>toDate</name>
+        <function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
+        <function-signature>java.util.Date toDate(java.time.Instant)</function-signature>
     </function>
 </taglib>

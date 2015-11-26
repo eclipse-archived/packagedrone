@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.annotation.HttpConstraint;
 import javax.servlet.http.HttpServletRequest;
@@ -87,9 +88,9 @@ public class CoreController implements InterfaceExtender
     @RequestMapping ( value = "/list" )
     public ModelAndView list ()
     {
-        final Map<String, Object> model = new HashMap<> ();
+        final Map<String, Object> model = new HashMap<> ( 1 );
 
-        model.put ( "properties", this.coreService.list () );
+        model.put ( "properties", new TreeMap<> ( this.coreService.list () ) );
 
         return new ModelAndView ( "list", model );
     }

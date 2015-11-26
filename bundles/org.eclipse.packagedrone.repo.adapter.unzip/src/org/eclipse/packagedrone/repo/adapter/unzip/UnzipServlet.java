@@ -39,11 +39,11 @@ import org.eclipse.packagedrone.repo.channel.ChannelArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
-import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
 import org.eclipse.packagedrone.repo.channel.util.DownloadHelper;
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.scada.utils.str.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -528,7 +528,7 @@ public class UnzipServlet extends AbstractChannelServiceServlet
 
     protected void handleArtifact ( final HttpServletRequest request, final HttpServletResponse response, final LinkedList<String> path ) throws IOException
     {
-        requirePathPrefix ( path, 1, "The 'artifact' method requires at least one parameter: artifactId. e.g. /unzip/artifact/<channelIdOrName>/<artifactId>/path/to/file" );
+        requirePathPrefix ( path, 2, "The 'artifact' method requires at least two parameters: channelId and artifactId. e.g. /unzip/artifact/<channelIdOrName>/<artifactId>/path/to/file" );
 
         final String channelIdOrName = path.pop ();
 
@@ -543,6 +543,9 @@ public class UnzipServlet extends AbstractChannelServiceServlet
                     handleNotFoundError ( response, String.format ( "Artifact '%s' could not be found", artifactId ) );
                     return;
                 }
+
+                streamArtifactEntry ( request, response, channel, artifact.get (), path );
+
             } );
         }
         catch ( final ChannelNotFoundException e )

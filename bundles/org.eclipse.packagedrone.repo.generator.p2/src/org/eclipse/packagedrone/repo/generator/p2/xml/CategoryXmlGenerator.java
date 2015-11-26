@@ -85,7 +85,7 @@ public class CategoryXmlGenerator implements ArtifactGenerator
             }
         }
 
-        Helper.createFile ( context, baseName + "-p2metadata.xml", ( out ) -> {
+        context.createVirtualArtifact ( baseName + "-p2metadata.xml", out -> {
             Helper.createFragmentFile ( out, ( units ) -> {
                 for ( final Category cat : def.getCategories () )
                 {
@@ -113,8 +113,7 @@ public class CategoryXmlGenerator implements ArtifactGenerator
                     } );
                 }
             } );
-        } );
-
+        } , null );
     }
 
     private void addMap ( final Map<String, Set<ArtifactInformation>> map, final String cat, final ArtifactInformation ai )

@@ -3,7 +3,7 @@ Upstream-Name: Package Drone
 Upstream-Source: https://github.org/ctron/package-drone
 
 Files: *
-Copyright: © 2014-2015 Jens Reimann
+Copyright: © 2014-2015 Jens Reimann and others
 License: EPL-1.0 and Apache-2.0 
 
 License: Apache-2.0

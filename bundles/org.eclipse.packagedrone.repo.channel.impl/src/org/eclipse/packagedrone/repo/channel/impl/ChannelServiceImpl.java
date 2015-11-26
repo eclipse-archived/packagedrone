@@ -45,9 +45,9 @@ import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
 import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
 import org.eclipse.packagedrone.repo.channel.provider.Channel;
 import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider;
+import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider.Listener;
 import org.eclipse.packagedrone.repo.channel.provider.ModifyContext;
 import org.eclipse.packagedrone.repo.channel.provider.ProviderInformation;
-import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider.Listener;
 import org.eclipse.packagedrone.repo.channel.stats.ChannelStatistics;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
 import org.eclipse.packagedrone.storage.apm.StorageRegistration;
@@ -222,7 +222,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
 
     public void start ()
     {
-        this.aspectProcessor = new ChannelAspectProcessor ( FrameworkUtil.getBundle ( ChannelService.class ).getBundleContext () );
+        this.aspectProcessor = new ChannelAspectProcessor ( this.context );
 
         this.handle = this.manager.registerModel ( 1_000, KEY_STORAGE, new ChannelServiceModelProvider () );
 

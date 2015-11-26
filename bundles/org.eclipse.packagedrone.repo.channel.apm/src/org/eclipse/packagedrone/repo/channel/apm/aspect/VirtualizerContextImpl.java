@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.apm.aspect;
 
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
@@ -21,6 +21,7 @@ import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.apm.aspect.AspectContextImpl.ArtifactCreator;
 import org.eclipse.packagedrone.repo.generator.GenerationContext;
 import org.eclipse.packagedrone.utils.Exceptions;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 public class VirtualizerContextImpl implements Virtualizer.Context, GenerationContext
 {
@@ -79,7 +80,7 @@ public class VirtualizerContextImpl implements Virtualizer.Context, GenerationCo
     }
 
     @Override
-    public void createVirtualArtifact ( final String name, final InputStream stream, final Map<MetaKey, String> providedMetaData )
+    public void createVirtualArtifact ( final String name, final IOConsumer<OutputStream> stream, final Map<MetaKey, String> providedMetaData )
     {
         Exceptions.wrapException ( () -> this.creator.internalCreateArtifact ( this.artifact.getId (), stream, name, providedMetaData, this.type, this.virtualizerAspectId ) );
     }

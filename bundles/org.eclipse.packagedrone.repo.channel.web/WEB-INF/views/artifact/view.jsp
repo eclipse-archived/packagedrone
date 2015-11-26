@@ -5,7 +5,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/storage" prefix="s" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://dentrassi.de/pm" prefix="pm" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/repo/channel/web" prefix="pm" %>
 
 <h:main title="Artifact" subtitle="${fn:escapeXml(artifact.name) } (${fn:escapeXml(artifact.id) })">
 
@@ -53,7 +53,7 @@
 <%-- META DATA --%>
 
 <div role="tabpanel" class="tab-pane" id="md">
-<h:metaDataTable metaData="${artifact.metaData }"/>
+<h:metaDataTable metaData="${sortedMetaData }"/>
 </div>
 
 <%-- VALIDATION --%>

@@ -5,4 +5,5 @@
       <provide interface="org.eclipse.packagedrone.repo.aspect.ChannelAspectFactory"/>
    </service>
    <properties entry="OSGI-INF/p2meta.properties"/>
+   <reference bind="setXmlToolsFactory" cardinality="1..1" interface="org.eclipse.packagedrone.utils.xml.XmlToolsFactory" name="XmlToolsFactory" policy="static"/>
 </scr:component>

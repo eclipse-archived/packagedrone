@@ -21,7 +21,7 @@ import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.CacheEntry;
 import org.eclipse.packagedrone.repo.channel.CacheEntryInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelState;
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 public interface AccessContext
 {

@@ -10,17 +10,24 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+
+import org.eclipse.packagedrone.repo.internal.Activator;
+import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 
 /**
  * Helper class for file types
  */
 public final class FileTypes
 {
-    private static final String OTHER_XML_TYPE = System.getProperty ( "drone.common.otherXmlType" );
-
     private FileTypes ()
     {
     }
@@ -36,23 +43,21 @@ public final class FileTypes
      */
     public static boolean isXml ( final Path path ) throws IOException
     {
-        final String probe = Files.probeContentType ( path );
+        final XmlToolsFactory xml = Activator.getXmlToolsFactory ();
+        final XMLInputFactory xin = xml.newXMLInputFactory ();
 
-        if ( "application/xml".equals ( probe ) )
+        try ( InputStream stream = new BufferedInputStream ( Files.newInputStream ( path ) ) )
         {
-            return true;
+            try
+            {
+                final XMLStreamReader reader = xin.createXMLStreamReader ( stream );
+                reader.next ();
+                return true;
+            }
+            catch ( final XMLStreamException e )
+            {
+                return false;
+            }
         }
-
-        if ( "text/xml".equals ( probe ) )
-        {
-            return true;
-        }
-
-        if ( OTHER_XML_TYPE != null && OTHER_XML_TYPE.equals ( probe ) )
-        {
-            return true;
-        }
-
-        return false;
     }
 }

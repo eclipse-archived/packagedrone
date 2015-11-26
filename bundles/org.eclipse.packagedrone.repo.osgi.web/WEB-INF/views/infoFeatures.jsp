@@ -30,7 +30,7 @@
     <c:forEach var="feature" items="${features }">
     <tr>
         <td>
-            <a href="<c:url value="/osgi.info/channel/${fn:escapeXml(channel.id)}artifact/${feature.artifactId }/viewFeature"/>">${fn:escapeXml(feature.id) }</a>
+            <a href="<c:url value="/osgi.info/channel/${fn:escapeXml(channel.id)}/artifact/${feature.artifactId }/viewFeature"/>">${fn:escapeXml(feature.id) }</a>
         </td>
         <td>${feature.version }</td>
         
@@ -47,12 +47,11 @@
         
         <td>
             <ul class="link-list">
-                <h:artifactLinkListItem artifactId="${feature.artifactId }" url="${feature.translate(feature.licenseUrl) }">License</h:artifactLinkListItem>
-                <h:artifactLinkListItem artifactId="${feature.artifactId }" url="${feature.translate(feature.copyrightUrl) }">Copyright</h:artifactLinkListItem>
-                <h:artifactLinkListItem artifactId="${feature.artifactId }" url="${feature.translate(feature.descriptionUrl) }">Description</h:artifactLinkListItem>
+                <h:artifactLinkListItem channelId="${feature.channelId }" artifactId="${feature.artifactId }" url="${feature.translate(feature.licenseUrl) }">License</h:artifactLinkListItem>
+                <h:artifactLinkListItem channelId="${feature.channelId }" artifactId="${feature.artifactId }" url="${feature.translate(feature.copyrightUrl) }">Copyright</h:artifactLinkListItem>
+                <h:artifactLinkListItem channelId="${feature.channelId }" artifactId="${feature.artifactId }" url="${feature.translate(feature.descriptionUrl) }">Description</h:artifactLinkListItem>
             </ul>
         </td>
-        
         
     </tr>
     </c:forEach>

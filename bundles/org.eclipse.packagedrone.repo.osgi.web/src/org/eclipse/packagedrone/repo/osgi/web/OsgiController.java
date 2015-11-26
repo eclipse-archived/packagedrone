@@ -27,9 +27,9 @@ import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs.Entry;
-import org.eclipse.packagedrone.repo.channel.web.utils.Channels;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation;
+import org.eclipse.packagedrone.repo.web.utils.Channels;
 import org.eclipse.packagedrone.web.Controller;
 import org.eclipse.packagedrone.web.LinkTarget;
 import org.eclipse.packagedrone.web.ModelAndView;
@@ -83,7 +83,19 @@ public class OsgiController implements InterfaceExtender
 
     public static class ArtifactBundleInformation extends BundleInformation
     {
+        private String channelId;
+
         private String artifactId;
+
+        public void setChannelId ( final String channelId )
+        {
+            this.channelId = channelId;
+        }
+
+        public String getChannelId ()
+        {
+            return this.channelId;
+        }
 
         public void setArtifactId ( final String artifactId )
         {
@@ -98,7 +110,19 @@ public class OsgiController implements InterfaceExtender
 
     public static class ArtifactFeatureInformation extends FeatureInformation
     {
+        private String channelId;
+
         private String artifactId;
+
+        public void setChannelId ( final String channelId )
+        {
+            this.channelId = channelId;
+        }
+
+        public String getChannelId ()
+        {
+            return this.channelId;
+        }
 
         public void setArtifactId ( final String artifactId )
         {
@@ -125,6 +149,7 @@ public class OsgiController implements InterfaceExtender
                 final ArtifactBundleInformation bi = OsgiAspectFactory.fetchBundleInformation ( art.getMetaData (), ArtifactBundleInformation.class );
                 if ( bi != null )
                 {
+                    bi.setChannelId ( channel.getId ().getId () );
                     bi.setArtifactId ( art.getId () );
                     bundles.add ( bi );
                 }
@@ -156,10 +181,13 @@ public class OsgiController implements InterfaceExtender
             final BundleInformation bi = OsgiAspectFactory.fetchBundleInformation ( artifact.getMetaData () );
             model.put ( "bundle", bi );
 
+            final String aid = artifact.getId ();
+            final String cid = artifact.getChannelId ().getId ();
+
             final List<Entry> breadcrumbs = new LinkedList<> ();
             breadcrumbs.add ( new Entry ( "Home", "/" ) );
-            breadcrumbs.add ( new Entry ( "Channel", "/osgi.info/channel/" + urlPathSegmentEscaper ().escape ( artifact.getChannelId ().getId () ) + "/infoBundles" ) );
-            breadcrumbs.add ( new Entry ( "Artifact", "/artifact/" + artifact.getId () + "/view" ) );
+            breadcrumbs.add ( new Entry ( "Channel", "/osgi.info/channel/" + urlPathSegmentEscaper ().escape ( cid ) + "/infoBundles" ) );
+            breadcrumbs.add ( new Entry ( "Artifact", "/channel/" + urlPathSegmentEscaper ().escape ( cid ) + "/artifacts/" + urlPathSegmentEscaper ().escape ( aid ) + "/view" ) );
             breadcrumbs.add ( new Entry ( "Bundle Information" ) );
             model.put ( "breadcrumbs", new Breadcrumbs ( breadcrumbs ) );
 
@@ -181,10 +209,13 @@ public class OsgiController implements InterfaceExtender
             final FeatureInformation bi = OsgiAspectFactory.fetchFeatureInformation ( artifact.getMetaData () );
             model.put ( "feature", bi );
 
+            final String aid = artifact.getId ();
+            final String cid = artifact.getChannelId ().getId ();
+
             final List<Entry> breadcrumbs = new LinkedList<> ();
             breadcrumbs.add ( new Entry ( "Home", "/" ) );
-            breadcrumbs.add ( new Entry ( "Channel", "/osgi.info/channel/" + urlPathSegmentEscaper ().escape ( artifact.getChannelId ().getId () ) + "/infoFeatures" ) );
-            breadcrumbs.add ( new Entry ( "Artifact", "/artifact/" + artifact.getId () + "/view" ) );
+            breadcrumbs.add ( new Entry ( "Channel", "/osgi.info/channel/" + urlPathSegmentEscaper ().escape ( cid ) + "/infoFeatures" ) );
+            breadcrumbs.add ( new Entry ( "Artifact", "/channel/" + urlPathSegmentEscaper ().escape ( cid ) + "/artifacts/" + urlPathSegmentEscaper ().escape ( aid ) + "/view" ) );
             breadcrumbs.add ( new Entry ( "Feature Information" ) );
             model.put ( "breadcrumbs", new Breadcrumbs ( breadcrumbs ) );
 
@@ -207,6 +238,7 @@ public class OsgiController implements InterfaceExtender
                 final ArtifactFeatureInformation fi = OsgiAspectFactory.fetchFeatureInformation ( art.getMetaData (), ArtifactFeatureInformation.class );
                 if ( fi != null )
                 {
+                    fi.setChannelId ( channel.getId ().getId () );
                     fi.setArtifactId ( art.getId () );
                     features.add ( fi );
                 }

@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

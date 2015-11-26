@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.eclipse.packagedrone.web
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Jens Reimann
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.google.common.escape;version="18.0.0",
+Import-Package: com.google.common.collect;version="18.0.0",
+ com.google.common.escape;version="18.0.0",
  com.google.common.io;version="18.0.0",
  com.google.common.net;version="18.0.0",
  com.google.gson;version="2.3.1",
@@ -35,24 +36,25 @@ Export-Package: org.eclipse.packagedrone.web;version="1.0.0";
   uses:="javax.servlet,
    org.eclipse.scada.utils.str,
    javax.servlet.http,
+   com.google.common.escape,
    javax.servlet.jsp",
  org.eclipse.packagedrone.web.controller;version="1.0.0";
   uses:="org.osgi.framework,
-   de.dentrassi.osgi.web.controller.binding,
    javax.servlet.http,
-   de.dentrassi.osgi.web,
-   de.dentrassi.osgi.web.controller.routing",
+   org.eclipse.packagedrone.web.controller.routing,
+   org.eclipse.packagedrone.web,
+   org.eclipse.packagedrone.web.controller.binding",
  org.eclipse.packagedrone.web.controller.binding;version="1.0.0";
-  uses:="javax.servlet.http,
-   de.dentrassi.osgi.web,
-   de.dentrassi.osgi.converter,
-   de.dentrassi.osgi.web.controller.routing,
-   de.dentrassi.osgi.web.controller.validator",
- org.eclipse.packagedrone.web.controller.form;version="1.0.0";uses:="de.dentrassi.osgi.web.controller.binding,javax.servlet.http,de.dentrassi.osgi.converter",
+  uses:="org.eclipse.packagedrone.utils.converter,
+   javax.servlet.http,
+   org.eclipse.packagedrone.web.controller.validator,
+   org.eclipse.packagedrone.web.controller.routing,
+   org.eclipse.packagedrone.web",
+ org.eclipse.packagedrone.web.controller.form;version="1.0.0";uses:="org.eclipse.packagedrone.utils.converter,javax.servlet.http,org.eclipse.packagedrone.web.controller.binding",
  org.eclipse.packagedrone.web.controller.routing;version="1.0.0";uses:="javax.servlet.http",
- org.eclipse.packagedrone.web.controller.validator;version="1.0.0";uses:="de.dentrassi.osgi.web.controller.binding,javax.validation",
+ org.eclipse.packagedrone.web.controller.validator;version="1.0.0";uses:="org.eclipse.packagedrone.web.controller.binding,javax.validation",
  org.eclipse.packagedrone.web.extender;version="1.0.0";uses:="org.osgi.framework,javax.servlet.http",
- org.eclipse.packagedrone.web.interceptor;version="1.0.0";uses:="org.osgi.framework,javax.servlet.http,de.dentrassi.osgi.web",
+ org.eclipse.packagedrone.web.interceptor;version="1.0.0";uses:="org.osgi.framework,javax.servlet.http,org.eclipse.packagedrone.web",
  org.eclipse.packagedrone.web.tags;version="1.0.0";uses:="javax.servlet.http,javax.servlet.jsp.tagext",
  org.eclipse.packagedrone.web.util;version="1.0.0";uses:="javax.servlet.http"
 Bundle-ActivationPolicy: lazy

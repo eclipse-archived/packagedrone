@@ -4,5 +4,5 @@
    <service>
       <provide interface="org.eclipse.packagedrone.job.JobFactory"/>
    </service>
-   <property name="package.drone.job.factoryId" type="String" value="deorg.eclipse.packagedrone.repo.importer.http.web.tester"/>
+   <property name="package.drone.job.factoryId" type="String" value="org.eclipse.packagedrone.repo.importer.http.web.tester"/>
 </scr:component>

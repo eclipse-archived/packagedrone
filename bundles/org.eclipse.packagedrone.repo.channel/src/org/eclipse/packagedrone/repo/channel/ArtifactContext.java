@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel;
 
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Map;
 
 import org.eclipse.packagedrone.repo.MetaKey;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 public interface ArtifactContext
 {
@@ -39,11 +40,12 @@ public interface ArtifactContext
      * @param name
      *            the name of the artifact
      * @param stream
-     *            the input stream, has to be closed by the caller
+     *            the receiver of an output stream where the content can be
+     *            written to
      * @param providedMetaData
      *            the provided meta data, may be <code>null</code>
      */
-    public void createVirtualArtifact ( String name, InputStream stream, Map<MetaKey, String> providedMetaData );
+    public void createVirtualArtifact ( String name, IOConsumer<OutputStream> stream, Map<MetaKey, String> providedMetaData );
 
     /**
      * Get information on any other artifact

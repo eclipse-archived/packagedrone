@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.generator.p2;
 
-import static org.eclipse.packagedrone.repo.channel.web.utils.Channels.redirectViewArtifact;
-import static org.eclipse.packagedrone.repo.channel.web.utils.Channels.redirectViewChannel;
+import static org.eclipse.packagedrone.repo.web.utils.Channels.redirectViewArtifact;
+import static org.eclipse.packagedrone.repo.web.utils.Channels.redirectViewChannel;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
@@ -26,9 +26,9 @@ import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
-import org.eclipse.packagedrone.repo.channel.web.utils.Channels;
 import org.eclipse.packagedrone.repo.generator.GeneratorProcessor;
 import org.eclipse.packagedrone.repo.generator.p2.xml.CategoryXmlGenerator;
+import org.eclipse.packagedrone.repo.web.utils.Channels;
 import org.eclipse.packagedrone.web.Controller;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestMapping;

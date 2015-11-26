@@ -8,13 +8,13 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 
-<%@ taglib uri="http://eclipse.org/package-drone/web" prefix="web" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
 <%@ attribute name="title" required="true" %>
 <%@ attribute name="subtitle" %>
 
-<%@attribute name="head" fragment="true"%>
-<%@attribute name="body" fragment="true"%>
+<%@ attribute name="head" fragment="true" %>
+<%@ attribute name="body" fragment="true" %>
 
 <%
 Principal p = request.getUserPrincipal ();

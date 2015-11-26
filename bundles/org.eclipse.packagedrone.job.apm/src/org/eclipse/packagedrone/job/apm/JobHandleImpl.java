@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.job.apm;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.eclipse.packagedrone.job.ErrorInformation;
 import org.eclipse.packagedrone.job.JobHandle;
 import org.eclipse.packagedrone.job.JobRequest;
@@ -34,6 +37,8 @@ public class JobHandleImpl implements JobHandle
 
     private final Double percentComplete;
 
+    private final Map<String, String> properties;
+
     public JobHandleImpl ( final JobInstanceEntity ji )
     {
         this.id = ji.getId ();
@@ -49,6 +54,8 @@ public class JobHandleImpl implements JobHandle
 
         this.label = ji.getLabel ();
         this.result = ji.getResult ();
+
+        this.properties = Collections.unmodifiableMap ( ji.getProperties () );
     }
 
     @Override
@@ -95,6 +102,12 @@ public class JobHandleImpl implements JobHandle
     public double getPercentComplete ()
     {
         return this.percentComplete == null ? 0.0 : this.percentComplete;
+    }
+
+    @Override
+    public Map<String, String> getProperties ()
+    {
+        return this.properties;
     }
 
     @Override

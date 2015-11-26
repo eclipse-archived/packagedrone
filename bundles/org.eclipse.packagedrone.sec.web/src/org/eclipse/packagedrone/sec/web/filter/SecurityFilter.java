@@ -85,7 +85,7 @@ public class SecurityFilter implements Filter
     {
         logger.trace ( "Processing request: {}", request );
 
-        final HttpSession session = request.getSession ( false );
+        final HttpSession session = request.getSession ();
 
         if ( session != null )
         {

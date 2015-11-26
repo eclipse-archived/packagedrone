@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.repo.xml.internal;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.xpath.XPathFactory;
@@ -59,6 +60,12 @@ public class XmlToolsFactoryImpl implements XmlToolsFactory
     public SAXParserFactory newParserFactory ()
     {
         return SAXParserFactory.newInstance ();
+    }
+
+    @Override
+    public XMLInputFactory newXMLInputFactory ()
+    {
+        return XMLInputFactory.newFactory ();
     }
 
     @Override

@@ -7,7 +7,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://dentrassi.de/osgi/web/form" prefix="form" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web/form" prefix="form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
@@ -85,7 +85,7 @@ request.setAttribute ( "keys", keys );
                     <td colspan="3" style="padding-left: 3em;">
                         <pre>
 &lt;server&gt;
-    &lt;id&gt;server.id&lt;/id&gt;&lt;-- id of your repository element --&gt;
+    &lt;id&gt;server.id&lt;/id&gt;&lt;!-- id of your repository element --&gt;
     &lt;username&gt;deploy&lt;/username&gt;
     &lt;password&gt;${fn:escapeXml(key.key) }&lt;/password&gt;
 &lt;/server&gt;

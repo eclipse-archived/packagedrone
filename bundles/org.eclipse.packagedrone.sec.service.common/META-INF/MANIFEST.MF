@@ -20,5 +20,5 @@ Import-Package: com.google.common.escape;version="18.0.0",
  org.slf4j;version="1.7.2"
 Service-Component: OSGI-INF/security.xml,
  OSGI-INF/secMail.xml
-Export-Package: org.eclipse.packagedrone.sec.service.common;version="1.0.0";uses:="de.dentrassi.pm.mail.service,de.dentrassi.pm.system"
+Export-Package: org.eclipse.packagedrone.sec.service.common;version="1.0.0";uses:="org.eclipse.packagedrone.repo.manage.system,org.eclipse.packagedrone.mail"
 Bundle-ActivationPolicy: lazy

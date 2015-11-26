@@ -14,8 +14,8 @@ import javax.servlet.annotation.HttpConstraint;
 
 import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
-import org.eclipse.packagedrone.repo.channel.web.utils.Channels;
 import org.eclipse.packagedrone.repo.manage.system.SitePrefixService;
+import org.eclipse.packagedrone.repo.web.utils.Channels;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;

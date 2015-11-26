@@ -36,3 +36,5 @@ Require-Bundle: org.eclipse.aether.api;bundle-version="1.0.1",
  org.eclipse.aether.impl;bundle-version="1.0.1",
  org.eclipse.aether.spi;bundle-version="1.0.1",
  org.eclipse.aether.util;bundle-version="1.0.1"
+Import-Package: com.google.common.base;version="18.0.0",
+ com.google.common.collect;version="18.0.0"

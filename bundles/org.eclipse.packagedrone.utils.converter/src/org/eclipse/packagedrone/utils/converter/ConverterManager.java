@@ -27,6 +27,7 @@ public class ConverterManager
         result.addConverter ( StringToBooleanConverter.INSTANCE );
         result.addConverter ( StringToPrimitiveBooleanConverter.INSTANCE );
         result.addConverter ( StringToPrimitiveIntegerConverter.INSTANCE );
+        result.addConverter ( StringToPrimitiveLongConverter.INSTANCE );
         result.addConverter ( BooleanToStringConverter.INSTANCE );
         result.addConverter ( IntegerToStringConverter.INSTANCE );
         result.addConverter ( StringToSetConverter.INSTANCE );

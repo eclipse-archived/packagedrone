@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Unit tests for 'de.dentrassi.pm.apm'
+Bundle-Name: Unit tests for 'org.eclipse.packagedrone.storage.apm.tests'
 Bundle-SymbolicName: org.eclipse.packagedrone.storage.apm.tests
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.eclipse.packagedrone.storage.apm

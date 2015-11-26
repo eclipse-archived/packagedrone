@@ -1,12 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-    
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
+    pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://dentrassi.de/osgi/web/form" prefix="form"%>
-<%@ taglib uri="http://dentrassi.de/osgi/job" prefix="job"%>
+
+<%@ taglib uri="http://eclipse.org/packagedrone/web/form" prefix="form"%>
+<%@ taglib uri="http://eclipse.org/packagedrone/job" prefix="job"%>
+
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 
 <h:main title="Import Test" subtitle="Failed">
@@ -20,8 +21,8 @@
             <dt>Repository</dt>
             <dd>
                 <c:choose>
-                    <c:when test="${empty configuration.url }"><em>Maven Central</em></c:when>
-                    <c:otherwise>${fn:escapeXml(configuration.url) }</c:otherwise>
+                    <c:when test="${empty configuration.repositoryUrl }"><em>Maven Central</em></c:when>
+                    <c:otherwise>${fn:escapeXml(configuration.repositoryUrl) }</c:otherwise>
                 </c:choose>
             </dd>
             
@@ -39,7 +40,7 @@
 
 <div class="row">
     <div class="col-md-11 col-md-offset-1">
-        <form class="form-inline" method="GET" action="start" id="command">
+        <form class="form-inline" method="POST" action="edit" id="command">
             <input type="hidden" name=configuration value="${fn:escapeXml(cfgJson) }"/>
             <input type="hidden" name=request value="${fn:escapeXml(request) }"/>
             <input type="hidden" name="token" value="${fn:escapeXml(token) }"/>

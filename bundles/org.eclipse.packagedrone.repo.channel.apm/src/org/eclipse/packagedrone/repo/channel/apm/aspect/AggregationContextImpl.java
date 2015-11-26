@@ -27,7 +27,7 @@ import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelDetails;
 import org.eclipse.packagedrone.repo.channel.ValidationMessage;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ArtifactReceiver;
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 public class AggregationContextImpl implements AggregationContext
 {

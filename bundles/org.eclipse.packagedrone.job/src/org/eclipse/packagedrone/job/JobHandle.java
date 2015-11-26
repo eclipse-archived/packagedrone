@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.job;
 
+import java.util.Map;
+
 /**
  * A job information object
  * <p>
@@ -30,6 +32,13 @@ public interface JobHandle
     public ErrorInformation getError ();
 
     public String getResult ();
+
+    /**
+     * Return the job properties
+     *
+     * @return the job properties, may be an empty map, but never {@code null}
+     */
+    public Map<String, String> getProperties ();
 
     public default boolean isComplete ()
     {

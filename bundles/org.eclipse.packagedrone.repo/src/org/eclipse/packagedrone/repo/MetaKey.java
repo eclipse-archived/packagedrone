@@ -42,6 +42,12 @@ public class MetaKey implements Comparable<MetaKey>, Serializable
         this.key = key;
     }
 
+    private MetaKey ( final String namespace, final String key, final boolean checked )
+    {
+        this.namespace = namespace;
+        this.key = key;
+    }
+
     public String getKey ()
     {
         return this.key;
@@ -146,6 +152,6 @@ public class MetaKey implements Comparable<MetaKey>, Serializable
             return null;
         }
 
-        return new MetaKey ( string.substring ( 0, idx ), string.substring ( idx + 1 ) );
+        return new MetaKey ( string.substring ( 0, idx ), string.substring ( idx + 1 ), true );
     }
 }

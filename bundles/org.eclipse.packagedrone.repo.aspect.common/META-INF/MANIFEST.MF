@@ -23,6 +23,9 @@ Import-Package: com.google.common.hash;version="18.0.0",
  org.eclipse.packagedrone.repo.utils;version="1.0.0",
  org.eclipse.packagedrone.repo.utils.osgi.bundle;version="1.0.0",
  org.eclipse.packagedrone.repo.utils.osgi.feature;version="1.0.0",
+ org.eclipse.packagedrone.utils;version="1.0.0",
+ org.eclipse.packagedrone.utils.io;version="1.0.0",
+ org.eclipse.packagedrone.utils.xml;version="1.0.0",
  org.osgi.framework;version="1.7.0",
  org.slf4j;version="1.7.2"
 Service-Component: OSGI-INF/hash.xml,
@@ -37,9 +40,15 @@ Service-Component: OSGI-INF/hash.xml,
  OSGI-INF/groupOsgi.xml
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.packagedrone.repo.aspect.common.osgi;version="1.0.0";
-  uses:="de.dentrassi.pm.aspect,
-   de.dentrassi.pm.osgi.bundle,
-   de.dentrassi.pm.aspect.extract,
-   de.dentrassi.pm.osgi.feature",
- org.eclipse.packagedrone.repo.aspect.common.p2;version="1.0.0",
- org.eclipse.packagedrone.repo.aspect.common.spool;version="1.0.0";uses:="de.dentrassi.pm.common.utils,de.dentrassi.pm.aspect.aggregate"
+  uses:="org.eclipse.packagedrone.repo.aspect,
+   org.eclipse.packagedrone.repo.aspect.extract,
+   org.eclipse.packagedrone.repo.utils.osgi.bundle,
+   org.eclipse.packagedrone.repo.utils.osgi.feature",
+ org.eclipse.packagedrone.repo.aspect.common.p2;version="1.0.0";
+  uses:="org.osgi.framework,
+   org.eclipse.packagedrone.repo.aspect,
+   org.eclipse.packagedrone.repo,
+   org.w3c.dom,
+   org.eclipse.packagedrone.repo.utils.osgi.bundle,
+   org.eclipse.packagedrone.repo.utils.osgi.feature",
+ org.eclipse.packagedrone.repo.aspect.common.spool;version="1.0.0";uses:="org.eclipse.packagedrone.repo.aspect.aggregate,org.eclipse.packagedrone.repo.utils"

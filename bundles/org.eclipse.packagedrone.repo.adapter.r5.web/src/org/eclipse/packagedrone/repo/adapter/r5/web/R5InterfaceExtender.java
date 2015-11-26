@@ -44,9 +44,12 @@ public class R5InterfaceExtender extends AbstractChannelInterfaceExtender
         final List<MenuEntry> result = new LinkedList<> ();
 
         result.add ( new MenuEntry ( "R5 (by ID)", 10_000, new LinkTarget ( "/r5/{channelId}" ).expand ( model ), Modifier.LINK, null ) );
+        result.add ( new MenuEntry ( "OBR (by ID)", 10_000, new LinkTarget ( "/obr/{channelId}" ).expand ( model ), Modifier.LINK, null ) );
+
         if ( model.containsKey ( "channelAlias" ) )
         {
             result.add ( new MenuEntry ( "R5 (by name)", 10_000, new LinkTarget ( "/r5/{channelAlias}" ).expand ( model ), Modifier.LINK, null ) );
+            result.add ( new MenuEntry ( "OBR (by name)", 10_000, new LinkTarget ( "/obr/{channelAlias}" ).expand ( model ), Modifier.LINK, null ) );
         }
 
         return result;

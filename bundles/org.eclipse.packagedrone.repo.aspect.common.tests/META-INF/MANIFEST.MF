@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Unit tests for 'de.dentrassi.pm.aspect.common'
+Bundle-Name: Unit tests for 'org.eclipse.packagedrone.repo.aspect.common'
 Bundle-SymbolicName: org.eclipse.packagedrone.repo.aspect.common.tests
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: IBH SYSTEMS GmbH

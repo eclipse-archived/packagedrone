@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common Web Repository Functionality
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.web
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: org.eclipse.packagedrone.repo.web.tags;version="1.0.0";uses:="org.eclipse.packagedrone.repo,org.eclipse.packagedrone.repo.channel",
+ org.eclipse.packagedrone.repo.web.utils;version="1.0.0";
+  uses:="org.eclipse.packagedrone.repo,
+   javax.servlet.http,
+   org.eclipse.packagedrone.repo.channel,
+   org.eclipse.packagedrone.web"
+Web-Export-Taglib: WEB-INF/tags/storage/storage.tld
+Import-Package: com.google.common.escape;version="18.0.0",
+ com.google.common.io;version="18.0.0",
+ com.google.common.net;version="18.0.0",
+ javax.servlet;version="3.1.0",
+ javax.servlet.http;version="3.1.0",
+ org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel;version="1.0.0",
+ org.eclipse.packagedrone.repo.utils;version="1.0.0",
+ org.eclipse.packagedrone.utils.io;version="1.0.0",
+ org.eclipse.packagedrone.web;version="1.0.0",
+ org.eclipse.packagedrone.web.common;version="1.0.0",
+ org.slf4j;version="1.7.2"

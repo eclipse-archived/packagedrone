@@ -26,7 +26,7 @@ import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs.Entry;
-import org.eclipse.packagedrone.repo.channel.web.utils.Channels;
+import org.eclipse.packagedrone.repo.web.utils.Channels;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;

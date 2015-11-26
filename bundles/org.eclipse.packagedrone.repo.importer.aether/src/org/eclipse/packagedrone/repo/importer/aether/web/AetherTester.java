@@ -10,25 +10,21 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.importer.aether.web;
 
+import static org.eclipse.packagedrone.repo.importer.aether.AetherImporter.preparePlain;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 
-import org.eclipse.aether.repository.ArtifactRepository;
-import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.packagedrone.job.AbstractJsonJobFactory;
 import org.eclipse.packagedrone.job.JobFactoryDescriptor;
 import org.eclipse.packagedrone.job.JobInstance.Context;
-import org.eclipse.packagedrone.repo.importer.aether.AetherImporter;
-import org.eclipse.packagedrone.repo.importer.aether.Configuration;
-import org.eclipse.packagedrone.repo.importer.aether.MavenCoordinates;
+import org.eclipse.packagedrone.repo.importer.aether.ImportConfiguration;
 import org.eclipse.packagedrone.web.LinkTarget;
 import org.eclipse.scada.utils.io.RecursiveDeleteVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AetherTester extends AbstractJsonJobFactory<Configuration, AetherResult>
+public class AetherTester extends AbstractJsonJobFactory<ImportConfiguration, AetherResult>
 {
 
     private final static Logger logger = LoggerFactory.getLogger ( AetherTester.class );
@@ -46,13 +42,24 @@ public class AetherTester extends AbstractJsonJobFactory<Configuration, AetherRe
 
     public AetherTester ()
     {
-        super ( Configuration.class );
+        super ( ImportConfiguration.class );
     }
 
     @Override
-    protected String makeLabelFromData ( final Configuration data )
+    protected String makeLabelFromData ( final ImportConfiguration data )
     {
-        return String.format ( "Test Maven import: %s", data.getCoordinates () );
+        String label = "";
+
+        if ( !data.getCoordinates ().isEmpty () )
+        {
+            label = data.getCoordinates ().get ( 0 ).toString ();
+            if ( data.getCoordinates ().size () > 1 )
+            {
+                label += String.format ( " (and %s more)", data.getCoordinates ().size () - 1 );
+            }
+        }
+
+        return String.format ( "Test Maven import: %s", label );
     }
 
     @Override
@@ -62,31 +69,14 @@ public class AetherTester extends AbstractJsonJobFactory<Configuration, AetherRe
     }
 
     @Override
-    protected AetherResult process ( final Context context, final Configuration cfg ) throws Exception
+    protected AetherResult process ( final Context context, final ImportConfiguration cfg ) throws Exception
     {
-        final AetherResult result = new AetherResult ();
-
         final Path tmpDir = Files.createTempDirectory ( "aether" );
 
         try
         {
-            final Collection<ArtifactResult> results = AetherImporter.process ( tmpDir, cfg );
+            return preparePlain ( tmpDir, cfg );
 
-            final ArtifactResult artRes = results.iterator ().next ();
-
-            result.setResolved ( artRes.isResolved () );
-
-            final ArtifactRepository repo = artRes.getRepository ();
-            if ( repo instanceof RemoteRepository )
-            {
-                final RemoteRepository remRepo = (RemoteRepository)repo;
-                result.setUrl ( remRepo.getUrl () );
-            }
-
-            if ( artRes.isResolved () )
-            {
-                result.setCoordinates ( MavenCoordinates.fromResult ( artRes ) );
-            }
         }
         catch ( final Exception e )
         {
@@ -98,8 +88,6 @@ public class AetherTester extends AbstractJsonJobFactory<Configuration, AetherRe
             Files.walkFileTree ( tmpDir, new RecursiveDeleteVisitor () );
             Files.deleteIfExists ( tmpDir );
         }
-
-        return result;
     }
 
 }

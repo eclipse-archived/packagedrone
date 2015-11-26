@@ -40,6 +40,9 @@ public class ArtifactInformation implements Comparable<ArtifactInformation>, Val
 
     private final String parentId;
 
+    // original copy-on-write instance used for the manipulator to use copy-on-write
+    private final Set<String> modChildIds;
+
     private final Set<String> childIds;
 
     private final String name;
@@ -48,7 +51,13 @@ public class ArtifactInformation implements Comparable<ArtifactInformation>, Val
 
     private final Instant creationTimestamp;
 
+    // original copy-on-write instance used for the manipulator to use copy-on-write
+    private final Set<String> modFacets;
+
     private final Set<String> facets;
+
+    // original copy-on-write instance used for the manipulator to use copy-on-write
+    private final List<ValidationMessage> modMessages;
 
     private final List<ValidationMessage> messages;
 
@@ -65,14 +74,26 @@ public class ArtifactInformation implements Comparable<ArtifactInformation>, Val
         this.id = id;
 
         this.parentId = parentId;
-        this.childIds = childIds != null ? unmodifiableSet ( new CopyOnWriteArraySet<> ( childIds ) ) : Collections.emptySet ();
+
+        if ( childIds != null )
+        {
+            this.modChildIds = new CopyOnWriteArraySet<> ( childIds );
+            this.childIds = unmodifiableSet ( this.modChildIds );
+        }
+        else
+        {
+            this.childIds = this.modChildIds = Collections.emptySet ();
+        }
 
         this.name = name;
         this.size = size;
         this.creationTimestamp = creationTimestamp;
-        this.facets = unmodifiableSet ( new CopyOnWriteArraySet<> ( facets ) );
 
-        this.messages = unmodifiableList ( new CopyOnWriteArrayList<> ( messages ) );
+        this.modFacets = new CopyOnWriteArraySet<> ( facets );
+        this.facets = unmodifiableSet ( this.modFacets );
+
+        this.modMessages = new CopyOnWriteArrayList<> ( messages );
+        this.messages = unmodifiableList ( this.modMessages );
 
         this.providedMetaData = providedMetaData != null ? unmodifiableMap ( new HashMap<> ( providedMetaData ) ) : emptyMap ();
         this.extractedMetaData = extractedMetaData != null ? unmodifiableMap ( new HashMap<> ( extractedMetaData ) ) : emptyMap ();
@@ -88,13 +109,16 @@ public class ArtifactInformation implements Comparable<ArtifactInformation>, Val
 
         this.parentId = other.parentId;
         this.childIds = other.childIds;
+        this.modChildIds = other.modChildIds;
 
         this.name = other.name;
         this.size = other.size;
         this.creationTimestamp = other.creationTimestamp;
         this.facets = other.facets;
+        this.modFacets = other.modFacets;
 
         this.messages = other.messages;
+        this.modMessages = other.modMessages;
 
         this.providedMetaData = other.providedMetaData;
         this.extractedMetaData = other.extractedMetaData;
@@ -223,5 +247,77 @@ public class ArtifactInformation implements Comparable<ArtifactInformation>, Val
     public String toString ()
     {
         return String.format ( "[%s = %s]", this.id, this.name );
+    }
+
+    public Manipulator createManipulator ()
+    {
+        return new Manipulator ( this );
+    }
+
+    public static class Manipulator
+    {
+        private final ArtifactInformation original;
+
+        private Set<String> childIds;
+
+        private Map<MetaKey, String> providedMetaData;
+
+        private Map<MetaKey, String> extractedMetaData;
+
+        private List<ValidationMessage> validationMessages;
+
+        public Manipulator ( final ArtifactInformation original )
+        {
+            this.original = original;
+
+            /* although this is a modifiable version, we _must not_ change the list content!
+             * Since it is the base of an immutable object. But if we have access to the original
+             * CopyOnWriteArraySet, the copy constructor can make use of the copy on write variant */
+            this.childIds = new CopyOnWriteArraySet<> ( original.modChildIds );
+
+            this.providedMetaData = new HashMap<> ( original.providedMetaData );
+            this.extractedMetaData = new HashMap<> ( original.extractedMetaData );
+            this.validationMessages = new CopyOnWriteArrayList<> ( original.modMessages );
+        }
+
+        public void setChildIds ( final Set<String> childIds )
+        {
+            this.childIds = childIds;
+        }
+
+        public Set<String> getChildIds ()
+        {
+            return this.childIds;
+        }
+
+        public ArtifactInformation build ()
+        {
+            return new ArtifactInformation ( this.original.id, this.original.parentId, this.childIds, this.original.name, this.original.size, this.original.creationTimestamp, this.original.modFacets, this.validationMessages, this.providedMetaData, this.extractedMetaData, this.original.virtualizerAspectId );
+        }
+
+        public Map<MetaKey, String> getProvidedMetaData ()
+        {
+            return this.providedMetaData;
+        }
+
+        public void setProvidedMetaData ( final Map<MetaKey, String> providedMetaData )
+        {
+            this.providedMetaData = providedMetaData;
+        }
+
+        public Map<MetaKey, String> getExtractedMetaData ()
+        {
+            return this.extractedMetaData;
+        }
+
+        public void setExtractedMetaData ( final Map<MetaKey, String> extractedMetaData )
+        {
+            this.extractedMetaData = extractedMetaData;
+        }
+
+        public void setValidationMessages ( final List<ValidationMessage> validationMessages )
+        {
+            this.validationMessages = validationMessages;
+        }
     }
 }

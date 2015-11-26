@@ -11,9 +11,9 @@
 package org.eclipse.packagedrone.repo.adapter.maven.upload;
 
 /**
- * Thrown when a checksum validation is detected
+ * Thrown when a checksum validation error is detected
  */
-public class ChecksumValidationException extends Exception
+public abstract class ChecksumValidationException extends Exception
 {
     private static final long serialVersionUID = 1L;
 

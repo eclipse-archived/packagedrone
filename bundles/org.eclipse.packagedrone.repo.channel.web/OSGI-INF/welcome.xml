@@ -3,5 +3,6 @@
    <implementation class="org.eclipse.packagedrone.repo.channel.web.internal.WelcomeController"/>
    <service>
       <provide interface="org.eclipse.packagedrone.repo.channel.web.internal.WelcomeController"/>
+      <provide interface="org.eclipse.packagedrone.repo.web.sitemap.SitemapExtender"/>
    </service>
 </scr:component>

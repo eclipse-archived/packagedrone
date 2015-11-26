@@ -1,17 +1,19 @@
 #!/bin/sh
 
-USER=pdrone
+USER="[[drone.user]]"
+GROUP="[[drone.group]]"
+APP_NAME="[[drone.app.name]]"
 
 set -e
 
 case "$1" in
     install)
         if ! getent passwd "$USER" >/dev/null; then
-            adduser --system --group --home "/var/lib/$USER" "$USER" --quiet --gecos "Package Drone User"
+            adduser --system --group --home "/var/lib/$APP_NAME" "$USER" --quiet --gecos "Package Drone User"
         fi
         
-        mkdir -p "/var/lib/$USER"
-        chown -R "$USER:$USER" "/var/lib/$USER"
+        mkdir -p "/var/lib/$APP_NAME"
+        chown -R "$USER:$GROUP" "/var/lib/$APP_NAME"
     ;;
 esac
 

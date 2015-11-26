@@ -82,7 +82,8 @@
   <setupTask
       xsi:type="projects:ProjectsImportTask">
     <sourceLocator
-        rootFolder="${git.clone.location}"/>
+        rootFolder="${git.clone.location}"
+        locateNestedProjects="true"/>
     <description>Import all projects from the git repository</description>
   </setupTask>
   <setupTask

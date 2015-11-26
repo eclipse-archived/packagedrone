@@ -54,8 +54,8 @@
         
         <td>
             <ul class="link-list">
-                <h:artifactLinkListItem artifactId="${bundle.artifactId }" url="${bundle.translate(bundle.docUrl) }">Documentation</h:artifactLinkListItem>
-                <h:artifactLinkListItem artifactId="${bundle.artifactId }" url="${bundle.translate(bundle.license) }">License</h:artifactLinkListItem>
+                <h:artifactLinkListItem channelId="${bundle.channelId }" artifactId="${bundle.artifactId }" url="${bundle.translate(bundle.docUrl) }">Documentation</h:artifactLinkListItem>
+                <h:artifactLinkListItem channelId="${bundle.channelId }" artifactId="${bundle.artifactId }" url="${bundle.translate(bundle.license) }">License</h:artifactLinkListItem>
             </ul>
         </td>
     </tr>

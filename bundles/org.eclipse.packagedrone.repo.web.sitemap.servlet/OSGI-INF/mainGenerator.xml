@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" deactivate="dispose" name="org.eclipse.packagedrone.repo.web.sitemap.servlet.main">
+   <implementation class="org.eclipse.packagedrone.repo.web.sitemap.servlet.MainSitemapGenerator"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.web.sitemap.SitemapGenerator"/>
+   </service>
+</scr:component>

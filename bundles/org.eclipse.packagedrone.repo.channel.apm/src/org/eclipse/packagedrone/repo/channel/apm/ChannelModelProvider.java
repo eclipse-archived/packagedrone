@@ -10,24 +10,27 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.apm;
 
-import java.io.Reader;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.apm.internal.Finally;
 import org.eclipse.packagedrone.repo.channel.apm.store.BlobStore;
-import org.eclipse.packagedrone.repo.channel.apm.store.CacheStore;
 import org.eclipse.packagedrone.repo.channel.apm.store.BlobStore.Transaction;
+import org.eclipse.packagedrone.repo.channel.apm.store.CacheStore;
 import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
 import org.eclipse.packagedrone.storage.apm.AbstractSimpleStorageModelProvider;
 import org.eclipse.packagedrone.storage.apm.StorageContext;
-import org.eclipse.packagedrone.storage.apm.util.ReplaceOnCloseWriter;
+import org.eclipse.packagedrone.storage.apm.util.ReplaceOnCloseOutputStream;
+import org.eclipse.packagedrone.utils.profiler.Profile;
+import org.eclipse.packagedrone.utils.profiler.Profile.Handle;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,14 +102,15 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
         return makeBasePath ( context, channelId ).resolve ( "state.json" );
     }
 
-    private Gson createGson ()
+    static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+
+    static Gson createGson ()
     {
         final GsonBuilder builder = new GsonBuilder ();
 
         builder.setPrettyPrinting ();
-        builder.serializeNulls ();
         builder.setLongSerializationPolicy ( LongSerializationPolicy.STRING );
-        builder.setDateFormat ( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" );
+        builder.setDateFormat ( DATE_FORMAT );
         builder.registerTypeAdapter ( MetaKey.class, new JsonDeserializer<MetaKey> () {
 
             @Override
@@ -122,66 +126,74 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
     @Override
     protected void persistWriteModel ( final StorageContext context, final ModifyContextImpl writeModel ) throws Exception
     {
-        final AtomicReference<Transaction> t = new AtomicReference<> ( writeModel.claimTransaction () );
-        final AtomicReference<CacheStore.Transaction> ct = new AtomicReference<> ( writeModel.claimCacheTransaction () );
-
-        final Finally f = new Finally ();
-
-        f.add ( () -> {
-            final Transaction v = t.get ();
-            if ( v != null )
-            {
-                v.rollback ();
-            }
-        } );
-
-        f.add ( () -> {
-            final CacheStore.Transaction v = ct.get ();
-            if ( v != null )
-            {
-                v.rollback ();
-            }
-        } );
-
-        try
+        try ( Handle h1 = Profile.start ( this, "persistWriteModel" ) )
         {
-            final Path path = makeStatePath ( context, this.channelId );
-            Files.createDirectories ( path.getParent () );
+            final AtomicReference<Transaction> t = new AtomicReference<> ( writeModel.claimTransaction () );
+            final AtomicReference<CacheStore.Transaction> ct = new AtomicReference<> ( writeModel.claimCacheTransaction () );
 
-            // commit blob store
+            final Finally f = new Finally ();
 
-            if ( t.get () != null )
+            f.add ( () -> {
+                final Transaction v = t.get ();
+                if ( v != null )
+                {
+                    v.rollback ();
+                }
+            } );
+
+            f.add ( () -> {
+                final CacheStore.Transaction v = ct.get ();
+                if ( v != null )
+                {
+                    v.rollback ();
+                }
+            } );
+
+            try
             {
-                t.get ().commit ();
-                t.set ( null );
+                final Path path = makeStatePath ( context, this.channelId );
+                Files.createDirectories ( path.getParent () );
+
+                // commit blob store
+
+                if ( t.get () != null )
+                {
+                    t.get ().commit ();
+                    t.set ( null );
+                }
+
+                // write model
+
+                try ( Handle h2 = Profile.start ( this, "persistWriteModel#write" ) )
+                {
+                    try ( ReplaceOnCloseOutputStream stream = new ReplaceOnCloseOutputStream ( path );
+                          ChannelWriter writer = new ChannelWriter ( stream ); )
+                    {
+                        writer.write ( writeModel );
+                        stream.commit ();
+                    }
+                }
+
+                // commit cache store
+
+                if ( ct.get () != null )
+                {
+                    ct.get ().commit ();
+                    ct.set ( null );
+                }
             }
-
-            // write model
-
-            try ( final ReplaceOnCloseWriter writer = new ReplaceOnCloseWriter ( path, StandardCharsets.UTF_8 ) )
+            catch ( final Exception e )
             {
-                final Gson gson = createGson ();
-                gson.toJson ( writeModel.getModel (), writer );
-
-                writer.commit ();
+                logger.warn ( "Failed to persist model", e );
+                throw e;
             }
-
-            // commit cache store
-
-            if ( ct.get () != null )
+            finally
             {
-                ct.get ().commit ();
-                ct.set ( null );
+                try ( Handle h2 = Profile.start ( this, "persistWriteModel#finally" ) )
+                {
+                    f.runAll ();
+                }
             }
-        }
-        catch ( final Exception e )
-        {
-            logger.warn ( "Failed to persist model", e );
-            throw e;
-        }
-        finally
-        {
-            f.runAll ();
         }
     }
 
@@ -190,21 +202,26 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
     {
         final Path path = makeStatePath ( context, this.channelId );
 
-        try ( Reader reader = Files.newBufferedReader ( path, StandardCharsets.UTF_8 ) )
+        try ( InputStream stream = new BufferedInputStream ( Files.newInputStream ( path ) );
+              ChannelReader reader = new ChannelReader ( stream, this.channelId, this.eventAdmin, this.store, this.cacheStore ); )
         {
-            final Gson gson = createGson ();
-            final ChannelModel model = gson.fromJson ( reader, ChannelModel.class );
+            final ModifyContextImpl model = reader.read ();
             if ( model == null )
             {
                 // FIXME: handle broken channel state
                 throw new IllegalStateException ( "Unable to load channel model" );
             }
-            return new ModifyContextImpl ( this.channelId, this.eventAdmin, this.store, this.cacheStore, model );
+            return model;
         }
         catch ( final NoSuchFileException e )
         {
             // create a new model
-            return new ModifyContextImpl ( this.channelId, this.eventAdmin, this.store, this.cacheStore, new ChannelModel () );
+
+            final ChannelModel model = new ChannelModel ();
+
+            model.setCreationTimestamp ( new Date () );
+
+            return new ModifyContextImpl ( this.channelId, this.eventAdmin, this.store, this.cacheStore );
         }
     }
 

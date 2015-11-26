@@ -12,13 +12,8 @@ package org.eclipse.packagedrone.repo.generator.p2;
 
 import static org.eclipse.packagedrone.repo.MetaKeys.getString;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,28 +55,13 @@ public class CategoryGenerator implements ArtifactGenerator
     {
         final String id = getString ( context.getArtifactInformation ().getMetaData (), ID, "id" );
 
-        final Path tmp = Files.createTempFile ( "p2-cat-", ".xml" );
+        context.createVirtualArtifact ( String.format ( "%s-p2metadata.xml", id ), out -> {
+            createMetaDataXml ( out, context.getArtifactInformation ().getMetaData (), context );
+        } , null );
 
-        try
-        {
-            try ( final BufferedOutputStream out = new BufferedOutputStream ( new FileOutputStream ( tmp.toFile () ) ) )
-            {
-                createMetaDataXml ( out, context.getArtifactInformation ().getMetaData (), context );
-            }
-
-            final Map<MetaKey, String> providedMetaData = new HashMap<> ();
-            try ( BufferedInputStream is = new BufferedInputStream ( new FileInputStream ( tmp.toFile () ) ) )
-            {
-                context.createVirtualArtifact ( String.format ( "%s-p2metadata.xml", id ), is, providedMetaData );
-            }
-        }
-        finally
-        {
-            Files.deleteIfExists ( tmp );
-        }
     }
 
-    private void createMetaDataXml ( final OutputStream out, final Map<MetaKey, String> map, final GenerationContext context ) throws Exception
+    private void createMetaDataXml ( final OutputStream out, final Map<MetaKey, String> map, final GenerationContext context ) throws IOException
     {
         final String id = getString ( map, ID, "id" );
         final String name = getString ( map, ID, "name" );

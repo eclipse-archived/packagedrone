@@ -14,7 +14,6 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -196,7 +195,7 @@ public class ArtifactModel
         result.setFacets ( ai.getFacets () );
 
         result.setParentId ( ai.getParentId () );
-        result.setChildIds ( new HashSet<> ( ai.getChildIds () ) );
+        result.setChildIds ( new CopyOnWriteArraySet<> ( ai.getChildIds () ) );
 
         result.setName ( ai.getName () );
         result.setSize ( ai.getSize () );

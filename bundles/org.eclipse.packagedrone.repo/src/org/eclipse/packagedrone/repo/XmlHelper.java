@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Iterator;
+import java.util.function.Consumer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -160,7 +161,8 @@ public class XmlHelper
 
     /**
      * @deprecated Instead the class {@link
-     *             org.eclipse.packagedrone.utils.xml.XmlToolsFactory} should be used.
+     *             org.eclipse.packagedrone.utils.xml.XmlToolsFactory} should be
+     *             used.
      */
     @Deprecated
     public static XPathFactory createXPathFactory ()
@@ -207,7 +209,7 @@ public class XmlHelper
         return this.dbfNs.newDocumentBuilder ().parse ( stream );
     }
 
-    public String toString ( final Document doc )
+    public String toString ( final Node doc )
     {
         try
         {
@@ -222,17 +224,17 @@ public class XmlHelper
         }
     }
 
-    public void write ( final Document doc, final OutputStream stream ) throws Exception
+    public void write ( final Node doc, final OutputStream stream ) throws Exception
     {
         write ( doc, new StreamResult ( stream ) );
     }
 
-    public void write ( final Document doc, final Writer writer ) throws Exception
+    public void write ( final Node doc, final Writer writer ) throws Exception
     {
         write ( doc, new StreamResult ( writer ) );
     }
 
-    public void write ( final Document doc, final Result result ) throws TransformerException
+    public void write ( final Node doc, final Result result ) throws TransformerException
     {
         final Transformer transformer = this.transformerFactory.newTransformer ();
         final DOMSource source = new DOMSource ( doc );
@@ -242,7 +244,29 @@ public class XmlHelper
         transformer.transform ( source, result );
     }
 
-    public byte[] toData ( final Document doc ) throws Exception
+    public static void write ( final TransformerFactory transformerFactory, final Node node, final Result result ) throws TransformerException
+    {
+        write ( transformerFactory, node, result, null );
+    }
+
+    public static void write ( final TransformerFactory transformerFactory, final Node node, final Result result, final Consumer<Transformer> transformerCustomizer ) throws TransformerException
+    {
+        final Transformer transformer = transformerFactory.newTransformer ();
+        final DOMSource source = new DOMSource ( node );
+
+        transformer.setOutputProperty ( OutputKeys.INDENT, "yes" );
+        transformer.setOutputProperty ( OutputKeys.ENCODING, "UTF-8" );
+        transformer.setOutputProperty ( "{http://xml.apache.org/xslt}indent-amount", "2" );
+
+        if ( transformerCustomizer != null )
+        {
+            transformerCustomizer.accept ( transformer );
+        }
+
+        transformer.transform ( source, result );
+    }
+
+    public byte[] toData ( final Node doc ) throws Exception
     {
         final ByteArrayOutputStream out = new ByteArrayOutputStream ();
         write ( doc, out );

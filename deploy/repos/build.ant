@@ -28,6 +28,9 @@
 			<get-release-2 version="0.7.3"/>
 			<get-release-2 version="0.8.1"/>
 			<get-release-2 version="0.9.4"/>
+			<get-release-2 version="0.10.4"/>
+			<get-release version="0.11.0"/>
+			<get-release version="0.11.1"/>
 		</parallel>
 	</target>
 	
@@ -37,8 +40,9 @@
     <macrodef name="get-release">
         <attribute name="version"/>
         <sequential>
-        	<get src="https://github.com/ctron/package-drone/releases/download/v@{version}/package-drone-server-@{version}-1.noarch.rpm" dest="download" usetimestamp="true"/>
-            <get src="https://github.com/ctron/package-drone/releases/download/v@{version}/package-drone-server_@{version}_all.deb" dest="download" usetimestamp="true"/>
+        	<get src="https://github.com/ctron/package-drone/releases/download/v@{version}/org.eclipse.packagedrone.server-@{version}-3.el6.noarch.rpm" dest="download" usetimestamp="true"/>
+        	<get src="https://github.com/ctron/package-drone/releases/download/v@{version}/org.eclipse.packagedrone.server-@{version}-3.el7.noarch.rpm" dest="download" usetimestamp="true"/>
+            <get src="https://github.com/ctron/package-drone/releases/download/v@{version}/org.eclipse.packagedrone.server_@{version}_all.deb" dest="download" usetimestamp="true"/>
         </sequential>
     </macrodef>
 	
@@ -83,7 +87,11 @@
 		<adddeb src="download/package-drone-server_0.7.3_all.deb" />
 		<adddeb src="download/package-drone-server_0.8.1_all.deb" />
 	    <adddeb src="download/package-drone-server_0.9.4_all.deb" />
-		<adddeb src="download/package-drone-server_0.10.0_all.deb" />
+		<adddeb src="download/package-drone-server_0.10.4_all.deb" />
+		<adddeb src="download/org.eclipse.packagedrone.server_0.11.0_all.deb" />
+		<adddeb src="download/org.eclipse.packagedrone.server_0.11.1_all.deb" />
+		<adddeb src="download/org.eclipse.packagedrone.server_0.11.2_all.deb" />
+		<adddeb src="download/org.eclipse.packagedrone.server_0.11.3_all.deb" />
 	</target>
 
 	<macrodef name="adddeb">

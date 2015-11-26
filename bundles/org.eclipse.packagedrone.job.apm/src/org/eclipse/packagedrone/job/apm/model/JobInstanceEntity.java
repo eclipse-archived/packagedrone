@@ -11,6 +11,7 @@
 package org.eclipse.packagedrone.job.apm.model;
 
 import java.time.Instant;
+import java.util.Map;
 
 import org.eclipse.packagedrone.job.ErrorInformation;
 import org.eclipse.packagedrone.job.State;
@@ -37,6 +38,8 @@ public class JobInstanceEntity
 
     private Double percentComplete;
 
+    private Map<String, String> properties;
+
     public JobInstanceEntity ()
     {
         this.creation = Instant.now ();
@@ -54,6 +57,7 @@ public class JobInstanceEntity
         this.label = other.label;
         this.currentWorkLabel = other.currentWorkLabel;
         this.percentComplete = other.percentComplete;
+        this.properties = other.properties;
     }
 
     public Instant getCreation ()
@@ -149,5 +153,15 @@ public class JobInstanceEntity
     public void setErrorInformation ( final ErrorInformation errorInformation )
     {
         this.errorInformation = errorInformation;
+    }
+
+    public void setProperties ( final Map<String, String> properties )
+    {
+        this.properties = properties;
+    }
+
+    public Map<String, String> getProperties ()
+    {
+        return this.properties;
     }
 }

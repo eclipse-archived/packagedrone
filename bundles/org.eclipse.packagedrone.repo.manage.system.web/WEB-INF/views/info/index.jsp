@@ -8,7 +8,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<%@ taglib uri="http://eclipse.org/package-drone/web" prefix="web" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
 <h:main title="System" subtitle="Information">
 

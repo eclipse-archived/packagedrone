@@ -32,7 +32,7 @@ public class ChannelUploadTarget implements UploadTarget
 
     private static final MetaKey KEY_CLASSIFIER = new MetaKey ( "mvn", "classifier" );
 
-    private static final MetaKey KEY_QUALIFIED_VERSION = new MetaKey ( "mvn", "qualifiedVersion" );
+    private static final MetaKey KEY_SNAPSHOT_VERSION = new MetaKey ( "mvn", "snapshotVersion" );
 
     private static final MetaKey KEY_VERSION = new MetaKey ( "mvn", "version" );
 
@@ -90,12 +90,12 @@ public class ChannelUploadTarget implements UploadTarget
 
         if ( arts.isEmpty () )
         {
-            throw new ChecksumValidationException ( String.format ( "Unable to find artifact: %s", coordinates ) );
+            throw new ArtifactNotFoundException ( coordinates );
         }
 
         if ( arts.size () > 1 )
         {
-            throw new ChecksumValidationException ( String.format ( "Multiple artifacts found for: %s -> %s", coordinates, gatherIds ( arts ) ) );
+            throw new MultipleArtifactsFoundException ( coordinates, arts );
         }
 
         final ArtifactInformation art = arts.iterator ().next ();
@@ -108,28 +108,8 @@ public class ChannelUploadTarget implements UploadTarget
 
         if ( !actualValue.equalsIgnoreCase ( value ) )
         {
-            throw new ChecksumValidationException ( String.format ( "Invalid checksum: {} - expected: {}, actual: {}", coordinates, value, actualValue ) );
+            throw new InvalidChecksumException ( coordinates, value, actualValue );
         }
-    }
-
-    private String gatherIds ( final Collection<ArtifactInformation> arts )
-    {
-        final StringBuilder sb = new StringBuilder ( '{' );
-
-        int i = 0;
-        for ( final ArtifactInformation art : arts )
-        {
-            if ( i > 0 )
-            {
-                sb.append ( ", " );
-            }
-            sb.append ( art.getId () );
-            i++;
-        }
-
-        sb.append ( '}' );
-
-        return sb.toString ();
     }
 
     protected Collection<ArtifactInformation> internalFindArtifacts ( final Coordinates coordinates )
@@ -183,7 +163,7 @@ public class ChannelUploadTarget implements UploadTarget
         metaData.put ( KEY_GROUP_ID, c.getGroupId () );
         metaData.put ( KEY_ARTIFACT_ID, c.getArtifactId () );
         metaData.put ( KEY_VERSION, c.getVersion () );
-        metaData.put ( KEY_QUALIFIED_VERSION, c.getQualifiedVersion () );
+        metaData.put ( KEY_SNAPSHOT_VERSION, c.getQualifiedVersion () );
 
         metaData.put ( KEY_CLASSIFIER, c.getClassifier () );
 

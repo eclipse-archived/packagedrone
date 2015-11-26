@@ -11,6 +11,9 @@
 package org.eclipse.packagedrone.job.apm;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -21,10 +24,10 @@ import org.eclipse.packagedrone.job.JobFactory;
 import org.eclipse.packagedrone.job.JobFactoryDescriptor;
 import org.eclipse.packagedrone.job.JobHandle;
 import org.eclipse.packagedrone.job.JobInstance;
+import org.eclipse.packagedrone.job.JobInstance.Context;
 import org.eclipse.packagedrone.job.JobManager;
 import org.eclipse.packagedrone.job.JobRequest;
 import org.eclipse.packagedrone.job.State;
-import org.eclipse.packagedrone.job.JobInstance.Context;
 import org.eclipse.packagedrone.job.apm.model.JobInstanceEntity;
 import org.eclipse.packagedrone.job.apm.model.JobModel;
 import org.eclipse.packagedrone.job.apm.model.JobModelProvider;
@@ -168,7 +171,7 @@ public class JobManagerImpl implements JobManager
             throw new IllegalArgumentException ( String.format ( "Job factory '%s' is unknown", factoryId ) );
         }
 
-        return internalStartJob ( factory.get (), factoryId, job.getData () );
+        return internalStartJob ( factory.get (), factoryId, job.getData (), job.getProperties () );
     }
 
     /**
@@ -188,7 +191,7 @@ public class JobManagerImpl implements JobManager
             throw new IllegalArgumentException ( String.format ( "Job factory '%s' is unknown", factoryId ) );
         }
 
-        return internalStartJob ( factory.get (), factoryId, factory.get ().encodeConfiguration ( data ) );
+        return internalStartJob ( factory.get (), factoryId, factory.get ().encodeConfiguration ( data ), null );
     }
 
     @Override
@@ -218,7 +221,7 @@ public class JobManagerImpl implements JobManager
         return getJobFactory ( factoryId ).map ( JobFactory::getDescriptor ).orElse ( null );
     }
 
-    private JobHandle internalStartJob ( final JobFactory factory, final String factoryId, final String data )
+    private JobHandle internalStartJob ( final JobFactory factory, final String factoryId, final String data, final Map<String, String> properties )
     {
         final String id = makeId ();
 
@@ -231,6 +234,7 @@ public class JobManagerImpl implements JobManager
             ji.setData ( data );
             ji.setState ( State.SCHEDULED );
             ji.setLabel ( factory.makeLabel ( data ) );
+            ji.setProperties ( properties != null ? new HashMap<> ( properties ) : Collections.emptyMap () );
 
             StorageManager.executeAfterPersist ( () -> {
                 this.queue.push ( new ContextImpl ( id, factory, data ) );

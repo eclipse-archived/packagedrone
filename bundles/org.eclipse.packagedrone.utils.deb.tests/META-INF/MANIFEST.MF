@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for de.dentrassi.pm.utils.deb
+Bundle-Name: Tests for 'org.eclipse.packagedrone.utils.deb'
 Bundle-SymbolicName: org.eclipse.packagedrone.utils.deb.tests
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Jens Reimann

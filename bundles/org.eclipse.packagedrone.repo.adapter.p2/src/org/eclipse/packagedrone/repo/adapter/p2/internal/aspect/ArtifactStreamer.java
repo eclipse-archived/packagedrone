@@ -13,7 +13,7 @@ package org.eclipse.packagedrone.repo.adapter.p2.internal.aspect;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 @FunctionalInterface
 public interface ArtifactStreamer

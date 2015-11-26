@@ -18,6 +18,8 @@ public class Checkbox extends FormValueTagSupport
 
     private boolean disabled;
 
+    private boolean readonly;
+
     @Override
     public int doStartTag () throws JspException
     {
@@ -38,6 +40,7 @@ public class Checkbox extends FormValueTagSupport
 
         writer.writeOptionalAttribute ( "type", "checkbox" );
         writer.writeFlagAttribute ( "disabled", this.disabled );
+        writer.writeFlagAttribute ( "readonly", this.readonly );
         writeDefaultAttributes ( writer );
         writer.write ( " />" );
 
@@ -47,6 +50,11 @@ public class Checkbox extends FormValueTagSupport
     public void setDisabled ( final boolean disabled )
     {
         this.disabled = disabled;
+    }
+
+    public void setReadonly ( final boolean readonly )
+    {
+        this.readonly = readonly;
     }
 
 }

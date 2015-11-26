@@ -9,7 +9,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://eclipse.org/package-drone/web" prefix="web" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
 <%
 response.setStatus ( HttpServletResponse.SC_NOT_FOUND );

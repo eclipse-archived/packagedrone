@@ -19,9 +19,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.adapter.maven.upload.ChecksumValidationException;
-import org.eclipse.packagedrone.repo.adapter.maven.upload.Coordinates;
-import org.eclipse.packagedrone.repo.adapter.maven.upload.UploadTarget;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -65,7 +62,7 @@ public class MockUploadTarget implements UploadTarget
 
         if ( arts.isEmpty () )
         {
-            throw new ChecksumValidationException ( "Artifact not found: " + coordinates );
+            throw new ArtifactNotFoundException ( coordinates );
         }
 
         if ( arts.size () != 1 )
@@ -86,7 +83,7 @@ public class MockUploadTarget implements UploadTarget
 
         if ( !value.equalsIgnoreCase ( current ) )
         {
-            throw new ChecksumValidationException ( String.format ( "%s: invalid checksum - expected: %s, actual: %s", coordinates, value, current ) );
+            throw new InvalidChecksumException ( coordinates, value, current );
         }
     }
 

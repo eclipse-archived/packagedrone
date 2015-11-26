@@ -11,12 +11,16 @@
 package org.eclipse.packagedrone.repo.channel.web.channel;
 
 import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static java.util.Optional.ofNullable;
 import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.PERMIT;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 import javax.servlet.ServletException;
@@ -52,12 +57,12 @@ import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
+import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperation;
 import org.eclipse.packagedrone.repo.channel.DeployKeysChannelAdapter;
 import org.eclipse.packagedrone.repo.channel.DescriptorAdapter;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
-import org.eclipse.packagedrone.repo.channel.ChannelService.By;
-import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperation;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployAuthService;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
@@ -66,9 +71,12 @@ import org.eclipse.packagedrone.repo.channel.web.Tags;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs.Entry;
 import org.eclipse.packagedrone.repo.channel.web.internal.Activator;
-import org.eclipse.packagedrone.repo.channel.web.utils.Channels;
 import org.eclipse.packagedrone.repo.generator.GeneratorProcessor;
 import org.eclipse.packagedrone.repo.manage.system.SitePrefixService;
+import org.eclipse.packagedrone.repo.web.sitemap.ChangeFrequency;
+import org.eclipse.packagedrone.repo.web.sitemap.SitemapExtender;
+import org.eclipse.packagedrone.repo.web.sitemap.UrlSetContext;
+import org.eclipse.packagedrone.repo.web.utils.Channels;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;
@@ -82,6 +90,7 @@ import org.eclipse.packagedrone.web.common.CommonController;
 import org.eclipse.packagedrone.web.common.InterfaceExtender;
 import org.eclipse.packagedrone.web.common.Modifier;
 import org.eclipse.packagedrone.web.common.menu.MenuEntry;
+import org.eclipse.packagedrone.web.common.page.Pagination;
 import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 import org.eclipse.packagedrone.web.controller.ProfilerControllerInterceptor;
 import org.eclipse.packagedrone.web.controller.binding.BindingResult;
@@ -106,8 +115,12 @@ import com.google.gson.GsonBuilder;
 @HttpConstraint ( rolesAllowed = "MANAGER" )
 @ControllerInterceptor ( HttpContraintControllerInterceptor.class )
 @ControllerInterceptor ( ProfilerControllerInterceptor.class )
-public class ChannelController implements InterfaceExtender
+public class ChannelController implements InterfaceExtender, SitemapExtender
 {
+
+    private static final int DEFAULT_MAX_WEB_SIZE = 10_000;
+
+    public static final String DRONE_WEB_MAX_LIST_SIZE = "drone.web.maxListSize";
 
     private static final String DEFAULT_EXAMPLE_KEY = "xxxxx";
 
@@ -157,13 +170,14 @@ public class ChannelController implements InterfaceExtender
     @Secured ( false )
     @RequestMapping ( value = "/channel", method = RequestMethod.GET )
     @HttpConstraint ( PERMIT )
-    public ModelAndView list ()
+    public ModelAndView list ( @RequestParameter ( value = "start", required = false ) final Integer startPage)
     {
         final ModelAndView result = new ModelAndView ( "channel/list" );
 
         final List<ChannelInformation> channels = new ArrayList<> ( this.channelService.list () );
         channels.sort ( ChannelId.NAME_COMPARATOR );
-        result.put ( "channels", channels );
+
+        result.put ( "channels", Pagination.paginate ( startPage, 10, channels ) );
 
         return result;
     }
@@ -304,26 +318,44 @@ public class ChannelController implements InterfaceExtender
     @HttpConstraint ( PERMIT )
     public ModelAndView viewPlain ( @PathVariable ( "channelId" ) final String channelId)
     {
-        final ModelAndView result = new ModelAndView ( "channel/view" );
-
         try
         {
-            this.channelService.accessRun ( By.id ( channelId ), ReadableChannel.class, ( channel ) -> {
+            return this.channelService.accessCall ( By.id ( channelId ), ReadableChannel.class, ( channel ) -> {
 
-                final List<ArtifactInformation> sortedArtifacts = new ArrayList<> ( channel.getContext ().getArtifacts ().values () );
+                final Map<String, Object> model = new HashMap<> ();
+
+                model.put ( "channel", channel.getInformation () );
+
+                final Collection<ArtifactInformation> artifacts = channel.getContext ().getArtifacts ().values ();
+
+                if ( artifacts.size () > maxWebListSize () )
+                {
+                    return viewTooMany ( channel );
+                }
+
+                // sort artifacts
+
+                final List<ArtifactInformation> sortedArtifacts = new ArrayList<> ( artifacts );
                 sortedArtifacts.sort ( Comparator.comparing ( ArtifactInformation::getName ) );
+                model.put ( "sortedArtifacts", sortedArtifacts );
 
-                result.put ( "channel", channel.getInformation () );
-                result.put ( "sortedArtifacts", sortedArtifacts );
-
+                return new ModelAndView ( "channel/view", model );
             } );
         }
         catch ( final ChannelNotFoundException e )
         {
             return CommonController.createNotFound ( "channel", channelId );
         }
+    }
 
-        return result;
+    private ModelAndView viewTooMany ( final ReadableChannel channel )
+    {
+        final Map<String, Object> model = new HashMap<> ();
+        model.put ( "channel", channel.getInformation () );
+        model.put ( "numberOfArtifacts", channel.getArtifacts ().size () );
+        model.put ( "maxNumberOfArtifacts", maxWebListSize () );
+        model.put ( "propertyName", DRONE_WEB_MAX_LIST_SIZE );
+        return new ModelAndView ( "channel/viewTooMany", model );
     }
 
     @Secured ( false )
@@ -331,11 +363,16 @@ public class ChannelController implements InterfaceExtender
     @HttpConstraint ( PERMIT )
     public ModelAndView tree ( @PathVariable ( "channelId" ) final String channelId)
     {
-        final ModelAndView result = new ModelAndView ( "channel/tree" );
-
         try
         {
-            this.channelService.accessRun ( By.id ( channelId ), ReadableChannel.class, ( channel ) -> {
+            return this.channelService.accessCall ( By.id ( channelId ), ReadableChannel.class, ( channel ) -> {
+
+                if ( channel.getContext ().getArtifacts ().size () > maxWebListSize () )
+                {
+                    return viewTooMany ( channel );
+                }
+
+                final ModelAndView result = new ModelAndView ( "channel/tree" );
 
                 final Map<String, List<ArtifactInformation>> tree = new HashMap<> ();
 
@@ -354,14 +391,18 @@ public class ChannelController implements InterfaceExtender
                 result.put ( "treeArtifacts", tree );
                 result.put ( "treeSeverityTester", new TreeTesterImpl ( tree ) );
 
+                return result;
             } );
         }
         catch ( final ChannelNotFoundException e )
         {
             return CommonController.createNotFound ( "channel", channelId );
         }
+    }
 
-        return result;
+    private Integer maxWebListSize ()
+    {
+        return Integer.getInteger ( DRONE_WEB_MAX_LIST_SIZE, DEFAULT_MAX_WEB_SIZE );
     }
 
     @Secured ( false )
@@ -459,6 +500,7 @@ public class ChannelController implements InterfaceExtender
 
             final Map<String, Object> model = new HashMap<String, Object> ( 1 );
             model.put ( "artifact", artifact.get () );
+            model.put ( "sortedMetaData", new TreeMap<> ( artifact.get ().getMetaData () ) );
 
             model.put ( "aspects", Activator.getAspects ().getAspectInformations () );
 
@@ -1074,6 +1116,30 @@ public class ChannelController implements InterfaceExtender
 
             return new ModelAndView ( "redirect:/channel/" + UrlEscapers.urlPathSegmentEscaper ().escape ( channelId ) + "/view" );
         } );
+    }
+
+    @Override
+    public void extend ( final UrlSetContext context )
+    {
+        // add location of channels page
+
+        context.addLocation ( "/channel", ofNullable ( calcLastMod () ), of ( ChangeFrequency.DAILY ), empty () );
+    }
+
+    private Instant calcLastMod ()
+    {
+        Instant globalLastMod = null;
+
+        for ( final ChannelInformation ci : this.channelService.list () )
+        {
+            final Optional<Instant> lastMod = ofNullable ( ci.getState ().getModificationTimestamp () );
+
+            if ( globalLastMod == null || lastMod.get ().isAfter ( globalLastMod ) )
+            {
+                globalLastMod = lastMod.get ();
+            }
+        }
+        return globalLastMod;
     }
 
 }

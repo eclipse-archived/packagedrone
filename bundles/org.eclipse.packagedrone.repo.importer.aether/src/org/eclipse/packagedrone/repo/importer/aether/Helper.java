@@ -22,7 +22,6 @@ import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.ConfigurationProperties;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
-import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.impl.DefaultServiceLocator.ErrorHandler;
@@ -61,7 +60,7 @@ public class Helper
         return locator.getService ( RepositorySystem.class );
     }
 
-    public static RepositorySystemSession newRepositorySystemSession ( final Path tempDir, final RepositorySystem system )
+    public static DefaultRepositorySystemSession newRepositorySystemSession ( final Path tempDir, final RepositorySystem system )
     {
         final DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession ();
 
@@ -69,11 +68,6 @@ public class Helper
         session.setLocalRepositoryManager ( system.newLocalRepositoryManager ( session, localRepo ) );
 
         session.setTransferListener ( new LoggerTransferListener () );
-        // session.setRepositoryListener ( new ConsoleRepositoryListener () );
-
-        // uncomment to generate dirty trees
-        // session.setDependencyGraphTransformer( null );
-
         session.setConfigProperty ( ConfigurationProperties.USER_AGENT, VersionInformation.USER_AGENT );
 
         return session;

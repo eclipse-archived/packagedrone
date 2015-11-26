@@ -25,12 +25,12 @@ import org.eclipse.packagedrone.job.JobManager;
 import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
-import org.eclipse.packagedrone.repo.channel.web.utils.Channels;
 import org.eclipse.packagedrone.repo.importer.Importer;
 import org.eclipse.packagedrone.repo.importer.ImporterDescription;
 import org.eclipse.packagedrone.repo.importer.job.ImporterResult;
 import org.eclipse.packagedrone.repo.importer.web.ImportDescriptor;
 import org.eclipse.packagedrone.repo.importer.web.ImportRequest;
+import org.eclipse.packagedrone.repo.web.utils.Channels;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;
@@ -176,7 +176,7 @@ public class ImportController implements InterfaceExtender
         } );
     }
 
-    @RequestMapping ( value = "/import/perform", method = RequestMethod.GET )
+    @RequestMapping ( value = "/import/perform", method = { RequestMethod.POST, RequestMethod.GET } )
     public ModelAndView perform ( @RequestParameter ( "token" ) final String token, @RequestParameter ( "request" ) final ImportRequest request)
     {
         final Map<String, Object> model = new HashMap<> ();

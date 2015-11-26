@@ -1,7 +1,7 @@
 <%@ tag language="java" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://dentrassi.de/osgi/web/form" prefix="form" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web/form" prefix="form" %>
 
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 

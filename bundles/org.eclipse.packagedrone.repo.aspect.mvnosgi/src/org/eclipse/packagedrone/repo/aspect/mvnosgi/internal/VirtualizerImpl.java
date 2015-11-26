@@ -12,7 +12,6 @@
 package org.eclipse.packagedrone.repo.aspect.mvnosgi.internal;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -86,11 +85,8 @@ public class VirtualizerImpl implements Virtualizer
 
     private void createArtifact ( final Context context, final Pom pom ) throws IOException
     {
-        try ( final InputStream inputStream = pom.getInputStream () )
-        {
-            final String name = makeName ( context.getArtifactInformation ().getName () );
-            context.createVirtualArtifact ( name, inputStream, null );
-        }
+        final String name = makeName ( context.getArtifactInformation ().getName () );
+        context.createVirtualArtifact ( name, pom::writePom, null );
     }
 
     private String makeName ( final String name )

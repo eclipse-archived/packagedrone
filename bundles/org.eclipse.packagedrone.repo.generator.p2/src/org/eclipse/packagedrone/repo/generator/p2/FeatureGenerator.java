@@ -12,12 +12,8 @@ package org.eclipse.packagedrone.repo.generator.p2;
 
 import static org.eclipse.packagedrone.repo.MetaKeys.getString;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -84,30 +80,18 @@ public class FeatureGenerator implements ArtifactGenerator
         final String id = getString ( context.getArtifactInformation ().getMetaData (), ID, "id" );
         final String version = getString ( context.getArtifactInformation ().getMetaData (), ID, "version" );
 
-        final Path tmp = Files.createTempFile ( "p2-feat-", ".jar" );
-
-        try
-        {
-            try ( final ZipOutputStream jar = new ZipOutputStream ( new FileOutputStream ( tmp.toFile () ) ) )
+        context.createVirtualArtifact ( String.format ( "%s-%s.jar", id, version ), out -> {
+            try ( final ZipOutputStream jar = new ZipOutputStream ( out ) )
             {
                 final ZipEntry ze = new ZipEntry ( "feature.xml" );
                 jar.putNextEntry ( ze );
                 createFeatureXml ( jar, context.getArtifactInformation ().getMetaData (), context );
-            }
 
-            final Map<MetaKey, String> providedMetaData = new HashMap<> ();
-            try ( BufferedInputStream is = new BufferedInputStream ( new FileInputStream ( tmp.toFile () ) ) )
-            {
-                context.createVirtualArtifact ( String.format ( "%s-%s.jar", id, version ), is, providedMetaData );
             }
-        }
-        finally
-        {
-            Files.deleteIfExists ( tmp );
-        }
+        } , null );
     }
 
-    private void createFeatureXml ( final OutputStream out, final Map<MetaKey, String> map, final GenerationContext context ) throws Exception
+    private void createFeatureXml ( final OutputStream out, final Map<MetaKey, String> map, final GenerationContext context ) throws IOException
     {
         final String id = getString ( map, ID, "id" );
         final String version = makeVersion ( getString ( map, ID, "version" ) );
@@ -145,7 +129,18 @@ public class FeatureGenerator implements ArtifactGenerator
             processPlugin ( root, a );
         }
 
-        this.xml.write ( doc, out );
+        try
+        {
+            this.xml.write ( doc, out );
+        }
+        catch ( final IOException e )
+        {
+            throw e;
+        }
+        catch ( final Exception e )
+        {
+            throw new IOException ( e );
+        }
     }
 
     public void createLegalEntry ( final Element root, final String type, final String text, final String url )

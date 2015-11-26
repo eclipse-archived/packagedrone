@@ -14,8 +14,6 @@ pageContext.setAttribute ( "TAG", UserStorage.ACTION_TAG_USERS );
 
 <h:buttonbar menu="${menuManager.getActions(TAG) }" />
 
-<h:defaultPager />
-
 <div class="table-responsive">
 	
 	<table class="table table-condensed table-striped">
@@ -30,7 +28,7 @@ pageContext.setAttribute ( "TAG", UserStorage.ACTION_TAG_USERS );
 	</thead>
 	
 	<tbody>
-	    <c:forEach var="user" items="${users }">
+	    <c:forEach var="user" items="${users.data }">
 	    <tr
 	    <c:if test="${ user.id eq pageContext.request.remoteUser }">class="info"</c:if>
 	    >
@@ -57,6 +55,6 @@ pageContext.setAttribute ( "TAG", UserStorage.ACTION_TAG_USERS );
 	</table>
 </div>
 
-<h:defaultPager />
+<h:pager value="${users }" />
 
 </h:main>

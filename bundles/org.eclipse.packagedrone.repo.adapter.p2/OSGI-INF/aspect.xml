@@ -8,4 +8,5 @@
    <property name="drone.aspect.requires" type="String">mime
 hasher
    </property>
+   <reference bind="setXmlToolsFactory" cardinality="1..1" interface="org.eclipse.packagedrone.utils.xml.XmlToolsFactory" name="XmlToolsFactory" policy="static"/>
 </scr:component>

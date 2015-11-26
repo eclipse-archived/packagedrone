@@ -30,16 +30,17 @@ import org.eclipse.packagedrone.repo.adapter.deb.servlet.handler.Handler;
 import org.eclipse.packagedrone.repo.adapter.deb.servlet.handler.PoolHandler;
 import org.eclipse.packagedrone.repo.adapter.deb.servlet.handler.RedirectHandler;
 import org.eclipse.packagedrone.repo.channel.ChannelId;
+import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
-import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
 
 public class AptServlet extends AbstractChannelServiceServlet
 {
     private static final long serialVersionUID = 1L;
 
-    private static final Pattern POOL_PATTERN = Pattern.compile ( "pool/(?<cid>[^/]+)/(?<aid>[^/]+)/(?<name>.*)" );
+    private static final Pattern POOL_PATTERN = Pattern.compile ( "pool/(?<aid>[^/]+)/(?<name>.*)" );
 
     @Override
     protected void doGet ( final HttpServletRequest request, final HttpServletResponse response ) throws ServletException, IOException
@@ -68,97 +69,98 @@ public class AptServlet extends AbstractChannelServiceServlet
 
         final String channelId = toks[0];
 
-        service.accessRun ( By.nameOrId ( channelId ), ReadableChannel.class, channel -> {
+        try
+        {
+            service.accessRun ( By.nameOrId ( channelId ), ReadableChannel.class, channel -> {
 
-            if ( channel == null )
-            {
-                response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
-                response.getWriter ().format ( "Channel '%s' not found", channelId );
-                return;
-            }
-
-            if ( !channel.hasAspect ( AptChannelAspectFactory.ID ) )
-            {
-                response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
-                response.getWriter ().format ( "Channel '%s' is not configured as APT repository. Add the \"APT Repository\" channel aspect.", channelId );
-                return;
-            }
-
-            final ChannelConfiguration cfg = new ChannelConfiguration ();
-            try
-            {
-                MetaKeys.bind ( cfg, channel.getMetaData () );
-            }
-            catch ( final Exception e )
-            {
-                // do nothing
-            }
-
-            final String channelPath = toks.length > 1 ? toks[1] : null;
-
-            if ( channelPath == null || channelPath.isEmpty () )
-            {
-                if ( !request.getPathInfo ().endsWith ( "/" ) )
+                if ( !channel.hasAspect ( AptChannelAspectFactory.ID ) )
                 {
-                    response.sendRedirect ( request.getRequestURI () + "/" );
+                    response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
+                    response.getWriter ().format ( "Channel '%s' is not configured as APT repository. Add the \"APT Repository\" channel aspect.", channelId );
                     return;
                 }
 
-                final Map<String, Object> model = new HashMap<> ();
-                model.put ( "dir", new IndexDirGenerator ( cfg ) );
-                Helper.render ( response, IndexDirGenerator.class.getResource ( "content/index.html" ), makeDefaultTitle ( channel ), model );
-                return;
-            }
-
-            if ( channelPath.equals ( "pool" ) )
-            {
-                new PoolHandler ( service, "", "", "" ).process ( response );
-                return;
-            }
-
-            final Matcher m = POOL_PATTERN.matcher ( channelPath );
-            if ( m.matches () )
-            {
-                new PoolHandler ( service, m.group ( "cid" ), m.group ( "aid" ), m.group ( "name" ) ).process ( response );
-                return;
-            }
-
-            if ( cfg == null || !cfg.isValid () )
-            {
-                response.setStatus ( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
-                response.getWriter ().format ( "APT configuration not found or not valid. Please ensure the 'APT Repository' aspect is added to this channel and the configuration is valid." );
-                return;
-            }
-
-            if ( channelPath.equals ( "dists" ) )
-            {
-                if ( !request.getPathInfo ().endsWith ( "/" ) )
+                final ChannelConfiguration cfg = new ChannelConfiguration ();
+                try
                 {
-                    response.sendRedirect ( request.getRequestURI () + "/" );
+                    MetaKeys.bind ( cfg, channel.getMetaData () );
+                }
+                catch ( final Exception e )
+                {
+                    // do nothing
+                }
+
+                final String channelPath = toks.length > 1 ? toks[1] : null;
+
+                if ( channelPath == null || channelPath.isEmpty () )
+                {
+                    if ( !request.getPathInfo ().endsWith ( "/" ) )
+                    {
+                        response.sendRedirect ( request.getRequestURI () + "/" );
+                        return;
+                    }
+
+                    final Map<String, Object> model = new HashMap<> ();
+                    model.put ( "dir", new IndexDirGenerator ( cfg ) );
+                    Helper.render ( response, IndexDirGenerator.class.getResource ( "content/index.html" ), makeDefaultTitle ( channel ), model );
                     return;
                 }
 
-                final Map<String, Object> model = new HashMap<> ();
-                model.put ( "distribution", cfg.getDistribution () );
-                model.put ( "name", channel.getId ().getName () );
-                model.put ( "id", channel.getId () );
-                Helper.render ( response, Helper.class.getResource ( "content/dists.html" ), makeDefaultTitle ( channel ), model );
-                return;
-            }
+                if ( channelPath.equals ( "pool" ) )
+                {
+                    new PoolHandler ( channel, "", "" ).process ( response );
+                    return;
+                }
 
-            final Handler handler = makeHandler ( request, channel, channelPath, cfg );
-            if ( handler == null )
-            {
-                response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
-                response.getWriter ().format ( "Unable to handle request for '%s'", request.getPathInfo () );
-            }
-            else
-            {
-                handler.process ( response );
-            }
+                final Matcher m = POOL_PATTERN.matcher ( channelPath );
+                if ( m.matches () )
+                {
+                    new PoolHandler ( channel, m.group ( "aid" ), m.group ( "name" ) ).process ( response );
+                    return;
+                }
 
-        } );
+                if ( cfg == null || !cfg.isValid () )
+                {
+                    response.setStatus ( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
+                    response.getWriter ().format ( "APT configuration not found or not valid. Please ensure the 'APT Repository' aspect is added to this channel and the configuration is valid." );
+                    return;
+                }
 
+                if ( channelPath.equals ( "dists" ) )
+                {
+                    if ( !request.getPathInfo ().endsWith ( "/" ) )
+                    {
+                        response.sendRedirect ( request.getRequestURI () + "/" );
+                        return;
+                    }
+
+                    final Map<String, Object> model = new HashMap<> ();
+                    model.put ( "distribution", cfg.getDistribution () );
+                    model.put ( "name", channel.getId ().getName () );
+                    model.put ( "id", channel.getId () );
+                    Helper.render ( response, Helper.class.getResource ( "content/dists.html" ), makeDefaultTitle ( channel ), model );
+                    return;
+                }
+
+                final Handler handler = makeHandler ( request, channel, channelPath, cfg );
+                if ( handler == null )
+                {
+                    response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
+                    response.getWriter ().format ( "Unable to handle request for '%s'", request.getPathInfo () );
+                }
+                else
+                {
+                    handler.process ( response );
+                }
+
+            } );
+        }
+        catch ( final ChannelNotFoundException e )
+        {
+            response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
+            response.getWriter ().format ( "Channel '%s' not found", channelId );
+            return;
+        }
     }
 
     protected String makeDefaultTitle ( final ReadableChannel channel )

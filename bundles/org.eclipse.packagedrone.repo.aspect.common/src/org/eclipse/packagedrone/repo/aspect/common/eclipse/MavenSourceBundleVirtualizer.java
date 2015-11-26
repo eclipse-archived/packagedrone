@@ -11,11 +11,9 @@
 package org.eclipse.packagedrone.repo.aspect.common.eclipse;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -78,28 +76,15 @@ public class MavenSourceBundleVirtualizer implements Virtualizer
     {
         final Map<MetaKey, String> providedMetaData = new HashMap<> ();
 
-        final Path tmp = Files.createTempFile ( "src-", null );
-        try
-        {
-            final String name = String.format ( "%s.source_%s.jar", bi.getId (), bi.getVersion () );
+        final String name = String.format ( "%s.source_%s.jar", bi.getId (), bi.getVersion () );
 
-            createSourceBundle ( tmp, context, bi );
-
-            try ( BufferedInputStream in = new BufferedInputStream ( new FileInputStream ( tmp.toFile () ) ) )
-            {
-                context.createVirtualArtifact ( name, in, providedMetaData );
-            }
-        }
-        finally
-        {
-            Files.deleteIfExists ( tmp );
-        }
+        context.createVirtualArtifact ( name, out -> createSourceBundle ( out, context, bi ), providedMetaData );
     }
 
-    private void createSourceBundle ( final Path tmp, final Context context, final BundleInformation bi ) throws Exception
+    private void createSourceBundle ( final OutputStream out, final Context context, final BundleInformation bi ) throws IOException
     {
-        try ( ZipInputStream zis = new ZipInputStream ( new BufferedInputStream ( new FileInputStream ( context.getFile ().toFile () ) ) );
-              ZipOutputStream zos = new ZipOutputStream ( new BufferedOutputStream ( new FileOutputStream ( tmp.toFile () ) ) ) )
+        try ( ZipInputStream zis = new ZipInputStream ( new BufferedInputStream ( Files.newInputStream ( context.getFile () ) ) );
+              ZipOutputStream zos = new ZipOutputStream ( out ); )
         {
             ZipEntry entry;
             while ( ( entry = zis.getNextEntry () ) != null )

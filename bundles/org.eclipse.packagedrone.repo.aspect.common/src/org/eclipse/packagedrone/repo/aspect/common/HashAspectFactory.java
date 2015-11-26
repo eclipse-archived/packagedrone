@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.aspect.common;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -97,6 +96,8 @@ public class HashAspectFactory implements ChannelAspectFactory
      */
     public static class VirtualizerImpl implements Virtualizer
     {
+        private static final MetaKey KEY_MD5 = new MetaKey ( ID, "md5" );
+
         @Override
         public void virtualize ( final Context context )
         {
@@ -107,12 +108,12 @@ public class HashAspectFactory implements ChannelAspectFactory
                 return;
             }
 
-            final String md5 = md.get ( new MetaKey ( ID, "md5" ) );
+            final String md5 = md.get ( KEY_MD5 );
             if ( md5 != null )
             {
                 final Map<MetaKey, String> metadata = new HashMap<> ();
                 metadata.put ( KEY_FILE_TYPE, "md5" );
-                context.createVirtualArtifact ( context.getArtifactInformation ().getName () + ".md5", new ByteArrayInputStream ( md5.getBytes ( StandardCharsets.UTF_8 ) ), metadata );
+                context.createVirtualArtifact ( context.getArtifactInformation ().getName () + ".md5", out -> out.write ( md5.getBytes ( StandardCharsets.UTF_8 ) ), metadata );
             }
         }
     }

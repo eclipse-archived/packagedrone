@@ -10,13 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.generator.p2;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +22,6 @@ import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.event.AddedEvent;
 import org.eclipse.packagedrone.repo.event.RemovedEvent;
-import org.eclipse.packagedrone.repo.generator.GenerationContext;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,7 +176,7 @@ public final class Helper
         p.setAttribute ( "range", String.format ( "[%1$s,%1$s]", version ) );
     }
 
-    public static void createFragmentFile ( final OutputStream out, final Consumer<Element> unitsConsumer ) throws Exception
+    public static void createFragmentFile ( final OutputStream out, final Consumer<Element> unitsConsumer ) throws IOException
     {
         final XmlHelper xml = new XmlHelper ();
 
@@ -193,7 +187,18 @@ public final class Helper
         unitsConsumer.accept ( units );
 
         XmlHelper.fixSize ( units );
-        xml.write ( doc, out );
+        try
+        {
+            xml.write ( doc, out );
+        }
+        catch ( final IOException e )
+        {
+            throw e;
+        }
+        catch ( final Exception e )
+        {
+            throw new IOException ( e );
+        }
     }
 
     public static void addProperty ( final Element parent, final String key, final String value )
@@ -242,31 +247,5 @@ public final class Helper
     public static String makeDefaultVersion ()
     {
         return String.format ( "0.0.0.0--%x", System.currentTimeMillis () );
-    }
-
-    @FunctionalInterface
-    public interface ContentCreator
-    {
-        public void create ( OutputStream out ) throws Exception;
-    }
-
-    public static void createFile ( final GenerationContext context, final String name, final ContentCreator creator ) throws Exception
-    {
-        final Path tmp = Files.createTempFile ( "temp", null );
-        try
-        {
-            try ( BufferedOutputStream out = new BufferedOutputStream ( new FileOutputStream ( tmp.toFile () ) ) )
-            {
-                creator.create ( out );
-            }
-            try ( BufferedInputStream in = new BufferedInputStream ( new FileInputStream ( tmp.toFile () ) ) )
-            {
-                context.createVirtualArtifact ( name, in, null );
-            }
-        }
-        finally
-        {
-            Files.deleteIfExists ( tmp );
-        }
     }
 }

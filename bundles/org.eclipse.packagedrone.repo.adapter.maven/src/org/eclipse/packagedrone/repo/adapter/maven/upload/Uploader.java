@@ -82,7 +82,13 @@ public class Uploader
         {
             // secondary
 
-            final Coordinates cp = c.makeUnclassified ();
+            Coordinates cp = c.makeUnclassified ();
+
+            if ( !"jar".equals ( cp.getExtension () ) )
+            {
+                cp = cp.replaceExtension ( "pom" );
+            }
+
             final Set<String> parents = this.target.findArtifacts ( cp );
             if ( parents.isEmpty () )
             {

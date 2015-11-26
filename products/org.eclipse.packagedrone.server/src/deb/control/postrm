@@ -1,6 +1,8 @@
 #!/bin/sh
 
-USER=pdrone
+USER="[[drone.user]]"
+GROUP="[[drone.group]]"
+APP_NAME="[[drone.app.name]]"
 
 set -e
 
@@ -10,9 +12,9 @@ case "$1" in
             deluser --quiet "$USER" > /dev/null || true
         fi
         
-        delgroup --quiet "$USER" > /dev/null || true
+        delgroup --quiet "$GROUP" > /dev/null || true
 
-        rm -r "/var/lib/$USER" || true
+        rm -r "/var/lib/$APP_NAME" || true
     ;;
 esac
 

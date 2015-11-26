@@ -5,7 +5,7 @@
 
 	<tlib-version>1.0</tlib-version>
 	<short-name>pm</short-name>
-	<uri>http://dentrassi.de/pm</uri>
+	<uri>http://eclipse.org/packagedrone/repo/channel/web</uri>
 
 	<function>
         <name>modifier</name>

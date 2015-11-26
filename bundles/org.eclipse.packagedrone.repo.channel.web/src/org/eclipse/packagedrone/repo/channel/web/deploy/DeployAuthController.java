@@ -42,6 +42,7 @@ import org.eclipse.packagedrone.web.common.CommonController;
 import org.eclipse.packagedrone.web.common.InterfaceExtender;
 import org.eclipse.packagedrone.web.common.Modifier;
 import org.eclipse.packagedrone.web.common.menu.MenuEntry;
+import org.eclipse.packagedrone.web.common.page.Pagination;
 import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 import org.eclipse.packagedrone.web.controller.binding.BindingResult;
 import org.eclipse.packagedrone.web.controller.binding.PathVariable;
@@ -129,37 +130,11 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/group", method = RequestMethod.GET )
-    public ModelAndView listGroups ( @RequestParameter ( required = false, value = "position" ) Integer position)
+    public ModelAndView listGroups ( @RequestParameter ( required = false, value = "start" ) final Integer position)
     {
         final ModelAndView result = new ModelAndView ( "listGroups" );
 
-        if ( position == null )
-        {
-            position = 0;
-        }
-
-        final List<DeployGroup> list = this.service.listGroups ( position, PAGE_SIZE + 1 );
-
-        final boolean prev = position > 0;
-        boolean next;
-
-        if ( list.size () > PAGE_SIZE )
-        {
-            // check if we have more
-            next = true;
-            list.remove ( list.size () - 1 );
-        }
-        else
-        {
-            next = false;
-        }
-
-        result.put ( "groups", list );
-
-        result.put ( "prev", prev );
-        result.put ( "next", next );
-        result.put ( "position", position );
-        result.put ( "pageSize", PAGE_SIZE );
+        result.put ( "groups", Pagination.paginate ( position, PAGE_SIZE, this.service::listGroups ) );
 
         return result;
     }

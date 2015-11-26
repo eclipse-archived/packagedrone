@@ -16,10 +16,18 @@ import org.eclipse.packagedrone.repo.aspect.ChannelAspect;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectFactory;
 import org.eclipse.packagedrone.repo.aspect.aggregate.ChannelAggregator;
 import org.eclipse.packagedrone.repo.aspect.extract.Extractor;
+import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 
 public class P2RepositoryAspect implements ChannelAspectFactory
 {
     public static final String ID = "p2.repo";
+
+    private XmlToolsFactory xmlToolsFactory;
+
+    public void setXmlToolsFactory ( final XmlToolsFactory xmlToolsFactory )
+    {
+        this.xmlToolsFactory = xmlToolsFactory;
+    }
 
     @Override
     public ChannelAspect createAspect ()
@@ -35,7 +43,7 @@ public class P2RepositoryAspect implements ChannelAspectFactory
             @Override
             public Extractor getExtractor ()
             {
-                return new ExtractorImpl ();
+                return new ExtractorImpl ( P2RepositoryAspect.this.xmlToolsFactory );
             }
 
             @Override

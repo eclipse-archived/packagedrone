@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,10 @@ public class ChannelState implements Validated
 
     private boolean locked;
 
+    private Instant creationTimestamp;
+
+    private Instant modificationTimestamp;
+
     private List<ValidationMessage> messages = Collections.emptyList ();
 
     private ChannelState ()
@@ -38,6 +43,8 @@ public class ChannelState implements Validated
         this.numberOfArtifacts = other.numberOfArtifacts;
         this.numberOfBytes = other.numberOfBytes;
         this.locked = other.locked;
+        this.creationTimestamp = other.creationTimestamp;
+        this.modificationTimestamp = other.modificationTimestamp;
     }
 
     public String getDescription ()
@@ -60,6 +67,16 @@ public class ChannelState implements Validated
         return this.locked;
     }
 
+    public Instant getCreationTimestamp ()
+    {
+        return this.creationTimestamp;
+    }
+
+    public Instant getModificationTimestamp ()
+    {
+        return this.modificationTimestamp;
+    }
+
     @Override
     public Collection<ValidationMessage> getValidationMessages ()
     {
@@ -75,11 +92,20 @@ public class ChannelState implements Validated
         public Builder ()
         {
             this.value = new ChannelState ();
+            this.value.creationTimestamp = this.value.modificationTimestamp = Instant.now ();
         }
 
         public Builder ( final ChannelState other )
         {
             this.value = other != null ? new ChannelState ( other ) : new ChannelState ();
+            if ( this.value.creationTimestamp == null )
+            {
+                this.value.creationTimestamp = Instant.now ();
+            }
+            if ( this.value.modificationTimestamp == null )
+            {
+                this.value.modificationTimestamp = Instant.now ();
+            }
         }
 
         public Builder ( final ChannelState other, final ChannelDetails details )
@@ -90,6 +116,18 @@ public class ChannelState implements Validated
             {
                 this.value.description = details.getDescription ();
             }
+        }
+
+        public void setCreationTimestamp ( final Instant creationTimestamp )
+        {
+            checkFork ();
+            this.value.creationTimestamp = creationTimestamp;
+        }
+
+        public void setModificationTimestamp ( final Instant modificationTimestamp )
+        {
+            checkFork ();
+            this.value.modificationTimestamp = modificationTimestamp;
         }
 
         public void setDescription ( final String description )

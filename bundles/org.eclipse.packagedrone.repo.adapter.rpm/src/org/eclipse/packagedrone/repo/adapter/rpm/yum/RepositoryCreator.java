@@ -31,7 +31,7 @@ import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation.Dependency;
 import org.eclipse.packagedrone.repo.aspect.common.spool.OutputSpooler;
 import org.eclipse.packagedrone.repo.aspect.common.spool.SpoolOutTarget;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.packagedrone.utils.rpm.RpmDependencyFlags;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.w3c.dom.Document;

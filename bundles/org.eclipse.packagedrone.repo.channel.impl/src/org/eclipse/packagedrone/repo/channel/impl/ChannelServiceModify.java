@@ -26,8 +26,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
-import org.eclipse.packagedrone.repo.utils.Holder;
 import org.eclipse.packagedrone.repo.utils.Tokens;
+import org.eclipse.packagedrone.utils.Holder;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

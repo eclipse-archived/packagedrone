@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.scada.utils.io.RecursiveDeleteVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,14 +103,19 @@ public class CacheStore implements AutoCloseable
                     return;
                 }
 
-                Path tmp2 = null;
-
                 try
                 {
+                    // first delete the swap dir
+                    if ( Files.exists ( CacheStore.this.swapPath ) )
+                    {
+                        Files.walkFileTree ( CacheStore.this.swapPath, new RecursiveDeleteVisitor () );
+                    }
+
+                    // move away old data path
                     if ( Files.exists ( CacheStore.this.dataPath ) )
                     {
-                        tmp2 = Files.createTempDirectory ( this.tmp, "swap" );
-                        Files.move ( CacheStore.this.dataPath, tmp2, StandardCopyOption.ATOMIC_MOVE );
+                        Files.createDirectories ( CacheStore.this.swapPath.getParent () );
+                        Files.move ( CacheStore.this.dataPath, CacheStore.this.swapPath, StandardCopyOption.ATOMIC_MOVE );
                     }
 
                     Files.move ( this.tmp, CacheStore.this.dataPath, StandardCopyOption.ATOMIC_MOVE );
@@ -120,11 +125,11 @@ public class CacheStore implements AutoCloseable
                     throw new RuntimeException ( e );
                 }
 
-                if ( tmp2 != null )
+                if ( Files.exists ( CacheStore.this.swapPath ) )
                 {
                     try
                     {
-                        Files.walkFileTree ( this.tmp, new RecursiveDeleteVisitor () );
+                        Files.walkFileTree ( CacheStore.this.swapPath, new RecursiveDeleteVisitor () );
                     }
                     catch ( final IOException e )
                     {
@@ -177,10 +182,13 @@ public class CacheStore implements AutoCloseable
 
     private final Path tmpPath;
 
+    private final Path swapPath;
+
     public CacheStore ( final Path path ) throws IOException
     {
         this.dataPath = path.resolve ( "data" );
         this.tmpPath = path.resolve ( "tmp" );
+        this.swapPath = path.resolve ( "swap" );
 
         Files.createDirectories ( this.dataPath );
         Files.createDirectories ( this.tmpPath );

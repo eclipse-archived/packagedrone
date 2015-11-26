@@ -20,6 +20,10 @@ public class TextArea extends FormValueTagSupport
 
     private Integer rows;
 
+    private boolean disabled;
+
+    private boolean readonly;
+
     private String placeholder;
 
     @Override
@@ -34,6 +38,8 @@ public class TextArea extends FormValueTagSupport
         writer.writeOptionalAttribute ( "rows", this.rows );
         writer.writeOptionalAttribute ( "placeholder", this.placeholder );
         writeDefaultAttributes ( writer );
+        writer.writeFlagAttribute ( "disabled", this.disabled );
+        writer.writeFlagAttribute ( "readonly", this.readonly );
         writer.write ( " >" );
 
         writer.writeEscaped ( getPathValue ( this.path ) );
@@ -51,6 +57,16 @@ public class TextArea extends FormValueTagSupport
     public void setRows ( final int rows )
     {
         this.rows = rows;
+    }
+
+    public void setDisabled ( final boolean disabled )
+    {
+        this.disabled = disabled;
+    }
+
+    public void setReadonly ( final boolean readonly )
+    {
+        this.readonly = readonly;
     }
 
     public void setPlaceholder ( final String placeholder )

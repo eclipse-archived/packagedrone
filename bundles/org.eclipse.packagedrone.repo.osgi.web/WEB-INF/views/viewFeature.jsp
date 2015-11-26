@@ -78,8 +78,6 @@ pageContext.setAttribute ( "requirements", requirements );
 			        
 			        <dt>Branding Plugin</dt>
                     <dd>${fn:escapeXml(feature.plugin) }</dd>
-                    
-
 			    </dl>
 		    
 		    </div>
@@ -246,7 +244,7 @@ pageContext.setAttribute ( "requirements", requirements );
                 <c:if test="${not empty feature.descriptionUrl}">
                     <dl class="dl-horizontal details">
                         <dt>Link</dt>
-                        <dd><h:artifactLink url="${feature.translate(feature.descriptionUrl) }" artifactId="${artifact.id}">${fn:escapeXml(feature.translate(feature.descriptionUrl)) }</h:artifactLink><osgi:translatedLabels data="${feature }" property="descriptionUrl" /></dd>
+                        <dd><h:artifactLink url="${feature.translate(feature.descriptionUrl) }" channelId="${artifact.channelId.id }" artifactId="${artifact.id}">${fn:escapeXml(feature.translate(feature.descriptionUrl)) }</h:artifactLink><osgi:translatedLabels data="${feature }" property="descriptionUrl" /></dd>
                     </dl>
                 </c:if>
             </div>
@@ -272,7 +270,7 @@ pageContext.setAttribute ( "requirements", requirements );
                 <c:if test="${not empty feature.licenseUrl}">
                     <dl class="dl-horizontal details">
                         <dt>Link</dt>
-                        <dd><h:artifactLink url="${feature.translate(feature.licenseUrl) }" artifactId="${artifact.id}">${fn:escapeXml(feature.translate(feature.licenseUrl)) }</h:artifactLink><osgi:translatedLabels data="${feature }" property="licenseUrl" /></dd>
+                        <dd><h:artifactLink url="${feature.translate(feature.licenseUrl) }" channelId="${artifact.channelId.id }" artifactId="${artifact.id}">${fn:escapeXml(feature.translate(feature.licenseUrl)) }</h:artifactLink><osgi:translatedLabels data="${feature }" property="licenseUrl" /></dd>
                     </dl>
                 </c:if>
             </div>
@@ -299,7 +297,7 @@ pageContext.setAttribute ( "requirements", requirements );
                 <c:if test="${not empty feature.copyrightUrl}">
 	                <dl class="dl-horizontal details">
 	                    <dt>Link</dt>
-	                    <dd><h:artifactLink url="${feature.translate(feature.copyrightUrl) }" artifactId="${artifact.id}">${fn:escapeXml(feature.translate(feature.copyrightUrl)) }</h:artifactLink><osgi:translatedLabels data="${feature }" property="copyrightUrl" /></dd>
+	                    <dd><h:artifactLink url="${feature.translate(feature.copyrightUrl) }" channelId="${artifact.channelId.id }" artifactId="${artifact.id}">${fn:escapeXml(feature.translate(feature.copyrightUrl)) }</h:artifactLink><osgi:translatedLabels data="${feature }" property="copyrightUrl" /></dd>
 	                </dl>
                 </c:if>
                 

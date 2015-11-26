@@ -6,7 +6,7 @@
 	<description>Web Framework JSP Form Tag Library</description>
 	<tlib-version>1.0</tlib-version>
 	<short-name>form</short-name>
-	<uri>http://dentrassi.de/osgi/web/form</uri>
+	<uri>http://eclipse.org/packagedrone/web/form</uri>
 
 	<tag>
 		<name>form</name>
@@ -72,11 +72,6 @@
 		</attribute>
 
 		<attribute>
-			<name>cssClass</name>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
-
-		<attribute>
 			<name>type</name>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
@@ -102,6 +97,19 @@
 		  <name>required</name>
 		  <rtexprvalue>true</rtexprvalue>
 		</attribute>
+		
+        <!-- common attributes -->
+        
+        <attribute>
+            <name>cssClass</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        
+        <attribute>
+            <name>spellcheck</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
+        </attribute>
 	</tag>
 	
 	<tag>
@@ -118,6 +126,12 @@
         <attribute>
             <name>cssClass</name>
             <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <name>readonly</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
         </attribute>
 
         <attribute>
@@ -149,17 +163,19 @@
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
-
-		<attribute>
-			<name>cssClass</name>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
 		
 		<attribute>
             <name>multiple</name>
             <rtexprvalue>true</rtexprvalue>
             <type>boolean</type>
 		</attribute>
+		
+        <!-- common attributes -->
+        
+        <attribute>
+            <name>cssClass</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
 	</tag>
 
 	<tag>
@@ -215,15 +231,35 @@
 			<name>rows</name>
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
-
-		<attribute>
-			<name>cssClass</name>
-			<rtexprvalue>true</rtexprvalue>
-		</attribute>
 		
 		<attribute>
           <name>placeholder</name>
           <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        
+        <attribute>
+            <name>readonly</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
+        </attribute>
+
+        <attribute>
+          <name>disabled</name>
+          <rtexprvalue>true</rtexprvalue>
+          <type>boolean</type>
+        </attribute>
+
+        <!-- common attributes -->
+        
+        <attribute>
+            <name>cssClass</name>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        
+        <attribute>
+            <name>spellcheck</name>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
         </attribute>
 	</tag>
 

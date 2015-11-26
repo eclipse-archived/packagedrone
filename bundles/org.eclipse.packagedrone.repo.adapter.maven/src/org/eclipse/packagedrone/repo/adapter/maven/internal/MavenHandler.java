@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.maven.internal;
 
+import static java.util.Optional.empty;
+import static org.eclipse.packagedrone.repo.channel.util.DownloadHelper.streamArtifact;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,7 +38,6 @@ import org.eclipse.packagedrone.repo.adapter.maven.ChannelData.ContentNode;
 import org.eclipse.packagedrone.repo.adapter.maven.ChannelData.DirectoryNode;
 import org.eclipse.packagedrone.repo.adapter.maven.ChannelData.Node;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
-import org.eclipse.packagedrone.repo.channel.util.DownloadHelper;
 import org.eclipse.scada.utils.str.ExtendedPropertiesReplacer;
 import org.eclipse.scada.utils.str.StringReplacer;
 import org.slf4j.Logger;
@@ -109,7 +111,7 @@ public class MavenHandler
 
     private void download ( final HttpServletResponse response, final ArtifactNode node ) throws IOException
     {
-        DownloadHelper.streamArtifact ( response, node.getArtifactId (), null, false, this.channel, null );
+        streamArtifact ( response, node.getArtifactId (), empty (), false, this.channel, null );
     }
 
     private static class DirRenderer

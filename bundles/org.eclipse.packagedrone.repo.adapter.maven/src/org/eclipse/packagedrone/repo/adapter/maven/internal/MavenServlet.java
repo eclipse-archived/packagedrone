@@ -20,16 +20,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.adapter.maven.ChannelData;
+import org.eclipse.packagedrone.repo.adapter.maven.upload.ArtifactNotFoundException;
 import org.eclipse.packagedrone.repo.adapter.maven.upload.ChannelUploadTarget;
 import org.eclipse.packagedrone.repo.adapter.maven.upload.ChecksumValidationException;
 import org.eclipse.packagedrone.repo.adapter.maven.upload.Uploader;
 import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
+import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
-import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
-import org.eclipse.packagedrone.repo.channel.web.utils.ChannelCacheHandler;
+import org.eclipse.packagedrone.repo.web.utils.ChannelCacheHandler;
 import org.eclipse.packagedrone.utils.profiler.Profile;
 import org.eclipse.packagedrone.utils.profiler.Profile.Handle;
 import org.eclipse.scada.utils.lang.Holder;
@@ -38,9 +39,9 @@ import org.slf4j.LoggerFactory;
 
 public class MavenServlet extends AbstractChannelServiceServlet
 {
-    private final static Logger logger = LoggerFactory.getLogger ( MavenServlet.class );
-
     private static final long serialVersionUID = 1L;
+
+    private final static Logger logger = LoggerFactory.getLogger ( MavenServlet.class );
 
     private static final MetaKey CHANNEL_KEY = new MetaKey ( "maven.repo", "channel" );
 
@@ -74,9 +75,7 @@ public class MavenServlet extends AbstractChannelServiceServlet
 
         if ( "/".equals ( pathString ) )
         {
-            response.getWriter ().write ( "Package Drone Maven 2 Repository Adapter" );
-            response.setContentType ( "text/plain" );
-            response.setStatus ( HttpServletResponse.SC_OK );
+            reply ( response, HttpServletResponse.SC_OK, "Package Drone Maven 2 Repository Adapter" );
             return;
         }
 
@@ -111,10 +110,7 @@ public class MavenServlet extends AbstractChannelServiceServlet
                 catch ( final Exception e )
                 {
                     logger.warn ( "Failed to load maven channel data", e );
-
-                    response.getWriter ().write ( "Corrupt channel data" );
-                    response.setStatus ( HttpServletResponse.SC_SERVICE_UNAVAILABLE );
-
+                    reply ( response, HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Corrupt channel data" );
                     return;
                 }
 
@@ -149,19 +145,14 @@ public class MavenServlet extends AbstractChannelServiceServlet
         }
         catch ( final ChannelNotFoundException e )
         {
-            response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
-            response.setContentType ( "text/plain" );
-            response.getWriter ().format ( "Channel %s not found", channelId );
+            reply ( response, HttpServletResponse.SC_NOT_FOUND, "Channel %s not found", channelId );
             return;
         }
-
     }
 
     protected void commitNotConfigured ( final HttpServletResponse response, final String channelId ) throws IOException
     {
-        response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
-        response.setContentType ( "text/plain" );
-        response.getWriter ().format ( "Channel %s is not configured for providing a Maven 2 repository. Add the Maven Repository aspect!", channelId );
+        reply ( response, HttpServletResponse.SC_NOT_FOUND, "Channel %s is not configured for providing a Maven 2 repository. Add the Maven Repository aspect!", channelId );
     }
 
     @Override
@@ -196,7 +187,7 @@ public class MavenServlet extends AbstractChannelServiceServlet
         if ( toks.length != 3 )
         {
             logger.debug ( "Upload path: {}", new Object[] { toks } );
-            response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
+            reply ( response, HttpServletResponse.SC_NOT_FOUND, "Upload path not found: %s", new Object[] { toks } );
             return;
         }
 
@@ -213,29 +204,40 @@ public class MavenServlet extends AbstractChannelServiceServlet
         try
         {
             service.accessRun ( By.nameOrId ( channelNameOrId ), ModifiableChannel.class, channel -> {
-
                 try
                 {
                     processUpload ( channel, fullName, request );
                     response.setStatus ( HttpServletResponse.SC_OK );
                 }
+                catch ( final ArtifactNotFoundException e )
+                {
+                    logger.debug ( "Artifact not found", e );
+
+                    // simply ignoring for now, later we could add a policy for this
+                    reply ( response, HttpServletResponse.SC_OK, e.getMessage () );
+                }
                 catch ( final ChecksumValidationException e )
                 {
                     logger.info ( "Checksum validation failed", e );
 
-                    response.setStatus ( HttpServletResponse.SC_NOT_ACCEPTABLE );
-                    response.getWriter ().write ( e.getMessage () );
+                    reply ( response, HttpServletResponse.SC_NOT_ACCEPTABLE, e.getMessage () );
                     return;
                 }
             } );
         }
         catch ( final ChannelNotFoundException e )
         {
-            response.setStatus ( HttpServletResponse.SC_NOT_FOUND );
-            response.getWriter ().format ( "Channel %s not found", channelNameOrId );
+            reply ( response, HttpServletResponse.SC_NOT_FOUND, "Channel %s not found", channelNameOrId );
             return;
         }
 
+    }
+
+    private static void reply ( final HttpServletResponse response, final int statusCode, final String message, final Object... args ) throws IOException
+    {
+        response.setStatus ( statusCode );
+        response.setContentType ( "text/plain" );
+        response.getWriter ().format ( message, args );
     }
 
 }

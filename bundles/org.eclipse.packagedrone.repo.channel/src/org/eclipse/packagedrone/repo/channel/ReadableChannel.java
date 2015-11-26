@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 public interface ReadableChannel
 {

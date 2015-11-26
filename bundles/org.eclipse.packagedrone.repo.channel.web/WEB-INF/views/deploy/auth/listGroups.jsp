@@ -14,7 +14,7 @@ pageContext.setAttribute ( "TAG", DeployAuthController.GROUP_ACTION_TAG );
 
 <h:buttonbar menu="${menuManager.getActions(TAG) }" />
 
-<h:defaultPager />
+<div class="table-responsive">
 
 <table class="table table-condensed table-striped table-hover">
 
@@ -27,7 +27,7 @@ pageContext.setAttribute ( "TAG", DeployAuthController.GROUP_ACTION_TAG );
 </thead>
 
 <tbody>
-    <c:forEach var="group" items="${groups }">
+    <c:forEach var="group" items="${groups.data }">
     <tr>
         <td>${fn:escapeXml( (group.name eq null ) ? group.id : group.name ) }</td>
         <td><a href="<c:url value="/deploy/auth/group/${group.id }/view"/>">${fn:escapeXml(group.id) }</a></td>
@@ -38,6 +38,8 @@ pageContext.setAttribute ( "TAG", DeployAuthController.GROUP_ACTION_TAG );
 
 </table>
 
-<h:defaultPager />
+<h:pager value="${groups }" />
+
+</div>
 
 </h:main>

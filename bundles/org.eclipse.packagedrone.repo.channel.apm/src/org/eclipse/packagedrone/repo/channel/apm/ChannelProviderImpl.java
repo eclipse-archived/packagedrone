@@ -30,6 +30,8 @@ import org.eclipse.packagedrone.repo.channel.provider.Channel;
 import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider;
 import org.eclipse.packagedrone.repo.channel.provider.ProviderInformation;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
+import org.eclipse.packagedrone.utils.profiler.Profile;
+import org.eclipse.packagedrone.utils.profiler.Profile.Handle;
 import org.eclipse.scada.utils.io.RecursiveDeleteVisitor;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
@@ -147,9 +149,12 @@ public class ChannelProviderImpl implements ChannelProvider
 
     private void discoveredChannel ( final String channelId )
     {
-        final MetaKey key = new MetaKey ( "channel", channelId );
-        final ChannelImpl channel = new ChannelImpl ( channelId, this.eventAdmin, key, this.manager, this );
-        registerChannel ( channel );
+        try ( Handle h = Profile.start ( this, "discoveredChannel" ) )
+        {
+            final MetaKey key = new MetaKey ( "channel", channelId );
+            final ChannelImpl channel = new ChannelImpl ( channelId, this.eventAdmin, key, this.manager, this );
+            registerChannel ( channel );
+        }
     }
 
     protected ChannelImpl createNewChannel ( final ChannelDetails details, final IdTransformer idTransformer )

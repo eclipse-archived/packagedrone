@@ -1,0 +1,4 @@
+## Name: Package Drone Server
+## Description: The Package Drone server process and Web UI
+
+TCP="8080"

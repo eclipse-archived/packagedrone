@@ -14,6 +14,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,10 @@ public class ChannelModel
 
     private List<ValidationMessageModel> validationMessages;
 
+    private Date creationTimestamp;
+
+    private Date modificationTimestamp;
+
     public ChannelModel ()
     {
         this.providedMetaData = new HashMap<> ();
@@ -54,10 +59,14 @@ public class ChannelModel
 
     public ChannelModel ( final ChannelModel other )
     {
+        this.creationTimestamp = other.creationTimestamp;
+        this.modificationTimestamp = other.modificationTimestamp;
+
         this.description = other.description;
 
         this.locked = other.locked;
 
+        this.extractedMetaData = new HashMap<> ( other.extractedMetaData );
         this.providedMetaData = new HashMap<> ( other.providedMetaData );
 
         // copy by ctor
@@ -143,6 +152,26 @@ public class ChannelModel
     public List<ValidationMessageModel> getValidationMessages ()
     {
         return this.validationMessages;
+    }
+
+    public void setCreationTimestamp ( final Date creationTimestamp )
+    {
+        this.creationTimestamp = creationTimestamp;
+    }
+
+    public Date getCreationTimestamp ()
+    {
+        return this.creationTimestamp;
+    }
+
+    public void setModificationTimestamp ( final Date modificationTimestamp )
+    {
+        this.modificationTimestamp = modificationTimestamp;
+    }
+
+    public Date getModificationTimestamp ()
+    {
+        return this.modificationTimestamp;
     }
 
 }

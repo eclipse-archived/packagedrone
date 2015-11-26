@@ -11,40 +11,58 @@
 package org.eclipse.packagedrone.repo.adapter.p2.internal.aspect;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.xpath.XPathFactory;
-
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.MetaKeys;
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.adapter.p2.P2ChannelInformation;
+import org.eclipse.packagedrone.repo.adapter.p2.aspect.P2RepoConstants;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+
+import com.google.common.collect.HashMultimap;
 
 public class ChannelStreamer
 {
-    private static final MetaKey KEY_REPO_TITLE = new MetaKey ( "p2.repo", "title" );
+    private final boolean writeCompressed;
 
-    public static final MetaKey MK_FRAGMENT_TYPE = new MetaKey ( "p2.repo", "fragment-type" );
+    private final boolean writePlain;
 
-    private final LinkedList<Processor> processors;
+    private final Instant now;
 
-    private ChecksumValidatorProcessor validator;
+    private final Map<String, String> additionalProperties;
 
-    private final Map<String, Object> context = new HashMap<> ();
+    private final String title;
 
-    private final XmlHelper xml = new XmlHelper ();
+    private final List<String> artifactsFragments = new LinkedList<> ();
+
+    private long artifactsCounter = 0;
+
+    private final List<String> metaDataFragments = new LinkedList<> ();
+
+    private long metaDataCounter = 0;
+
+    private Map<String, String> checksums = new HashMap<> (); // key -> md5
+
+    private HashMultimap<String, String> checksumArtifacts = HashMultimap.create (); // key -> artifact ids
+
+    private final Set<String> checksumErrors = new HashSet<> (); // keys
 
     public ChannelStreamer ( final String channelId, final Map<MetaKey, String> channelMetaData, final boolean writeCompressed, final boolean writePlain )
     {
-        final String title = makeTitle ( channelId, channelMetaData );
+        this.now = Instant.now ();
+        this.writeCompressed = writeCompressed;
+        this.writePlain = writePlain;
 
-        final Map<String, String> additionalProperties = new HashMap<> ();
+        this.title = makeTitle ( channelId, channelMetaData );
+
+        this.additionalProperties = new HashMap<> ();
 
         final P2ChannelInformation p2ChannelInformation = new P2ChannelInformation ();
         try
@@ -58,48 +76,18 @@ public class ChannelStreamer
 
         if ( p2ChannelInformation.getMirrorsUrl () != null )
         {
-            additionalProperties.put ( "p2.mirrorsURL", p2ChannelInformation.getMirrorsUrl () );
+            this.additionalProperties.put ( "p2.mirrorsURL", p2ChannelInformation.getMirrorsUrl () );
         }
         if ( p2ChannelInformation.getStatisticsUrl () != null )
         {
             // yes, the property is URI compared to the previous URL
-            additionalProperties.put ( "p2.statsURI", p2ChannelInformation.getStatisticsUrl () );
+            this.additionalProperties.put ( "p2.statsURI", p2ChannelInformation.getStatisticsUrl () );
         }
-
-        this.processors = new LinkedList<> ();
-
-        try
-        {
-            final DocumentBuilder documentBuilder = this.xml.getBuilder ();
-            final XPathFactory pathFactory = XmlHelper.createXPathFactory ();
-
-            final DocumentCache cache = new DocumentCache ( documentBuilder );
-
-            this.processors.add ( this.validator = new ChecksumValidatorProcessor ( cache, pathFactory ) );
-
-            if ( writeCompressed )
-            {
-                this.processors.add ( new MetaDataProcessor ( title, true, cache, documentBuilder, pathFactory, additionalProperties ) );
-                this.processors.add ( new ArtifactsProcessor ( title, true, cache, pathFactory, additionalProperties ) );
-            }
-
-            if ( writePlain )
-            {
-                this.processors.add ( new MetaDataProcessor ( title, false, cache, documentBuilder, pathFactory, additionalProperties ) );
-                this.processors.add ( new ArtifactsProcessor ( title, false, cache, pathFactory, additionalProperties ) );
-            }
-
-        }
-        catch ( final Exception e )
-        {
-            throw new RuntimeException ( e );
-        }
-
     }
 
     public static String makeTitle ( final String id, final Map<MetaKey, String> channelMetaData )
     {
-        final String title = channelMetaData.get ( KEY_REPO_TITLE );
+        final String title = channelMetaData.get ( P2RepoConstants.KEY_REPO_TITLE );
         if ( title != null && !title.isEmpty () )
         {
             return title;
@@ -110,6 +98,9 @@ public class ChannelStreamer
 
     public void stream ( final Collection<ArtifactInformation> artifacts, final ArtifactStreamer streamer )
     {
+        this.checksums = new HashMap<> ( artifacts.size () );
+        this.checksumArtifacts = HashMultimap.create ( artifacts.size (), 1 );
+
         for ( final ArtifactInformation artifact : artifacts )
         {
             process ( artifact, streamer );
@@ -118,37 +109,125 @@ public class ChannelStreamer
 
     public void process ( final ArtifactInformation artifact, final ArtifactStreamer streamer )
     {
-        for ( final Processor processor : this.processors )
+        final String type = artifact.getMetaData ().get ( P2RepoConstants.KEY_FRAGMENT_TYPE );
+
+        if ( type == null )
         {
-            try
+            return;
+        }
+
+        if ( "metadata".equals ( type ) )
+        {
+            fastTrackMetaData ( artifact, type );
+        }
+        else if ( "artifacts".equals ( type ) )
+        {
+            fastTrackArtifacts ( artifact, type );
+        }
+    }
+
+    private boolean fastTrackArtifacts ( final ArtifactInformation artifact, final String type )
+    {
+        try
+        {
+            final String dataString = artifact.getMetaData ().get ( P2RepoConstants.KEY_FRAGMENT_DATA );
+            final String keysString = artifact.getMetaData ().get ( P2RepoConstants.KEY_FRAGMENT_KEYS );
+            final String sumsString = artifact.getMetaData ().get ( P2RepoConstants.KEY_FRAGMENT_MD5 );
+
+            if ( dataString == null || keysString == null || sumsString == null )
             {
-                if ( !processor.process ( artifact, streamer, this.context ) )
+                return false;
+            }
+
+            final String[] keys = keysString.split ( ExtractorImpl.DELIM );
+            final String[] sums = sumsString.split ( ExtractorImpl.DELIM );
+            final String[] data = dataString.split ( ExtractorImpl.DELIM );
+
+            if ( keys.length != sums.length || keys.length != data.length )
+            {
+                return false;
+            }
+
+            for ( int i = 0; i < keys.length; i++ )
+            {
+                final String old = this.checksums.put ( keys[i], sums[i] );
+                if ( old == null || old.equals ( sums[i] ) )
                 {
-                    // a processor can veto the process
-                    break;
+                    // not yet present - add to repo
+                    this.artifactsCounter += 1;
+                    this.artifactsFragments.add ( data[i] );
                 }
+                else
+                {
+                    this.checksumErrors.add ( keys[i] );
+                }
+
+                // record source of artifact
+                this.checksumArtifacts.put ( keys[i], artifact.getId () );
             }
-            catch ( final Exception e )
+
+            return true;
+        }
+        catch ( final Exception e )
+        {
+            return false;
+        }
+    }
+
+    private boolean fastTrackMetaData ( final ArtifactInformation artifact, final String type )
+    {
+        try
+        {
+            final int count = Integer.parseInt ( artifact.getMetaData ().get ( P2RepoConstants.KEY_FRAGMENT_COUNT ) );
+            final String data = artifact.getMetaData ().get ( P2RepoConstants.KEY_FRAGMENT_DATA );
+
+            if ( data == null )
             {
-                throw new RuntimeException ( e );
+                return false;
             }
+
+            this.metaDataCounter += count;
+            this.metaDataFragments.add ( data );
+
+            return true;
+        }
+        catch ( final Exception e )
+        {
+            return false;
         }
     }
 
     public void spoolOut ( final SpoolOutHandler handler ) throws IOException
     {
-        for ( final Processor processor : this.processors )
+        if ( this.writeCompressed )
         {
-            if ( processor.getId () != null )
-            {
-                handler.spoolOut ( processor.getId (), processor.getName (), processor.getMimeType (), ( stream ) -> processor.write ( stream ) );
-            }
+            spoolOut ( handler, new MetaDataWriter ( this.metaDataFragments, this.metaDataCounter, this.title, this.now, this.additionalProperties, true ) );
+            spoolOut ( handler, new ArtifactsWriter ( this.artifactsFragments, this.artifactsCounter, this.title, this.now, this.additionalProperties, true ) );
         }
+        if ( this.writePlain )
+        {
+            spoolOut ( handler, new MetaDataWriter ( this.metaDataFragments, this.metaDataCounter, this.title, this.now, this.additionalProperties, false ) );
+            spoolOut ( handler, new ArtifactsWriter ( this.artifactsFragments, this.artifactsCounter, this.title, this.now, this.additionalProperties, false ) );
+        }
+    }
+
+    private void spoolOut ( final SpoolOutHandler handler, final AbstractWriter writer ) throws IOException
+    {
+        handler.spoolOut ( writer.getId (), writer.getId (), writer.getMimeType (), stream -> {
+            writer.write ( stream );
+        } );
     }
 
     public Map<String, Set<String>> checkDuplicates ()
     {
-        return this.validator.checkDuplicates ();
+        final Map<String, Set<String>> result = new HashMap<> ();
+
+        for ( final String errorKey : this.checksumErrors )
+        {
+            result.put ( errorKey, this.checksumArtifacts.get ( errorKey ) );
+        }
+
+        return result;
     }
 
 }

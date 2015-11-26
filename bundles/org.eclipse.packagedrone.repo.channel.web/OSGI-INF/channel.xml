@@ -4,6 +4,7 @@
    <service>
       <provide interface="org.eclipse.packagedrone.repo.channel.web.channel.ChannelController"/>
       <provide interface="org.eclipse.packagedrone.web.common.InterfaceExtender"/>
+      <provide interface="org.eclipse.packagedrone.repo.web.sitemap.SitemapExtender"/>
     </service>
 
    <reference bind="setDeployAuthService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.channel.deploy.DeployAuthService" name="DeployAuthService" policy="static"/>

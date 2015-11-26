@@ -8,8 +8,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="storage" %>
-<%@ taglib uri="http://dentrassi.de/pm" prefix="pm" %>
-<%@ taglib uri="http://eclipse.org/package-drone/web" prefix="web" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/repo/channel/web" prefix="pm" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
 
 <%

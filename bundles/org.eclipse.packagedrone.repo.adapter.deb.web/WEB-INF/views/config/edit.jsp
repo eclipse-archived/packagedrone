@@ -6,8 +6,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="pm" %>
-<%@ taglib uri="http://eclipse.org/package-drone/web" prefix="web" %>
-<%@ taglib uri="http://dentrassi.de/osgi/web/form" prefix="form" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web/form" prefix="form" %>
 
 <h:main title="APT Repository Configuration" subtitle="${pm:channel(channel) }">
 

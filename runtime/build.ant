@@ -8,7 +8,7 @@
     </description>
     
     <property name="eclipse.orbit.release" value="R20150519210750"/>
-	<property name="jetty.version" value="9.2.9.v20150224"/>
+	<property name="jetty.version" value="9.2.13.v20150730"/>
 
     <!-- ================================= 
           target: default
@@ -113,8 +113,7 @@
         	
             <!-- for hibernate validation -->
 
-            <get src="http://repo1.maven.org/maven2/com/fasterxml/classmate/1.0.0/classmate-1.0.0.jar" dest="download/bundles" usetimestamp="true" />
-        	<get src="http://repo1.maven.org/maven2/com/fasterxml/classmate/1.0.0/classmate-1.0.0-sources.jar" dest="download/sources" usetimestamp="true" />
+        	<mavenGet group="com/fasterxml" artifact="classmate" version="1.3.0"/>
             <get src="http://repo1.maven.org/maven2/org/jboss/logging/jboss-logging/3.1.3.GA/jboss-logging-3.1.3.GA.jar" dest="download/bundles" usetimestamp="true" />
             
         	<orbitGet bundle="javax.xml" version="1.3.4" qualifier="v201005080400"/>
@@ -139,6 +138,7 @@
         	<!-- aether -->
         	
         	<get src="http://eclipse.org/downloads/download.php?file=/aether/aether-core/1.0.1/dist/aether-1.0.1-bin.zip&amp;r=1" dest="download/aether-bin.zip" usetimestamp="true"/>
+        	<get src="http://eclipse.org/downloads/download.php?file=/aether/aether-core/1.0.1/dist/aether-1.0.1-src.zip&amp;r=1" dest="download/aether-src.zip" usetimestamp="true"/>
         	
         	<orbitGet bundle="org.apache.httpcomponents.httpcore" version="4.3.3" qualifier="v201411290715" />
         	<orbitGet bundle="org.apache.httpcomponents.httpclient" version="4.3.6" qualifier="v201411290715" />
@@ -171,7 +171,7 @@
         	<!-- validation -->
         	
         	<mavenGet group="javax/validation" artifact="validation-api" version="1.1.0.Final"/>
-        	<mavenGet group="org/hibernate" artifact="hibernate-validator" version="5.1.3.Final" />
+        	<mavenGet group="org/hibernate" artifact="hibernate-validator" version="5.2.2.Final" />
         	
         	<!-- for testing -->
         	
@@ -193,7 +193,8 @@
         </untar>
         
     	<unzip src="download/equinox-SDK.zip" dest="unpack/equinox" />
-    	<unzip src="download/aether-bin.zip" dest="unpack/aether" />
+    	<unzip src="download/aether-bin.zip" dest="unpack/aether/bin" />
+    	<unzip src="download/aether-src.zip" dest="unpack/aether/src" />
     </target>
 
     <!-- ================================= 
@@ -264,7 +265,7 @@
             	
             </fileset>
 
-        	<fileset dir="unpack/aether">
+        	<fileset dir="unpack/aether/bin">
         	    <exclude name="**/*-wagon-*.jar"/>
         	    <include name="*/*.jar"/>
         	</fileset>

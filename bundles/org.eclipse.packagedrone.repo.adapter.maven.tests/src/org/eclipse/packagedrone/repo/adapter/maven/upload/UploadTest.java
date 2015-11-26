@@ -13,13 +13,11 @@ package org.eclipse.packagedrone.repo.adapter.maven.upload;
 import static org.eclipse.packagedrone.repo.adapter.maven.upload.Coordinates.makePath;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
-import org.eclipse.packagedrone.repo.adapter.maven.upload.Coordinates;
-import org.eclipse.packagedrone.repo.adapter.maven.upload.Options;
-import org.eclipse.packagedrone.repo.adapter.maven.upload.Uploader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,8 +124,8 @@ public class UploadTest
 
             // .jar
 
-            uploader.receive ( makePath ( groupId, artifactId, version, qualifiedVersion, null, "jar" ), null );
-            uploader.receive ( makePath ( groupId, artifactId, version, qualifiedVersion, null, "jar.md5" ), fromString ( "d41d8cd98f00b204e9800998ecf8427e" ) );
+            receive ( uploader, makePath ( groupId, artifactId, version, qualifiedVersion, null, "jar" ), null );
+            receive ( uploader, makePath ( groupId, artifactId, version, qualifiedVersion, null, "jar.md5" ), fromString ( "d41d8cd98f00b204e9800998ecf8427e" ) );
 
             arts = target.getArtifact ( groupId, artifactId, version, qualifiedVersion, null, "jar" );
             Assert.assertEquals ( 1, arts.size () );
@@ -135,8 +133,8 @@ public class UploadTest
 
             // .pom
 
-            uploader.receive ( makePath ( groupId, artifactId, version, qualifiedVersion, null, "pom" ), null );
-            uploader.receive ( makePath ( groupId, artifactId, version, qualifiedVersion, null, "pom.md5" ), fromString ( "d41d8cd98f00b204e9800998ecf8427e" ) );
+            receive ( uploader, makePath ( groupId, artifactId, version, qualifiedVersion, null, "pom" ), null );
+            receive ( uploader, makePath ( groupId, artifactId, version, qualifiedVersion, null, "pom.md5" ), fromString ( "d41d8cd98f00b204e9800998ecf8427e" ) );
 
             arts = target.getArtifact ( groupId, artifactId, version, qualifiedVersion, null, "pom" );
             Assert.assertEquals ( 1, arts.size () );
@@ -144,12 +142,21 @@ public class UploadTest
 
             // -sources.jar
 
-            uploader.receive ( makePath ( groupId, artifactId, version, qualifiedVersion, "sources", "jar" ), null );
-            uploader.receive ( makePath ( groupId, artifactId, version, qualifiedVersion, "sources", "jar.md5" ), fromString ( "d41d8cd98f00b204e9800998ecf8427e" ) );
+            receive ( uploader, makePath ( groupId, artifactId, version, qualifiedVersion, "sources", "jar" ), null );
+            receive ( uploader, makePath ( groupId, artifactId, version, qualifiedVersion, "sources", "jar.md5" ), fromString ( "d41d8cd98f00b204e9800998ecf8427e" ) );
 
             arts = target.getArtifact ( groupId, artifactId, version, qualifiedVersion, "sources", "jar" );
             Assert.assertEquals ( 1, arts.size () );
             final MockArtifact sourceArt = arts.iterator ().next ();
+
+            // -p2metadata.xml
+
+            receive ( uploader, makePath ( groupId, artifactId, version, qualifiedVersion, "p2metadata", "xml" ), null );
+            receive ( uploader, makePath ( groupId, artifactId, version, qualifiedVersion, "p2metadata", "xml.md5" ), fromString ( "d41d8cd98f00b204e9800998ecf8427e" ) );
+
+            arts = target.getArtifact ( groupId, artifactId, version, qualifiedVersion, "sources", "jar" );
+            Assert.assertEquals ( 1, arts.size () );
+            final MockArtifact mdArt = arts.iterator ().next ();
 
             // meta data
 
@@ -161,7 +168,7 @@ public class UploadTest
             uploader.receive ( makeMetaData ( groupId, artifactId, version, ".md5" ), null );
             uploader.receive ( makeMetaData ( groupId, artifactId, version, ".sha1" ), null );
 
-            Assert.assertEquals ( 3 * pos, target.getArtifacts ().size () );
+            Assert.assertEquals ( 4 * pos, target.getArtifacts ().size () );
 
             // other validations
 
@@ -169,6 +176,12 @@ public class UploadTest
 
             pos++;
         }
+    }
+
+    private void receive ( final Uploader uploader, final String path, final InputStream stream ) throws ChecksumValidationException, IOException
+    {
+        final boolean result = uploader.receive ( path, stream );
+        System.out.format ( "%s -> %s%n", path, result );
     }
 
     private String makeMetaData ( final String groupId, final String artifactId, final String version, final String suffix )

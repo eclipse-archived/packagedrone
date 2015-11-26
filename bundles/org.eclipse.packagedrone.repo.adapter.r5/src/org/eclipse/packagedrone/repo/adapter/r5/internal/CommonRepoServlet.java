@@ -25,8 +25,8 @@ import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
 import org.eclipse.packagedrone.repo.channel.util.DownloadHelper;
-import org.eclipse.packagedrone.repo.channel.web.utils.ChannelCacheHandler;
 import org.eclipse.packagedrone.repo.servlet.Handler;
+import org.eclipse.packagedrone.repo.web.utils.ChannelCacheHandler;
 
 public abstract class CommonRepoServlet extends AbstractChannelServiceServlet
 {

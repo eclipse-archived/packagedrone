@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Unit tests for de.dentrassi.pm.osgi
+Bundle-Name: Unit tests for org.eclipse.packagedrone.repo.utils.osgi
 Bundle-SymbolicName: org.eclipse.packagedrone.repo.utils.osgi.tests
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Jens Reimann

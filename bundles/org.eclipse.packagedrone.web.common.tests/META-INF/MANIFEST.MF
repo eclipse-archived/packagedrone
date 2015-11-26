@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Unit tests for 'org.eclipse.packagedrone.web.common'
+Bundle-SymbolicName: org.eclipse.packagedrone.web.common.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Eclipse Package Drone
+Fragment-Host: org.eclipse.packagedrone.web.common
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit;bundle-version="4.11.0"

@@ -48,6 +48,7 @@ import org.eclipse.packagedrone.web.common.CommonController;
 import org.eclipse.packagedrone.web.common.InterfaceExtender;
 import org.eclipse.packagedrone.web.common.Modifier;
 import org.eclipse.packagedrone.web.common.menu.MenuEntry;
+import org.eclipse.packagedrone.web.common.page.Pagination;
 import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 import org.eclipse.packagedrone.web.controller.binding.BindingResult;
 import org.eclipse.packagedrone.web.controller.binding.PathVariable;
@@ -107,7 +108,7 @@ public class UserController extends AbstractUserCreationController implements In
 
                 final boolean you = isYou ( userId, request );
 
-                // TODO: check explicity for methods
+                // TODO: check explicitly for methods
                 if ( HttpConstraints.isCallAllowed ( METHOD_ADD_USER, request ) )
                 {
                     result.add ( new MenuEntry ( "Edit user", 100, LinkTarget.createFromController ( UserController.class, "editUser" ).expand ( model ), Modifier.PRIMARY, null ) );
@@ -137,38 +138,10 @@ public class UserController extends AbstractUserCreationController implements In
     }
 
     @RequestMapping ( method = RequestMethod.GET )
-    public ModelAndView list ( @RequestParameter ( required = false, value = "position" ) Integer position)
+    public ModelAndView list ( @RequestParameter ( required = false, value = "start" ) final Integer position)
     {
         final ModelAndView result = new ModelAndView ( "user/list" );
-
-        if ( position == null )
-        {
-            position = 0;
-        }
-
-        final List<DatabaseUserInformation> list = this.storage.list ( position, 25 + 1 );
-
-        final boolean prev = position > 0;
-        boolean next;
-
-        if ( list.size () > 25 )
-        {
-            // check if we have more
-            next = true;
-            list.remove ( list.size () - 1 );
-        }
-        else
-        {
-            next = false;
-        }
-
-        result.put ( "users", list );
-
-        result.put ( "prev", prev );
-        result.put ( "next", next );
-        result.put ( "position", position );
-        result.put ( "pageSize", 25 );
-
+        result.put ( "users", Pagination.paginate ( position, 25, this.storage::list ) );
         return result;
     }
 

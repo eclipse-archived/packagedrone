@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.importer.aether.resolver">
+   <implementation class="org.eclipse.packagedrone.repo.importer.aether.web.AetherResolver"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.job.JobFactory"/>
+   </service>
+   <property name="package.drone.job.factoryId" type="String" value="org.eclipse.packagedrone.repo.importer.aether.web.resolver"/>
+   <reference bind="setChannelService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.channel.ChannelService" name="ChannelService" policy="static"/>
+</scr:component>

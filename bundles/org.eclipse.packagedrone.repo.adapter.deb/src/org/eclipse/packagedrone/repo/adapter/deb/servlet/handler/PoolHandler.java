@@ -10,38 +10,29 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.deb.servlet.handler;
 
-import static java.util.Optional.empty;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.packagedrone.repo.channel.ChannelService;
+import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.util.DownloadHelper;
 
-import com.google.common.io.ByteStreams;
-
-public class PoolHandler implements Handler
+public class PoolHandler
 {
-    private final String channelId;
+    private final ReadableChannel channel;
 
     private final String artifactId;
 
     private final String name;
 
-    private final ChannelService service;
-
-    public PoolHandler ( final ChannelService service, final String channelId, final String artifactId, final String name )
+    public PoolHandler ( final ReadableChannel channel, final String artifactId, final String name )
     {
-        this.service = service;
-        this.channelId = channelId;
+        this.channel = channel;
         this.artifactId = artifactId;
         this.name = name;
     }
 
-    @Override
     public void process ( final HttpServletResponse response ) throws IOException
     {
         if ( this.artifactId == null || this.artifactId.isEmpty () )
@@ -51,16 +42,7 @@ public class PoolHandler implements Handler
             return;
         }
 
-        DownloadHelper.streamArtifact ( response, this.service, this.channelId, this.artifactId, empty (), true, info -> this.name );
-    }
-
-    @Override
-    public void process ( final OutputStream stream ) throws IOException
-    {
-        if ( !this.service.streamArtifact ( this.channelId, this.artifactId, ( ai, in ) -> ByteStreams.copy ( in, stream ) ) )
-        {
-            throw new FileNotFoundException ( this.artifactId );
-        }
+        DownloadHelper.streamArtifact ( response, this.artifactId, Optional.empty (), true, this.channel, info -> this.name );
     }
 
 }

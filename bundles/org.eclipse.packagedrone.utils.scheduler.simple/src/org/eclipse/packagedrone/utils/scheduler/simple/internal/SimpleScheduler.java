@@ -89,12 +89,12 @@ public class SimpleScheduler implements Scheduler
         public Entry ( final ScheduledTask service )
         {
             this.service = service;
-            logger.info ( "Created job: {}", service );
+            logger.debug ( "Created job: {}", service );
         }
 
         public void reschedule ( final Long period )
         {
-            logger.info ( "Reschedule job: {} ms - {}", period, this.service );
+            logger.debug ( "Reschedule job: {} ms - {}", period, this.service );
 
             if ( period != null && period > 0 )
             {
@@ -148,7 +148,7 @@ public class SimpleScheduler implements Scheduler
 
     public void start ()
     {
-        logger.warn ( "Starting ... " );
+        logger.info ( "Starting ... " );
 
         this.executor = Executors.newSingleThreadScheduledExecutor ( new SchedulerThreadFactory () );
         this.tracker.open ();
@@ -156,7 +156,7 @@ public class SimpleScheduler implements Scheduler
 
     public void stop ()
     {
-        logger.warn ( "Stopping ... " );
+        logger.info ( "Stopping ... " );
 
         this.tracker.close ();
         if ( this.executor != null )

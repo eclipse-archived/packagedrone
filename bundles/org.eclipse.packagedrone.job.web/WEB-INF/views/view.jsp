@@ -6,7 +6,7 @@
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://dentrassi.de/osgi/job" prefix="job" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/job" prefix="job" %>
 
 <% 
 JobHandle job = (JobHandle)pageContext.getRequest ().getAttribute ( "job" );

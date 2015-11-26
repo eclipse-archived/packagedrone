@@ -4,6 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 
 
+<%@attribute name="channelId" required="true" %>
 <%@attribute name="artifactId" required="true" %>
 <%@attribute name="url" required="true" %>
 
@@ -16,7 +17,7 @@
 </c:when>
 
 <c:otherwise>
-<a href="/unzip/artifact/${artifactId }/${fn:escapeXml(url) }" target="_blank"><jsp:doBody/></a>
+<a href="/unzip/artifact/${fn:escapeXml(channelId)}/${fn:escapeXml(artifactId) }/${fn:escapeXml(url) }" target="_blank"><jsp:doBody/></a>
 </c:otherwise>
 
 </c:choose>

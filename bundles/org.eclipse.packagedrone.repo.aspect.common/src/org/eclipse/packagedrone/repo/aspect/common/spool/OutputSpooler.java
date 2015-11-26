@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
-import org.eclipse.packagedrone.repo.utils.IOFunction;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
+import org.eclipse.packagedrone.utils.io.IOFunction;
 
 import java.util.Set;
 

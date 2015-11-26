@@ -5,7 +5,7 @@
 
     <tlib-version>1.0</tlib-version>
     <short-name>job</short-name>
-    <uri>http://dentrassi.de/osgi/job</uri>
+    <uri>http://eclipse.org/packagedrone/job</uri>
 
     <tag-file>
         <name>monitor</name>

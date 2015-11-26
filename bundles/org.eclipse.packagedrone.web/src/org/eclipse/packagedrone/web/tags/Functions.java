@@ -14,10 +14,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -155,5 +157,10 @@ public class Functions
         {
             throw new IllegalStateException ( e );
         }
+    }
+
+    public static Date toDate ( final Instant instant )
+    {
+        return Date.from ( instant );
     }
 }

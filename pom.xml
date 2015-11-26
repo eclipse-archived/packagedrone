@@ -52,8 +52,8 @@
 	</licenses>
 
 	<properties>
-		<tycho-version>0.22.0</tycho-version>
-		<tycho-extras-version>0.22.0</tycho-extras-version>
+		<tycho-version>0.24.0</tycho-version>
+		<tycho-extras-version>0.24.0</tycho-extras-version>
 
 		<tycho.scmUrl>scm:git:ssh://github.com/ctron/package-drone</tycho.scmUrl>
 
@@ -138,8 +138,11 @@
 		<module>bundles/org.eclipse.packagedrone.repo.tests</module>
 		<module>bundles/org.eclipse.packagedrone.repo.utils.osgi</module>
 		<module>bundles/org.eclipse.packagedrone.repo.utils.osgi.tests</module>
+		<module>bundles/org.eclipse.packagedrone.repo.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.web.analytics</module>
 		<module>bundles/org.eclipse.packagedrone.repo.web.googlebot</module>
+		<module>bundles/org.eclipse.packagedrone.repo.web.sitemap</module>
+		<module>bundles/org.eclipse.packagedrone.repo.web.sitemap.servlet</module>
 		<module>bundles/org.eclipse.packagedrone.repo.xml</module>
 
 		<module>bundles/org.eclipse.packagedrone.sec</module>
@@ -172,6 +175,7 @@
 
 		<module>bundles/org.eclipse.packagedrone.web</module>
 		<module>bundles/org.eclipse.packagedrone.web.common</module>
+		<module>bundles/org.eclipse.packagedrone.web.common.tests</module>
 		<module>bundles/org.eclipse.packagedrone.web.common.ckeditor</module>
 		<module>bundles/org.eclipse.packagedrone.web.dispatcher</module>
 		<module>bundles/org.eclipse.packagedrone.web.forms</module>

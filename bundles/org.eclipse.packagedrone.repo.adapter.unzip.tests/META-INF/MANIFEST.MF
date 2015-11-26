@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for 'de.dentrassi.pm.unzip'
+Bundle-Name: Tests for 'org.eclipse.packagedrone.repo.adapter.unzip'
 Bundle-SymbolicName: org.eclipse.packagedrone.repo.adapter.unzip.tests
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.eclipse.packagedrone.repo.adapter.unzip

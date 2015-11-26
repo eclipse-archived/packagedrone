@@ -26,8 +26,8 @@ import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
-import org.eclipse.packagedrone.repo.channel.web.utils.ChannelCacheHandler;
 import org.eclipse.packagedrone.repo.servlet.Handler;
+import org.eclipse.packagedrone.repo.web.utils.ChannelCacheHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.apm;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,40 +19,43 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+import org.eclipse.packagedrone.repo.channel.ArtifactInformation.Manipulator;
 import org.eclipse.packagedrone.repo.channel.CacheEntry;
 import org.eclipse.packagedrone.repo.channel.CacheEntryInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelDetails;
 import org.eclipse.packagedrone.repo.channel.ChannelState;
+import org.eclipse.packagedrone.repo.channel.ChannelState.Builder;
 import org.eclipse.packagedrone.repo.channel.IdTransformer;
 import org.eclipse.packagedrone.repo.channel.ValidationMessage;
-import org.eclipse.packagedrone.repo.channel.ChannelState.Builder;
 import org.eclipse.packagedrone.repo.channel.apm.aspect.AspectContextImpl;
-import org.eclipse.packagedrone.repo.channel.apm.aspect.AspectMapModel;
 import org.eclipse.packagedrone.repo.channel.apm.aspect.AspectableContext;
 import org.eclipse.packagedrone.repo.channel.apm.internal.Activator;
 import org.eclipse.packagedrone.repo.channel.apm.store.BlobStore;
-import org.eclipse.packagedrone.repo.channel.apm.store.CacheStore;
 import org.eclipse.packagedrone.repo.channel.apm.store.BlobStore.Transaction;
+import org.eclipse.packagedrone.repo.channel.apm.store.CacheStore;
 import org.eclipse.packagedrone.repo.channel.provider.ModifyContext;
-import org.eclipse.packagedrone.repo.utils.IOConsumer;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
 import org.eclipse.packagedrone.utils.Exceptions;
+import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 public class ModifyContextImpl implements ModifyContext, AspectableContext
 {
+    private static final String FACET_GENERATOR = "generator";
+
     private final String localChannelId;
 
     private final EventAdmin eventAdmin;
@@ -61,11 +64,25 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
     private final CacheStore cacheStore;
 
-    private final ChannelModel model;
+    private final SortedMap<String, String> aspectStates;
+
+    private final SortedMap<String, String> modAspectStates;
+
+    private final Map<MetaKey, String> extractedMetadata;
+
+    private final Map<MetaKey, String> modExtractedMetadata;
+
+    private final Map<MetaKey, String> providedMetadata;
+
+    private final Map<MetaKey, String> modProvidedMetadata;
 
     private final Map<String, ArtifactInformation> artifacts;
 
     private final Map<String, ArtifactInformation> modArtifacts;
+
+    private final Map<String, ArtifactInformation> generatorArtifacts;
+
+    private final Map<String, ArtifactInformation> modGeneratorArtifacts;
 
     private final Map<MetaKey, CacheEntryInformation> cacheEntries;
 
@@ -83,7 +100,19 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
     private IdTransformer idTransformer;
 
-    public ModifyContextImpl ( final String localChannelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore, final ChannelModel other )
+    /**
+     * Create a new empty modification context
+     *
+     * @param localChannelId
+     *            the local channel id
+     * @param eventAdmin
+     *            the event admin to post events
+     * @param store
+     *            the blob store
+     * @param cacheStore
+     *            the cache store
+     */
+    public ModifyContextImpl ( final String localChannelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore )
     {
         this.localChannelId = localChannelId;
 
@@ -91,47 +120,100 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         this.store = store;
         this.cacheStore = cacheStore;
 
-        this.model = new ChannelModel ( other );
+        this.state = new Builder ();
 
-        this.modArtifacts = new HashMap<> ( other.getArtifacts ().size () );
-        for ( final Map.Entry<String, ArtifactModel> am : other.getArtifacts ().entrySet () )
-        {
-            final ArtifactInformation art = ArtifactModel.toInformation ( am );
-            this.modArtifacts.put ( art.getId (), art );
-        }
-        this.artifacts = Collections.unmodifiableMap ( this.modArtifacts );
+        // main collections
 
-        this.state = new ChannelState.Builder ();
-        this.state.setDescription ( other.getDescription () );
-        this.state.setNumberOfArtifacts ( this.modArtifacts.size () );
-        this.state.setNumberOfBytes ( this.modArtifacts.values ().stream ().mapToLong ( ArtifactInformation::getSize ).sum () );
-        this.state.setValidationMessages ( other.getValidationMessages ().stream ().map ( ValidationMessageModel::toMessage ).collect ( Collectors.toList () ) );
+        this.modAspectStates = new TreeMap<> ();
+        this.modCacheEntries = new HashMap<> ();
+        this.modArtifacts = new HashMap<> ();
+        this.modGeneratorArtifacts = new HashMap<> ();
+        this.modExtractedMetadata = new HashMap<> ();
+        this.modProvidedMetadata = new HashMap<> ();
 
-        this.modCacheEntries = new HashMap<> ( other.getCacheEntries ().size () );
-        for ( final Map.Entry<MetaKey, CacheEntryModel> cm : other.getCacheEntries ().entrySet () )
-        {
-            this.modCacheEntries.put ( cm.getKey (), CacheEntryModel.toEntry ( cm.getKey (), cm.getValue () ) );
-        }
+        // create unmodifiable collections
+
+        this.aspectStates = Collections.unmodifiableSortedMap ( this.modAspectStates );
         this.cacheEntries = Collections.unmodifiableMap ( this.modCacheEntries );
+        this.artifacts = Collections.unmodifiableMap ( this.modArtifacts );
+        this.generatorArtifacts = Collections.unmodifiableMap ( this.modGeneratorArtifacts );
+        this.extractedMetadata = Collections.unmodifiableMap ( this.modExtractedMetadata );
+        this.providedMetadata = Collections.unmodifiableMap ( this.modProvidedMetadata );
+
+        // aspect context
+
+        this.aspectContext = new AspectContextImpl ( this, Activator.getProcessor () );
+    }
+
+    public ModifyContextImpl ( final String localChannelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore, final ChannelState state, final Map<String, String> aspectStates, final Map<String, ArtifactInformation> artifacts, final Map<MetaKey, CacheEntryInformation> cacheEntries, final Map<MetaKey, String> extractedMetaData, final Map<MetaKey, String> providedMetaData )
+    {
+        this.localChannelId = localChannelId;
+
+        this.eventAdmin = eventAdmin;
+        this.store = store;
+        this.cacheStore = cacheStore;
+
+        this.state = new Builder ( state );
+
+        // main collections
+
+        this.modAspectStates = new TreeMap<> ( aspectStates );
+        this.modCacheEntries = new HashMap<> ( cacheEntries );
+        this.modArtifacts = new HashMap<> ( artifacts );
+        this.modGeneratorArtifacts = this.modArtifacts.values ().stream ().filter ( art -> art.is ( FACET_GENERATOR ) ).collect ( toMap ( ArtifactInformation::getId, a -> a ) );
+        this.modExtractedMetadata = new HashMap<> ( extractedMetaData );
+        this.modProvidedMetadata = new HashMap<> ( providedMetaData );
+
+        // create unmodifiable collections
+
+        this.aspectStates = Collections.unmodifiableSortedMap ( this.modAspectStates );
+        this.cacheEntries = Collections.unmodifiableMap ( this.modCacheEntries );
+        this.artifacts = Collections.unmodifiableMap ( this.modArtifacts );
+        this.generatorArtifacts = Collections.unmodifiableMap ( this.modGeneratorArtifacts );
+        this.extractedMetadata = Collections.unmodifiableMap ( this.modExtractedMetadata );
+        this.providedMetadata = Collections.unmodifiableMap ( this.modProvidedMetadata );
+
+        // aspect context
 
         this.aspectContext = new AspectContextImpl ( this, Activator.getProcessor () );
     }
 
     public ModifyContextImpl ( final ModifyContextImpl other )
     {
-        this ( other.localChannelId, other.eventAdmin, other.store, other.cacheStore, other.getModel () );
+        this.localChannelId = other.localChannelId;
 
-        // FIXME: prevent unnecessary copies
+        this.eventAdmin = other.eventAdmin;
+        this.store = other.store;
+        this.cacheStore = other.cacheStore;
+
+        this.state = new Builder ( other.state.build () );
+
+        // main collections
+
+        this.modAspectStates = new TreeMap<> ( other.aspectStates );
+        this.modCacheEntries = new HashMap<> ( other.cacheEntries );
+        this.modArtifacts = new HashMap<> ( other.artifacts );
+        this.modGeneratorArtifacts = new HashMap<> ( other.generatorArtifacts );
+        this.modExtractedMetadata = new HashMap<> ( other.extractedMetadata );
+        this.modProvidedMetadata = new HashMap<> ( other.providedMetadata );
+
+        // create unmodifiable collections
+
+        this.aspectStates = Collections.unmodifiableSortedMap ( this.modAspectStates );
+        this.cacheEntries = Collections.unmodifiableMap ( this.modCacheEntries );
+        this.artifacts = Collections.unmodifiableMap ( this.modArtifacts );
+        this.generatorArtifacts = Collections.unmodifiableMap ( this.modGeneratorArtifacts );
+        this.extractedMetadata = Collections.unmodifiableMap ( this.modExtractedMetadata );
+        this.providedMetadata = Collections.unmodifiableMap ( this.modProvidedMetadata );
+
+        // aspect context
+
+        this.aspectContext = new AspectContextImpl ( this, Activator.getProcessor () );
     }
 
     public void setIdTransformer ( final IdTransformer idTransformer )
     {
         this.idTransformer = idTransformer;
-    }
-
-    public ChannelModel getModel ()
-    {
-        return this.model;
     }
 
     @Override
@@ -154,16 +236,18 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public SortedMap<MetaKey, String> getMetaData ()
     {
+        // TODO: check if this should be synchronized
+
         if ( this.metaDataCache == null )
         {
             final TreeMap<MetaKey, String> tmp = new TreeMap<> ();
-            if ( this.model.getExtractedMetaData () != null )
+            if ( this.modExtractedMetadata != null )
             {
-                tmp.putAll ( this.model.getExtractedMetaData () );
+                tmp.putAll ( this.modExtractedMetadata );
             }
-            if ( this.model.getProvidedMetaData () != null )
+            if ( this.modProvidedMetadata != null )
             {
-                tmp.putAll ( this.model.getProvidedMetaData () );
+                tmp.putAll ( this.modProvidedMetadata );
             }
             this.metaDataCache = Collections.unmodifiableSortedMap ( tmp );
         }
@@ -177,10 +261,16 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     }
 
     @Override
+    public Map<String, ArtifactInformation> getGeneratorArtifacts ()
+    {
+        return this.generatorArtifacts;
+    }
+
+    @Override
     public void setDetails ( final ChannelDetails details )
     {
         this.state.setDescription ( details.getDescription () );
-        this.model.setDescription ( details.getDescription () );
+        markModified ();
     }
 
     @Override
@@ -192,7 +282,13 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public SortedMap<String, String> getAspectStates ()
     {
-        return this.aspectContext.getAspectStates ();
+        return this.aspectStates;
+    }
+
+    @Override
+    public SortedMap<String, String> getModifiableAspectStates ()
+    {
+        return this.modAspectStates;
     }
 
     @Override
@@ -207,17 +303,21 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
             if ( value == null )
             {
-                this.model.getProvidedMetaData ().remove ( key );
+                this.modProvidedMetadata.remove ( key );
             }
             else
             {
-                this.model.getProvidedMetaData ().put ( key, value );
+                this.modProvidedMetadata.put ( key, value );
             }
         }
 
         // clear cache
 
         this.metaDataCache = null;
+
+        // mark modified
+
+        markModified ();
 
         // re-aggregate
 
@@ -229,7 +329,7 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     {
         testLocked ();
 
-        final ArtifactModel artifact = this.model.getArtifacts ().get ( artifactId );
+        final ArtifactInformation artifact = this.modArtifacts.get ( artifactId );
         if ( artifact == null )
         {
             throw new IllegalStateException ( String.format ( "Artifact '%s' is unknown", artifactId ) );
@@ -240,35 +340,43 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
             throw new IllegalStateException ( String.format ( "Artifact '%s' is not 'stored'", artifactId ) );
         }
 
+        final Manipulator m = artifact.createManipulator ();
+
         for ( final Map.Entry<MetaKey, String> entry : changes.entrySet () )
         {
             final MetaKey key = entry.getKey ();
             final String value = entry.getValue ();
             if ( value == null )
             {
-                artifact.getProvidedMetaData ().remove ( key );
+                m.getProvidedMetaData ().remove ( key );
             }
             else
             {
-                artifact.getProvidedMetaData ().put ( key, value );
+                m.getProvidedMetaData ().put ( key, value );
             }
         }
 
         // update
 
-        updateArtifact ( artifactId, artifact );
+        updateArtifact ( m );
 
-        if ( artifact.getFacets ().contains ( "generator" ) )
+        // mark modified
+
+        markModified ();
+
+        // regenerate generators
+
+        if ( artifact.getFacets ().contains ( FACET_GENERATOR ) )
         {
             this.aspectContext.regenerate ( artifactId );
         }
 
-        // TODO: update generic artifacts
+        // TODO: new behavior - regenerate normal artifacts since this might have changed virtual artifacts
     }
 
     private void testLocked ()
     {
-        if ( this.model.isLocked () )
+        if ( this.state.build ().isLocked () )
         {
             throw new IllegalStateException ( "Channel is locked" );
         }
@@ -278,14 +386,12 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     public void lock ()
     {
         this.state.setLocked ( true );
-        this.model.setLocked ( true );
     }
 
     @Override
     public void unlock ()
     {
         this.state.setLocked ( false );
-        this.model.setLocked ( false );
     }
 
     private void ensureTransaction ()
@@ -302,7 +408,6 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         {
             this.cacheTransaction = this.cacheStore.startTransaction ();
             this.modCacheEntries.clear ();
-            this.model.getCacheEntries ().clear ();
         }
     }
 
@@ -331,6 +436,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     {
         testLocked ();
 
+        markModified ();
+
         if ( parentId != null )
         {
             final ArtifactInformation parent = this.modArtifacts.get ( parentId );
@@ -351,6 +458,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     {
         testLocked ();
 
+        markModified ();
+
         return Exceptions.wrapException ( () -> this.aspectContext.createGeneratorArtifact ( generatorId, source, name, providedMetaData ) );
     }
 
@@ -359,19 +468,21 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     {
         ensureTransaction ();
 
+        markModified ();
+
         final String id = UUID.randomUUID ().toString ();
 
         try
         {
             final long size = this.transaction.create ( id, source );
 
-            final ArtifactModel parent;
+            final ArtifactInformation parent;
 
             // validate parent
 
             if ( parentId != null )
             {
-                parent = this.model.getArtifacts ().get ( parentId );
+                parent = this.artifacts.get ( parentId );
                 if ( parent == null )
                 {
                     throw new IllegalArgumentException ( String.format ( "Parent artifact %s does not exists", parentId ) );
@@ -383,14 +494,20 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
             }
 
             final ArtifactInformation ai = new ArtifactInformation ( id, parentId, Collections.emptySet (), name, size, Instant.now (), facets, Collections.emptyList (), providedMetaData, null, virtualizerAspectId );
-            this.model.addArtifact ( ai );
             this.modArtifacts.put ( ai.getId (), ai );
+
+            if ( ai.is ( FACET_GENERATOR ) )
+            {
+                this.modGeneratorArtifacts.put ( ai.getId (), ai );
+            }
 
             if ( parent != null )
             {
                 // add as child
-                parent.getChildIds ().add ( ai.getId () );
-                updateArtifact ( parentId, parent );
+
+                final Manipulator m = parent.createManipulator ();
+                m.getChildIds ().add ( ai.getId () );
+                updateArtifact ( m );
             }
 
             // refresh number of artifacts
@@ -406,11 +523,13 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         }
     }
 
-    private ArtifactInformation updateArtifact ( final String id, final ArtifactModel artifact )
+    private ArtifactInformation updateArtifact ( final Manipulator manipulator )
     {
-        final ArtifactInformation result = ArtifactModel.toInformation ( id, artifact );
-        this.modArtifacts.put ( id, result );
-        return result;
+        markModified ();
+
+        final ArtifactInformation art = manipulator.build ();
+        this.modArtifacts.put ( art.getId (), art );
+        return art;
     }
 
     private boolean internalDeleteArtifact ( final String id ) throws IOException
@@ -419,13 +538,16 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
         final boolean result = this.transaction.delete ( id );
 
-        this.model.removeArtifact ( id );
         final ArtifactInformation ai = this.modArtifacts.remove ( id );
 
         if ( ai == null )
         {
             return result;
         }
+
+        // remove from generators
+
+        this.modGeneratorArtifacts.remove ( id );
 
         // remove children as well
 
@@ -441,12 +563,20 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
         if ( ai.getParentId () != null )
         {
-            final ArtifactModel parent = this.model.getArtifacts ().get ( ai.getParentId () );
+            final ArtifactInformation parent = this.modArtifacts.get ( ai.getParentId () );
             if ( parent != null )
             {
-                parent.getChildIds ().remove ( id );
-                updateArtifact ( ai.getParentId (), parent );
+                final Manipulator m = parent.createManipulator ();
+                m.getChildIds ().remove ( id );
+                updateArtifact ( m );
             }
+        }
+
+        // remove from generators
+
+        if ( ai.is ( FACET_GENERATOR ) )
+        {
+            this.modGeneratorArtifacts.remove ( id );
         }
 
         // refresh number of artifacts
@@ -460,6 +590,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public ArtifactInformation deletePlainArtifact ( final String id )
     {
+        markModified ();
+
         try
         {
             final ArtifactInformation artifact = this.modArtifacts.get ( id );
@@ -483,6 +615,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     public boolean deleteArtifact ( final String id )
     {
         testLocked ();
+
+        markModified ();
+
         ensureTransaction ();
 
         final ArtifactInformation artifact = this.modArtifacts.get ( id );
@@ -548,6 +683,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     public void clear ()
     {
         testLocked ();
+
+        markModified ();
+
         ensureTransaction ();
         ensureCacheTransaction ();
 
@@ -564,19 +702,19 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
             }
         }
 
+        // clear generators
+
+        this.modGeneratorArtifacts.clear ();
+
         // clear cache entries
 
         this.modCacheEntries.clear ();
-        this.model.getCacheEntries ().clear ();
 
         Exceptions.wrapException ( () -> this.cacheTransaction.clear () );
 
         // clear extracted channel meta data
 
-        if ( this.model.getExtractedMetaData () != null )
-        {
-            this.model.getExtractedMetaData ().clear ();
-        }
+        this.modExtractedMetadata.clear ();
 
         // clear meta data cache
 
@@ -584,7 +722,6 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
         // clear validation messages
 
-        this.model.getValidationMessages ().clear ();
         this.state.setValidationMessages ( Collections.emptyList () );
 
         // refresh number of artifacts
@@ -598,13 +735,19 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     {
         testLocked ();
 
+        markModified ();
+
         this.aspectContext.addAspects ( aspectIds );
     }
 
     @Override
     public void removeAspects ( final Set<String> aspectIds )
     {
+        Objects.requireNonNull ( aspectIds, "'aspectIds' must not be null" );
+
         testLocked ();
+
+        markModified ();
 
         this.aspectContext.removeAspects ( aspectIds );
 
@@ -612,24 +755,25 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     }
 
     @Override
-    public void refreshAspects ( final Set<String> aspectIds )
+    public void refreshAspects ( Set<String> aspectIds )
     {
         testLocked ();
+
+        markModified ();
+
+        if ( aspectIds == null )
+        {
+            aspectIds = new HashSet<> ( this.aspectStates.keySet () );
+        }
 
         this.aspectContext.refreshAspects ( aspectIds );
 
         postAspectEvents ( aspectIds, "refresh" );
     }
 
-    @Override
-    public AspectMapModel getAspectModel ()
+    protected ArtifactInformation modifyArtifact ( final String artifactId, final Consumer<Manipulator> modification )
     {
-        return this.model.getAspects ();
-    }
-
-    protected ArtifactInformation modifyArtifact ( final String artifactId, final Consumer<ArtifactModel> modification )
-    {
-        final ArtifactModel art = this.model.getArtifacts ().get ( artifactId );
+        final ArtifactInformation art = this.artifacts.get ( artifactId );
 
         if ( art == null )
         {
@@ -638,11 +782,16 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
         // perform modification
 
-        modification.accept ( art );
+        final Manipulator m = art.createManipulator ();
+        modification.accept ( m );
+
+        // mark modified
+
+        markModified ();
 
         // update from the model
 
-        return updateArtifact ( artifactId, art );
+        return updateArtifact ( m );
     }
 
     @Override
@@ -659,22 +808,25 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     {
         return modifyArtifact ( artifactId, art -> {
             // set validation messages
-            art.setValidationMessages ( messages.stream ().map ( ValidationMessageModel::fromMessage ).collect ( toList () ) );
+            art.setValidationMessages ( messages );
         } );
     }
 
     @Override
     public void setExtractedMetaData ( final Map<MetaKey, String> metaData )
     {
-        this.model.setExtractedMetaData ( new HashMap<> ( metaData ) );
+        this.modExtractedMetadata.clear ();
+        this.modExtractedMetadata.putAll ( metaData );
+
         this.metaDataCache = null;
+        markModified ();
     }
 
     @Override
     public void setValidationMessages ( final List<ValidationMessage> messages )
     {
-        this.model.setValidationMessages ( messages.stream ().map ( ValidationMessageModel::fromMessage ).collect ( toList () ) );
         this.state.setValidationMessages ( messages );
+        markModified ();
     }
 
     @Override
@@ -689,12 +841,13 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         testLocked ();
 
         this.aspectContext.regenerate ( artifactId );
+        markModified ();
     }
 
     @Override
     public Map<MetaKey, String> getChannelProvidedMetaData ()
     {
-        return Collections.unmodifiableMap ( this.model.getProvidedMetaData () );
+        return this.providedMetadata;
     }
 
     @Override
@@ -706,7 +859,7 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public Map<MetaKey, String> getExtractedMetaData ()
     {
-        return Collections.unmodifiableMap ( this.model.getExtractedMetaData () );
+        return this.extractedMetadata;
     }
 
     @Override
@@ -718,14 +871,15 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
         final CacheEntryInformation entry = new CacheEntryInformation ( key, name, size, mimeType, Instant.now () );
         this.modCacheEntries.put ( key, entry );
-        this.model.getCacheEntries ().put ( key, CacheEntryModel.fromInformation ( entry ) );
+
+        markModified ();
     }
 
     @Override
     public ChannelDetails getChannelDetails ()
     {
         final ChannelDetails result = new ChannelDetails ();
-        result.setDescription ( this.model.getDescription () );
+        result.setDescription ( this.state.build ().getDescription () );
         return result;
     }
 
@@ -742,14 +896,24 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
     protected void postAspectEvent ( final String channelId, final String aspectId, final String operation )
     {
-        final Map<String, Object> data = new HashMap<> ( 2 );
-        data.put ( "operation", operation );
-        data.put ( "aspectFactoryId", aspectId );
-        this.eventAdmin.postEvent ( new Event ( String.format ( "drone/channel/%s/aspect", makeSafeTopic ( channelId ) ), data ) );
+        if ( this.eventAdmin != null )
+        {
+            final Map<String, Object> data = new HashMap<> ( 2 );
+            data.put ( "operation", operation );
+            data.put ( "aspectFactoryId", aspectId );
+
+            this.eventAdmin.postEvent ( new Event ( String.format ( "drone/channel/%s/aspect", makeSafeTopic ( channelId ) ), data ) );
+        }
     }
 
     private static String makeSafeTopic ( final String aspectId )
     {
         return aspectId.replaceAll ( "[^a-zA-Z0-9_\\-]", "_" );
+    }
+
+    private void markModified ()
+    {
+        final Instant now = Instant.now ();
+        this.state.setModificationTimestamp ( now );
     }
 }

@@ -9,5 +9,5 @@ Import-Package: org.eclipse.packagedrone.sec;version="1.0.0",
  org.eclipse.packagedrone.utils;version="1.0.0",
  org.osgi.framework;version="1.8.0",
  org.slf4j;version="1.7.2"
-Export-Package: org.eclipse.packagedrone.sec.service;version="1.0.0";uses:="de.dentrassi.pm.sec",
+Export-Package: org.eclipse.packagedrone.sec.service;version="1.0.0";uses:="org.eclipse.packagedrone.sec",
  org.eclipse.packagedrone.sec.service.password;version="1.0.0"

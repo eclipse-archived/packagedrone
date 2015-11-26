@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.packagedrone.web.forms;bundle-version="1.0.0",
  org.eclipse.packagedrone.repo.channel.web;bundle-version="0.0.7",
  org.jboss.spec.javax.servlet.jstl.jboss-jstl-api_1.2_spec;bundle-version="1.1.2"
 Bundle-ActivationPolicy: lazy
-Web-TagLib-Directory: /WEB-INF/tags/de.dentrassi.pm.osgi.web
+Web-TagLib-Directory: /WEB-INF/tags/org.eclipse.packagedrone.repo.osgi.web
 Import-Package: com.google.common.escape;version="18.0.0",
  com.google.common.net;version="18.0.0",
  javax.servlet;version="3.1.0",
@@ -25,6 +25,8 @@ Import-Package: com.google.common.escape;version="18.0.0",
  org.eclipse.packagedrone.repo.channel.web.breadcrumbs;version="1.0.0",
  org.eclipse.packagedrone.repo.utils.osgi.bundle;version="1.0.0",
  org.eclipse.packagedrone.repo.utils.osgi.feature;version="1.0.0",
+ org.eclipse.packagedrone.repo.web.sitemap;version="1.0.0",
+ org.eclipse.packagedrone.repo.web.utils;version="1.0.0",
  org.eclipse.packagedrone.sec;version="1.0.0",
  org.eclipse.packagedrone.web;version="1.0.0",
  org.eclipse.packagedrone.web.common;version="1.0.0",
@@ -33,4 +35,5 @@ Import-Package: com.google.common.escape;version="18.0.0",
  org.eclipse.packagedrone.web.controller.form;version="1.0.0",
  org.eclipse.scada.utils.str;version="0.2.0",
  org.osgi.framework;version="1.8.0"
-Service-Component: OSGI-INF/osgi.xml
+Service-Component: OSGI-INF/osgi.xml,
+ OSGI-INF/sitemap.xml

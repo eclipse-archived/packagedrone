@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.aspect.common.p2;
 
-import static org.eclipse.packagedrone.repo.XmlHelper.addElement;
-import static org.eclipse.packagedrone.repo.XmlHelper.fixSize;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +24,9 @@ import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.eclipse.packagedrone.repo.XmlHelper;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.BundleRequirement;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.PackageExport;
@@ -40,10 +39,6 @@ import org.osgi.framework.Version;
 import org.osgi.framework.VersionRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
 
 public class InstallableUnit
 {
@@ -58,8 +53,6 @@ public class InstallableUnit
     private boolean singleton;
 
     private Map<String, String> properties = new HashMap<> ();
-
-    private Element additionalNodes;
 
     private String filter;
 
@@ -234,6 +227,37 @@ public class InstallableUnit
         }
     }
 
+    public static class Touchpoint
+    {
+        private final String id;
+
+        private final String version;
+
+        private final Map<String, String> instructions;
+
+        public Touchpoint ( final String id, final String version, final Map<String, String> instructions )
+        {
+            this.id = id;
+            this.version = version;
+            this.instructions = instructions;
+        }
+
+        public String getId ()
+        {
+            return this.id;
+        }
+
+        public String getVersion ()
+        {
+            return this.version;
+        }
+
+        public Map<String, String> getInstructions ()
+        {
+            return Collections.unmodifiableMap ( this.instructions );
+        }
+    }
+
     private List<License> licenses = new LinkedList<> ();
 
     private Map<Key, Requirement> requires = new HashMap<> ();
@@ -241,6 +265,8 @@ public class InstallableUnit
     private Map<Key, String> provides = new HashMap<> ();
 
     private Set<Artifact> artifacts = new HashSet<> ();
+
+    private List<Touchpoint> touchpoints = new LinkedList<> ();
 
     public void setLicenses ( final List<License> licenses )
     {
@@ -278,6 +304,16 @@ public class InstallableUnit
         return this.artifacts;
     }
 
+    public void setTouchpoints ( final List<Touchpoint> touchpoints )
+    {
+        this.touchpoints = touchpoints;
+    }
+
+    public List<Touchpoint> getTouchpoints ()
+    {
+        return this.touchpoints;
+    }
+
     public void setFilter ( final String filter )
     {
         this.filter = filter;
@@ -286,16 +322,6 @@ public class InstallableUnit
     public String getFilter ()
     {
         return this.filter;
-    }
-
-    public void setAdditionalNodes ( final Element additionalNodes )
-    {
-        this.additionalNodes = additionalNodes;
-    }
-
-    public Element getAdditionalNodes ()
-    {
-        return this.additionalNodes;
     }
 
     public void setRequires ( final Map<Key, Requirement> requires )
@@ -411,13 +437,9 @@ public class InstallableUnit
 
         // touchpoint
 
-        final XmlHelper xml = new XmlHelper ();
-        final Document doc = xml.create ();
-        final Element root = doc.createElement ( "root" );
         final Map<String, String> td = new HashMap<> ();
         td.put ( "zipped", "true" );
-        addTouchpoint ( root, "org.eclipse.equinox.p2.osgi", "1.0.0", td );
-        result.setAdditionalNodes ( root );
+        result.getTouchpoints ().add ( new Touchpoint ( "org.eclipse.equinox.p2.osgi", "1.0.0", td ) );
 
         return result;
     }
@@ -515,13 +537,7 @@ public class InstallableUnit
         result.setCopyright ( feature.getCopyright (), feature.getCopyrightUrl () );
         result.getLicenses ().add ( new License ( feature.getLicense (), feature.getLicenseUrl () ) );
 
-        // touchpoint
-
-        final XmlHelper xml = new XmlHelper ();
-        final Document doc = xml.create ();
-        final Element root = doc.createElement ( "root" );
-        addTouchpoint ( root, "null", "0.0.0", Collections.emptyMap () );
-        result.setAdditionalNodes ( root );
+        // touchpoint - no touchpoints
 
         // return result
 
@@ -585,22 +601,16 @@ public class InstallableUnit
 
         // touchpoints
 
-        final XmlHelper xml = new XmlHelper ();
-        final Document doc = xml.create ();
-        final Element root = doc.createElement ( "root" );
-
         try
         {
             final Map<String, String> td = new HashMap<String, String> ( 1 );
             td.put ( "manifest", makeManifest ( bundle.getId (), bundle.getVersion () ) );
-            addTouchpoint ( root, "org.eclipse.equinox.p2.osgi", "1.0.0", td );
+            result.getTouchpoints ().add ( new Touchpoint ( "org.eclipse.equinox.p2.osgi", "1.0.0", td ) );
         }
         catch ( final Exception e )
         {
             logger.warn ( "Failed to generate manifest", e );
         }
-
-        result.setAdditionalNodes ( root );
 
         return result;
     }
@@ -675,149 +685,237 @@ public class InstallableUnit
         return version.toString ();
     }
 
-    public static Document toXml ( final List<InstallableUnit> ius )
+    /**
+     * Write a list of units inside a {@code units} element
+     *
+     * @param xsw
+     *            the stream to write to
+     * @param ius
+     *            The units to write
+     * @throws XMLStreamException
+     *             if the underlying throws it
+     */
+    public static void writeXml ( final XMLStreamWriter xsw, final List<InstallableUnit> ius ) throws XMLStreamException
     {
-        final XmlHelper xml = new XmlHelper ();
-
-        final Document doc = xml.create ();
-        final Element units = doc.createElement ( "units" );
-        doc.appendChild ( units );
-
+        xsw.writeStartElement ( "units" );
+        xsw.writeAttribute ( "size", "" + ius.size () );
         for ( final InstallableUnit iu : ius )
         {
-            if ( iu != null )
-            {
-                iu.writeXmlForUnit ( units );
-            }
+            iu.writeXmlForUnit ( xsw );
         }
-
-        return doc;
+        xsw.writeEndElement ();
     }
 
-    public Document toXml ()
+    /**
+     * Write a single unit inside a {@code units} element
+     *
+     * @param xsw
+     *            the stream to write to
+     * @throws XMLStreamException
+     *             if the underlying throws it
+     */
+    public void writeXml ( final XMLStreamWriter xsw ) throws XMLStreamException
     {
-        final XmlHelper xml = new XmlHelper ();
-
-        final Document doc = xml.create ();
-        final Element units = doc.createElement ( "units" );
-        doc.appendChild ( units );
-
-        writeXmlForUnit ( units );
-
-        return doc;
+        writeXml ( xsw, Collections.singletonList ( this ) );
     }
 
-    private void writeXmlForUnit ( final Element units )
+    /**
+     * Write the unit as XML fragment
+     *
+     * @param xsw
+     *            the XMLStreamWriter to write to
+     * @throws XMLStreamException
+     *             if the underlying throws it
+     */
+    public void writeXmlForUnit ( final XMLStreamWriter xsw ) throws XMLStreamException
     {
-        final Document doc = units.getOwnerDocument ();
+        xsw.writeStartElement ( "unit" );
+        xsw.writeAttribute ( "id", this.id );
+        xsw.writeAttribute ( "version", "" + this.version );
+        xsw.writeAttribute ( "singleton", "" + this.singleton );
 
-        final Element unit = addElement ( units, "unit" );
-        unit.setAttribute ( "id", this.id );
-        unit.setAttribute ( "version", "" + this.version );
-        unit.setAttribute ( "singleton", "" + this.singleton );
-
-        final Element update = addElement ( unit, "update" );
-        update.setAttribute ( "id", this.id );
-        update.setAttribute ( "range", "[0.0.0," + this.version + ")" );
-        update.setAttribute ( "severity", "0" );
-
-        final Element properties = addElement ( unit, "properties" );
-        for ( final Map.Entry<String, String> entry : this.properties.entrySet () )
         {
-            addProperty ( properties, entry.getKey (), entry.getValue () );
+            xsw.writeEmptyElement ( "update" );
+            xsw.writeAttribute ( "id", this.id );
+            xsw.writeAttribute ( "range", "[0.0.0," + this.version + ")" );
+            xsw.writeAttribute ( "severity", "0" );
         }
 
-        final Element provides = addElement ( unit, "provides" );
-        for ( final Map.Entry<Key, String> entry : this.provides.entrySet () )
         {
-            addProvided ( provides, entry.getKey ().getNamespace (), entry.getKey ().getKey (), entry.getValue () );
-        }
+            xsw.writeStartElement ( "properties" );
+            xsw.writeAttribute ( "size", "" + this.properties.size () );
 
-        final Element requires = addElement ( unit, "requires" );
-        for ( final Map.Entry<Key, Requirement> entry : this.requires.entrySet () )
-        {
-            final Element p = addElement ( requires, "required" );
-            p.setAttribute ( "namespace", entry.getKey ().getNamespace () );
-            p.setAttribute ( "name", entry.getKey ().getKey () );
-            p.setAttribute ( "range", makeString ( entry.getValue ().getRange () ) );
-            if ( entry.getValue ().isOptional () )
+            for ( final Map.Entry<String, String> entry : this.properties.entrySet () )
             {
-                p.setAttribute ( "optional", "true" );
-
-            }
-            if ( entry.getValue ().getGreedy () != null )
-            {
-                p.setAttribute ( "greedy", "" + entry.getValue ().getGreedy () );
-            }
-            final String filterString = entry.getValue ().getFilter ();
-            if ( filterString != null && !filterString.isEmpty () )
-            {
-                final Element filter = addElement ( p, "filter" );
-                filter.setTextContent ( entry.getValue ().getFilter () );
-            }
-        }
-
-        if ( this.filter != null && !this.filter.isEmpty () )
-        {
-            final Element filter = addElement ( unit, "filter" );
-            filter.setTextContent ( this.filter );
-        }
-
-        final Element artifacts = addElement ( unit, "artifacts" );
-
-        for ( final Artifact artifact : this.artifacts )
-        {
-            final Element a = addElement ( artifacts, "artifact" );
-            a.setAttribute ( "classifier", artifact.getClassifer () );
-            a.setAttribute ( "id", artifact.getId () );
-            a.setAttribute ( "version", "" + artifact.getVersion () );
-        }
-
-        if ( this.additionalNodes != null )
-        {
-            for ( final Node node : XmlHelper.iter ( this.additionalNodes.getChildNodes () ) )
-            {
-                if ( node instanceof Element )
+                xsw.writeStartElement ( "property" );
+                xsw.writeAttribute ( "name", entry.getKey () );
+                if ( entry.getValue () != null )
                 {
-                    unit.appendChild ( doc.adoptNode ( node.cloneNode ( true ) ) );
+                    xsw.writeAttribute ( "value", entry.getValue () );
+                }
+                xsw.writeEndElement ();
+            }
+
+            xsw.writeEndElement (); // properties
+        }
+
+        {
+            xsw.writeStartElement ( "provides" );
+            xsw.writeAttribute ( "size", "" + this.provides.size () );
+
+            for ( final Map.Entry<Key, String> entry : this.provides.entrySet () )
+            {
+                xsw.writeStartElement ( "provided" );
+                xsw.writeAttribute ( "namespace", entry.getKey ().getNamespace () );
+                xsw.writeAttribute ( "name", entry.getKey ().getKey () );
+                xsw.writeAttribute ( "version", entry.getValue () );
+                xsw.writeEndElement ();
+            }
+
+            xsw.writeEndElement (); // provides
+        }
+
+        {
+            xsw.writeStartElement ( "requires" );
+            xsw.writeAttribute ( "size", "" + this.requires.size () );
+
+            for ( final Map.Entry<Key, Requirement> entry : this.requires.entrySet () )
+            {
+                xsw.writeStartElement ( "required" );
+
+                xsw.writeAttribute ( "namespace", entry.getKey ().getNamespace () );
+                xsw.writeAttribute ( "name", entry.getKey ().getKey () );
+                xsw.writeAttribute ( "range", makeString ( entry.getValue ().getRange () ) );
+
+                if ( entry.getValue ().isOptional () )
+                {
+                    xsw.writeAttribute ( "optional", "true" );
+
+                }
+                if ( entry.getValue ().getGreedy () != null )
+                {
+                    xsw.writeAttribute ( "greedy", "" + entry.getValue ().getGreedy () );
+                }
+
+                final String filterString = entry.getValue ().getFilter ();
+                if ( filterString != null && !filterString.isEmpty () )
+                {
+                    xsw.writeStartElement ( "filter" );
+                    xsw.writeCharacters ( entry.getValue ().getFilter () );
+                    xsw.writeEndElement (); // filter
+                }
+
+                xsw.writeEndElement (); // required
+            }
+
+            xsw.writeEndElement (); // requires
+        }
+
+        {
+            if ( this.filter != null && !this.filter.isEmpty () )
+            {
+                xsw.writeStartElement ( "filter" );
+                xsw.writeCharacters ( this.filter );
+                xsw.writeEndElement (); // filter
+            }
+        }
+
+        if ( !this.artifacts.isEmpty () )
+        {
+            xsw.writeStartElement ( "artifacts" );
+            xsw.writeAttribute ( "size", "" + this.artifacts.size () );
+
+            for ( final Artifact artifact : this.artifacts )
+            {
+                xsw.writeEmptyElement ( "artifact" );
+                xsw.writeAttribute ( "classifier", artifact.getClassifer () );
+                xsw.writeAttribute ( "id", artifact.getId () );
+                xsw.writeAttribute ( "version", "" + artifact.getVersion () );
+            }
+
+            xsw.writeEndElement (); // artifacts
+        }
+
+        {
+            if ( this.touchpoints.isEmpty () )
+            {
+                xsw.writeEmptyElement ( "touchpoint" );
+                xsw.writeAttribute ( "id", "null" );
+                xsw.writeAttribute ( "version", "0.0.0" );
+            }
+            else
+            {
+                for ( final Touchpoint tp : this.touchpoints )
+                {
+                    xsw.writeEmptyElement ( "touchpoint" );
+                    xsw.writeAttribute ( "id", tp.getId () );
+                    xsw.writeAttribute ( "version", tp.getVersion () );
+
+                    if ( !tp.getInstructions ().isEmpty () )
+                    {
+                        xsw.writeStartElement ( "touchpointData" );
+                        xsw.writeAttribute ( "size", "1" );
+
+                        xsw.writeStartElement ( "instructions" );
+                        xsw.writeAttribute ( "size", "" + tp.getInstructions ().size () );
+
+                        for ( final Map.Entry<String, String> entry : tp.getInstructions ().entrySet () )
+                        {
+                            xsw.writeStartElement ( "instruction" );
+                            xsw.writeAttribute ( "key", entry.getKey () );
+                            xsw.writeCharacters ( entry.getValue () );
+                            xsw.writeEndElement (); // instruction
+                        }
+
+                        xsw.writeEndElement (); // instructions
+                        xsw.writeEndElement (); // touchpointData
+                    }
                 }
             }
         }
 
-        // add legal
-
-        final Element licenses = addElement ( unit, "licenses" );
-        for ( final License licenseEntry : this.licenses )
         {
-            final Element license = addElement ( licenses, "license" );
-            license.setAttribute ( "url", licenseEntry.getUri () );
-            license.setAttribute ( "uri", licenseEntry.getUri () );
-            if ( licenseEntry.getText () != null )
+            xsw.writeStartElement ( "licenses" );
+            xsw.writeAttribute ( "size", "" + this.licenses.size () );
+
+            for ( final License licenseEntry : this.licenses )
             {
-                license.appendChild ( doc.createTextNode ( licenseEntry.getText () ) );
+                xsw.writeStartElement ( "license" );
+
+                if ( licenseEntry.getUri () != null )
+                {
+                    xsw.writeAttribute ( "url", licenseEntry.getUri () );
+                    xsw.writeAttribute ( "uri", licenseEntry.getUri () );
+                }
+
+                if ( licenseEntry.getText () != null )
+                {
+                    xsw.writeCData ( licenseEntry.getText () );
+                }
+
+                xsw.writeEndElement (); // license
             }
+
+            xsw.writeEndElement (); // licenses
         }
 
         if ( this.copyright != null || this.copyrightUrl != null )
         {
-            final Element copyright = addElement ( unit, "copyright" );
+            xsw.writeStartElement ( "copyright" );
+
             if ( this.copyrightUrl != null )
             {
-                copyright.setAttribute ( "url", this.copyrightUrl );
-                copyright.setAttribute ( "uri", this.copyrightUrl );
+                xsw.writeAttribute ( "url", this.copyrightUrl );
+                xsw.writeAttribute ( "uri", this.copyrightUrl );
             }
             if ( this.copyright != null )
             {
-                copyright.appendChild ( doc.createTextNode ( this.copyright ) );
+                xsw.writeCData ( this.copyright );
             }
+            xsw.writeEndElement ();
         }
 
-        fixSize ( licenses );
-        fixSize ( requires );
-        fixSize ( properties );
-        fixSize ( artifacts );
-        fixSize ( provides );
-        fixSize ( units );
+        xsw.writeEndElement (); // unit
     }
 
     private String makeString ( final VersionRange range )
@@ -830,13 +928,6 @@ public class InstallableUnit
         {
             return range.toString ();
         }
-    }
-
-    private static void addProperty ( final Element properties, final String key, final String value )
-    {
-        final Element p = addElement ( properties, "property" );
-        p.setAttribute ( "name", key );
-        p.setAttribute ( "value", value );
     }
 
     private static String makeManifest ( final String id, final Version version ) throws IOException
@@ -852,31 +943,4 @@ public class InstallableUnit
         return out.toString ( "UTF-8" );
     }
 
-    private static void addTouchpoint ( final Element unit, final String id, final String version, final Map<String, String> td )
-    {
-        final Element touchpoint = addElement ( unit, "touchpoint" );
-        touchpoint.setAttribute ( "id", id );
-        touchpoint.setAttribute ( "version", version );
-
-        final Element touchpointData = addElement ( unit, "touchpointData" );
-        final Element is = addElement ( touchpointData, "instructions" );
-        for ( final Map.Entry<String, String> entry : td.entrySet () )
-        {
-            final Element i = addElement ( is, "instruction" );
-            i.setAttribute ( "key", entry.getKey () );
-            final Text v = i.getOwnerDocument ().createTextNode ( entry.getValue () );
-            i.appendChild ( v );
-        }
-
-        fixSize ( is );
-        fixSize ( touchpointData );
-    }
-
-    private static void addProvided ( final Element provides, final String namespace, final String name, final String version )
-    {
-        final Element p = addElement ( provides, "provided" );
-        p.setAttribute ( "namespace", namespace );
-        p.setAttribute ( "name", name );
-        p.setAttribute ( "version", version );
-    }
 }

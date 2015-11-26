@@ -17,6 +17,8 @@ import java.util.zip.ZipInputStream;
 
 import org.eclipse.packagedrone.repo.aspect.virtual.Virtualizer;
 
+import com.google.common.io.ByteStreams;
+
 public class MavenPomVirtualizer implements Virtualizer
 {
 
@@ -51,7 +53,7 @@ public class MavenPomVirtualizer implements Virtualizer
     private void extractPom ( final ZipEntry entry, final ZipInputStream zis, final Context context )
     {
         final String name = makeName ( context.getArtifactInformation ().getName () );
-        context.createVirtualArtifact ( name, zis, null );
+        context.createVirtualArtifact ( name, out -> ByteStreams.copy ( zis, out ), null );
     }
 
     private String makeName ( final String name )

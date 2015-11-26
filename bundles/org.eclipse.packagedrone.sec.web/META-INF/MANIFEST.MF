@@ -9,13 +9,13 @@ Export-Package: org.eclipse.packagedrone.sec.web.captcha;version="1.0.0";uses:="
  org.eclipse.packagedrone.sec.web.controller;version="1.0.0";
   uses:="javax.servlet.annotation,
    javax.servlet.http,
-   de.dentrassi.osgi.web,
-   de.dentrassi.osgi.web.controller",
+   org.eclipse.packagedrone.web.controller,
+   org.eclipse.packagedrone.web",
  org.eclipse.packagedrone.sec.web.filter;version="1.0.0";
   uses:="javax.servlet,
    javax.servlet.http,
-   de.dentrassi.pm.sec.service,
-   de.dentrassi.pm.sec",
+   org.eclipse.packagedrone.sec,
+   org.eclipse.packagedrone.sec.service",
  org.eclipse.packagedrone.sec.web.tags;version="1.0.0";uses:="javax.servlet.jsp.tagext"
 Import-Package: com.google.common.io;version="18.0.0",
  com.google.gson;version="2.3.1",

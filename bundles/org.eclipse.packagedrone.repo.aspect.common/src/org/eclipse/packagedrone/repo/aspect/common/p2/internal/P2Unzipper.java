@@ -25,6 +25,8 @@ import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.ByteStreams;
+
 public class P2Unzipper implements Virtualizer
 {
 
@@ -85,7 +87,7 @@ public class P2Unzipper implements Virtualizer
         final Map<MetaKey, String> metaData = new HashMap<> ( 1 );
         metaData.put ( P2UnzipAspectFactory.MK_FULL_NAME, entry.getName () );
 
-        context.createVirtualArtifact ( name, zis, metaData );
+        context.createVirtualArtifact ( name, out -> ByteStreams.copy ( zis, out ), metaData );
     }
 
 }

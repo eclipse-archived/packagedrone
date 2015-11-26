@@ -23,9 +23,14 @@ Web-TagLib-Directory: /WEB-INF/tags/main
 Require-Bundle: org.eclipse.packagedrone.web;bundle-version="1.0.0",
  org.eclipse.packagedrone.web.forms;bundle-version="1.0.0",
  org.jboss.spec.javax.servlet.jstl.jboss-jstl-api_1.2_spec;bundle-version="1.1.2"
-Export-Package: org.eclipse.packagedrone.web.common;version="1.0.0";uses:="de.dentrassi.osgi.web,javax.servlet.http",
- org.eclipse.packagedrone.web.common.menu;version="1.0.0";uses:="javax.servlet.http,de.dentrassi.osgi.web,de.dentrassi.pm.common.web",
- org.eclipse.packagedrone.web.common.tags;version="1.0.0";uses:="de.dentrassi.pm.storage"
+Export-Package: org.eclipse.packagedrone.web.common;version="1.0.0";
+  uses:="org.osgi.framework,
+   javax.servlet.http,
+   org.eclipse.packagedrone.web.controller,
+   org.eclipse.packagedrone.web",
+ org.eclipse.packagedrone.web.common.menu;version="1.0.0";uses:="javax.servlet.http,org.eclipse.packagedrone.web,org.eclipse.packagedrone.web.common",
+ org.eclipse.packagedrone.web.common.page;version="1.0.0",
+ org.eclipse.packagedrone.web.common.tags;version="1.0.0";uses:="org.eclipse.packagedrone.web.common"
 Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/menuInterceptor.xml
 Bundle-Activator: org.eclipse.packagedrone.web.common.Activator

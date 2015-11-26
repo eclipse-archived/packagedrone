@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Unit tests for 'de.dentrassi.rpm'
+Bundle-Name: Unit tests for 'org.eclipse.packagedrone.utils.rpm'
 Bundle-SymbolicName: org.eclipse.packagedrone.utils.rpm.tests
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: IBH SYSTEMS GmbH
