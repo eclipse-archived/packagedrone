@@ -41,7 +41,7 @@
 					<execution>
 						<phase>process-resources</phase>
 						<configuration>
-							<sourceLocation>lib</sourceLocation>
+							<sourceLocation>${project.basedir}/lib</sourceLocation>
 						</configuration>
 						<goals>
 							<goal>publish-features-and-bundles</goal>
