@@ -1,0 +1,243 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.eclipse.packagedrone</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.11.0-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
+	</parent>
+
+	<artifactId>server-test</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<properties>
+		<test.port>8081</test.port>
+
+		<aetherVersion>1.0.2.v20150114</aetherVersion>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>2.48.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.aether</groupId>
+			<artifactId>aether-api</artifactId>
+			<version>${aetherVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.aether</groupId>
+			<artifactId>aether-spi</artifactId>
+			<version>${aetherVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.aether</groupId>
+			<artifactId>aether-util</artifactId>
+			<version>${aetherVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.aether</groupId>
+			<artifactId>aether-impl</artifactId>
+			<version>${aetherVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.aether</groupId>
+			<artifactId>aether-connector-basic</artifactId>
+			<version>${aetherVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.aether</groupId>
+			<artifactId>aether-transport-file</artifactId>
+			<version>${aetherVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.aether</groupId>
+			<artifactId>aether-transport-http</artifactId>
+			<version>${aetherVersion}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-aether-provider</artifactId>
+			<version>3.2.5</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.3.6</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-clean-plugin
+										</artifactId>
+										<versionRange>
+											[2.6.1,)
+										</versionRange>
+										<goals>
+											<goal>clean</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-antrun-plugin
+										</artifactId>
+										<versionRange>
+											[1.8,)
+										</versionRange>
+										<goals>
+											<goal>run</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.2</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>2.6.1</version>
+				<executions>
+					<execution>
+						<id>auto-clean</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.18.1</version>
+				<configuration>
+					<!-- sadly there is no way to just pass all maven properties -->
+					<systemPropertyVariables>
+						<org.osgi.service.http.host>localhost</org.osgi.service.http.host>
+						<org.osgi.service.http.port>${test.port}</org.osgi.service.http.port>
+						<drone.storage.base>${project.build.directory}/storage</drone.storage.base>
+					</systemPropertyVariables>
+					<includes>
+						<include>**/TestSuite.java</include>
+					</includes>
+				</configuration>
+			</plugin>
+
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<id>unpack-test</id>
+						<configuration>
+							<target>
+								<copy
+									tofile="${project.build.directory}/org.eclipse.packagedrone.server.zip">
+									<fileset
+										dir="${basedir}/../../products/org.eclipse.packagedrone.server/target">
+										<include name="org.eclipse.packagedrone.server-*.zip" />
+									</fileset>
+								</copy>
+								<mkdir dir="${project.build.directory}/instance" />
+
+								<!-- unzip with support for the exec bit -->
+								<exec executable="unzip" dir="${project.build.directory}/instance">
+									<arg
+										file="${project.build.directory}/org.eclipse.packagedrone.server.zip" />
+								</exec>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+
+					<execution>
+						<id>pre-test</id>
+						<phase>process-test-classes</phase>
+						<configuration>
+							<target>
+								<ant antfile="test-support.ant" target="prepare" />
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+
+				</executions>
+			</plugin>
+
+		</plugins>
+
+	</build>
+</project>

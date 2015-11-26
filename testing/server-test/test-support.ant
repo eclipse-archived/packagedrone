@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="project" default="default">
+    <description>
+		Support functionality for the test
+    </description>
+
+    <!-- ================================= 
+          target: default
+         ================================= -->
+    <target name="default">
+    </target>
+
+    <!-- ================================= 
+          target: prepare
+         ================================= -->
+    <target name="prepare">
+    	<echo message="Checking whether Port ${test.port} is used"/>
+        <condition property="port.ok">
+            <socket server="localhost" port="${test.port}"/> 
+        </condition>
+    	<echo message="Result: ${port.ok}" />
+    	<fail if="${port.ok}" message="Port ${test.port} is already in use"/>
+    	
+    	<delete dir="${drone.storage.base}" />
+    </target>
+
+</project>
