@@ -25,7 +25,8 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 <h:nav menu="${menuManager.getViews(channel) }"/>
 
 <div class="container-fluid form-padding">
-    <c:if test="${empty groups }">
+	${hasExampleKey }
+    <c:if test="${not hasExampleKey }">
         <div class="alert alert-warning">
 	        All further information in this page requires the channel to have at least one deploy
 	        key assigned. However there are currently no deploy groups/keys assigned to this channel, so

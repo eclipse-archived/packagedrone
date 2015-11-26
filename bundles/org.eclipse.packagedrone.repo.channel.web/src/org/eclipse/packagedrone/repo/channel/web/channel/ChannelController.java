@@ -661,6 +661,8 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
                 exampleKey = DEFAULT_EXAMPLE_KEY;
             }
 
+            model.put ( "hasExampleKey", !DEFAULT_EXAMPLE_KEY.equals ( exampleKey ) );
+
             model.put ( "exampleKey", exampleKey );
             model.put ( "exampleSitePrefix", makeCredentialsPrefix ( this.sitePrefix.getSitePrefix (), "deploy", exampleKey ) );
 
