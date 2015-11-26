@@ -1,0 +1,17 @@
+language: java
+
+sudo: false
+
+install:
+ - cd runtime && mvn package && cd ..
+
+script: mvn package -B
+
+jdk:
+  - oraclejdk8
+
+addons:
+   apt:
+      packages:
+         - rpm
+
