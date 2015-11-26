@@ -11,8 +11,8 @@
     xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
     xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
     xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/setup/launching/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Launching.ecore http://www.eclipse.org/oomph/setup/pde/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/PDE.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore"
-    name="package-drone"
-    label="Package Drone">
+    name="packagedrone"
+    label="Eclipse Package Drone">
   <setupTask
       xsi:type="jdt:JRETask"
       version="JavaSE-1.8"
@@ -61,7 +61,8 @@
   <setupTask
       xsi:type="git:GitCloneTask"
       id="git.clone"
-      remoteURI="ctron/package-drone">
+      remoteURI="eclipse/packagedrone"
+      pushURI="">
     <annotation
         source="http://www.eclipse.org/oomph/setup/InducedChoices">
       <detail
@@ -387,6 +388,6 @@
   </stream>
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"
-      href="index:/org.eclipse.setup#//@projectCatalogs[name='com.github']"/>
-  <description>A development setup for Package Drone, the OSGi first software artifact repository.</description>
+      href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']"/>
+  <description>A development setup for Eclipse Package Drone, the OSGi first software artifact repository.</description>
 </setup:Project>
