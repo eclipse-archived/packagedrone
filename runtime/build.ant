@@ -160,9 +160,6 @@
         	<mavenGet group="org/glassfish" artifact="javax.el" version="3.0.1-b08"/>
         	
         	<orbitGet bundle="javax.servlet" version="3.1.0" qualifier="v201410161800"/>
-        	<!--
-        	<mavenGet group="javax/servlet/jsp" artifact="javax.servlet.jsp-api" version="2.3.2-b01"/>
-        	-->
         	
         	<mavenGet group="org/jboss/spec/javax/servlet/jstl" artifact="jboss-jstl-api_1.2_spec" version="1.1.2.Final"/>
         	
