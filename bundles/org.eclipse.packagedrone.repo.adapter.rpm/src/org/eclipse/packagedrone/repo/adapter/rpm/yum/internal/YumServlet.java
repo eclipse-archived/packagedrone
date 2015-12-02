@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.rpm.yum.internal;
 
+import static java.util.Optional.empty;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -224,7 +226,7 @@ public class YumServlet extends AbstractChannelServiceServlet
 
         final Optional<String> name = segs.length > 2 ? Optional.of ( segs[segs.length - 1] ) : Optional.empty ();
 
-        DownloadHelper.streamArtifact ( response, artifact.get (), null, true, channel, art -> name.orElse ( art.getName () ) );
+        DownloadHelper.streamArtifact ( response, artifact.get (), empty (), true, channel, art -> name.orElse ( art.getName () ) );
     }
 
     private void viewJsp ( final HttpServletRequest request, final HttpServletResponse response, final String viewName ) throws ServletException, IOException
