@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.testing.server.channel;
 
+import static org.eclipse.packagedrone.testing.server.channel.CommonResources.RESOURCE_BASE;
+
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -21,7 +23,7 @@ import org.openqa.selenium.WebElement;
 
 public class DebTest extends AbstractServerTest
 {
-    private static final String DEB_RESOURCE = "src/test/resources/deb/org.eclipse.scada_0.2.1_all.deb";
+    private static final String DEB_RESOURCE = RESOURCE_BASE + "deb/org.eclipse.scada_0.2.1_all.deb";
 
     @Test
     public void testDeb1 () throws Exception

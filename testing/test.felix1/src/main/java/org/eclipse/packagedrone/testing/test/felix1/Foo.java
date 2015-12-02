@@ -8,11 +8,9 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.testing.server.channel;
+package org.eclipse.packagedrone.testing.test.felix1;
 
-public interface CommonResources
+public interface Foo
 {
-    public static final String RESOURCE_BASE = "src/test/resources/";
-
-    public static final String BUNDLE_1_RESOURCE = RESOURCE_BASE + "bundles/org.eclipse.scada.utils_0.2.0.v20141023-0849.jar";
+    public void bar ();
 }

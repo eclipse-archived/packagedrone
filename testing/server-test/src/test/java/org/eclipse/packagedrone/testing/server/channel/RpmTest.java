@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.testing.server.channel;
 
+import static org.eclipse.packagedrone.testing.server.channel.CommonResources.RESOURCE_BASE;
+
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -19,9 +21,9 @@ import org.junit.Test;
 
 public class RpmTest extends AbstractServerTest
 {
-    private static final String RPM_RESOURCE_1 = "src/test/resources/rpm/org.eclipse.scada-0.2.1-1.noarch.rpm";
+    private static final String RPM_RESOURCE_1 = RESOURCE_BASE + "rpm/org.eclipse.scada-0.2.1-1.noarch.rpm";
 
-    private static final String RPM_RESOURCE_2 = "src/test/resources/rpm/org.eclipse.scada-centos6-0.2.1-1.noarch.rpm";
+    private static final String RPM_RESOURCE_2 = RESOURCE_BASE + "rpm/org.eclipse.scada-centos6-0.2.1-1.noarch.rpm";
 
     @Test
     public void testRpm1 () throws Exception

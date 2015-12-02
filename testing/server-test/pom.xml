@@ -9,6 +9,7 @@
 		<relativePath>../..</relativePath>
 	</parent>
 
+	<groupId>org.eclipse.packagedrone.testing</groupId>
 	<artifactId>server-test</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 

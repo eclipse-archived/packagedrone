@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.eclipse.packagedrone.testing.server.channel.DebTest;
+import org.eclipse.packagedrone.testing.server.channel.MavenTest;
 import org.eclipse.packagedrone.testing.server.channel.MvnOsgiTest;
 import org.eclipse.packagedrone.testing.server.channel.OsgiTest;
 import org.eclipse.packagedrone.testing.server.channel.RpmTest;
@@ -43,6 +44,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
         RpmTest.class, //
         OsgiTest.class, //
         MvnOsgiTest.class, //
+        MavenTest.class, //
 } )
 public class TestSuite
 {

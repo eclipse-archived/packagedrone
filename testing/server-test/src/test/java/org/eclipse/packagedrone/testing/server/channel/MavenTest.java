@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.testing.server.channel;
 
+import static org.eclipse.packagedrone.testing.server.channel.CommonResources.RESOURCE_BASE;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
@@ -29,6 +30,15 @@ import org.junit.Test;
 
 public class MavenTest extends AbstractServerTest
 {
+
+    private static final String TEST_1_BASE = RESOURCE_BASE + "mvn/test.felix1-0.0.1-SNAPSHOT";
+
+    private static final String TEST_1_JAR = TEST_1_BASE + ".jar";
+
+    private static final String TEST_1_POM = TEST_1_BASE + ".pom";
+
+    private static final String TEST_1_SOURCES_JAR = TEST_1_BASE + "-sources.jar";
+
     @Test
     public void testMvn1 () throws Exception
     {
@@ -44,14 +54,14 @@ public class MavenTest extends AbstractServerTest
         final RepositorySystem system = MavenUtil.newRepositorySystem ();
         final RepositorySystemSession session = MavenUtil.newRepositorySystemSession ( system );
 
-        Artifact jarArtifact = new DefaultArtifact ( "de.dentrassi", "test.bundle1", "", "jar", "1.0.0-SNAPSHOT" );
-        jarArtifact = jarArtifact.setFile ( new File ( "data/mvn/test.bundle1-1.0.0-SNAPSHOT.jar" ) );
+        Artifact jarArtifact = new DefaultArtifact ( "org.eclipse.packagedrone.testing", "test.felix1", "", "jar", "0.0.1-SNAPSHOT" );
+        jarArtifact = jarArtifact.setFile ( new File ( TEST_1_JAR ) );
 
         Artifact pomArtifact = new SubArtifact ( jarArtifact, "", "pom" );
-        pomArtifact = pomArtifact.setFile ( new File ( "data/mvn/test.bundle1-1.0.0-SNAPSHOT.pom" ) );
+        pomArtifact = pomArtifact.setFile ( new File ( TEST_1_POM ) );
 
         Artifact srcArtifact = new SubArtifact ( jarArtifact, "sources", "jar" );
-        srcArtifact = srcArtifact.setFile ( new File ( "data/mvn/test.bundle1-1.0.0-SNAPSHOT-sources.jar" ) );
+        srcArtifact = srcArtifact.setFile ( new File ( TEST_1_SOURCES_JAR ) );
 
         final AuthenticationBuilder ab = new AuthenticationBuilder ();
         ab.addUsername ( "deploy" );
