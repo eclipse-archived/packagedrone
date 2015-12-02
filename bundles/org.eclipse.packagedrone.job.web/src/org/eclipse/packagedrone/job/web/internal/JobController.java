@@ -33,6 +33,7 @@ import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestMapping;
 import org.eclipse.packagedrone.web.RequestMethod;
 import org.eclipse.packagedrone.web.ViewResolver;
+import org.eclipse.packagedrone.web.common.CommonController;
 import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 import org.eclipse.packagedrone.web.controller.binding.PathVariable;
 import org.eclipse.packagedrone.web.controller.binding.RequestParameter;
@@ -109,6 +110,11 @@ public class JobController
     public ModelAndView result ( @PathVariable ( "id" ) final String id, final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException
     {
         final JobHandle job = this.manager.getJob ( id );
+
+        if ( job == null )
+        {
+            return CommonController.createNotFound ( "job", id );
+        }
 
         if ( job != null && job.isComplete () && job.getError () != null )
         {
