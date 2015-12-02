@@ -225,12 +225,12 @@ public class RpmExtractor implements Extractor
         for ( int i = 0; i < names.length; i++ )
         {
             final String name = names[i];
-            String version = versions[i];
+            String version = versions != null ? versions[i] : null;
             if ( version != null && version.isEmpty () )
             {
                 version = null;
             }
-            final Long flag = flags[i];
+            final Long flag = flags != null ? flags[i] : null;
 
             final String key = name; // for now the key is the name
 
