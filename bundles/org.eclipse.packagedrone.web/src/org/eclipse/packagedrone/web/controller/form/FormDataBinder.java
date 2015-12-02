@@ -83,7 +83,7 @@ public class FormDataBinder implements Binder
             @Override
             public void postProcessModelAndView ( final ModelAndView mav )
             {
-                if ( name == null || !name.isEmpty () )
+                if ( name != null && !name.isEmpty () )
                 {
                     mav.put ( name, getValue () );
                 }
