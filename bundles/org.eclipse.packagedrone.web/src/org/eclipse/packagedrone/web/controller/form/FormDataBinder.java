@@ -79,11 +79,11 @@ public class FormDataBinder implements Binder
             bindingManager.getResult ().addChild ( name, cr.bindingResult );
         }
 
-        return new ModelAndViewAwareBinding ( cr.object, cr.bindingResult ) {
+        return new ModelAndViewAwareBinding ( cr.object, cr.bindingResult) {
             @Override
             public void postProcessModelAndView ( final ModelAndView mav )
             {
-                if ( !name.isEmpty () )
+                if ( name == null || !name.isEmpty () )
                 {
                     mav.put ( name, getValue () );
                 }
