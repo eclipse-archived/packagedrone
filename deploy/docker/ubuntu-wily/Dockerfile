@@ -21,7 +21,7 @@ RUN apt-get update ; apt-get -y install openjdk-8-jre-headless
 # Install package drone
 
 RUN apt-key adv --keyserver hkp://keys.gnupg.net --recv-keys 97A336A9320E6224 ; sh -c "echo deb http://repo.dentrassi.de/apt package-drone main > /etc/apt/sources.list.d/PackageDrone.list"
-RUN apt-get update ; apt-get -y install package-drone-server
+RUN apt-get update ; apt-get -y install org.eclipse.packagedrone.server
 
 # Package drone is running on port 8080
 
