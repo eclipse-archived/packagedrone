@@ -129,6 +129,24 @@
           xsi:type="setup:PreferenceTask"
           key="/instance/org.eclipse.jdt.core/org.eclipse.jdt.core.compiler.compliance"
           value="1.8"/>
+      <setupTask
+          xsi:type="setup:CompoundTask"
+          name="Null Pointer Analysis">
+        <setupTask
+            xsi:type="setup:PreferenceTask"
+            key="compiler.annotation.nullanalysis"
+            value="enabled">
+          <description></description>
+        </setupTask>
+        <setupTask
+            xsi:type="setup:PreferenceTask"
+            key="compiler.problem.nullReference"
+            value="error"/>
+        <setupTask
+            xsi:type="setup:PreferenceTask"
+            key="compiler.problem.potentialNullReference"
+            value="error"/>
+      </setupTask>
     </setupTask>
     <setupTask
         xsi:type="setup:CompoundTask"
