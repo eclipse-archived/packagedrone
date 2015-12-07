@@ -113,8 +113,8 @@ public abstract class AbstractChannelServiceServlet extends HttpServlet
      *            the request
      * @param response
      *            the response
-     * @return <code>true</code> if the request was not authenticated and the
-     *         response got committed
+     * @return <code>false</code> if the request was not authenticated and the
+     *         response got committed, <code>true</code> otherwise
      * @throws IOException
      *             in case on a IO error
      */
