@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.web.dispatcher;
 
-import java.io.File;
 import java.io.IOException;
 
-import javax.servlet.MultipartConfigElement;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -124,15 +122,4 @@ public abstract class JspServletInitializer
 
         this.webctx.dispose ();
     }
-
-    public static MultipartConfigElement createMultiPartConfiguration ( final String prefix )
-    {
-        final String location = System.getProperty ( prefix + ".location", System.getProperty ( "java.io.tmpdir" ) + File.separator + prefix );
-        final long maxFileSize = Long.getLong ( prefix + ".maxFileSize", 1 * 1024 * 1024 * 1024 /* 1GB */ );
-        final long maxRequestSize = Long.getLong ( prefix + ".maxRequestSize", 1 * 1024 * 1024 * 1024/* 1GB */ );
-        final int fileSizeThreshold = Integer.getInteger ( prefix + ".fileSizeThreshold", 10 * 1024 * 1024 /* 10 MB */ );
-
-        return new MultipartConfigElement ( location, maxFileSize, maxRequestSize, fileSizeThreshold );
-    }
-
 }

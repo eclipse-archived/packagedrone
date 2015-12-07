@@ -12,12 +12,12 @@
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 %>
 
-<c:set var="idUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/api/v1/upload/channel/' ).concat ( channel.id )) }"/>
+<c:set var="idUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( channel.id )) }"/>
 <c:if test="${not empty channel.name }">
-    <c:set var="nameUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/api/v1/upload/channel/' ).concat ( web:encode(channel.name) )) }"/>
+    <c:set var="nameUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( web:encode(channel.name) )) }"/>
 </c:if>
 
-<c:set var="exampleUrl" value="${ fn:escapeXml(exampleSitePrefix.concat ( '/api/v1/upload/channel/' ).concat ( channel.id )) }" />
+<c:set var="exampleUrl" value="${ fn:escapeXml(exampleSitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( channel.id )) }" />
 
 <h:main title="API Upload" subtitle="${pm:channel(channel) }">
 

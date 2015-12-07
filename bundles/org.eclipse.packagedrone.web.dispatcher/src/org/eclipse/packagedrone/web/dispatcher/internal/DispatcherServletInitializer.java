@@ -26,9 +26,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.packagedrone.web.DispatcherServlet;
 import org.eclipse.packagedrone.web.dispatcher.Dispatcher;
 import org.eclipse.packagedrone.web.dispatcher.DispatcherHttpContext;
-import org.eclipse.packagedrone.web.dispatcher.JspServletInitializer;
 import org.eclipse.packagedrone.web.dispatcher.internal.internal.jsp.JspBundle;
 import org.eclipse.packagedrone.web.dispatcher.internal.internal.jsp.JspBundleCustomizer;
+import org.eclipse.packagedrone.web.util.Servlets;
 import org.ops4j.pax.web.service.WebContainer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -87,7 +87,7 @@ public class DispatcherServletInitializer
 
         Dictionary<String, String> initparams = new Hashtable<> ();
 
-        final MultipartConfigElement multipart = JspServletInitializer.createMultiPartConfiguration ( PROP_PREFIX_MP );
+        final MultipartConfigElement multipart = Servlets.createMultiPartConfiguration ( PROP_PREFIX_MP );
         this.webContainer.registerServlet ( new DispatcherServlet (), "dispatcher", new String[] { "/" }, initparams, 1, false, multipart, this.context );
 
         this.proxyFilter = new FilterTracker ( bundleContext );

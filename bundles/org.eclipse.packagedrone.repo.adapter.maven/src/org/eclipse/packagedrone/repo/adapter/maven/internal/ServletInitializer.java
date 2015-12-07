@@ -13,7 +13,7 @@ package org.eclipse.packagedrone.repo.adapter.maven.internal;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 
-import org.eclipse.packagedrone.web.dispatcher.JspServletInitializer;
+import org.eclipse.packagedrone.web.util.Servlets;
 import org.ops4j.pax.web.service.WebContainer;
 
 public class ServletInitializer
@@ -31,7 +31,7 @@ public class ServletInitializer
     {
         this.servlet = new MavenServlet ();
 
-        final MultipartConfigElement mp = JspServletInitializer.createMultiPartConfiguration ( "drone.maven.servlet" );
+        final MultipartConfigElement mp = Servlets.createMultiPartConfiguration ( "drone.maven.servlet" );
         this.webContainer.registerServlet ( this.servlet, "maven", new String[] { "/maven/*" }, null, 1, false, mp, null );
     }
 
