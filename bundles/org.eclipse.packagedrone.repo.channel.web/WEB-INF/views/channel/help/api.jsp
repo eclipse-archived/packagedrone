@@ -61,7 +61,7 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
     
     <p>If you want to set the provided meta data field <code>test:foo</code> to <code>bar</code> add these as request parameters:
     
-    <pre>curl -X PUT --data @my.jar ${exampleUrl }/my.jar<strong>?test:foo=bar</strong></pre>
+    <pre>curl -X PUT --data @<strong>my.jar</strong> ${exampleUrl }/my.jar<strong>?test:foo=bar</strong></pre>
     
 </div>
 
