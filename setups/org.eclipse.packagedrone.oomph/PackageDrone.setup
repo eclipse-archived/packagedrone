@@ -12,7 +12,7 @@
     xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
     xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/setup/launching/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Launching.ecore http://www.eclipse.org/oomph/setup/pde/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/PDE.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore"
     name="packagedrone"
-    label="Eclipse Package Drone">
+    label="Package Drone">
   <setupTask
       xsi:type="jdt:JRETask"
       version="JavaSE-1.8"
@@ -61,7 +61,7 @@
   <setupTask
       xsi:type="git:GitCloneTask"
       id="git.clone"
-      remoteURI="eclipse/packagedrone"
+      remoteURI="https://github.com/eclipse/packagedrone.git"
       pushURI="">
     <annotation
         source="http://www.eclipse.org/oomph/setup/InducedChoices">
@@ -400,7 +400,9 @@
   </setupTask>
   <setupTask
       xsi:type="pde:TargetPlatformTask"
-      name="Package Drone Runtime"/>
+      name="Package Drone Runtime">
+    <description></description>
+  </setupTask>
   <stream name="master">
     <description></description>
   </stream>
