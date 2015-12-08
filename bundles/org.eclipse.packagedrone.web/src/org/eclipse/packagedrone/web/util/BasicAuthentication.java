@@ -78,7 +78,7 @@ public final class BasicAuthentication
     public static void request ( final HttpServletResponse response, final String realm, final String message ) throws IOException
     {
         response.setStatus ( HttpServletResponse.SC_UNAUTHORIZED );
-        response.setHeader ( "WWW-Authenticate", String.format ( "Basic realm=\"%s", realm ) );
+        response.setHeader ( "WWW-Authenticate", String.format ( "Basic realm=\"%s\"", realm ) );
 
         response.getWriter ().write ( message );
 
