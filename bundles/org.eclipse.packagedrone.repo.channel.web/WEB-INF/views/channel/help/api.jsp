@@ -25,7 +25,6 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 <h:nav menu="${menuManager.getViews(channel) }"/>
 
 <div class="container-fluid form-padding">
-	${hasExampleKey }
     <c:if test="${not hasExampleKey }">
         <div class="alert alert-warning">
 	        All further information in this page requires the channel to have at least one deploy
@@ -50,6 +49,11 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
     <p>
         <em>Note:</em> it is required to perform <q>Basic Authentication</q> using one of the assigned deploy keys.
     </p>
+    
+    <h3>Jenkins Plugin</h3>
+    
+    There is a <a href="https://wiki.jenkins-ci.org/display/JENKINS/Package+Drone+Plugin" target="_blank">Package Drone Jenkins plugin</a> available which can automate this process.
+    The plugin has to be installed in the originating Jenkins instance. 
     
     <h3>Example</h3>
     
