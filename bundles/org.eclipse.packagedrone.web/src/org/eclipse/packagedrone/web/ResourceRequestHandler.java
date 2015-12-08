@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +32,8 @@ public class ResourceRequestHandler implements RequestHandler
 
     public ResourceRequestHandler ( final URL url, final long lastModified )
     {
+        Objects.requireNonNull ( url, "'url' must not be null" );
+
         this.url = url;
         this.lastModified = lastModified;
     }

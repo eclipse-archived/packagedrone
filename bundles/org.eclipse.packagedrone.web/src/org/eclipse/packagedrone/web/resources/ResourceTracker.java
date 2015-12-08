@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.packagedrone.utils.AttributedValue;
 import org.eclipse.packagedrone.utils.Headers;
+import org.eclipse.packagedrone.web.BundleResourceNotFoundRequestHandler;
 import org.eclipse.packagedrone.web.RequestHandler;
 import org.eclipse.packagedrone.web.RequestHandlerFactory;
 import org.eclipse.packagedrone.web.ResourceRequestHandler;
@@ -28,9 +29,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceTracker implements RequestHandlerFactory
 {
+    private final static Logger logger = LoggerFactory.getLogger ( ResourceTracker.class );
+
     private final org.osgi.util.tracker.BundleTracker<ResourceHandlerProvider> tracker;
 
     private static class CompositeResourceEntry implements ResourceHandlerProvider
@@ -84,7 +89,15 @@ public class ResourceTracker implements RequestHandlerFactory
 
             final String entryName = this.prefix + requestPath.substring ( this.target.length () );
             final URL entry = this.bundle.getEntry ( entryName );
-            return new ResourceRequestHandler ( entry, this.bundle.getLastModified () );
+            if ( entry == null )
+            {
+                logger.info ( "Resource '{}' could not be found in bundle {} ({})", requestPath, this.bundle.getBundleId (), this.bundle.getSymbolicName () );
+                return new BundleResourceNotFoundRequestHandler ( this.bundle, entryName );
+            }
+            else
+            {
+                return new ResourceRequestHandler ( entry, this.bundle.getLastModified () );
+            }
         }
     }
 

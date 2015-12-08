@@ -27,6 +27,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectProcessor;
 import org.eclipse.packagedrone.repo.channel.AspectableChannel;
@@ -520,7 +521,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
     }
 
     @Override
-    public Optional<Collection<DeployGroup>> getChannelDeployGroups ( final By by )
+    public @NonNull Optional<Collection<DeployGroup>> getChannelDeployGroups ( final By by )
     {
         try ( Locked l = lock ( this.readLock ) )
         {

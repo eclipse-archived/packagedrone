@@ -22,8 +22,8 @@ import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
-import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
 import org.eclipse.scada.utils.ExceptionHelper;
 
@@ -102,14 +102,16 @@ public class UploadServlet extends AbstractChannelServiceServlet
 
         final ChannelService service = getService ( req );
 
-        if ( !authenticate ( By.nameOrId ( channelIdOrName ), req, resp ) )
+        final By by = By.nameOrId ( channelIdOrName );
+
+        if ( !authenticate ( by, req, resp ) )
         {
             return;
         }
 
         try
         {
-            service.accessRun ( By.nameOrId ( channelIdOrName ), ModifiableChannel.class, channel -> {
+            service.accessRun ( by, ModifiableChannel.class, channel -> {
 
                 // do store
 
