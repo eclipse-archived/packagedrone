@@ -17,9 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
 import org.eclipse.packagedrone.repo.channel.provider.ProviderInformation;
@@ -97,6 +99,9 @@ public interface ChannelService
 
         private By ( final Type type, final Object qualifier )
         {
+            Objects.requireNonNull ( type );
+            Objects.requireNonNull ( qualifier );
+
             this.type = type;
             this.qualifier = qualifier;
         }
@@ -109,6 +114,12 @@ public interface ChannelService
         public Object getQualifier ()
         {
             return qualifier;
+        }
+
+        @Override
+        public String toString ()
+        {
+            return String.format ( "[By %s = %s]", type, qualifier );
         }
 
         /**
@@ -235,17 +246,17 @@ public interface ChannelService
 
     public void deleteMapping ( String id, String name );
 
-    public default Optional<Collection<DeployKey>> getChannelDeployKeys ( final By by )
+    public default @NonNull Optional<Collection<DeployKey>> getChannelDeployKeys ( final By by )
     {
         return getChannelDeployGroups ( by ).map ( groups -> groups.stream ().flatMap ( group -> group.getKeys ().stream () ).collect ( toList () ) );
     }
 
-    public default Optional<Set<String>> getChannelDeployKeyStrings ( final By by )
+    public default @NonNull Optional<Set<String>> getChannelDeployKeyStrings ( final By by )
     {
         return getChannelDeployGroups ( by ).map ( groups -> groups.stream ().flatMap ( group -> group.getKeys ().stream () ).map ( DeployKey::getKey ).collect ( toSet () ) );
     }
 
-    public Optional<Collection<DeployGroup>> getChannelDeployGroups ( By by );
+    public @NonNull Optional<Collection<DeployGroup>> getChannelDeployGroups ( By by );
 
     public default boolean streamArtifact ( final String channelId, final String artifactId, final ArtifactReceiver receiver )
     {
