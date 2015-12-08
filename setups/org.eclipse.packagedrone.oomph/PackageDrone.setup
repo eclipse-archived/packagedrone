@@ -61,7 +61,7 @@
   <setupTask
       xsi:type="git:GitCloneTask"
       id="git.clone"
-      remoteURI="https://github.com/eclipse/packagedrone.git"
+      remoteURI="eclipse/packagedrone"
       pushURI="">
     <annotation
         source="http://www.eclipse.org/oomph/setup/InducedChoices">
