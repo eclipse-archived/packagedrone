@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 ExecStart=/usr/lib/package-drone-server/instance/server
-StandardOutput=null
+StandardOutput=journal
 User=pdrone
 
 [Install]
