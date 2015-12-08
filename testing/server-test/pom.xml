@@ -211,10 +211,8 @@
 								<mkdir dir="${project.build.directory}/instance" />
 
 								<!-- unzip with support for the exec bit -->
-								<exec executable="unzip" dir="${project.build.directory}/instance">
-									<arg
-										file="${project.build.directory}/org.eclipse.packagedrone.server.zip" />
-								</exec>
+								
+								<unzip src="${project.build.directory}/org.eclipse.packagedrone.server.zip" dest="${project.build.directory}/instance" />
 							</target>
 						</configuration>
 						<goals>

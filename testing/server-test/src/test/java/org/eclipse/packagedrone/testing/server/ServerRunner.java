@@ -13,8 +13,13 @@ package org.eclipse.packagedrone.testing.server;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.ServerSocket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +43,17 @@ public class ServerRunner
     public void start () throws InterruptedException, IOException
     {
         final String javaHome = System.getProperty ( "java.home" );
+
+        final Path path = Paths.get ( "target", "instance", "server" );
+
+        try
+        {
+            Files.setPosixFilePermissions ( path, EnumSet.of ( PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ ) );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            // ignore
+        }
 
         final ProcessBuilder pb = new ProcessBuilder ( "target/instance/server" );
 
@@ -81,9 +97,12 @@ public class ServerRunner
         this.log.print ( "Stopping server..." );
         this.log.flush ();
 
-        if ( !this.process.destroyForcibly ().waitFor ( 10, TimeUnit.SECONDS ) )
+        if ( this.process != null )
         {
-            throw new IllegalStateException ( "Failed to terminate process" );
+            if ( !this.process.destroyForcibly ().waitFor ( 10, TimeUnit.SECONDS ) )
+            {
+                throw new IllegalStateException ( "Failed to terminate process" );
+            }
         }
 
         this.log.println ( "stopped!" );
