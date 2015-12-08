@@ -402,7 +402,7 @@
       xsi:type="pde:TargetPlatformTask"
       id="org.eclipse.packagedrone.targetplatform"
       name="Package Drone Runtime">
-    <description></description>
+    <description>The Package Drone target platform will be created during the initial startup of the workspace.</description>
   </setupTask>
   <stream name="master">
     <description></description>
