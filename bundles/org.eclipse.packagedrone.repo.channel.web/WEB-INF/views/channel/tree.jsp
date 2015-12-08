@@ -71,7 +71,7 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 
 <h:buttonbar menu="${menuManager.getActions(channel) }">
     <jsp:attribute name="after">
-        <s:dz_button/>
+        <c:if test="${manager }"><s:dz_button /></c:if>
     </jsp:attribute>
 </h:buttonbar>
 
