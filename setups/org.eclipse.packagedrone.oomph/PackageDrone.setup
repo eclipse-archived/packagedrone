@@ -400,6 +400,7 @@
   </setupTask>
   <setupTask
       xsi:type="pde:TargetPlatformTask"
+      id="org.eclipse.packagedrone.targetplatform"
       name="Package Drone Runtime">
     <description></description>
   </setupTask>
