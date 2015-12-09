@@ -1,6 +1,6 @@
 # this is the package drone profile file
 
-# I works like the package drone defaults file
+# It works like the package drone defaults file
 # But is not considered a configuration file but a file
 # with defaults from the package maintainer
 
