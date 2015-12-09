@@ -67,7 +67,6 @@ public class ChannelReader implements AutoCloseable
         this.dateFormat = new SimpleDateFormat ( ChannelModelProvider.DATE_FORMAT );
     }
 
-    @SuppressWarnings ( "resource" )
     public ModifyContextImpl read () throws IOException
     {
         this.numberOfBytes = 0;

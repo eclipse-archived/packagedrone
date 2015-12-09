@@ -45,7 +45,6 @@ public class ChannelWriter implements AutoCloseable
     {
         final OutputStreamWriter writer = new OutputStreamWriter ( this.stream, StandardCharsets.UTF_8 );
 
-        @SuppressWarnings ( "resource" )
         final JsonWriter jw = new JsonWriter ( writer );
 
         jw.setSerializeNulls ( true );
