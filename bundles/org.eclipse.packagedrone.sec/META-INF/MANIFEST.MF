@@ -4,7 +4,7 @@ Bundle-Name: Security
 Bundle-SymbolicName: org.eclipse.packagedrone.sec
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Jens Reimann
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.packagedrone.sec;version="1.0.0"
 Import-Package: javax.validation;version="1.1.0.Final",
  org.eclipse.packagedrone.web.controller.binding;version="1.0.0",
