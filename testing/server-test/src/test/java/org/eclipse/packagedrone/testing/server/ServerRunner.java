@@ -10,18 +10,20 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.testing.server;
 
+import static java.util.stream.Collectors.joining;
+
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.ServerSocket;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermission;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
 public class ServerRunner
@@ -44,27 +46,30 @@ public class ServerRunner
     {
         final String javaHome = System.getProperty ( "java.home" );
 
-        final Path path = Paths.get ( "target", "instance", "server" );
+        final Path javaBin = Paths.get ( javaHome, "bin", "java" );
 
-        try
-        {
-            Files.setPosixFilePermissions ( path, EnumSet.of ( PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.OWNER_READ ) );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-            // ignore
-        }
-
-        final ProcessBuilder pb = new ProcessBuilder ( "target/instance/server" );
-
-        pb.environment ().put ( "JAVA_HOME", javaHome );
+        final ProcessBuilder pb = new ProcessBuilder ( javaBin.toAbsolutePath ().toString () );
 
         final Map<String, String> additional = new HashMap<> ();
         makeProcessSystemProperties ( pb, additional );
 
+        try
+        {
+            Files.getPosixFilePermissions ( javaBin );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            pb.command ().add ( "-Dpackage.drone.admin.announce.file.notPosix=true" );
+        }
+
+        pb.command ().add ( "-jar" );
+        pb.command ().add ( findLauncher () );
+        pb.command ().add ( "-consoleLog" );
+
         pb.inheritIO ();
 
-        this.log.format ( "Starting server: %s%n", pb );
+        new StringJoiner ( ", " );
+        this.log.format ( "Starting server: %s%n", pb.command ().stream ().collect ( joining ( " " ) ) );
         this.log.flush ();
 
         this.process = pb.start ();
@@ -72,23 +77,37 @@ public class ServerRunner
         this.log.format ( "Started ... %s%n", this.process );
         this.log.flush ();
 
-        waitForPortOpen ();
+        waitForServerUp ();
 
         this.log.println ( "Port open" );
         Thread.sleep ( 1_000 );
     }
 
-    private void waitForPortOpen () throws InterruptedException
+    private String findLauncher () throws IOException
+    {
+        final Path base = Paths.get ( "target", "instance", "plugins" );
+        return Files.walk ( base ).filter ( p -> {
+            final String s = p.getFileName ().toString ();
+            return s.startsWith ( "org.eclipse.equinox.launcher_" ) && s.endsWith ( ".jar" );
+        } ).findAny ().orElseThrow ( () -> new IllegalStateException ( "Unable to find equinox launcher" ) ).toAbsolutePath ().toString ();
+    }
+
+    private void waitForServerUp () throws InterruptedException
     {
         final Instant start = Instant.now ();
-        while ( !isPortOpen () )
+        int i = 1;
+        while ( !isServerUp () )
         {
+            this.log.format ( "\tTest for server #%s%n", i );
+            this.log.flush ();
             if ( Duration.between ( start, Instant.now () ).compareTo ( START_TIMEOUT ) > 0 )
             {
                 this.process.destroyForcibly ();
                 throw new IllegalStateException ( "Failed to wait for port" );
             }
+
             Thread.sleep ( 1_000 );
+            i++;
         }
     }
 
@@ -110,7 +129,6 @@ public class ServerRunner
 
     private static void makeProcessSystemProperties ( final ProcessBuilder pb, final Map<String, String> additional )
     {
-        final StringBuilder sb = new StringBuilder ();
         for ( final Map.Entry<Object, Object> entry : System.getProperties ().entrySet () )
         {
             if ( entry.getKey () == null || entry.getValue () == null )
@@ -123,11 +141,7 @@ public class ServerRunner
 
             if ( key.startsWith ( "org.osgi." ) || key.startsWith ( "drone." ) )
             {
-                if ( sb.length () > 0 )
-                {
-                    sb.append ( ' ' );
-                }
-                sb.append ( "-D" ).append ( key ).append ( '=' ).append ( value );
+                pb.command ().add ( String.format ( "-D%s=%s", key, value ) );
             }
         }
 
@@ -136,26 +150,30 @@ public class ServerRunner
             final String key = entry.getKey ();
             final String value = entry.getValue ();
 
-            if ( sb.length () > 0 )
-            {
-                sb.append ( ' ' );
-            }
-            sb.append ( "-D" ).append ( key ).append ( '=' ).append ( value );
+            pb.command ().add ( String.format ( "-D%s=%s", key, value ) );
         }
-
-        pb.environment ().put ( "JAVA_OPTS", sb.toString () );
     }
 
-    private boolean isPortOpen ()
+    private boolean isServerUp ()
     {
-        try ( ServerSocket server = new ServerSocket ( this.port ) )
+        try
         {
-            // there is a slim chance that by doing this, we actually block the other process opening this port
-            return false;
+            final URL url = new URL ( "http://localhost:" + this.port );
+
+            final HttpURLConnection con = (HttpURLConnection)url.openConnection ();
+            con.connect ();
+            try
+            {
+                return con.getResponseCode () == 200;
+            }
+            finally
+            {
+                con.disconnect ();
+            }
         }
-        catch ( final IOException e1 )
+        catch ( final Exception e )
         {
-            return true;
+            return false;
         }
     }
 
