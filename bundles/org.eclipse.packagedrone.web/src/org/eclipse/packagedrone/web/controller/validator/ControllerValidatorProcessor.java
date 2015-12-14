@@ -14,9 +14,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.eclipse.packagedrone.web.controller.binding.ExceptionError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ControllerValidatorProcessor implements Validator
 {
+    private final static Logger logger = LoggerFactory.getLogger ( ControllerValidatorProcessor.class );
 
     private final Object controller;
 
@@ -59,6 +62,7 @@ public class ControllerValidatorProcessor implements Validator
             }
             catch ( IllegalAccessException | IllegalArgumentException | InvocationTargetException e )
             {
+                logger.debug ( "Failed to validate", e );
                 ctx.error ( null, new ExceptionError ( e ) );
             }
         }
