@@ -14,12 +14,17 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.packagedrone.testing.server.WebContext;
 import org.junit.Assert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.google.common.base.Predicate;
 
 public class ChannelTester
 {
@@ -118,6 +123,8 @@ public class ChannelTester
 
     public void addAspect ( final String aspectId )
     {
+        System.out.format ( "Adding aspect '%s' to channel '%s'%n", aspectId, this.id );
+
         get ( String.format ( "/channel/%s/aspects", this.id ) );
 
         // find the div panel
@@ -132,10 +139,26 @@ public class ChannelTester
         System.out.println ( "XPath: " + path );
         this.context.findElement ( By.xpath ( path ) ).click ();
 
-        // click the add button
+        // get the add button
 
         final WebElement btn = ele.findElement ( By.className ( "btn-default" ) );
+
+        // wait for the add button to be visible
+
+        new WebDriverWait ( this.context.getDriver (), 5 ).pollingEvery ( 100, TimeUnit.MILLISECONDS ).until ( new Predicate<WebDriver> () {
+
+            @Override
+            public boolean apply ( final WebDriver input )
+            {
+                return btn.isDisplayed ();
+            }
+        } );
+
+        // click the add button
+
         btn.click ();
+
+        // maybe the add button did trigger the dependency dialog
 
         final WebElement mr = this.context.findElement ( By.id ( "modal-requires" ) );
         if ( mr.isDisplayed () )
@@ -143,10 +166,23 @@ public class ChannelTester
             mr.findElement ( By.id ( "modal-req-with" ) ).click ();
         }
 
+        // wait for the click to be processed
+
+        new WebDriverWait ( this.context.getDriver (), 5 ).pollingEvery ( 100, TimeUnit.MILLISECONDS ).until ( new Predicate<WebDriver> () {
+
+            @Override
+            public boolean apply ( final WebDriver input )
+            {
+                return internalGetAspects ( "aspect-assigned" ).contains ( aspectId );
+            }
+        } );
+
         // check if the aspect was really added
 
+        /*
         final boolean added = internalGetAspects ( "aspect-assigned" ).contains ( aspectId );
-        Assert.assertTrue ( String.format ( "Aspect %s was not added to the channel", aspectId ), added );
+        Assert.assertTrue ( String.format ( "Aspect '%s' was not added to the channel", aspectId ), added );
+        */
     }
 
     public Set<String> getAssignedAspects ()
