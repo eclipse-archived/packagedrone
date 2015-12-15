@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -197,6 +198,48 @@ public class StorageManager
             this.afterTasks.clear ();
 
             handleErrors ( "Failed to run 'after' tasks", errors );
+        }
+    }
+
+    private static class StateWrapper
+    {
+        private Deque<State> stack;
+
+        private State state;
+
+        public StateWrapper ( final Entry entry, final LockType type )
+        {
+            this.stack = lockStates.get ();
+
+            final State current = stack.peekLast ();
+            final State next = new State ( current, type, entry.lockPriority, entry.key );
+
+            if ( current != null )
+            {
+                if ( type == LockType.WRITE && current.isReadLocked ( entry.key ) )
+                {
+                    // lock upgrade is not allowed -> fail
+                    throw new IllegalStateException ( String.format ( "%s is already read locked. Upgrading read locks to write locks is not supported! (State: %s)", entry.key, current ) );
+                }
+
+                if ( !current.isLocked ( entry.key ) )
+                {
+                    if ( State.compareTo ( current.getHighestState (), next ) >= 0 )
+                    {
+                        // last is higher -> fail
+                        throw new IllegalStateException ( String.format ( "Lock is lower or equal in priority than previous lock: %s -> %s", current, next ) );
+                    }
+                }
+            }
+
+            stack.addLast ( next );
+
+            StateWrapper.this.state = next;
+        }
+
+        public void dispose ()
+        {
+            stack.removeLast ();
         }
     }
 
@@ -395,48 +438,44 @@ public class StorageManager
 
     public <T, M> T accessCall ( final MetaKey modelKey, final Class<M> modelClazz, final Function<M, T> function )
     {
-        return doWithModel ( modelKey, entry -> entry.lock.readLock (), entry -> {
-
-            return doWithState ( entry, LockType.READ, ( state ) -> {
-
-                final State same = state.sameKeyParent;
-
-                final Object viewModel;
-                if ( same != null && same.writeModel != null )
-                {
-                    viewModel = entry.storageProvider.makeViewModel ( same.writeModel );
-                }
-                else
-                {
-                    viewModel = entry.storageProvider.getViewModel ();
-                }
-
-                if ( viewModel == null || modelClazz.isAssignableFrom ( viewModel.getClass () ) )
-                {
-                    return function.apply ( modelClazz.cast ( viewModel ) );
-                }
-                else
-                {
-                    throw new IllegalStateException ( String.format ( "View model of '%s' is not of type '%s'", modelKey, modelClazz.getName () ) );
-                }
-            } );
+        return doWithModel ( LockType.READ, modelKey, entry -> entry.lock.readLock (), ( entry, state ) -> {
+            return performAccessOperation ( entry, state, modelClazz, modelKey, function );
         } );
 
     }
 
     public <T, M> T modifyCall ( final MetaKey modelKey, final Class<M> modelClazz, final Function<M, T> function )
     {
-        return doWithModel ( modelKey, entry -> entry.lock.writeLock (), entry -> {
-
-            return doWithState ( entry, LockType.WRITE, ( state ) -> {
-
-                return performOperation ( entry, modelClazz, function );
-
-            } );
+        return doWithModel ( LockType.WRITE, modelKey, entry -> entry.lock.writeLock (), ( entry, state ) -> {
+            return performModifyOperation ( entry, modelClazz, function );
         } );
     }
 
-    private <T, M> T performOperation ( final Entry entry, final Class<M> modelClazz, final Function<M, T> function )
+    private <T, M> T performAccessOperation ( Entry entry, State state, Class<M> modelClazz, MetaKey modelKey, final Function<M, T> function )
+    {
+        final State same = state.sameKeyParent;
+
+        final Object viewModel;
+        if ( same != null && same.writeModel != null )
+        {
+            viewModel = entry.storageProvider.makeViewModel ( same.writeModel );
+        }
+        else
+        {
+            viewModel = entry.storageProvider.getViewModel ();
+        }
+
+        if ( viewModel == null || modelClazz.isAssignableFrom ( viewModel.getClass () ) )
+        {
+            return function.apply ( modelClazz.cast ( viewModel ) );
+        }
+        else
+        {
+            throw new IllegalStateException ( String.format ( "View model of '%s' is not of type '%s'", modelKey, modelClazz.getName () ) );
+        }
+    }
+
+    private <T, M> T performModifyOperation ( final Entry entry, final Class<M> modelClazz, final Function<M, T> function )
     {
         @SuppressWarnings ( "unchecked" )
         final StorageModelProvider<?, M> sp = (StorageModelProvider<?, M>)entry.storageProvider;
@@ -491,7 +530,7 @@ public class StorageManager
         throw new IllegalStateException ( String.format ( "Model of '%s' is not of type '%s'", entry.key, clazz.getName () ) );
     }
 
-    protected <T> T doWithModel ( final MetaKey modelKey, final Function<Entry, Lock> lockSupplier, final Function<Entry, T> function )
+    protected <T> T doWithModel ( LockType type, final MetaKey modelKey, final Function<Entry, Lock> lockSupplier, final BiFunction<Entry, State, T> function )
     {
         final Lock modelWithModel = this.modelLock.readLock ();
         final Lock lock;
@@ -499,6 +538,8 @@ public class StorageManager
         final Entry entry;
 
         modelWithModel.lock ();
+
+        final StateWrapper wrapper;
 
         try
         {
@@ -513,6 +554,9 @@ public class StorageManager
             }
 
             lock = lockSupplier.apply ( entry );
+
+            wrapper = new StateWrapper ( entry, type );
+
             lock.lock ();
         }
         finally
@@ -524,48 +568,18 @@ public class StorageManager
 
         try
         {
-            return function.apply ( entry );
+            try
+            {
+                return function.apply ( entry, wrapper.state );
+            }
+            finally
+            {
+                wrapper.dispose ();
+            }
         }
         finally
         {
             lock.unlock ();
-        }
-    }
-
-    protected static <T> T doWithState ( final Entry entry, final LockType type, final Function<State, T> function )
-    {
-        final Deque<State> stack = lockStates.get ();
-
-        final State current = stack.peekLast ();
-        final State next = new State ( current, type, entry.lockPriority, entry.key );
-
-        if ( current != null )
-        {
-            if ( type == LockType.WRITE && current.isReadLocked ( entry.key ) )
-            {
-                // lock upgrade is not allowed -> fail
-                throw new IllegalStateException ( String.format ( "%s is already read locked. Upgrading read locks to write locks is not supported! (State: %s)", entry.key, current ) );
-            }
-
-            if ( !current.isLocked ( entry.key ) )
-            {
-                if ( State.compareTo ( current.getHighestState (), next ) >= 0 )
-                {
-                    // last is higher -> fail
-                    throw new IllegalStateException ( String.format ( "Lock is lower or equal in priority than previous lock: %s -> %s", current, next ) );
-                }
-            }
-        }
-
-        stack.addLast ( next );
-
-        try
-        {
-            return function.apply ( next );
-        }
-        finally
-        {
-            stack.removeLast ();
         }
     }
 
