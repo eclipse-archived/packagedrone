@@ -82,25 +82,33 @@ public class ChannelProviderImpl implements ChannelProvider
     }
 
     @Override
-    public Channel load ( @NonNull final String channelId )
+    public Channel load ( @NonNull final String channelId, @NonNull final Map<MetaKey, String> configuration )
     {
         Objects.requireNonNull ( channelId );
+        Objects.requireNonNull ( configuration );
 
-        return new ChannelImpl ( channelId, this.eventAdmin, this.manager, this );
+        return new ChannelImpl ( channelId, this.eventAdmin, this.manager, this, configuration );
     }
 
     @Override
     public void create ( @NonNull final String channelId, @NonNull final Map<MetaKey, String> configuration )
     {
-        createNewChannel ( channelId );
+        Objects.requireNonNull ( channelId );
+        Objects.requireNonNull ( configuration );
+
+        createNewChannel ( channelId, configuration );
     }
 
-    protected void createNewChannel ( final String localId )
+    protected void createNewChannel ( @NonNull final String channelId, @NonNull final Map<MetaKey, String> configuration )
     {
-        final ChannelImpl channel = new ChannelImpl ( localId, this.eventAdmin, this.manager, this );
+        Objects.requireNonNull ( channelId );
+        Objects.requireNonNull ( configuration );
+
+        final ChannelImpl channel = new ChannelImpl ( channelId, this.eventAdmin, this.manager, this, configuration );
         try
         {
             channel.modifyRun ( model -> {
+                // nothing .. just write the model for the first time
             } );
         }
         finally

@@ -19,7 +19,7 @@ public interface ChannelProvider
 {
     public void create ( @NonNull String channelId, @NonNull Map<MetaKey, String> configuration );
 
-    public Channel load ( @NonNull String channelId );
+    public Channel load ( @NonNull String channelId, @NonNull Map<MetaKey, String> configuration );
 
     public ProviderInformation getInformation ();
 

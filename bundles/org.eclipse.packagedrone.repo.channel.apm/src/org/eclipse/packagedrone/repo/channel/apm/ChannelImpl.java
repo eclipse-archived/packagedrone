@@ -12,6 +12,8 @@ package org.eclipse.packagedrone.repo.channel.apm;
 
 import static org.eclipse.packagedrone.utils.Exceptions.wrapException;
 
+import java.util.Map;
+
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperation;
 import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
@@ -33,7 +35,7 @@ public class ChannelImpl implements Channel
 
     private final StorageRegistration handle;
 
-    public ChannelImpl ( final String storageId, final EventAdmin eventAdmin, final StorageManager manager, final ChannelProviderImpl provider )
+    public ChannelImpl ( final String storageId, final EventAdmin eventAdmin, final StorageManager manager, final ChannelProviderImpl provider, final Map<MetaKey, String> configuration )
     {
         this.storageId = storageId;
         this.manager = manager;
@@ -41,7 +43,13 @@ public class ChannelImpl implements Channel
 
         this.storageKey = new MetaKey ( "channel", storageId );
 
-        this.handle = manager.registerModel ( 10_000, this.storageKey, new ChannelModelProvider ( eventAdmin, storageId ) );
+        String dir = configuration.get ( new MetaKey ( "apm", "dir-override" ) );
+        if ( dir == null )
+        {
+            dir = storageId;
+        }
+
+        this.handle = manager.registerModel ( 10_000, this.storageKey, new ChannelModelProvider ( eventAdmin, storageId, dir ) );
     }
 
     @Override

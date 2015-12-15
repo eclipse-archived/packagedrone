@@ -63,7 +63,7 @@ public class ChannelInstance implements ProviderListener
     @Override
     public void bind ( @NonNull final ChannelProvider provider )
     {
-        this.channel = provider.load ( this.channelId );
+        this.channel = provider.load ( this.channelId, this.configuration );
     }
 
     @Override

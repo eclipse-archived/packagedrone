@@ -55,19 +55,22 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
 
     private final EventAdmin eventAdmin;
 
-    public ChannelModelProvider ( final EventAdmin eventAdmin, final String channelId )
+    private final String dir;
+
+    public ChannelModelProvider ( final EventAdmin eventAdmin, final String channelId, final String dir )
     {
         super ( AccessContext.class, ModifyContextImpl.class );
 
         this.eventAdmin = eventAdmin;
         this.channelId = channelId;
+        this.dir = dir;
     }
 
     @Override
     public void start ( final StorageContext context ) throws Exception
     {
-        this.store = new BlobStore ( makeBasePath ( context, this.channelId ).resolve ( "blobs" ) );
-        this.cacheStore = new CacheStore ( makeBasePath ( context, this.channelId ).resolve ( "cache" ) );
+        this.store = new BlobStore ( makeBasePath ( context, this.dir ).resolve ( "blobs" ) );
+        this.cacheStore = new CacheStore ( makeBasePath ( context, this.dir ).resolve ( "cache" ) );
         super.start ( context );
     }
 
@@ -91,14 +94,14 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
         return new ModifyContextImpl ( writeModel );
     }
 
-    public static Path makeBasePath ( final StorageContext context, final String channelId )
+    public static Path makeBasePath ( final StorageContext context, final String dir )
     {
-        return context.getBasePath ().resolve ( Paths.get ( "channels", channelId ) );
+        return context.getBasePath ().resolve ( Paths.get ( "channels", dir ) );
     }
 
-    public static Path makeStatePath ( final StorageContext context, final String channelId )
+    public static Path makeStatePath ( final StorageContext context, final String dir )
     {
-        return makeBasePath ( context, channelId ).resolve ( "state.json" );
+        return makeBasePath ( context, dir ).resolve ( "state.json" );
     }
 
     static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -150,7 +153,7 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
 
             try
             {
-                final Path path = makeStatePath ( context, this.channelId );
+                final Path path = makeStatePath ( context, this.dir );
                 Files.createDirectories ( path.getParent () );
 
                 // commit blob store
@@ -199,7 +202,7 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
     @Override
     protected ModifyContextImpl loadWriteModel ( final StorageContext context ) throws Exception
     {
-        final Path path = makeStatePath ( context, this.channelId );
+        final Path path = makeStatePath ( context, this.dir );
 
         try ( InputStream stream = new BufferedInputStream ( Files.newInputStream ( path ) );
               ChannelReader reader = new ChannelReader ( stream, this.channelId, this.eventAdmin, this.store, this.cacheStore ); )
