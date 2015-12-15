@@ -16,6 +16,16 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 
 <h:main title="Channel" subtitle="${storage:channel(channel) }">
 
+<jsp:attribute name="subtitleHtml">
+	<span class="label label-primary">${fn:escapeXml(channel.id) }</span>
+	<c:forEach var="name" items="${web:sort(channel.names)}">
+	<span class="label label-default">${fn:escapeXml(name) }</span>
+	</c:forEach>
+	<c:if test="${not empty channel.description }">
+	${ ' ' }${fn:escapeXml(channel.description)}
+	</c:if>
+</jsp:attribute>
+
 <jsp:attribute name="head">
 <s:dz_head/>
 </jsp:attribute>

@@ -10,27 +10,51 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.impl;
 
+import java.util.Collection;
+import java.util.LinkedHashSet;
+
 import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.DescriptorAdapter;
 
 class DescriptorAdapterImpl implements DescriptorAdapter
 {
-    private ChannelId descriptor;
+    private final ChannelServiceModify channel;
 
-    public DescriptorAdapterImpl ( final ChannelEntry channel )
+    private final String channelId;
+
+    public DescriptorAdapterImpl ( final String channelId, final ChannelServiceModify channel )
     {
-        this.descriptor = channel.getId ();
+        this.channelId = channelId;
+        this.channel = channel;
     }
 
     @Override
-    public void setName ( final String name )
+    public void addName ( final String name )
     {
-        this.descriptor = new ChannelId ( this.descriptor.getId (), name );
+        this.channel.putMapping ( this.channelId, name );
+    }
+
+    @Override
+    public void removeName ( final String name )
+    {
+        this.channel.deleteMapping ( this.channelId, name );
+    }
+
+    @Override
+    public void setNames ( final Collection<String> names )
+    {
+        this.channel.setNameMappings ( this.channelId, names );
+    }
+
+    @Override
+    public void setDescription ( final String description )
+    {
+        this.channel.setDescription ( this.channelId, description );
     }
 
     @Override
     public ChannelId getDescriptor ()
     {
-        return this.descriptor;
+        return new ChannelId ( this.channelId, new LinkedHashSet<> ( this.channel.getNameMappings ( this.channelId ) ), this.channel.getDescription ( this.channelId ) );
     }
 }

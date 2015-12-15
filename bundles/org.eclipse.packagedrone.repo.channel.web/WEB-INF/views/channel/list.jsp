@@ -28,12 +28,12 @@ pageContext.setAttribute ( "TAG", Tags.ACTION_TAG_CHANNELS );
 
 <thead>
 	<tr>
-    	<th>Name</th>
+    	<th>ID</th>
+    	<th>Names</th>
     	<th>Description</th>
     	<th>#</th>
     	<th>Size</th>
     	<th>Modified</th>
-    	<th>ID</th>
 	</tr>
 </thead>
 
@@ -41,12 +41,16 @@ pageContext.setAttribute ( "TAG", Tags.ACTION_TAG_CHANNELS );
 	<c:forEach items="${channels.data}" var="channel">
         <%-- the next call to "get" is required since jasper seems to have issues with Java 8 default methods --%>
 		<tr class="${storage:severityWithDefault(channel.state.getOverallValidationState(), '') }">
-		    <td class="channel-name"><a href="<c:url value="/channel/${channel.id }/view"/>">${channel.name }</a></td>
-		    <td class="channel-description">${fn:escapeXml(channel.state.description) }</td>
+			<td class="channel-id"><a href="<c:url value="/channel/${channel.id }/view"/>">${channel.id }</a></td>
+			<td class="channel-names">
+				<c:forEach var="name" items="${channel.names }">
+					<span class="label label-default">${fn:escapeXml(name) }</span>
+				</c:forEach>
+			</td>
+		    <td class="channel-description">${fn:escapeXml(channel.description) }</td>
 		    <td class="channel-count">${channel.state.numberOfArtifacts }</td>
 		    <td class="channel-size"><web:bytes amount="${channel.state.numberOfBytes }"/></td>
 		    <td class="channel-modified"><fmt:formatDate value="${ web:toDate(channel.state.modificationTimestamp) }" type="both" /></td>
-		    <td class="channel-id"><a href="<c:url value="/channel/${channel.id }/view"/>">${channel.id }</a></td>
 		</tr>
 	</c:forEach>
 </tbody>

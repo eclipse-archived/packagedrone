@@ -18,6 +18,8 @@ import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.web.common.InterfaceExtender;
 import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 
+import com.google.common.net.UrlEscapers;
+
 /**
  * An abstract InterfaceExtender which only processes Channel instances
  */
@@ -64,5 +66,10 @@ public abstract class AbstractChannelInterfaceExtender implements InterfaceExten
     protected List<MenuEntry> getChannelViews ( final HttpServletRequest request, final ChannelInformation channel )
     {
         return null;
+    }
+
+    protected static String escapePathSegment ( final String segment )
+    {
+        return UrlEscapers.urlPathSegmentEscaper ().escape ( segment );
     }
 }

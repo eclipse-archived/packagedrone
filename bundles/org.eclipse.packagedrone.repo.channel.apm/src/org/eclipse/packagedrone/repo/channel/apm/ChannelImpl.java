@@ -13,7 +13,6 @@ package org.eclipse.packagedrone.repo.channel.apm;
 import static org.eclipse.packagedrone.utils.Exceptions.wrapException;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.channel.IdTransformer;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperation;
 import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
 import org.eclipse.packagedrone.repo.channel.provider.Channel;
@@ -24,7 +23,7 @@ import org.osgi.service.event.EventAdmin;
 
 public class ChannelImpl implements Channel
 {
-    private final String id;
+    private final String storageId;
 
     private final MetaKey storageKey;
 
@@ -34,43 +33,40 @@ public class ChannelImpl implements Channel
 
     private final StorageRegistration handle;
 
-    public ChannelImpl ( final String id, final EventAdmin eventAdmin, final MetaKey storageKey, final StorageManager manager, final ChannelProviderImpl provider )
+    public ChannelImpl ( final String storageId, final EventAdmin eventAdmin, final StorageManager manager, final ChannelProviderImpl provider )
     {
-        this.id = id;
-
-        this.storageKey = storageKey;
+        this.storageId = storageId;
         this.manager = manager;
-
         this.provider = provider;
 
-        this.handle = manager.registerModel ( 10_000, storageKey, new ChannelModelProvider ( eventAdmin, id ) );
+        this.storageKey = new MetaKey ( "channel", storageId );
+
+        this.handle = manager.registerModel ( 10_000, this.storageKey, new ChannelModelProvider ( eventAdmin, storageId ) );
     }
 
+    @Override
     public void dispose ()
     {
         this.handle.unregister ();
     }
 
-    @Override
-    public String getId ()
+    public String getLocalId ()
     {
-        return this.id;
+        return this.storageId;
     }
 
     @Override
-    public <T> T accessCall ( final ChannelOperation<T, AccessContext> operation, final IdTransformer idTransformer )
+    public <T> T accessCall ( final ChannelOperation<T, AccessContext> operation )
     {
         return this.manager.accessCall ( this.storageKey, AccessContext.class, model -> wrapException ( () -> {
-            ( (ModifyContextImpl)model ).setIdTransformer ( idTransformer );
             return operation.process ( model );
         } ) );
     }
 
     @Override
-    public <T> T modifyCall ( final ChannelOperation<T, ModifyContext> operation, final IdTransformer idTransformer )
+    public <T> T modifyCall ( final ChannelOperation<T, ModifyContext> operation )
     {
         return this.manager.modifyCall ( this.storageKey, ModifyContext.class, model -> wrapException ( () -> {
-            ( (ModifyContextImpl)model ).setIdTransformer ( idTransformer );
             return operation.process ( model );
         } ) );
     }

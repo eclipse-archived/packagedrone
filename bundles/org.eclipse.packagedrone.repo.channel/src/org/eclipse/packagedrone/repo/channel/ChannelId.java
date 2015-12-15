@@ -10,28 +10,38 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel;
 
-import java.util.Comparator;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class ChannelId
 {
     private final String id;
 
-    private final String name;
+    private final Set<String> names;
+
+    private final String description;
 
     public ChannelId ( final String id )
     {
-        this ( id, null );
+        this ( id, Collections.emptySet (), null );
     }
 
-    public ChannelId ( final String id, final String name )
+    public ChannelId ( final String id, final Set<String> names, final String description )
     {
+        Objects.requireNonNull ( id );
+        Objects.requireNonNull ( names );
+
         this.id = id;
-        this.name = name;
+        this.names = Collections.unmodifiableSet ( new LinkedHashSet<> ( names ) );
 
         if ( this.id == null )
         {
             throw new NullPointerException ( "'id' must not be null" );
         }
+
+        this.description = description;
     }
 
     public String getId ()
@@ -39,19 +49,28 @@ public class ChannelId
         return this.id;
     }
 
-    public String getName ()
+    public Set<String> getNames ()
     {
-        return this.name;
+        return this.names;
     }
 
-    public String getNameOrId ()
+    public String getDescription ()
     {
-        if ( this.name != null && !this.name.isEmpty () )
+        return this.description;
+    }
+
+    public String makeTitle ()
+    {
+        final String desc = this.description;
+        if ( desc != null && !desc.isEmpty () )
         {
-            return this.name;
+            return String.format ( "%s (%s)", this.id, desc );
         }
-        return this.id;
+        else
+        {
+            return this.id;
+        }
     }
 
-    public static Comparator<? super ChannelId> NAME_COMPARATOR = Comparator.comparing ( ChannelId::getName, Comparator.nullsLast ( Comparator.naturalOrder () ) ).thenComparing ( Comparator.comparing ( ChannelId::getId ) );
+    // public static Comparator<? super ChannelId> NAME_COMPARATOR = Comparator.comparing ( ChannelId::getName, Comparator.nullsLast ( Comparator.naturalOrder () ) ).thenComparing ( Comparator.comparing ( ChannelId::getId ) );
 }

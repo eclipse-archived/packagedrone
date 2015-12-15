@@ -17,21 +17,16 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.channel.ChannelDetails;
-import org.eclipse.packagedrone.repo.channel.IdTransformer;
 import org.eclipse.packagedrone.repo.channel.provider.Channel;
 import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider;
 import org.eclipse.packagedrone.repo.channel.provider.ProviderInformation;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
-import org.eclipse.packagedrone.utils.profiler.Profile;
-import org.eclipse.packagedrone.utils.profiler.Profile.Handle;
 import org.eclipse.scada.utils.io.RecursiveDeleteVisitor;
 import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
@@ -49,13 +44,13 @@ public class ChannelProviderImpl implements ChannelProvider
 {
     private final static Logger logger = LoggerFactory.getLogger ( ChannelProviderImpl.class );
 
-    private static final ProviderInformation INFO = new ProviderInformation ( "apm", "APM storage", "APM based channel storage" );
+    private static final String ID = "apm";
+
+    private static final ProviderInformation INFO = new ProviderInformation ( ID, "APM storage", "APM based channel storage" );
 
     private StorageManager manager;
 
     private EventAdmin eventAdmin;
-
-    private final CopyOnWriteArraySet<Listener> listeners = new CopyOnWriteArraySet<> ();
 
     private final CopyOnWriteArraySet<ChannelImpl> channels = new CopyOnWriteArraySet<> ();
 
@@ -75,42 +70,10 @@ public class ChannelProviderImpl implements ChannelProvider
 
     public void start ()
     {
-        final Path base = this.manager.getContext ().getBasePath ().resolve ( "channels" );
-
-        try
-        {
-            Files.list ( base ).forEach ( child -> {
-                if ( !Files.isDirectory ( child ) )
-                {
-                    return;
-                }
-
-                try
-                {
-                    final UUID id = UUID.fromString ( child.getName ( child.getNameCount () - 1 ).toString () );
-                    discoveredChannel ( id.toString () );
-                }
-                catch ( final IllegalArgumentException e )
-                {
-                    // invalid format
-                    logger.info ( String.format ( "Failed to use '%s' as a channel directory", child ), e );
-                }
-            } );
-        }
-        catch ( final NoSuchFileException e )
-        {
-            // ignore the non-existence of the directory
-        }
-        catch ( final IOException e )
-        {
-            logger.warn ( "Failed to scan for channels", e );
-        }
     }
 
     public void stop ()
     {
-        fireChange ( null, new CopyOnWriteArraySet<> ( this.channels ) );
-
         for ( final ChannelImpl channel : this.channels )
         {
             channel.dispose ();
@@ -119,73 +82,38 @@ public class ChannelProviderImpl implements ChannelProvider
     }
 
     @Override
-    public void addListener ( final Listener listener )
+    public Channel load ( @NonNull final String channelId )
     {
-        if ( this.listeners.add ( listener ) )
-        {
-            // send known
-            fireChange ( new CopyOnWriteArraySet<> ( this.channels ), null );
-        }
+        Objects.requireNonNull ( channelId );
+
+        return new ChannelImpl ( channelId, this.eventAdmin, this.manager, this );
     }
 
     @Override
-    public void removeListener ( final Listener listener )
+    public void create ( @NonNull final String channelId, @NonNull final Map<MetaKey, String> configuration )
     {
-        this.listeners.remove ( listener );
+        createNewChannel ( channelId );
     }
 
-    protected void fireChange ( final Collection<? extends Channel> added, final Collection<? extends Channel> removed )
+    protected void createNewChannel ( final String localId )
     {
-        this.listeners.forEach ( listener -> listener.update ( added, removed ) );
-    }
-
-    @Override
-    public Channel create ( final ChannelDetails details, final IdTransformer idTransformer )
-    {
-        final ChannelImpl channel = createNewChannel ( details, idTransformer );
-        registerChannel ( channel );
-        return channel;
-    }
-
-    private void discoveredChannel ( final String channelId )
-    {
-        try ( Handle h = Profile.start ( this, "discoveredChannel" ) )
+        final ChannelImpl channel = new ChannelImpl ( localId, this.eventAdmin, this.manager, this );
+        try
         {
-            final MetaKey key = new MetaKey ( "channel", channelId );
-            final ChannelImpl channel = new ChannelImpl ( channelId, this.eventAdmin, key, this.manager, this );
-            registerChannel ( channel );
+            channel.modifyRun ( model -> {
+            } );
         }
-    }
-
-    protected ChannelImpl createNewChannel ( final ChannelDetails details, final IdTransformer idTransformer )
-    {
-        final String id = UUID.randomUUID ().toString ();
-        final MetaKey key = new MetaKey ( "channel", id );
-
-        final ChannelImpl channel = new ChannelImpl ( id, this.eventAdmin, key, this.manager, this );
-
-        // we always call modify, in order to persist the channel at least once
-        channel.modifyRun ( model -> {
-            if ( details != null )
-            {
-                model.setDetails ( details );
-            }
-        } , idTransformer );
-        return channel;
-    }
-
-    private void registerChannel ( final ChannelImpl channel )
-    {
-        this.channels.add ( channel );
-        fireChange ( Collections.singleton ( channel ), null );
+        finally
+        {
+            channel.dispose ();
+        }
     }
 
     public void deleteChannel ( final ChannelImpl channel )
     {
         if ( this.channels.remove ( channel ) )
         {
-            final String id = channel.getId ();
-            fireChange ( null, Collections.singleton ( channel ) );
+            final String id = channel.getLocalId ();
             channel.dispose ();
             deleteChannelContent ( id );
         }
@@ -220,28 +148,6 @@ public class ChannelProviderImpl implements ChannelProvider
         {
             throw new RuntimeException ( "Failed to delete channel content", e );
         }
-    }
-
-    @Override
-    public void wipe ()
-    {
-        final CopyOnWriteArrayList<ChannelImpl> deletedChannels = new CopyOnWriteArrayList<> ( this.channels );
-        this.channels.clear ();
-
-        for ( final Channel channel : deletedChannels )
-        {
-            try
-            {
-                ( (ChannelImpl)channel ).dispose ();
-                deleteChannelContent ( channel.getId () );
-            }
-            catch ( final Exception e )
-            {
-                logger.warn ( "Failed to wipe/delete channel: " + channel.getId (), e );
-            }
-        }
-
-        fireChange ( null, deletedChannels );
     }
 
     @Override

@@ -91,9 +91,6 @@ public class ChannelReader implements AutoCloseable
             final String name = jr.nextName ();
             switch ( name )
             {
-                case "description":
-                    state.setDescription ( jr.nextString () );
-                    break;
                 case "locked":
                     state.setLocked ( locked = jr.nextBoolean () );
                     break;

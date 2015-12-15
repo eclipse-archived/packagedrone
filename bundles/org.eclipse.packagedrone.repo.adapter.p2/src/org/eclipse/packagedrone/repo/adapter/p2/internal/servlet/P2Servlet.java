@@ -23,8 +23,8 @@ import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.adapter.p2.internal.aspect.ChannelStreamer;
 import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
-import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
 import org.eclipse.packagedrone.repo.servlet.Handler;
 import org.eclipse.packagedrone.repo.web.utils.ChannelCacheHandler;
@@ -37,13 +37,13 @@ public class P2Servlet extends AbstractChannelServiceServlet
 
     private static final long serialVersionUID = 1L;
 
-    private final ChannelCacheHandler artifactsXml = new ChannelCacheHandler ( new MetaKey ( "p2.repo", "artifacts.xml" ) );
+    private static final ChannelCacheHandler artifactsXml = new ChannelCacheHandler ( new MetaKey ( "p2.repo", "artifacts.xml" ) );
 
-    private final ChannelCacheHandler artifactsJar = new ChannelCacheHandler ( new MetaKey ( "p2.repo", "artifacts.jar" ) );
+    private static final ChannelCacheHandler artifactsJar = new ChannelCacheHandler ( new MetaKey ( "p2.repo", "artifacts.jar" ) );
 
-    private final ChannelCacheHandler contentXml = new ChannelCacheHandler ( new MetaKey ( "p2.repo", "content.xml" ) );
+    private static final ChannelCacheHandler contentXml = new ChannelCacheHandler ( new MetaKey ( "p2.repo", "content.xml" ) );
 
-    private final ChannelCacheHandler contentJar = new ChannelCacheHandler ( new MetaKey ( "p2.repo", "content.jar" ) );
+    private static final ChannelCacheHandler contentJar = new ChannelCacheHandler ( new MetaKey ( "p2.repo", "content.jar" ) );
 
     @Override
     protected void service ( final HttpServletRequest req, final HttpServletResponse resp ) throws ServletException, IOException
@@ -93,8 +93,8 @@ public class P2Servlet extends AbstractChannelServiceServlet
                     final String title = ChannelStreamer.makeTitle ( channel.getId ().getId (), channel.getMetaData () );
                     req.setAttribute ( "p2Title", title );
                     req.setAttribute ( "id", channel.getId ().getId () );
-                    req.setAttribute ( "name", channel.getId ().getName () );
-                    req.setAttribute ( "description", channel.getInformation ().getState ().getDescription () );
+                    req.setAttribute ( "title", channel.getInformation ().makeTitle () );
+                    req.setAttribute ( "description", channel.getId ().getDescription () );
                     req.getRequestDispatcher ( "/WEB-INF/views/channel.jsp" ).forward ( req, resp );
                 }
                 else if ( "p2.index".equals ( paths[2] ) && paths.length == 3 )
@@ -103,19 +103,19 @@ public class P2Servlet extends AbstractChannelServiceServlet
                 }
                 else if ( "content.xml".equals ( paths[2] ) && paths.length == 3 )
                 {
-                    this.contentXml.process ( channel, req, resp );
+                    P2Servlet.contentXml.process ( channel, req, resp );
                 }
                 else if ( "artifacts.xml".equals ( paths[2] ) && paths.length == 3 )
                 {
-                    this.artifactsXml.process ( channel, req, resp );
+                    P2Servlet.artifactsXml.process ( channel, req, resp );
                 }
                 else if ( "content.jar".equals ( paths[2] ) && paths.length == 3 )
                 {
-                    this.contentJar.process ( channel, req, resp );
+                    P2Servlet.contentJar.process ( channel, req, resp );
                 }
                 else if ( "artifacts.jar".equals ( paths[2] ) && paths.length == 3 )
                 {
-                    this.artifactsJar.process ( channel, req, resp );
+                    P2Servlet.artifactsJar.process ( channel, req, resp );
                 }
                 else if ( "repo.zip".equals ( paths[2] ) && paths.length == 3 )
                 {
@@ -168,7 +168,6 @@ public class P2Servlet extends AbstractChannelServiceServlet
     {
         resp.setStatus ( HttpServletResponse.SC_NOT_FOUND );
 
-        @SuppressWarnings ( "resource" )
         final PrintWriter w = resp.getWriter ();
         resp.setContentType ( "text/plain" );
 

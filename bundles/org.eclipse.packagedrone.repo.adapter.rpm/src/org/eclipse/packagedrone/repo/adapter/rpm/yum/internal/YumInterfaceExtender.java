@@ -39,10 +39,13 @@ public class YumInterfaceExtender extends AbstractChannelInterfaceExtender
     protected List<MenuEntry> getChannelActions ( final HttpServletRequest request, final ChannelInformation channel )
     {
         final List<MenuEntry> result = new LinkedList<> ();
-        result.add ( new MenuEntry ( "YUM (by ID)", 6_000, new LinkTarget ( String.format ( "/yum/%s", channel.getId () ) ), Modifier.LINK, null ) );
-        if ( channel.getName () != null )
+        result.add ( new MenuEntry ( "YUM", 6_000, "YUM (ID)", 6_000, new LinkTarget ( String.format ( "/yum/%s", channel.getId () ) ), Modifier.LINK, null ) );
+
+        int i = 1;
+        for ( final String name : channel.getNames () )
         {
-            result.add ( new MenuEntry ( "YUM (by name)", 6_000, new LinkTarget ( String.format ( "/yum/%s", PATH_ESC.escape ( channel.getName () ) ) ), Modifier.LINK, null ) );
+            result.add ( new MenuEntry ( "YUM", 6_000, String.format ( "YUM (name: %s)", name ), 6_000 + i, new LinkTarget ( String.format ( "/yum/%s", PATH_ESC.escape ( name ) ) ), Modifier.LINK, null ) );
+            i++;
         }
         return result;
     }

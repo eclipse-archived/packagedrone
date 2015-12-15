@@ -16,12 +16,9 @@ import java.util.Set;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
-import org.eclipse.packagedrone.repo.channel.ChannelDetails;
 
 public interface ModifyContext extends AccessContext
 {
-    public void setDetails ( ChannelDetails details );
-
     public void applyMetaData ( Map<MetaKey, String> changes );
 
     public void applyMetaData ( String artifactId, Map<MetaKey, String> changes );

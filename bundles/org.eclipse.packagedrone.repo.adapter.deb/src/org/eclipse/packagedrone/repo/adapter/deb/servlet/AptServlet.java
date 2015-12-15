@@ -29,7 +29,6 @@ import org.eclipse.packagedrone.repo.adapter.deb.servlet.handler.ContentHandler;
 import org.eclipse.packagedrone.repo.adapter.deb.servlet.handler.Handler;
 import org.eclipse.packagedrone.repo.adapter.deb.servlet.handler.PoolHandler;
 import org.eclipse.packagedrone.repo.adapter.deb.servlet.handler.RedirectHandler;
-import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
@@ -136,7 +135,6 @@ public class AptServlet extends AbstractChannelServiceServlet
 
                     final Map<String, Object> model = new HashMap<> ();
                     model.put ( "distribution", cfg.getDistribution () );
-                    model.put ( "name", channel.getId ().getName () );
                     model.put ( "id", channel.getId () );
                     Helper.render ( response, Helper.class.getResource ( "content/dists.html" ), makeDefaultTitle ( channel ), model );
                     return;
@@ -165,24 +163,14 @@ public class AptServlet extends AbstractChannelServiceServlet
 
     protected String makeDefaultTitle ( final ReadableChannel channel )
     {
-        return String.format ( "APT Repository | %s", makeChannelName ( channel.getId () ) );
-    }
-
-    private String makeChannelName ( final ChannelId channel )
-    {
-        if ( channel.getName () != null )
-        {
-            return channel.getName ();
-        }
-        return channel.getId ();
+        return String.format ( "APT Repository | %s", channel.getInformation ().makeTitle () );
     }
 
     private Handler makeHandler ( final HttpServletRequest request, final ReadableChannel channel, final String channelPath, final ChannelConfiguration cfg )
     {
         final Map<String, Object> model = new HashMap<> ();
         model.put ( "distribution", cfg.getDistribution () );
-        model.put ( "name", channel.getId ().getName () );
-        model.put ( "id", channel.getId () );
+        model.put ( "id", channel.getId ().getId () );
 
         final String toks[] = channelPath.split ( "/" );
 

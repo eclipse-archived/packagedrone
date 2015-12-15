@@ -59,7 +59,6 @@ public class ChannelWriter implements AutoCloseable
         jw.name ( "creationTimestamp" );
         writeTimestamp ( jw, state.getCreationTimestamp () );
 
-        jw.name ( "description" ).value ( state.getDescription () );
         jw.name ( "modificationTimestamp" );
         writeTimestamp ( jw, state.getModificationTimestamp () );
         jw.name ( "locked" ).value ( state.isLocked () );

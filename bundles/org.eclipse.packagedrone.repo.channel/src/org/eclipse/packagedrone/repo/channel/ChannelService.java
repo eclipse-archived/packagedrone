@@ -20,11 +20,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
-import org.eclipse.packagedrone.repo.channel.provider.ProviderInformation;
 import org.eclipse.packagedrone.repo.channel.stats.ChannelStatistics;
 
 /**
@@ -162,8 +163,6 @@ public interface ChannelService
         }
     }
 
-    public Collection<ProviderInformation> getProviders ();
-
     /**
      * List all channels
      *
@@ -180,7 +179,7 @@ public interface ChannelService
      */
     public Optional<ChannelInformation> getState ( By by );
 
-    public ChannelId create ( String providerId, ChannelDetails details );
+    public ChannelId create ( @NonNull String providerId, @NonNull ChannelDetails details, @NonNull Map<MetaKey, String> configuration );
 
     /**
      * Delete a channel
@@ -237,15 +236,6 @@ public interface ChannelService
         } );
     }
 
-    /**
-     * Get all name to channel mappings which are currently unclaimed.
-     *
-     * @return the list of unclaimed mappings.
-     */
-    public Map<String, String> getUnclaimedMappings ();
-
-    public void deleteMapping ( String id, String name );
-
     public default @NonNull Optional<Collection<DeployKey>> getChannelDeployKeys ( final By by )
     {
         return getChannelDeployGroups ( by ).map ( groups -> groups.stream ().flatMap ( group -> group.getKeys ().stream () ).collect ( toList () ) );
@@ -281,10 +271,12 @@ public interface ChannelService
         }
     }
 
+    public ChannelStatistics getStatistics ();
+
     /**
-     * Delete all and everything
+     * Delete all channels
      */
     public void wipeClean ();
 
-    public ChannelStatistics getStatistics ();
+    public static final Pattern NAME_PATTERN = Pattern.compile ( "[a-zA-Z0-9\\-_\\.]+" );
 }

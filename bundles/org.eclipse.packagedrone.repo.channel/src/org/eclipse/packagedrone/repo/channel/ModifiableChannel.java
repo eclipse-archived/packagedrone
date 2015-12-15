@@ -22,11 +22,6 @@ public interface ModifiableChannel extends ReadableChannel, AspectableChannel
     @Override
     public ModifyContext getContext ();
 
-    public default void setDescription ( final ChannelDetails description )
-    {
-        getContext ().setDetails ( description );
-    }
-
     public default void applyMetaData ( final Map<MetaKey, String> changes )
     {
         getContext ().applyMetaData ( changes );

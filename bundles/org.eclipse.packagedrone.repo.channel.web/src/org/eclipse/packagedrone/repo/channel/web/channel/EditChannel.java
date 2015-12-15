@@ -14,10 +14,7 @@ public class EditChannel
 {
     private String id;
 
-    /*
-     * Validate duplicate name
-     */
-    private String name;
+    private String names;
 
     private String description;
 
@@ -41,14 +38,13 @@ public class EditChannel
         this.id = id;
     }
 
-    public String getName ()
+    public void setNames ( final String names )
     {
-        return this.name;
+        this.names = names;
     }
 
-    public void setName ( final String name )
+    public String getNames ()
     {
-        this.name = name;
+        return this.names;
     }
-
 }

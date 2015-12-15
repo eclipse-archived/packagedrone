@@ -11,6 +11,7 @@
 package org.eclipse.packagedrone.repo.channel;
 
 import java.util.Collections;
+import java.util.Set;
 import java.util.SortedMap;
 
 import org.eclipse.packagedrone.repo.MetaKey;
@@ -25,12 +26,12 @@ public class ChannelInformation extends ChannelId
 
     public ChannelInformation ( final ChannelId id, final ChannelState state, final SortedMap<MetaKey, String> metaData, final SortedMap<String, String> aspectStates )
     {
-        this ( id.getId (), id.getName (), state, metaData, aspectStates );
+        this ( id.getId (), id.getNames (), id.getDescription (), state, metaData, aspectStates );
     }
 
-    private ChannelInformation ( final String id, final String name, final ChannelState state, final SortedMap<MetaKey, String> metaData, final SortedMap<String, String> aspectStates )
+    private ChannelInformation ( final String id, final Set<String> names, final String description, final ChannelState state, final SortedMap<MetaKey, String> metaData, final SortedMap<String, String> aspectStates )
     {
-        super ( id, name );
+        super ( id, names, description );
 
         this.state = state;
         this.metaData = Collections.unmodifiableSortedMap ( metaData );

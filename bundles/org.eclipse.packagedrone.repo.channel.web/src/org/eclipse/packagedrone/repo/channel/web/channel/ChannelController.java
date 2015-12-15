@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HttpConstraint;
@@ -108,6 +110,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.net.UrlEscapers;
 import com.google.gson.GsonBuilder;
 
+// FIXME: fix setting channel names
 @Secured
 @Controller
 @ViewResolver ( "/WEB-INF/views/%s.jsp" )
@@ -175,7 +178,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
         final ModelAndView result = new ModelAndView ( "channel/list" );
 
         final List<ChannelInformation> channels = new ArrayList<> ( this.channelService.list () );
-        channels.sort ( ChannelId.NAME_COMPARATOR );
+        channels.sort ( Comparator.comparing ( ChannelInformation::getId ) );
 
         result.put ( "channels", Pagination.paginate ( startPage, 10, channels ) );
 
@@ -185,8 +188,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @RequestMapping ( value = "/channel/create", method = RequestMethod.GET )
     public ModelAndView create ()
     {
-        // FIXME: with provider id
-        this.channelService.create ( null, null );
+        this.channelService.create ( "apm", new ChannelDetails (), Collections.emptyMap () );
 
         return new ModelAndView ( "redirect:/channel" );
     }
@@ -206,9 +208,9 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
         {
             final ChannelDetails desc = new ChannelDetails ();
             desc.setDescription ( data.getDescription () );
-            // FIXME: with provider id
-            final ChannelId channel = this.channelService.create ( null, desc );
-            setChannelName ( channel, data.getName () );
+
+            final ChannelId channel = this.channelService.create ( "apm", desc, Collections.emptyMap () );
+            setChannelNames ( channel, splitChannelNames ( data.getNames () ) );
 
             return new ModelAndView ( String.format ( "redirect:/channel/%s/view", urlPathSegmentEscaper ().escape ( channel.getId () ) ) );
         }
@@ -227,6 +229,25 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
         return new ModelAndView ( "channel/createWithRecipe", model );
     }
 
+    private static Set<String> splitChannelNames ( final String names )
+    {
+        final Set<String> result = new HashSet<> ();
+        for ( String name : names.split ( "[\\n\\r]+" ) )
+        {
+            name = name.trim ();
+            if ( !name.isEmpty () )
+            {
+                result.add ( name );
+            }
+        }
+        return result;
+    }
+
+    private static String joinChannelNames ( final Collection<String> names )
+    {
+        return names.stream ().collect ( Collectors.joining ( "\n" ) );
+    }
+
     @RequestMapping ( value = "/channel/createWithRecipe", method = RequestMethod.POST )
     public ModelAndView createWithRecipePost ( @Valid @FormData ( "command" ) final CreateChannel data, @RequestParameter (
             required = false,
@@ -243,9 +264,9 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
                 // without recipe
                 final ChannelDetails desc = new ChannelDetails ();
                 desc.setDescription ( data.getDescription () );
-                //FIXME: add provider id
-                holder.value = this.channelService.create ( null, desc );
-                setChannelName ( holder.value, data.getName () );
+
+                holder.value = this.channelService.create ( "apm", desc, Collections.emptyMap () );
+                setChannelNames ( holder.value, splitChannelNames ( data.getNames () ) );
             }
             else
             {
@@ -254,10 +275,9 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
                     final ChannelDetails desc = new ChannelDetails ();
                     desc.setDescription ( data.getDescription () );
 
-                    //FIXME: add provider id
-                    final ChannelId channel = this.channelService.create ( null, desc );
+                    final ChannelId channel = this.channelService.create ( "apm", desc, Collections.emptyMap () );
 
-                    setChannelName ( channel, data.getName () );
+                    setChannelNames ( channel, splitChannelNames ( data.getNames () ) );
 
                     this.channelService.accessRun ( By.id ( channel.getId () ), AspectableChannel.class, aspChannel -> {
 
@@ -289,10 +309,10 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
         return new ModelAndView ( "channel/createWithRecipe", model );
     }
 
-    protected void setChannelName ( final ChannelId id, final String name )
+    protected void setChannelNames ( final ChannelId id, final Collection<String> name )
     {
         this.channelService.accessRun ( By.id ( id.getId () ), DescriptorAdapter.class, channel -> {
-            channel.setName ( name );
+            channel.setNames ( name );
         } );
     }
 
@@ -860,8 +880,8 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
         final ChannelInformation channel = info.get ();
 
         edit.setId ( channel.getId () );
-        edit.setName ( channel.getName () );
-        edit.setDescription ( channel.getState ().getDescription () );
+        edit.setNames ( joinChannelNames ( channel.getNames () ) );
+        edit.setDescription ( channel.getDescription () );
 
         model.put ( "command", edit );
         model.put ( "breadcrumbs", new Breadcrumbs ( new Entry ( "Home", "/" ), Breadcrumbs.create ( "Channel", ChannelController.class, "view", "channelId", channelId ), new Entry ( "Edit" ) ) );
@@ -875,14 +895,9 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     {
         if ( !result.hasErrors () )
         {
-            this.channelService.accessRun ( By.id ( channelId ), ModifiableChannel.class, channel -> {
-                final ChannelDetails newDesc = new ChannelDetails ();
-                newDesc.setDescription ( data.getDescription () );
-                channel.setDescription ( newDesc );
-            } );
-
             this.channelService.accessRun ( By.id ( channelId ), DescriptorAdapter.class, channel -> {
-                channel.setName ( data.getName () );
+                channel.setNames ( splitChannelNames ( data.getNames () ) );
+                channel.setDescription ( data.getDescription () );
             } );
 
             return redirectDefaultView ( channelId, true );
@@ -1051,13 +1066,21 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @ControllerValidator ( formDataClass = CreateChannel.class )
     public void validateCreate ( final CreateChannel data, final ValidationContext ctx )
     {
-        validateChannelNameUnique ( null, data.getName (), ctx );
+        validateChannelNamesUnique ( null, splitChannelNames ( data.getNames () ), ctx );
     }
 
     @ControllerValidator ( formDataClass = EditChannel.class )
     public void validateEdit ( final EditChannel data, final ValidationContext ctx )
     {
-        validateChannelNameUnique ( data.getId (), data.getName (), ctx );
+        validateChannelNamesUnique ( data.getId (), splitChannelNames ( data.getNames () ), ctx );
+    }
+
+    private void validateChannelNamesUnique ( final String id, final Iterable<String> names, final ValidationContext ctx )
+    {
+        for ( final String name : names )
+        {
+            validateChannelNameUnique ( id, name, ctx );
+        }
     }
 
     private void validateChannelNameUnique ( final String id, final String name, final ValidationContext ctx )
@@ -1068,10 +1091,20 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
         }
 
         final ChannelInformation other = this.channelService.getState ( By.name ( name ) ).orElse ( null );
-        if ( id != null && other != null && !other.getId ().equals ( id ) )
+
+        if ( other == null )
         {
-            ctx.error ( "name", String.format ( "The channel name '%s' is already in use by channel '%s'", name, other.getId () ) );
+            // no one else has this name right now
+            return;
         }
+
+        if ( id != null && other.getId ().equals ( id ) )
+        {
+            // name was found, but it belongs to ourself -> rename
+            return;
+        }
+
+        ctx.error ( "name", String.format ( "The channel name '%s' is already in use by channel '%s'", name, other.getId () ) );
     }
 
     @RequestMapping ( value = "/channel/{channelId}/artifact/{artifactId}/attach", method = RequestMethod.GET )

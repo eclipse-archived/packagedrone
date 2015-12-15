@@ -10,20 +10,18 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.impl;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
+import org.eclipse.packagedrone.repo.channel.impl.model.ChannelConfiguration;
 
 public interface ChannelServiceAccess
 {
     public String mapToId ( String name );
-
-    public String mapToName ( String id );
-
-    public Map<String, String> getNameMap ();
 
     public List<DeployGroup> getDeployGroups ();
 
@@ -37,4 +35,10 @@ public interface ChannelServiceAccess
      * @return the channel to deploy group map
      */
     public Map<String, Set<String>> getDeployGroupMap ();
+
+    public Map<String, ChannelConfiguration> getChannels ();
+
+    public Collection<String> getNameMappings ( final String channelId );
+
+    public String getDescription ( String channelId );
 }

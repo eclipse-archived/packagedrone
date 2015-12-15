@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -373,47 +374,51 @@ public class StorageManager
             this.modelLock.writeLock ().unlock ();
         }
 
-        if ( entry != null )
+        if ( entry == null )
+        {
+            // nothing to do
+            return;
+        }
+
+        // get the write lock so we don't stop the model while it is active
+
+        entry.lock.writeLock ().lock ();
+        try
         {
             entry.storageProvider.stop ();
+        }
+        finally
+        {
+            entry.lock.writeLock ().unlock ();
         }
     }
 
     public <T, M> T accessCall ( final MetaKey modelKey, final Class<M> modelClazz, final Function<M, T> function )
     {
-        return doWithModel ( modelKey, entry -> {
+        return doWithModel ( modelKey, entry -> entry.lock.readLock (), entry -> {
 
             return doWithState ( entry, LockType.READ, ( state ) -> {
 
-                entry.lock.readLock ().lock ();
-                try
+                final State same = state.sameKeyParent;
+
+                final Object viewModel;
+                if ( same != null && same.writeModel != null )
                 {
-                    final State same = state.sameKeyParent;
-
-                    final Object viewModel;
-                    if ( same != null && same.writeModel != null )
-                    {
-                        viewModel = entry.storageProvider.makeViewModel ( same.writeModel );
-                    }
-                    else
-                    {
-                        viewModel = entry.storageProvider.getViewModel ();
-                    }
-
-                    if ( viewModel == null || modelClazz.isAssignableFrom ( viewModel.getClass () ) )
-                    {
-                        return function.apply ( modelClazz.cast ( viewModel ) );
-                    }
-                    else
-                    {
-                        throw new IllegalStateException ( String.format ( "View model of '%s' is not of type '%s'", modelKey, modelClazz.getName () ) );
-                    }
+                    viewModel = entry.storageProvider.makeViewModel ( same.writeModel );
                 }
-                finally
+                else
                 {
-                    entry.lock.readLock ().unlock ();
+                    viewModel = entry.storageProvider.getViewModel ();
                 }
 
+                if ( viewModel == null || modelClazz.isAssignableFrom ( viewModel.getClass () ) )
+                {
+                    return function.apply ( modelClazz.cast ( viewModel ) );
+                }
+                else
+                {
+                    throw new IllegalStateException ( String.format ( "View model of '%s' is not of type '%s'", modelKey, modelClazz.getName () ) );
+                }
             } );
         } );
 
@@ -421,19 +426,12 @@ public class StorageManager
 
     public <T, M> T modifyCall ( final MetaKey modelKey, final Class<M> modelClazz, final Function<M, T> function )
     {
-        return doWithModel ( modelKey, entry -> {
+        return doWithModel ( modelKey, entry -> entry.lock.writeLock (), entry -> {
 
             return doWithState ( entry, LockType.WRITE, ( state ) -> {
 
-                entry.lock.writeLock ().lock ();
-                try
-                {
-                    return performOperation ( entry, modelClazz, function );
-                }
-                finally
-                {
-                    entry.lock.writeLock ().unlock ();
-                }
+                return performOperation ( entry, modelClazz, function );
+
             } );
         } );
     }
@@ -493,26 +491,44 @@ public class StorageManager
         throw new IllegalStateException ( String.format ( "Model of '%s' is not of type '%s'", entry.key, clazz.getName () ) );
     }
 
-    protected <T> T doWithModel ( final MetaKey modelKey, final Function<Entry, T> function )
+    protected <T> T doWithModel ( final MetaKey modelKey, final Function<Entry, Lock> lockSupplier, final Function<Entry, T> function )
     {
-        this.modelLock.readLock ().lock ();
+        final Lock modelWithModel = this.modelLock.readLock ();
+        final Lock lock;
+
+        final Entry entry;
+
+        modelWithModel.lock ();
 
         try
         {
             testClosed ();
 
-            final Entry entry = this.modelKeyMap.get ( modelKey );
+            entry = this.modelKeyMap.get ( modelKey );
 
             if ( entry == null )
             {
+                // the model lock will be releases in the finally
                 throw new IllegalArgumentException ( String.format ( "Model '%s' could not be found", modelKey ) );
             }
 
-            return function.apply ( entry );
+            lock = lockSupplier.apply ( entry );
+            lock.lock ();
         }
         finally
         {
             this.modelLock.readLock ().unlock ();
+        }
+
+        // we do have the entry lock and released the model lock
+
+        try
+        {
+            return function.apply ( entry );
+        }
+        finally
+        {
+            lock.unlock ();
         }
     }
 

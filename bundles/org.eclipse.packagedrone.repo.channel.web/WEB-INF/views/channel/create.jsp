@@ -15,8 +15,8 @@
 		
 			<form:form action="" method="POST" cssClass="form-horizontal">
 			    
-			    <h:formEntry label="Name" command="command" path="name">
-			        <form:input path="name" cssClass="form-control" placeholder="Optional channel alias"/>
+			    <h:formEntry label="Names" command="command" path="names">
+			    	<form:textarea path="names" cssClass="form-control" rows="5" placeholder="Optional channel alias names"/>
 			    </h:formEntry>
 			    
                 <h:formEntry label="Description" command="command" path="description">

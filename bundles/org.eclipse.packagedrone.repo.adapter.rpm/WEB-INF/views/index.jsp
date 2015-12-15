@@ -35,7 +35,7 @@ footer {
 <body>
     <header>
         <h1>YUM repository adapter</h1>    
-        <c:if test="${ not empty channel.state.description}">${fn:escapeXml(channel.state.description) }</c:if>
+        <c:if test="${ not empty channel.description}">${fn:escapeXml(channel.description) }</c:if>
     </header>
     
     <section>

@@ -18,8 +18,8 @@ import org.eclipse.packagedrone.job.JobInstance;
 import org.eclipse.packagedrone.job.JobInstance.Context;
 import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
-import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.utils.profiler.Profile;
 import org.eclipse.packagedrone.utils.profiler.Profile.Handle;
 import org.eclipse.packagedrone.web.LinkTarget;
@@ -69,7 +69,7 @@ public class UpgradeAllChannelsJob implements JobFactory
 
             for ( final ChannelInformation channelInformation : channels )
             {
-                ctx.setCurrentTaskName ( String.format ( "Processing %s", channelInformation.getNameOrId () ) );
+                ctx.setCurrentTaskName ( String.format ( "Processing %s", channelInformation.getId () ) );
 
                 this.service.accessRun ( By.id ( channelInformation.getId () ), ModifiableChannel.class, channel -> {
                     channel.getContext ().refreshAspects ( null );

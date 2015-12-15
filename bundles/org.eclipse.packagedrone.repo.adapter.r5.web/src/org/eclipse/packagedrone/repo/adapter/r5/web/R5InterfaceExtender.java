@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.r5.web;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,22 +32,17 @@ public class R5InterfaceExtender extends AbstractChannelInterfaceExtender
             return null;
         }
 
-        final Map<String, String> model = new HashMap<> ();
-        model.put ( "channelId", channel.getId () );
-        if ( channel.getName () != null && !channel.getName ().isEmpty () )
-        {
-            model.put ( "channelAlias", channel.getName () );
-        }
-
         final List<MenuEntry> result = new LinkedList<> ();
 
-        result.add ( new MenuEntry ( "R5 (by ID)", 10_000, new LinkTarget ( "/r5/{channelId}" ).expand ( model ), Modifier.LINK, null ) );
-        result.add ( new MenuEntry ( "OBR (by ID)", 10_000, new LinkTarget ( "/obr/{channelId}" ).expand ( model ), Modifier.LINK, null ) );
+        result.add ( new MenuEntry ( "R5/OBR", 10_000, "R5 (by ID)", 10_000, new LinkTarget ( "/r5/" + escapePathSegment ( channel.getId () ) ), Modifier.LINK, null ) );
+        result.add ( new MenuEntry ( "R5/OBR", 10_000, "OBR (by ID)", 11_000, new LinkTarget ( "/obr/" + escapePathSegment ( channel.getId () ) ), Modifier.LINK, null ) );
 
-        if ( model.containsKey ( "channelAlias" ) )
+        int i = 1;
+        for ( final String name : channel.getNames () )
         {
-            result.add ( new MenuEntry ( "R5 (by name)", 10_000, new LinkTarget ( "/r5/{channelAlias}" ).expand ( model ), Modifier.LINK, null ) );
-            result.add ( new MenuEntry ( "OBR (by name)", 10_000, new LinkTarget ( "/obr/{channelAlias}" ).expand ( model ), Modifier.LINK, null ) );
+            result.add ( new MenuEntry ( "R5/OBR", 10_000, String.format ( "R5 (name: %s)", name ), 10_000 + 1, new LinkTarget ( "/r5/" + escapePathSegment ( name ) ), Modifier.LINK, null ) );
+            result.add ( new MenuEntry ( "R5/OBR", 10_000, String.format ( "OBR (name: %s)", name ), 11_000 + 1, new LinkTarget ( "/obr/" + escapePathSegment ( name ) ), Modifier.LINK, null ) );
+            i++;
         }
 
         return result;

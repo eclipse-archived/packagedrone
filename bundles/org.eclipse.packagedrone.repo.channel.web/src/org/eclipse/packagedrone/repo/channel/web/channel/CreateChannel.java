@@ -12,7 +12,7 @@ package org.eclipse.packagedrone.repo.channel.web.channel;
 
 public class CreateChannel
 {
-    private String name;
+    private String names;
 
     private String description;
 
@@ -26,13 +26,13 @@ public class CreateChannel
         return this.description;
     }
 
-    public void setName ( final String name )
+    public void setNames ( final String names )
     {
-        this.name = name;
+        this.names = names;
     }
 
-    public String getName ()
+    public String getNames ()
     {
-        return this.name;
+        return this.names;
     }
 }

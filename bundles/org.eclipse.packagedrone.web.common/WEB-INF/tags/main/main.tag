@@ -1,4 +1,4 @@
-<%@ tag language="java" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ tag language="java" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 
 <%@ tag import="org.eclipse.packagedrone.web.common.Activator"%>
 <%@ tag import="org.eclipse.packagedrone.sec.UserInformationPrincipal"%>
@@ -12,6 +12,7 @@
 
 <%@ attribute name="title" required="true" %>
 <%@ attribute name="subtitle" %>
+<%@ attribute name="subtitleHtml" %>
 
 <%@ attribute name="head" fragment="true" %>
 <%@ attribute name="body" fragment="true" %>
@@ -30,7 +31,7 @@ if ( p instanceof UserInformationPrincipal )
 <c:set var="fontAwesome" value="${pageContext.request.contextPath}/resources/font-awesome/4.2.0"/>
 
 <head>
-    <title>${fn:escapeXml(title) } | <c:if test="${not empty subtitle }">${fn:escapeXml(subtitle) }${' '}|${' '}</c:if>Package Drone</title>
+    <title>${fn:escapeXml(title) } | <c:if test="${not empty subtitle}">${fn:escapeXml(subtitle) }${' '}|${' '}</c:if>Package Drone</title>
     
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -120,7 +121,12 @@ if ( p instanceof UserInformationPrincipal )
     <div class="container-fluid">
 	    <div class="row">
 	        <div class="col-md-12">
-	            <h1>${fn:escapeXml(title) }<c:if test="${not empty subtitle }">&nbsp;<small>${fn:escapeXml(subtitle) }</small></c:if></h1>
+	            <h1>${fn:escapeXml(title) }
+		            <c:choose>
+		            	<c:when test="${not empty subtitleHtml }">&nbsp;<small>${subtitleHtml }</small></c:when>
+		            	<c:when test="${not empty subtitle }">&nbsp;<small>${fn:escapeXml(subtitle) }</small></c:when>
+		            </c:choose>
+	            </h1>
 	        </div>
 	    </div>
     </div>

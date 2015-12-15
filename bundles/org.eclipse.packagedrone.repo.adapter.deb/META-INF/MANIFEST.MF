@@ -5,7 +5,9 @@ Bundle-SymbolicName: org.eclipse.packagedrone.repo.adapter.deb
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Jens Reimann
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.google.common.hash;version="18.0.0",
+Import-Package: com.google.common.escape;version="18.0.0",
+ com.google.common.hash;version="18.0.0",
+ com.google.common.html;version="18.0.0",
  com.google.common.io;version="18.0.0",
  com.google.gson;version="2.3.1",
  javax.servlet;version="3.1.0",

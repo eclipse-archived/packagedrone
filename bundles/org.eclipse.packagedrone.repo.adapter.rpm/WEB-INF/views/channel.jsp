@@ -8,7 +8,7 @@
 <html>
 
 <head>
-    <title>YUM repository | ${fn:escapeXml(channel.getNameOrId()) }</title>
+    <title>YUM repository | ${fn:escapeXml(channel.makeTitle()) }</title>
     
         <style type="text/css">
 body {
@@ -33,9 +33,9 @@ footer {
 
 <body>
     <header>
-        <h1>YUM repository – ${fn:escapeXml(channel.getNameOrId()) }</h1>
+        <h1>YUM repository – ${fn:escapeXml(channel.makeTitle()) }</h1>
         <h2>Channel: ${channel.id }</h2>    
-        <c:if test="${ not empty channel.state.description}">${fn:escapeXml(channel.state.description) }</c:if>
+        <c:if test="${ not empty channel.description}">${fn:escapeXml(channel.description) }</c:if>
     </header>
     
     <section>

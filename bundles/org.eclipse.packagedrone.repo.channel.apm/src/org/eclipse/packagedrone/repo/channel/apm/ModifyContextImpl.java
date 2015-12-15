@@ -34,10 +34,8 @@ import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation.Manipulator;
 import org.eclipse.packagedrone.repo.channel.CacheEntry;
 import org.eclipse.packagedrone.repo.channel.CacheEntryInformation;
-import org.eclipse.packagedrone.repo.channel.ChannelDetails;
 import org.eclipse.packagedrone.repo.channel.ChannelState;
 import org.eclipse.packagedrone.repo.channel.ChannelState.Builder;
-import org.eclipse.packagedrone.repo.channel.IdTransformer;
 import org.eclipse.packagedrone.repo.channel.ValidationMessage;
 import org.eclipse.packagedrone.repo.channel.apm.aspect.AspectContextImpl;
 import org.eclipse.packagedrone.repo.channel.apm.aspect.AspectableContext;
@@ -56,7 +54,7 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 {
     private static final String FACET_GENERATOR = "generator";
 
-    private final String localChannelId;
+    private final String channelId;
 
     private final EventAdmin eventAdmin;
 
@@ -98,8 +96,6 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
     private SortedMap<MetaKey, String> metaDataCache;
 
-    private IdTransformer idTransformer;
-
     /**
      * Create a new empty modification context
      *
@@ -112,9 +108,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
      * @param cacheStore
      *            the cache store
      */
-    public ModifyContextImpl ( final String localChannelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore )
+    public ModifyContextImpl ( final String channelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore )
     {
-        this.localChannelId = localChannelId;
+        this.channelId = channelId;
 
         this.eventAdmin = eventAdmin;
         this.store = store;
@@ -145,9 +141,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         this.aspectContext = new AspectContextImpl ( this, Activator.getProcessor () );
     }
 
-    public ModifyContextImpl ( final String localChannelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore, final ChannelState state, final Map<String, String> aspectStates, final Map<String, ArtifactInformation> artifacts, final Map<MetaKey, CacheEntryInformation> cacheEntries, final Map<MetaKey, String> extractedMetaData, final Map<MetaKey, String> providedMetaData )
+    public ModifyContextImpl ( final String channelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore, final ChannelState state, final Map<String, String> aspectStates, final Map<String, ArtifactInformation> artifacts, final Map<MetaKey, CacheEntryInformation> cacheEntries, final Map<MetaKey, String> extractedMetaData, final Map<MetaKey, String> providedMetaData )
     {
-        this.localChannelId = localChannelId;
+        this.channelId = channelId;
 
         this.eventAdmin = eventAdmin;
         this.store = store;
@@ -180,7 +176,7 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
     public ModifyContextImpl ( final ModifyContextImpl other )
     {
-        this.localChannelId = other.localChannelId;
+        this.channelId = other.channelId;
 
         this.eventAdmin = other.eventAdmin;
         this.store = other.store;
@@ -211,26 +207,16 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         this.aspectContext = new AspectContextImpl ( this, Activator.getProcessor () );
     }
 
-    public void setIdTransformer ( final IdTransformer idTransformer )
+    @Override
+    public String getChannelId ()
     {
-        this.idTransformer = idTransformer;
+        return this.channelId;
     }
 
     @Override
     public ChannelState getState ()
     {
         return this.state.build (); // will only create a new instance when necessary
-    }
-
-    @Override
-    public String getChannelId ()
-    {
-        if ( this.idTransformer == null )
-        {
-            throw new IllegalStateException ( "'idTransformer' was not set, it is required to get the external channel id" );
-        }
-
-        return this.idTransformer.transform ( this.localChannelId );
     }
 
     @Override
@@ -264,13 +250,6 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     public Map<String, ArtifactInformation> getGeneratorArtifacts ()
     {
         return this.generatorArtifacts;
-    }
-
-    @Override
-    public void setDetails ( final ChannelDetails details )
-    {
-        this.state.setDescription ( details.getDescription () );
-        markModified ();
     }
 
     @Override
@@ -875,17 +854,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         markModified ();
     }
 
-    @Override
-    public ChannelDetails getChannelDetails ()
-    {
-        final ChannelDetails result = new ChannelDetails ();
-        result.setDescription ( this.state.build ().getDescription () );
-        return result;
-    }
-
     protected void postAspectEvents ( final Set<String> aspectIds, final String operation )
     {
-        final String channelId = getChannelId ();
+        final String channelId = this.channelId;
         StorageManager.executeAfterPersist ( () -> {
             for ( final String aspectFactoryId : aspectIds )
             {

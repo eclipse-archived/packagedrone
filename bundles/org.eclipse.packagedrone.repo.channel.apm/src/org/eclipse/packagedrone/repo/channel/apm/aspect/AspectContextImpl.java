@@ -158,7 +158,7 @@ public class AspectContextImpl
 
                 logger.trace ( "\tRunning aggregator: {}", aspect.getId () );
 
-                final AggregationContext ctx = new AggregationContextImpl ( this.context, aspect.getId (), this.context.getChannelId (), this.context::getChannelDetails, messages::add );
+                final AggregationContext ctx = new AggregationContextImpl ( this.context, aspect.getId (), this.context.getChannelId (), messages::add );
 
                 final Map<String, String> result = Exceptions.wrapException ( () -> aggregator.aggregateMetaData ( ctx ) );
 

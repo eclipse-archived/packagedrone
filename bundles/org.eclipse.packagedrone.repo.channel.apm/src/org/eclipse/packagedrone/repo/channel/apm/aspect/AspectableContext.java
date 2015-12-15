@@ -21,12 +21,13 @@ import java.util.SortedMap;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
-import org.eclipse.packagedrone.repo.channel.ChannelDetails;
 import org.eclipse.packagedrone.repo.channel.ValidationMessage;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 public interface AspectableContext
 {
+    public String getChannelId ();
+
     public SortedMap<String, String> getModifiableAspectStates ();
 
     public ArtifactInformation createPlainArtifact ( String parentArtifactId, InputStream source, String name, Map<MetaKey, String> providedMetaData, Set<String> facets, String virtualizerAspectId );
@@ -52,23 +53,4 @@ public interface AspectableContext
     public Map<MetaKey, String> getChannelProvidedMetaData ();
 
     public void createCacheEntry ( MetaKey metaKey, String name, String mimeType, IOConsumer<OutputStream> creator ) throws IOException;
-
-    /**
-     * Get the external channel id
-     *
-     * @return the external channel id
-     */
-    public String getChannelId ();
-
-    /**
-     * Get the channel details
-     * <p>
-     * <em>Note: </em> Although this is a bean with setter, the caller actually
-     * gets a copy which does not get persisted.
-     * </p>
-     *
-     * @return a fresh copy of the channel details
-     */
-    public ChannelDetails getChannelDetails ();
-
 }

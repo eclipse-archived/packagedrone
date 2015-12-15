@@ -45,7 +45,7 @@ public class ChannelTester
         return this.id;
     }
 
-    public static ChannelTester create ( final WebContext context, final String name )
+    public static ChannelTester create ( final WebContext context, final String... names )
     {
         // get before list of channels
 
@@ -54,8 +54,11 @@ public class ChannelTester
         // create channel
 
         context.getDriver ().get ( context.resolve ( "/channel/createWithRecipe" ) );
-        final WebElement element = context.findElement ( By.id ( "name" ) );
-        element.sendKeys ( name );
+        final WebElement element = context.findElement ( By.id ( "names" ) );
+        for ( final String name : names )
+        {
+            element.sendKeys ( name, "\n" );
+        }
         element.submit ();
 
         // get after list of channels
@@ -65,12 +68,12 @@ public class ChannelTester
 
         if ( after.isEmpty () )
         {
-            throw new RuntimeException ( String.format ( "Channel '%s' did not get created", name ) );
+            throw new RuntimeException ( "Channel did not get created" );
         }
 
         if ( after.size () > 1 )
         {
-            throw new RuntimeException ( String.format ( "More than one channel was created when adding channel '%s'", name ) );
+            throw new RuntimeException ( "More than one channel was created when adding channel" );
         }
 
         // return new channel

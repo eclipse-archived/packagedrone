@@ -17,25 +17,18 @@ import java.util.List;
 
 import org.eclipse.packagedrone.repo.Severity;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
-import org.eclipse.packagedrone.repo.channel.ChannelId;
+import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 
 public class Functions
 {
-    public static String channel ( final ChannelId channel )
+    public static String channel ( final ChannelInformation channel )
     {
         if ( channel == null )
         {
             return null;
         }
 
-        if ( channel.getName () == null )
-        {
-            return channel.getId ();
-        }
-        else
-        {
-            return String.format ( "%s (%s)", channel.getName (), channel.getId () );
-        }
+        return channel.makeTitle ();
     }
 
     public static List<ArtifactInformation> nameSorted ( final Collection<ArtifactInformation> artifacts )

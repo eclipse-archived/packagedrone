@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,24 +8,14 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.channel.provider;
-
-import java.util.Map;
+package org.eclipse.packagedrone.repo.channel.impl;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.packagedrone.repo.MetaKey;
+import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider;
 
-public interface ChannelProvider
+public interface ProviderListener
 {
-    public void create ( @NonNull String channelId, @NonNull Map<MetaKey, String> configuration );
+    public void bind ( @NonNull ChannelProvider provider );
 
-    public Channel load ( @NonNull String channelId );
-
-    public ProviderInformation getInformation ();
-
-    public default String getId ()
-    {
-        return getInformation ().getId ();
-    }
-
+    public void unbind ();
 }

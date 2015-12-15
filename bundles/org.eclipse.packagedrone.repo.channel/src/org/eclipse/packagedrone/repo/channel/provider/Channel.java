@@ -10,33 +10,44 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.provider;
 
-import org.eclipse.packagedrone.repo.channel.IdTransformer;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperation;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperationVoid;
 
 public interface Channel
 {
-    public String getId ();
+    public <T> T accessCall ( ChannelOperation<T, AccessContext> operation );
 
-    public <T> T accessCall ( ChannelOperation<T, AccessContext> operation, IdTransformer idTransformer );
+    public <T> T modifyCall ( ChannelOperation<T, ModifyContext> operation );
 
-    public <T> T modifyCall ( ChannelOperation<T, ModifyContext> operation, IdTransformer idTransformer );
-
-    public default void accessRun ( final ChannelOperationVoid<AccessContext> operation, final IdTransformer idTransformer )
+    public default void accessRun ( final ChannelOperationVoid<AccessContext> operation )
     {
         accessCall ( channel -> {
             operation.process ( channel );
             return null;
-        } , idTransformer );
+        } );
     }
 
-    public default void modifyRun ( final ChannelOperationVoid<ModifyContext> operation, final IdTransformer idTransformer )
+    public default void modifyRun ( final ChannelOperationVoid<ModifyContext> operation )
     {
         modifyCall ( channel -> {
             operation.process ( channel );
             return null;
-        } , idTransformer );
+        } );
     }
 
+    /**
+     * Delete the channel on the persistent storage
+     * <p>
+     * This method implicitly calls {@link #dispose()}
+     * </p>
+     */
     public void delete ();
+
+    /**
+     * Close all resources associated with the channel
+     * <p>
+     * Further calls to access and modify methods will fail
+     * </p>
+     */
+    public void dispose ();
 }

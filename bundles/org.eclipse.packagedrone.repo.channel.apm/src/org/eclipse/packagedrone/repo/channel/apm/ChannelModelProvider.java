@@ -60,7 +60,6 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
         super ( AccessContext.class, ModifyContextImpl.class );
 
         this.eventAdmin = eventAdmin;
-
         this.channelId = channelId;
     }
 

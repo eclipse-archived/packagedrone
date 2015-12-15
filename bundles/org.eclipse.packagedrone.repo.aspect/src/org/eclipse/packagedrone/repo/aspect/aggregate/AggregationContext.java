@@ -29,12 +29,10 @@ public interface AggregationContext extends AggregationValidationContext
 
     /**
      * Get the external channel id
-     * 
+     *
      * @return the external channel id
      */
     public String getChannelId ();
-
-    public String getChannelDescription ();
 
     /**
      * Get the provided channel meta data

@@ -17,12 +17,17 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
+import org.eclipse.packagedrone.repo.channel.impl.model.ChannelConfiguration;
 
 public class ChannelServiceModel
 {
-    private final Map<String, String> nameMap;
+    // FIXME: need to support old format
+
+    private final Map<String, List<String>> nameMap;
 
     private final List<DeployGroup> deployGroups;
+
+    private final Map<String, ChannelConfiguration> channels;
 
     /**
      * Map of channel ids to deploy groups
@@ -34,6 +39,7 @@ public class ChannelServiceModel
         this.nameMap = new HashMap<> ();
         this.deployGroups = new CopyOnWriteArrayList<> ();
         this.deployGroupMap = new HashMap<> ();
+        this.channels = new HashMap<> ();
     }
 
     public ChannelServiceModel ( final ChannelServiceModel other )
@@ -41,9 +47,10 @@ public class ChannelServiceModel
         this.nameMap = new HashMap<> ( other.nameMap );
         this.deployGroups = new CopyOnWriteArrayList<> ( other.deployGroups );
         this.deployGroupMap = new HashMap<> ( other.deployGroupMap );
+        this.channels = new HashMap<> ( other.channels );
     }
 
-    public Map<String, String> getNameMap ()
+    public Map<String, List<String>> getNameMap ()
     {
         return this.nameMap;
     }
@@ -56,5 +63,10 @@ public class ChannelServiceModel
     public Map<String, Set<String>> getDeployGroupMap ()
     {
         return this.deployGroupMap;
+    }
+
+    public Map<String, ChannelConfiguration> getChannels ()
+    {
+        return this.channels;
     }
 }

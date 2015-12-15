@@ -18,8 +18,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ChannelState implements Validated
 {
-    private String description;
-
     private long numberOfArtifacts;
 
     private long numberOfBytes;
@@ -39,17 +37,11 @@ public class ChannelState implements Validated
     private ChannelState ( final ChannelState other )
     {
         this.messages = other.messages;
-        this.description = other.description;
         this.numberOfArtifacts = other.numberOfArtifacts;
         this.numberOfBytes = other.numberOfBytes;
         this.locked = other.locked;
         this.creationTimestamp = other.creationTimestamp;
         this.modificationTimestamp = other.modificationTimestamp;
-    }
-
-    public String getDescription ()
-    {
-        return this.description;
     }
 
     public long getNumberOfArtifacts ()
@@ -108,16 +100,6 @@ public class ChannelState implements Validated
             }
         }
 
-        public Builder ( final ChannelState other, final ChannelDetails details )
-        {
-            this ( other );
-
-            if ( details != null )
-            {
-                this.value.description = details.getDescription ();
-            }
-        }
-
         public void setCreationTimestamp ( final Instant creationTimestamp )
         {
             checkFork ();
@@ -128,12 +110,6 @@ public class ChannelState implements Validated
         {
             checkFork ();
             this.value.modificationTimestamp = modificationTimestamp;
-        }
-
-        public void setDescription ( final String description )
-        {
-            checkFork ();
-            this.value.description = description;
         }
 
         public void setNumberOfArtifacts ( final long numberOfArtifacts )

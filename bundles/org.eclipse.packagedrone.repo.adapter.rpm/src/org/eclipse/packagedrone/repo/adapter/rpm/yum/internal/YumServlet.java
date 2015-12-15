@@ -177,8 +177,8 @@ public class YumServlet extends AbstractChannelServiceServlet
 
         try ( final PrintWriter pw = response.getWriter () )
         {
-            pw.append ( '[' ).append ( channel.getId ().getNameOrId () ).append ( "]\n" );
-            final String name = makeName ( channel.getInformation ().getState ().getDescription () );
+            pw.append ( '[' ).append ( channel.getId ().getId () ).append ( "]\n" );
+            final String name = makeName ( channel.getId ().getDescription () );
             if ( name != null )
             {
                 pw.append ( "name=" ).append ( name ).append ( "\n" );

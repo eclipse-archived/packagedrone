@@ -11,13 +11,18 @@
 package org.eclipse.packagedrone.repo.channel.impl;
 
 import static java.util.stream.Collectors.toSet;
+import static org.eclipse.packagedrone.repo.channel.ChannelService.NAME_PATTERN;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -26,97 +31,165 @@ import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
+import org.eclipse.packagedrone.repo.channel.impl.model.ChannelConfiguration;
 import org.eclipse.packagedrone.repo.utils.Tokens;
 import org.eclipse.packagedrone.utils.Holder;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 
 public class ChannelServiceModify implements ChannelServiceAccess
 {
     private final ChannelServiceModel model;
 
-    private final BiMap<String, String> map;
+    private final Multimap<String, String> idToNameMap;
 
-    private final Map<String, String> unmodMap;
+    private final Map<String, String> nameToIdMap;
 
+    /**
+     * A map holding the deploy groups
+     */
     private final Map<String, DeployGroup> deployGroups;
 
+    /**
+     * A map holding the deploy keys
+     */
     private final Map<String, DeployKey> deployKeys;
+
+    /**
+     * A map holding the channel configuration information
+     */
+    private final Map<String, ChannelConfiguration> channels;
 
     public ChannelServiceModify ( final ChannelServiceModel model )
     {
         this.model = new ChannelServiceModel ( model );
-        this.map = HashBiMap.create ( model.getNameMap () );
-        this.unmodMap = Collections.unmodifiableMap ( this.map );
+
+        this.nameToIdMap = new HashMap<> ();
+
+        this.idToNameMap = LinkedHashMultimap.create ();
+        for ( final Map.Entry<String, List<String>> entry : model.getNameMap ().entrySet () )
+        {
+            this.idToNameMap.putAll ( entry.getKey (), entry.getValue () );
+            entry.getValue ().stream ().forEach ( name -> this.nameToIdMap.put ( name, entry.getKey () ) );
+        }
 
         this.deployGroups = model.getDeployGroups ().stream ().collect ( Collectors.toMap ( DeployGroup::getId, i -> i ) );
         this.deployKeys = model.getDeployGroups ().stream ().flatMap ( group -> group.getKeys ().stream () ).collect ( Collectors.toMap ( DeployKey::getId, i -> i ) );
+
+        this.channels = new HashMap<> ( model.getChannels ().size () );
+        for ( final Map.Entry<String, ChannelConfiguration> entry : model.getChannels ().entrySet () )
+        {
+            this.channels.put ( entry.getKey (), new ChannelConfiguration ( entry.getValue () ) );
+        }
     }
 
     public ChannelServiceModify ( final ChannelServiceModify other )
     {
         this ( other.model );
-    }
 
-    @Override
-    public Map<String, String> getNameMap ()
-    {
-        return this.unmodMap;
+        // FIXME: improve speed
     }
 
     @Override
     public String mapToId ( final String name )
     {
-        return this.map.inverse ().get ( name );
+        return this.nameToIdMap.get ( name );
     }
 
-    @Override
-    public String mapToName ( final String id )
-    {
-        return this.map.get ( id );
-    }
-
-    public void putMapping ( final String id, final String name )
+    public void putMapping ( final String channelId, final String name )
     {
         if ( name == null || name.isEmpty () )
         {
-            this.model.getNameMap ().remove ( id );
-            this.map.remove ( id );
             return;
         }
 
-        final String oldId = this.map.inverse ().get ( name );
-        if ( oldId != null )
+        channelExists ( channelId );
+        checkChannelName ( name );
+
+        if ( this.nameToIdMap.containsKey ( name ) )
         {
-            if ( oldId.equals ( id ) )
-            {
-                // no change
-                return;
-            }
             throw new IllegalStateException ( String.format ( "There already is a channel with the name '%s'", name ) );
         }
 
-        // put mapping
+        this.nameToIdMap.put ( name, channelId );
+        this.idToNameMap.put ( channelId, name );
 
-        this.model.getNameMap ().put ( id, name );
-        this.map.put ( id, name );
+        this.model.getNameMap ().put ( channelId, new ArrayList<> ( this.idToNameMap.get ( channelId ) ) );
+    }
+
+    private void channelExists ( final String channelId )
+    {
+        if ( !this.channels.containsKey ( channelId ) )
+        {
+            throw new IllegalArgumentException ( String.format ( "Channel '%s' does not exists", channelId ) );
+        }
+    }
+
+    /**
+     * Check if the name is a valid channel name
+     *
+     * @param name
+     *            the name to check
+     * @throws IllegalArgumentException
+     *             if the name is not a valid channel name
+     */
+    private static void checkChannelName ( final String name )
+    {
+        if ( !NAME_PATTERN.matcher ( name ).matches () )
+        {
+            throw new IllegalArgumentException ( String.format ( "Channel name must match pattern: %s", NAME_PATTERN.pattern () ) );
+        }
     }
 
     public String deleteMapping ( final String channelId, final String name )
     {
-        this.map.remove ( channelId, name );
-        return this.model.getNameMap ().remove ( channelId, name ) ? channelId : null;
+        if ( !this.idToNameMap.containsEntry ( channelId, name ) )
+        {
+            return null;
+        }
+
+        this.nameToIdMap.remove ( name );
+        this.idToNameMap.remove ( channelId, name );
+
+        final Collection<String> names = this.model.getNameMap ().get ( channelId );
+        if ( names != null )
+        {
+            names.remove ( name );
+        }
+
+        return channelId;
+    }
+
+    public void createChannel ( final String channelId, final ChannelConfiguration cfg )
+    {
+        this.channels.put ( channelId, cfg );
+        this.model.getChannels ().put ( channelId, cfg );
     }
 
     public void deleteChannel ( final String channelId )
     {
         // delete channel name mapping
-        this.map.remove ( channelId );
-        this.model.getNameMap ().remove ( channelId );
+
+        clearChannelNameMappings ( channelId );
+
+        // remove channel
+
+        this.model.getChannels ().remove ( channelId );
+        this.channels.remove ( channelId );
 
         // delete channel group mapping
         this.model.getDeployGroupMap ().remove ( channelId );
+    }
+
+    private void clearChannelNameMappings ( final String channelId )
+    {
+        final Collection<String> names = this.idToNameMap.removeAll ( channelId );
+        if ( names != null )
+        {
+            names.forEach ( this.nameToIdMap::remove );
+        }
+        this.model.getNameMap ().remove ( channelId );
     }
 
     ChannelServiceModel getModel ()
@@ -326,13 +399,59 @@ public class ChannelServiceModify implements ChannelServiceAccess
         }
     }
 
+    public void setNameMappings ( final String channelId, final Collection<String> names )
+    {
+        Objects.requireNonNull ( channelId );
+        Objects.requireNonNull ( names );
+
+        clearChannelNameMappings ( channelId );
+
+        for ( final String name : names )
+        {
+            putMapping ( channelId, name );
+        }
+    }
+
+    @Override
+    public Collection<String> getNameMappings ( final String channelId )
+    {
+        return this.idToNameMap.get ( channelId );
+    }
+
     /**
      * Clear all mappings
      */
-    public void clear ()
+    public void clearNameMappings ()
     {
         this.model.getNameMap ().clear ();
-        this.map.clear ();
+        this.idToNameMap.clear ();
+        this.nameToIdMap.clear ();
     }
 
+    @Override
+    public Map<String, ChannelConfiguration> getChannels ()
+    {
+        return Collections.unmodifiableMap ( this.channels );
+    }
+
+    public void setDescription ( final String channelId, final String description )
+    {
+        channelExists ( channelId );
+
+        final ChannelConfiguration entry = this.model.getChannels ().get ( channelId );
+        entry.setDescription ( description );
+    }
+
+    @Override
+    public String getDescription ( final String channelId )
+    {
+        channelExists ( channelId );
+
+        final ChannelConfiguration entry = this.model.getChannels ().get ( channelId );
+        if ( entry == null )
+        {
+            return null;
+        }
+        return entry.getDescription ();
+    }
 }

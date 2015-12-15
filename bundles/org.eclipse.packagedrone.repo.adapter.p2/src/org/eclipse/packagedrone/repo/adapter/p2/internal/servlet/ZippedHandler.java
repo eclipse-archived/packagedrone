@@ -48,9 +48,9 @@ public class ZippedHandler implements Handler
         resp.setContentType ( "application/zip" );
         final ZipOutputStream zos = new ZipOutputStream ( resp.getOutputStream () );
 
-        final String channelName = this.channel.getId ().getNameOrId ();
+        final String title = this.channel.getInformation ().makeTitle ();
 
-        final ChannelStreamer streamer = new ChannelStreamer ( channelName, this.channel.getMetaData (), false, true );
+        final ChannelStreamer streamer = new ChannelStreamer ( title, this.channel.getMetaData (), false, true );
 
         for ( final ArtifactInformation a : this.channel.getContext ().getArtifacts ().values () )
         {

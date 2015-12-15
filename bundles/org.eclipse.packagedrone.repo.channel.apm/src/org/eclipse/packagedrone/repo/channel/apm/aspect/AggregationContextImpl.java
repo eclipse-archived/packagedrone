@@ -18,15 +18,13 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.Severity;
 import org.eclipse.packagedrone.repo.aspect.aggregate.AggregationContext;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
-import org.eclipse.packagedrone.repo.channel.ChannelDetails;
-import org.eclipse.packagedrone.repo.channel.ValidationMessage;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ArtifactReceiver;
+import org.eclipse.packagedrone.repo.channel.ValidationMessage;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 public class AggregationContextImpl implements AggregationContext
@@ -37,17 +35,13 @@ public class AggregationContextImpl implements AggregationContext
 
     private final String channelId;
 
-    private final Supplier<ChannelDetails> details;
-
     private final Consumer<ValidationMessage> msgHandler;
 
-    public AggregationContextImpl ( final AspectableContext ctx, final String aspectId, final String channelId, final Supplier<ChannelDetails> details, final Consumer<ValidationMessage> msgHandler )
+    public AggregationContextImpl ( final AspectableContext ctx, final String aspectId, final String channelId, final Consumer<ValidationMessage> msgHandler )
     {
         this.ctx = ctx;
         this.aspectId = aspectId;
         this.channelId = channelId;
-
-        this.details = details;
 
         this.msgHandler = msgHandler;
     }
@@ -68,12 +62,6 @@ public class AggregationContextImpl implements AggregationContext
     public String getChannelId ()
     {
         return this.channelId;
-    }
-
-    @Override
-    public String getChannelDescription ()
-    {
-        return this.details.get ().getDescription ();
     }
 
     @Override

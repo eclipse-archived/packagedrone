@@ -10,14 +10,23 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel;
 
+import java.util.Collection;
+import java.util.Set;
+
 public interface DescriptorAdapter
 {
     public ChannelId getDescriptor ();
 
-    public void setName ( String name );
+    public void setDescription ( final String description );
 
-    public default String getName ()
+    public void addName ( String name );
+
+    public void removeName ( String name );
+
+    public default Set<String> getNames ()
     {
-        return getDescriptor ().getName ();
+        return getDescriptor ().getNames ();
     }
+
+    public void setNames ( Collection<String> names );
 }

@@ -168,7 +168,7 @@ public class UpgradeTaskProvider extends DefaultTaskProvider implements EventHan
                 final ChannelInformation channel = entry.getKey ();
                 final LinkTarget target = new LinkTarget ( String.format ( "/channel/%s/refreshAllAspects", UrlEscapers.urlPathSegmentEscaper ().escape ( channel.getId () ) ) );
                 final String description = "Channel aspects active in this channel have been updated. You can refresh the whole channel.";
-                result.add ( new BasicTask ( "Refresh channel: " + makeChannelTitle ( channel ), 100, description, target, RequestMethod.GET, PERFORM_ALL_BUTTON ) );
+                result.add ( new BasicTask ( "Refresh channel: " + channel.makeTitle (), 100, description, target, RequestMethod.GET, PERFORM_ALL_BUTTON ) );
             }
 
             for ( final Map.Entry<String, Collection<ChannelInformation>> entry : missing.asMap ().entrySet () )
@@ -186,21 +186,9 @@ public class UpgradeTaskProvider extends DefaultTaskProvider implements EventHan
         }
     }
 
-    private String makeChannelTitle ( final ChannelInformation channel )
-    {
-        if ( channel.getName () != null )
-        {
-            return String.format ( "%s (%s)", channel.getName (), channel.getId () );
-        }
-        else
-        {
-            return channel.getId ();
-        }
-    }
-
     private Task makeUpgradeTask ( final ChannelInformation channel, final ChannelAspectInformation info, final String fromVersion )
     {
-        final String channelName = makeChannelTitle ( channel );
+        final String channelName = channel.makeTitle ();
 
         String factoryId;
         try

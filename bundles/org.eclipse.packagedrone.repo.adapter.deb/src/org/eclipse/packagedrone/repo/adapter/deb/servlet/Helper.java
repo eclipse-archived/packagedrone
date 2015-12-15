@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.deb.servlet;
 
+import static com.google.common.html.HtmlEscapers.htmlEscaper;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,17 +32,15 @@ import com.google.common.io.CharStreams;
 
 public class Helper
 {
-
     public static void render ( final HttpServletResponse response, final URL url, final String title, final Map<String, Object> model ) throws IOException
     {
-        @SuppressWarnings ( "resource" )
         final PrintWriter w = response.getWriter ();
         response.setContentType ( "text/html" );
         final String content = StringReplacer.replace ( loadResource ( url ), new ExtendedPropertiesReplacer ( model ), StringReplacer.DEFAULT_PATTERN, true );
 
         final Map<String, Object> m2 = new HashMap<> ( 2 );
         m2.put ( "content", content );
-        m2.put ( "title", title );
+        m2.put ( "title", htmlEscaper ().escape ( title ) );
         m2.put ( "version", VersionInformation.VERSION );
 
         final String fo = StringReplacer.replace ( loadResource ( Helper.class.getResource ( "content/base.html" ) ), new ExtendedPropertiesReplacer ( m2 ), StringReplacer.DEFAULT_PATTERN, true );

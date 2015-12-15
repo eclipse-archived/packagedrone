@@ -54,13 +54,13 @@ public class ChannelStreamer
 
     private final Set<String> checksumErrors = new HashSet<> (); // keys
 
-    public ChannelStreamer ( final String channelId, final Map<MetaKey, String> channelMetaData, final boolean writeCompressed, final boolean writePlain )
+    public ChannelStreamer ( final String title, final Map<MetaKey, String> channelMetaData, final boolean writeCompressed, final boolean writePlain )
     {
         this.now = Instant.now ();
         this.writeCompressed = writeCompressed;
         this.writePlain = writePlain;
 
-        this.title = makeTitle ( channelId, channelMetaData );
+        this.title = makeTitle ( title, channelMetaData );
 
         this.additionalProperties = new HashMap<> ();
 
@@ -85,7 +85,7 @@ public class ChannelStreamer
         }
     }
 
-    public static String makeTitle ( final String id, final Map<MetaKey, String> channelMetaData )
+    public static String makeTitle ( final String channelTitle, final Map<MetaKey, String> channelMetaData )
     {
         final String title = channelMetaData.get ( P2RepoConstants.KEY_REPO_TITLE );
         if ( title != null && !title.isEmpty () )
@@ -93,7 +93,7 @@ public class ChannelStreamer
             return title;
         }
 
-        return String.format ( "Package Drone Channel: %s", id );
+        return String.format ( "Package Drone Channel: %s", channelTitle );
     }
 
     public void stream ( final Collection<ArtifactInformation> artifacts, final ArtifactStreamer streamer )

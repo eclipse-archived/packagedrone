@@ -52,10 +52,10 @@ import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
+import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.DescriptorAdapter;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
-import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.transfer.TransferService;
 import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 import org.w3c.dom.Document;
@@ -63,6 +63,8 @@ import org.w3c.dom.Element;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class TransferServiceImpl implements TransferService
 {
@@ -217,6 +219,13 @@ public class TransferServiceImpl implements TransferService
             // read basic channel data
 
             final String name = getData ( zip, "name" );
+            final Set<String> names = parseNames ( getData ( zip, "names" ) );
+
+            if ( name != null )
+            {
+                names.add ( name );
+            }
+
             final String description = getData ( zip, "description" );
             final Map<MetaKey, String> properties = getProperties ( zip, "properties.xml" );
             final Set<String> aspects = getAspects ( zip );
@@ -225,14 +234,14 @@ public class TransferServiceImpl implements TransferService
 
             final ChannelDetails details = new ChannelDetails ();
             details.setDescription ( description );
-            final ChannelId channelId = this.channelService.create ( null, details );
+            final ChannelId channelId = this.channelService.create ( "apm", details, Collections.emptyMap () );
 
             // apply the name if required and present
 
-            if ( useChannelName && name != null )
+            if ( useChannelName && !names.isEmpty () )
             {
                 this.channelService.accessRun ( By.id ( channelId.getId () ), DescriptorAdapter.class, channel -> {
-                    channel.setName ( name );
+                    channel.setNames ( names );
                 } );
             }
 
@@ -330,8 +339,6 @@ public class TransferServiceImpl implements TransferService
      * @throws IOException
      *             if anything goes wrong reading the file
      */
-
-    @SuppressWarnings ( "resource" )
     private Map<MetaKey, String> readProperties ( final InputStream stream ) throws IOException
     {
         try
@@ -434,8 +441,8 @@ public class TransferServiceImpl implements TransferService
 
             initExportFile ( zos );
 
-            putDataEntry ( zos, "name", channelId.getName () );
-            putDataEntry ( zos, "description", channel.getInformation ().getState ().getDescription () );
+            putDataEntry ( zos, "names", makeNames ( channelId ) );
+            putDataEntry ( zos, "description", channelId.getDescription () );
             putDirEntry ( zos, "artifacts" );
             putProperties ( zos, "properties.xml", channel.getContext ().getProvidedMetaData () );
             putAspects ( zos, channel.getContext ().getAspectStates ().keySet () );
@@ -445,9 +452,34 @@ public class TransferServiceImpl implements TransferService
             putArtifacts ( zos, "artifacts/", channel, channel.getArtifacts (), true );
 
             zos.finish ();
-
         } );
 
+    }
+
+    private Set<String> parseNames ( final String data )
+    {
+        if ( data == null )
+        {
+            // we must return a modifiable list
+            return new HashSet<> ( 1 );
+        }
+
+        final Gson gson = new GsonBuilder ().create ();
+        final String[] names = gson.fromJson ( data, String[].class );
+        return new HashSet<> ( Arrays.asList ( names ) );
+    }
+
+    private String makeNames ( final ChannelId channelId )
+    {
+        final String[] names = channelId.getNames ().toArray ( new String[channelId.getNames ().size ()] );
+        if ( names.length == 0 )
+        {
+            return null;
+        }
+
+        Arrays.sort ( names );
+
+        return new GsonBuilder ().create ().toJson ( names );
     }
 
     @Override

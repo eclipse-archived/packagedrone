@@ -157,23 +157,12 @@ public class MavenRepositoryChannelAggregator implements ChannelAggregator
 
         addElement ( root, "version", "1.0.0" );
         addElement ( root, "id", context.getChannelId () );
-        addElement ( root, "name", makeName ( context ) );
+        addElement ( root, "name", context.getChannelId () );
         addElement ( root, "layout", "maven2" );
         addElement ( root, "policy", "mixed" );
         addElement ( root, "url", makeUrl ( context.getChannelId () ) );
 
         return doc;
-    }
-
-    private String makeName ( final AggregationContext context )
-    {
-        final String name = context.getChannelDescription ();
-        if ( name != null && !name.isEmpty () )
-        {
-            return name;
-        }
-
-        return context.getChannelId ();
     }
 
     private String makeUrl ( final String channelId )
