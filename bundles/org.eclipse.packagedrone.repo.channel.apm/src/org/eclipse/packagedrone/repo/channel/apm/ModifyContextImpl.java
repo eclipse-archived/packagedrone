@@ -740,7 +740,7 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
         markModified ();
 
-        if ( aspectIds == null )
+        if ( aspectIds == null || aspectIds.isEmpty () )
         {
             aspectIds = new HashSet<> ( this.aspectStates.keySet () );
         }

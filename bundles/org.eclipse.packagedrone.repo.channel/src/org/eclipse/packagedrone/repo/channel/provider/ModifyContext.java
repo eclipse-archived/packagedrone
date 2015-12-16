@@ -41,6 +41,17 @@ public interface ModifyContext extends AccessContext
 
     public void removeAspects ( Set<String> aspectIds );
 
+    /**
+     * Refresh the provided aspects
+     * <p>
+     * Passing in an empty or {@code null} set of aspect is, will cause
+     * <em>all</em> aspects to be refreshed.
+     * </p>
+     *
+     * @param aspectIds
+     *            The IDs of the aspects to refresh. Maybe {@code null} or
+     *            empty, in which case all aspects will be refreshed.
+     */
     public void refreshAspects ( Set<String> aspectIds );
 
     public void regenerate ( String artifactId );
