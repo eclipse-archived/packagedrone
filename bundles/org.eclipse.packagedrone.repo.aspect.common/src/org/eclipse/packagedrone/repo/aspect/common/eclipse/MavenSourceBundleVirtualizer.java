@@ -23,6 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.common.osgi.OsgiExtractor;
 import org.eclipse.packagedrone.repo.aspect.virtual.Virtualizer;
@@ -131,7 +132,7 @@ public class MavenSourceBundleVirtualizer implements Virtualizer
         attr.putValue ( Constants.BUNDLE_VENDOR, bi.getVendor () );
         attr.putValue ( Constants.BUNDLE_NAME, String.format ( "Source bundle for '%s'", bi.getId () ) );
 
-        attr.putValue ( "Created-By", "Package Drone" );
+        attr.putValue ( "Created-By", VersionInformation.VERSIONED_PRODUCT );
 
         attr.putValue ( "Eclipse-SourceBundle", makeSourceString ( bi ) );
 
