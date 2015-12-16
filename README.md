@@ -9,7 +9,8 @@ Eclipse Package Drone is a projected hosted by the Eclipse Foundation. It is ope
 ## More Information
 
 Also see:
- * The project page at Eclipse – https://eclipse.org/packagedrone
+ * The project page at Eclipse – https://eclipse.org/package-drone
+ * The GitHub repository – https://github.com/eclipse/packagedrone
  * The blog – http://packagedrone.org
   * List of features – http://packagedrone.org/features/
  * The demo system – https://thedrone.packagedrone.org
