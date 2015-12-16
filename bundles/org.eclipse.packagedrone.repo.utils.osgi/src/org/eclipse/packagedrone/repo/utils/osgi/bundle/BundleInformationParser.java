@@ -173,13 +173,16 @@ public class BundleInformationParser
 
     private void attachLocalization ( final BundleInformation result, final Attributes ma ) throws IOException
     {
-        final String loc = ma.getValue ( Constants.BUNDLE_LOCALIZATION );
+        String loc = ma.getValue ( Constants.BUNDLE_LOCALIZATION );
         if ( loc == null )
         {
-            return;
+            loc = Constants.BUNDLE_LOCALIZATION_DEFAULT_BASENAME;
+        }
+        else
+        {
+            result.setBundleLocalization ( loc );
         }
 
-        result.setBundleLocalization ( loc );
         result.setLocalization ( ParserHelper.loadLocalization ( this.file, loc ) );
     }
 
