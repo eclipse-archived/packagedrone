@@ -23,4 +23,8 @@ public interface StorageModelProvider<V, W>
     public V makeViewModel ( Object writeModel );
 
     public void persistWriteModel ( W model ) throws Exception;
+
+    public default void closeWriteModel ( final W model )
+    {
+    }
 }

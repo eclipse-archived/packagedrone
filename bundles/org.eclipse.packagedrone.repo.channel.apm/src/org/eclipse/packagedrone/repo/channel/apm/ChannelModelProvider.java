@@ -29,6 +29,7 @@ import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
 import org.eclipse.packagedrone.storage.apm.AbstractSimpleStorageModelProvider;
 import org.eclipse.packagedrone.storage.apm.StorageContext;
 import org.eclipse.packagedrone.storage.apm.util.ReplaceOnCloseOutputStream;
+import org.eclipse.packagedrone.utils.Suppressed;
 import org.eclipse.packagedrone.utils.profiler.Profile;
 import org.eclipse.packagedrone.utils.profiler.Profile.Handle;
 import org.osgi.service.event.EventAdmin;
@@ -123,6 +124,25 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
         } );
 
         return builder.create ();
+    }
+
+    @Override
+    public void closeWriteModel ( final ModifyContextImpl model )
+    {
+        final BlobStore.Transaction blobTransaction = model.claimTransaction ();
+        final CacheStore.Transaction cacheTransaction = model.claimCacheTransaction ();
+
+        try ( final Suppressed<RuntimeException> s = new Suppressed<> ( "Failed to close write model", RuntimeException::new ) )
+        {
+            if ( blobTransaction != null )
+            {
+                s.run ( blobTransaction::rollback );
+            }
+            if ( cacheTransaction != null )
+            {
+                s.run ( cacheTransaction::rollback );
+            }
+        }
     }
 
     @Override

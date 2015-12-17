@@ -203,15 +203,15 @@ public class StorageManager
 
     private static class StateWrapper
     {
-        private Deque<State> stack;
+        private final Deque<State> stack;
 
-        private State state;
+        private final State state;
 
         public StateWrapper ( final Entry entry, final LockType type )
         {
             this.stack = lockStates.get ();
 
-            final State current = stack.peekLast ();
+            final State current = this.stack.peekLast ();
             final State next = new State ( current, type, entry.lockPriority, entry.key );
 
             if ( current != null )
@@ -232,14 +232,14 @@ public class StorageManager
                 }
             }
 
-            stack.addLast ( next );
+            this.stack.addLast ( next );
 
-            StateWrapper.this.state = next;
+            this.state = next;
         }
 
         public void dispose ()
         {
-            stack.removeLast ();
+            this.stack.removeLast ();
         }
     }
 
@@ -451,7 +451,7 @@ public class StorageManager
         } );
     }
 
-    private <T, M> T performAccessOperation ( Entry entry, State state, Class<M> modelClazz, MetaKey modelKey, final Function<M, T> function )
+    private <T, M> T performAccessOperation ( final Entry entry, final State state, final Class<M> modelClazz, final MetaKey modelKey, final Function<M, T> function )
     {
         final State same = state.sameKeyParent;
 
@@ -497,27 +497,40 @@ public class StorageManager
         }
         current.setWriteModel ( writeModel );
 
-        // call user code
-        final T result = function.apply ( writeModel );
-
-        if ( same == null )
+        try
         {
-            // we are the one that cloned the model
-            try
+            // call user code
+
+            final T result = function.apply ( writeModel );
+
+            if ( same == null )
             {
-                // we received the same model type from cloneWriteModel ()
-                sp.persistWriteModel ( writeModel );
-            }
-            catch ( final Exception e )
-            {
-                throw new RuntimeException ( String.format ( "Failed to persist model of %s", entry.key ), e );
+                // we are the one that cloned the model
+                try
+                {
+                    // we received the same model type from cloneWriteModel ()
+                    sp.persistWriteModel ( writeModel );
+                }
+                catch ( final Exception e )
+                {
+                    throw new RuntimeException ( String.format ( "Failed to persist model of %s", entry.key ), e );
+                }
+
+                current.runAfterTasks ();
             }
 
-            current.runAfterTasks ();
+            // otherwise: -> save later
+
+            return result;
         }
-        // otherwise: -> save later
-
-        return result;
+        finally
+        {
+            if ( same == null )
+            {
+                // close write model
+                sp.closeWriteModel ( writeModel );
+            }
+        }
     }
 
     private static <T> T cast ( final Entry entry, final Class<T> clazz, final Object o )
@@ -530,7 +543,7 @@ public class StorageManager
         throw new IllegalStateException ( String.format ( "Model of '%s' is not of type '%s'", entry.key, clazz.getName () ) );
     }
 
-    protected <T> T doWithModel ( LockType type, final MetaKey modelKey, final Function<Entry, Lock> lockSupplier, final BiFunction<Entry, State, T> function )
+    protected <T> T doWithModel ( final LockType type, final MetaKey modelKey, final Function<Entry, Lock> lockSupplier, final BiFunction<Entry, State, T> function )
     {
         final Lock modelWithModel = this.modelLock.readLock ();
         final Lock lock;

@@ -12,7 +12,6 @@ package org.eclipse.packagedrone.storage.apm;
 
 public abstract class AbstractSimpleStorageModelProvider<V, W> implements StorageModelProvider<V, W>
 {
-
     private StorageContext context;
 
     private V viewModel;
