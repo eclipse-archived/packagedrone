@@ -46,7 +46,6 @@ public class Entry
             this.handle.unregister ();
             this.handle = null;
         }
-
     }
 
     public void update ( final Dictionary<String, ?> properties )
