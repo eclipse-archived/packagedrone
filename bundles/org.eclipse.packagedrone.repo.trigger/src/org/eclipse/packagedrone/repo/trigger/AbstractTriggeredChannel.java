@@ -25,7 +25,7 @@ import org.osgi.framework.BundleContext;
 
 public abstract class AbstractTriggeredChannel implements TriggeredChannel
 {
-    private final class TriggerInstanceImpl implements TriggerInstance
+    private final class TriggerInstanceImpl implements ConfigurableTriggerInstance
     {
         private final String triggerId;
 
@@ -48,6 +48,20 @@ public abstract class AbstractTriggeredChannel implements TriggeredChannel
         public void delete ()
         {
             processDelete ( this.triggerId );
+        }
+
+        @Override
+        public @NonNull Optional<Trigger> getTrigger ()
+        {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public @NonNull Map<String, String> getConfiguration ()
+        {
+            // TODO Auto-generated method stub
+            return null;
         }
     }
 
@@ -105,7 +119,7 @@ public abstract class AbstractTriggeredChannel implements TriggeredChannel
 
     private final WriteLock writeLock;
 
-    private final Map<String, TriggerInstance> triggers = new HashMap<> ();
+    private final Map<String, ConfigurableTriggerInstance> triggers = new HashMap<> ();
 
     public AbstractTriggeredChannel ( final BundleContext context )
     {
@@ -147,16 +161,16 @@ public abstract class AbstractTriggeredChannel implements TriggeredChannel
     protected abstract void deleteConfiguration ( String id );
 
     @Override
-    public TriggerInstance createTrigger ( final String triggerFactoryId, Map<String, String> configuration )
+    public ConfigurableTriggerInstance createTrigger ( final String triggerFactoryId, Map<String, String> configuration )
     {
         final String triggerId = UUID.randomUUID ().toString ();
-        configuration = new HashMap<> ( configuration );
+        configuration = new HashMap<> ( configuration ); // clone
 
         // do a first check for the trigger factory
 
         findFactory ( triggerFactoryId ).orElseThrow ( () -> new IllegalArgumentException ( String.format ( "Unable to find factory '%s'", triggerFactoryId ) ) );
 
-        final TriggerInstance trigger = new TriggerInstanceImpl ( triggerId, triggerFactoryId, configuration );
+        final ConfigurableTriggerInstance trigger = new TriggerInstanceImpl ( triggerId, triggerFactoryId, configuration );
 
         storeConfiguration ( new TriggerConfiguration ( triggerId, triggerFactoryId, configuration ) );
         this.triggers.put ( triggerId, trigger );

@@ -13,4 +13,8 @@ package org.eclipse.packagedrone.repo.trigger;
 public interface Trigger
 {
     public Class<?>[] supportsContextClasses ();
+
+    public void start ( TriggerContext context );
+
+    public void stop ();
 }

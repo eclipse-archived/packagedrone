@@ -102,7 +102,6 @@ public class TriggerFactoryListener
             // should never happen *sigh*
             throw new RuntimeException ( e );
         }
-        // FIXME: send out notifies
     }
 
     public void stop ()

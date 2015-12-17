@@ -11,13 +11,19 @@
 package org.eclipse.packagedrone.repo.trigger;
 
 import java.util.Map;
-import java.util.Optional;
 
-public interface TriggeredChannel
+import org.eclipse.jdt.annotation.NonNull;
+
+public interface ConfigurableTriggerInstance extends TriggerInstance
 {
-    public ConfigurableTriggerInstance createTrigger ( String triggerFactoryId, Map<String, String> configuration );
+    /**
+     * Get an unmodifiable configuration map
+     *
+     * @return the unmodifiable configuration
+     */
+    public @NonNull Map<String, String> getConfiguration ();
 
-    public Map<String, TriggerInstance> listTriggers ();
+    public void configure ( @NonNull Map<String, String> configuration );
 
-    public Optional<TriggerInstance> getTrigger ( String id );
+    public void delete ();
 }

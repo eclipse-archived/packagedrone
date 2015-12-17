@@ -14,5 +14,5 @@ import java.util.Map;
 
 public interface TriggerFactory
 {
-    public Trigger create ( Map<String, String> configuration );
+    public Trigger create ( String channelId, Map<String, String> configuration );
 }
