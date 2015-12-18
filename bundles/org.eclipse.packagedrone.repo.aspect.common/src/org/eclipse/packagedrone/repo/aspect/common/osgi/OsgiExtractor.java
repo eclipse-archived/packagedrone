@@ -22,6 +22,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.extract.Extractor;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformationParser;
@@ -33,21 +34,35 @@ import com.google.common.io.ByteStreams;
 
 public class OsgiExtractor implements Extractor
 {
-    public static final String KEY_CLASSIFIER = "classifier";
+    private static final String KEY_NAME_CLASSIFIER = "classifier";
 
-    public static final String KEY_MANIFEST = "manifest";
+    private static final String KEY_NAME_MANIFEST = "manifest";
 
-    public static final String KEY_FULL_MANIFEST = "fullManifest";
+    private static final String KEY_NAME_FULL_MANIFEST = "fullManifest";
 
-    public static final String KEY_VERSION = "version";
+    private static final String KEY_NAME_VERSION = "version";
 
-    public static final String KEY_NAME = "name";
+    private static final String KEY_NAME_NAME = "name";
 
-    public static final String KEY_BUNDLE_INFORMATION = "bundle-information";
+    private static final String KEY_NAME_BUNDLE_INFORMATION = "bundle-information";
 
-    public static final String KEY_FEATURE_INFORMATION = "feature-information";
+    private static final String KEY_NAME_FEATURE_INFORMATION = "feature-information";
 
-    public static final String NAMESPACE = OsgiAspectFactory.ID;
+    private static final String NAMESPACE = OsgiAspectFactory.ID;
+
+    public static final MetaKey KEY_CLASSIFIER = new MetaKey ( NAMESPACE, KEY_NAME_CLASSIFIER );
+
+    public static final MetaKey KEY_MANIFEST = new MetaKey ( NAMESPACE, KEY_NAME_MANIFEST );
+
+    public static final MetaKey KEY_FULL_MANIFEST = new MetaKey ( NAMESPACE, KEY_NAME_FULL_MANIFEST );
+
+    public static final MetaKey KEY_VERSION = new MetaKey ( NAMESPACE, KEY_NAME_VERSION );
+
+    public static final MetaKey KEY_NAME = new MetaKey ( NAMESPACE, KEY_NAME_NAME );
+
+    public static final MetaKey KEY_BUNDLE_INFORMATION = new MetaKey ( NAMESPACE, KEY_NAME_BUNDLE_INFORMATION );
+
+    public static final MetaKey KEY_FEATURE_INFORMATION = new MetaKey ( NAMESPACE, KEY_NAME_FEATURE_INFORMATION );
 
     @Override
     public void extractMetaData ( final Extractor.Context context, final Map<String, String> metadata ) throws Exception
@@ -72,14 +87,14 @@ public class OsgiExtractor implements Extractor
             return;
         }
 
-        metadata.put ( KEY_NAME, fi.getId () );
-        metadata.put ( KEY_VERSION, "" + fi.getVersion () );
-        metadata.put ( KEY_CLASSIFIER, "eclipse.feature" );
+        metadata.put ( KEY_NAME_NAME, fi.getId () );
+        metadata.put ( KEY_NAME_VERSION, "" + fi.getVersion () );
+        metadata.put ( KEY_NAME_CLASSIFIER, "eclipse.feature" );
         metadata.put ( org.eclipse.packagedrone.repo.aspect.Constants.KEY_ARTIFACT_LABEL, "Eclipse Feature" );
 
         // store feature information
 
-        metadata.put ( KEY_FEATURE_INFORMATION, fi.toJson () );
+        metadata.put ( KEY_NAME_FEATURE_INFORMATION, fi.toJson () );
     }
 
     private void extractBundleInformation ( final Extractor.Context context, final Map<String, String> metadata ) throws Exception
@@ -99,7 +114,7 @@ public class OsgiExtractor implements Extractor
             try ( InputStream is = zipFile.getInputStream ( m ) )
             {
                 final byte[] data = ByteStreams.toByteArray ( is );
-                metadata.put ( KEY_FULL_MANIFEST, StandardCharsets.UTF_8.decode ( ByteBuffer.wrap ( data ) ).toString () );
+                metadata.put ( KEY_NAME_FULL_MANIFEST, StandardCharsets.UTF_8.decode ( ByteBuffer.wrap ( data ) ).toString () );
             }
 
             // parse bundle information
@@ -131,9 +146,9 @@ public class OsgiExtractor implements Extractor
 
         // store main attributes
 
-        metadata.put ( KEY_NAME, bi.getId () );
-        metadata.put ( KEY_VERSION, bi.getVersion () != null ? bi.getVersion ().toString () : null );
-        metadata.put ( KEY_CLASSIFIER, "bundle" );
+        metadata.put ( KEY_NAME_NAME, bi.getId () );
+        metadata.put ( KEY_NAME_VERSION, bi.getVersion () != null ? bi.getVersion ().toString () : null );
+        metadata.put ( KEY_NAME_CLASSIFIER, "bundle" );
         metadata.put ( org.eclipse.packagedrone.repo.aspect.Constants.KEY_ARTIFACT_LABEL, "OSGi Bundle" );
 
         // serialize manifest
@@ -145,10 +160,10 @@ public class OsgiExtractor implements Extractor
         mf.getMainAttributes ().put ( Attributes.Name.MANIFEST_VERSION, "1.0" );
         mf.write ( bos );
         bos.close ();
-        metadata.put ( KEY_MANIFEST, bos.toString ( "UTF-8" ) );
+        metadata.put ( KEY_NAME_MANIFEST, bos.toString ( "UTF-8" ) );
 
         // store bundle information
-        metadata.put ( KEY_BUNDLE_INFORMATION, bi.toJson () );
+        metadata.put ( KEY_NAME_BUNDLE_INFORMATION, bi.toJson () );
 
     }
 

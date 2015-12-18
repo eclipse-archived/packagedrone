@@ -58,9 +58,9 @@ public class ZippedHandler implements Handler
 
             final Map<MetaKey, String> md = a.getMetaData ();
 
-            final String classifier = md.get ( new MetaKey ( "osgi", OsgiExtractor.KEY_CLASSIFIER ) );
-            final String symbolicName = md.get ( new MetaKey ( "osgi", OsgiExtractor.KEY_NAME ) );
-            final String version = md.get ( new MetaKey ( "osgi", OsgiExtractor.KEY_VERSION ) );
+            final String classifier = md.get ( OsgiExtractor.KEY_CLASSIFIER );
+            final String symbolicName = md.get ( OsgiExtractor.KEY_NAME );
+            final String version = md.get ( OsgiExtractor.KEY_VERSION );
 
             if ( classifier == null || symbolicName == null || version == null )
             {

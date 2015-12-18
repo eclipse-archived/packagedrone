@@ -11,8 +11,10 @@
 package org.eclipse.packagedrone.repo.aspect.common.eclipse;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +25,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.common.osgi.OsgiExtractor;
@@ -56,7 +60,20 @@ public class MavenSourceBundleVirtualizer implements Virtualizer
             return;
         }
 
-        final BundleInformation bi = findBundleInformation ( context );
+        if ( isSourceBundle ( ai ) )
+        {
+            // we don't generate source bundles for source bundles
+            return;
+        }
+
+        @Nullable
+        final ArtifactInformation parent = findParent ( context );
+        if ( parent == null )
+        {
+            return;
+        }
+
+        final BundleInformation bi = findBundleInformation ( parent );
         if ( bi == null )
         {
             logger.debug ( "don't create - parent has no bundle information" );
@@ -70,6 +87,26 @@ public class MavenSourceBundleVirtualizer implements Virtualizer
         catch ( final Exception e )
         {
             throw new RuntimeException ( "Failed to create virtual source bundle", e );
+        }
+    }
+
+    private boolean isSourceBundle ( @NonNull final ArtifactInformation parent )
+    {
+        final String full = parent.getMetaData ().get ( OsgiExtractor.KEY_FULL_MANIFEST );
+        if ( full == null )
+        {
+            return false;
+        }
+
+        try
+        {
+            final Manifest mf = new Manifest ( new ByteArrayInputStream ( full.getBytes ( StandardCharsets.UTF_8 ) ) );
+            final String esb = mf.getMainAttributes ().getValue ( "Eclipse-SourceBundle" );
+            return esb != null;
+        }
+        catch ( final IOException e )
+        {
+            return false;
         }
     }
 
@@ -156,16 +193,14 @@ public class MavenSourceBundleVirtualizer implements Virtualizer
         return sb.toString ();
     }
 
-    private BundleInformation findBundleInformation ( final Context context )
+    private @Nullable ArtifactInformation findParent ( @NonNull final Context context )
     {
-        final ArtifactInformation parent = context.getOtherArtifactInformation ( context.getArtifactInformation ().getParentId () );
-        if ( parent == null )
-        {
-            return null;
-        }
+        return context.getOtherArtifactInformation ( context.getArtifactInformation ().getParentId () );
+    }
 
-        final String biString = parent.getMetaData ().get ( new MetaKey ( OsgiExtractor.NAMESPACE, OsgiExtractor.KEY_BUNDLE_INFORMATION ) );
-
+    private @Nullable BundleInformation findBundleInformation ( @NonNull final ArtifactInformation parent )
+    {
+        final String biString = parent.getMetaData ().get ( BundleInformation.META_KEY );
         return BundleInformation.fromJson ( biString );
     }
 }

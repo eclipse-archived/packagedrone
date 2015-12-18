@@ -194,8 +194,8 @@ public class FeatureGenerator implements ArtifactGenerator
             return;
         }
 
-        final String id = a.getMetaData ().get ( new MetaKey ( OsgiExtractor.NAMESPACE, OsgiExtractor.KEY_NAME ) );
-        final String version = a.getMetaData ().get ( new MetaKey ( OsgiExtractor.NAMESPACE, OsgiExtractor.KEY_VERSION ) );
+        final String id = a.getMetaData ().get ( OsgiExtractor.KEY_NAME );
+        final String version = a.getMetaData ().get ( OsgiExtractor.KEY_VERSION );
         if ( id == null || version == null )
         {
             return;
@@ -205,7 +205,7 @@ public class FeatureGenerator implements ArtifactGenerator
 
         try
         {
-            final String biString = a.getMetaData ().get ( new MetaKey ( OsgiExtractor.NAMESPACE, OsgiExtractor.KEY_BUNDLE_INFORMATION ) );
+            final String biString = a.getMetaData ().get ( OsgiExtractor.KEY_BUNDLE_INFORMATION );
             final BundleInformation bi = BundleInformation.fromJson ( biString );
             unpack = "dir".equals ( bi.getEclipseBundleShape () );
         }

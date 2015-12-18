@@ -19,12 +19,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.aspect.common.osgi.OsgiAspectFactory;
 import org.eclipse.packagedrone.repo.aspect.common.osgi.OsgiExtractor;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
-import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.util.DownloadHelper;
 import org.eclipse.packagedrone.repo.servlet.Handler;
 import org.slf4j.Logger;
@@ -33,12 +32,6 @@ import org.slf4j.LoggerFactory;
 public class DownloadHandler implements Handler
 {
     private final static Logger logger = LoggerFactory.getLogger ( DownloadHandler.class );
-
-    private static final MetaKey KEY_OSGI_CLASSIFIER = new MetaKey ( OsgiAspectFactory.ID, OsgiExtractor.KEY_CLASSIFIER );
-
-    private static final MetaKey KEY_OSGI_ID = new MetaKey ( OsgiAspectFactory.ID, OsgiExtractor.KEY_NAME );
-
-    private static final MetaKey KEY_OSGI_VERSION = new MetaKey ( OsgiAspectFactory.ID, OsgiExtractor.KEY_VERSION );
 
     private final String channelId;
 
@@ -74,9 +67,9 @@ public class DownloadHandler implements Handler
             {
                 final Map<MetaKey, String> md = a.getMetaData ();
 
-                final String thisClassifier = md.get ( KEY_OSGI_CLASSIFIER );
-                final String thisId = md.get ( KEY_OSGI_ID );
-                final String thisVersion = md.get ( KEY_OSGI_VERSION );
+                final String thisClassifier = md.get ( OsgiExtractor.KEY_CLASSIFIER );
+                final String thisId = md.get ( OsgiExtractor.KEY_NAME );
+                final String thisVersion = md.get ( OsgiExtractor.KEY_VERSION );
 
                 logger.debug ( "This - id: {}, version: {}, classifier: {}", thisId, thisVersion, thisClassifier );
 
