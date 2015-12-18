@@ -112,11 +112,11 @@ public class Entry
 
         if ( !users.isEmpty () )
         {
-            properties.put ( Constants.SERVICE_DESCRIPTION, String.format ( "Managed PGP key (%s) %s: %s", keyId, key.isMasterKey () ? "(sub)" : "", usersString ) );
+            properties.put ( Constants.SERVICE_DESCRIPTION, String.format ( "Managed PGP key (%s) %s: %s", keyId, !key.isMasterKey () ? "(sub)" : "", usersString ) );
         }
         else
         {
-            properties.put ( Constants.SERVICE_DESCRIPTION, String.format ( "Managed PGP key (%s) %s", keyId, key.isMasterKey () ? "(sub)" : "" ) );
+            properties.put ( Constants.SERVICE_DESCRIPTION, String.format ( "Managed PGP key (%s) %s", keyId, !key.isMasterKey () ? "(sub)" : "" ) );
         }
 
         this.regs.add ( this.context.registerService ( SigningService.class, service, properties ) );
