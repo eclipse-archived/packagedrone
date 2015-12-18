@@ -25,6 +25,8 @@ import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 public class YumChannelAggregator implements ChannelAggregator
 {
 
+    private static final MetaKey KEY_SHA1 = new MetaKey ( "hasher", "sha1" );
+
     @Override
     public Map<String, String> aggregateMetaData ( final AggregationContext context ) throws Exception
     {
@@ -42,7 +44,7 @@ public class YumChannelAggregator implements ChannelAggregator
                     continue;
                 }
 
-                final String sha1 = art.getMetaData ().get ( new MetaKey ( "hasher", "sha1" ) );
+                final String sha1 = art.getMetaData ().get ( KEY_SHA1 );
 
                 repoContext.addPackage ( sha1, art, info );
             }
