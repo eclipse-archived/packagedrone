@@ -19,4 +19,6 @@ public interface SigningService
     public void sign ( InputStream in, OutputStream out, boolean inline ) throws Exception;
 
     public void printPublicKey ( OutputStream out ) throws IOException;
+
+    public OutputStream signingStream ( OutputStream out, boolean inline );
 }

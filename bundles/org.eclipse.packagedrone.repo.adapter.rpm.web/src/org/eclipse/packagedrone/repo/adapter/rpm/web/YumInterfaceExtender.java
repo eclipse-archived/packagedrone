@@ -8,10 +8,12 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.adapter.rpm.yum.internal;
+package org.eclipse.packagedrone.repo.adapter.rpm.web;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,13 +24,8 @@ import org.eclipse.packagedrone.web.LinkTarget;
 import org.eclipse.packagedrone.web.common.Modifier;
 import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 
-import com.google.common.escape.Escaper;
-import com.google.common.net.UrlEscapers;
-
 public class YumInterfaceExtender extends AbstractChannelInterfaceExtender
 {
-    private static final Escaper PATH_ESC = UrlEscapers.urlPathSegmentEscaper ();
-
     @Override
     protected boolean filterChannel ( final ChannelInformation channel )
     {
@@ -44,7 +41,7 @@ public class YumInterfaceExtender extends AbstractChannelInterfaceExtender
         int i = 1;
         for ( final String name : channel.getNames () )
         {
-            result.add ( new MenuEntry ( "YUM", 6_000, String.format ( "YUM (name: %s)", name ), 6_000 + i, new LinkTarget ( String.format ( "/yum/%s", PATH_ESC.escape ( name ) ) ), Modifier.LINK, null ) );
+            result.add ( new MenuEntry ( "YUM", 6_000, String.format ( "YUM (name: %s)", name ), 6_000 + i, new LinkTarget ( String.format ( "/yum/%s", escapePathSegment ( name ) ) ), Modifier.LINK, null ) );
             i++;
         }
         return result;
@@ -53,9 +50,13 @@ public class YumInterfaceExtender extends AbstractChannelInterfaceExtender
     @Override
     protected List<MenuEntry> getChannelViews ( final HttpServletRequest request, final ChannelInformation channel )
     {
+        final Map<String, String> model = new HashMap<> ( 1 );
+        model.put ( "channelId", channel.getId () );
+
         final List<MenuEntry> result = new LinkedList<> ();
 
-        result.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "YUM", 6_000, new LinkTarget ( String.format ( "/ui/yum/help/%s", channel.getId () ) ), Modifier.DEFAULT, "info-sign" ) );
+        result.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "YUM", 6_000, new LinkTarget ( "/ui/yum/{channelId}/help" ).expand ( model ), Modifier.DEFAULT, "info-sign" ) );
+        result.add ( new MenuEntry ( "YUM", 6_000, new LinkTarget ( "/ui/yum/{channelId}/edit" ).expand ( model ), Modifier.DEFAULT, null ) );
 
         return result;
     }

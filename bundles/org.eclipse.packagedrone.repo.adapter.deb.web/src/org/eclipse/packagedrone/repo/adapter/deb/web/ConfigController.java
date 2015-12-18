@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.deb.web;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,7 +27,7 @@ import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
-import org.eclipse.packagedrone.repo.signing.SigningService;
+import org.eclipse.packagedrone.repo.signing.web.SigningServiceEntry;
 import org.eclipse.packagedrone.repo.web.utils.Channels;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.controller.Secured;
@@ -47,11 +45,6 @@ import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 import org.eclipse.packagedrone.web.controller.binding.BindingResult;
 import org.eclipse.packagedrone.web.controller.binding.PathVariable;
 import org.eclipse.packagedrone.web.controller.form.FormData;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
 
 @Controller
 @ViewResolver ( "/WEB-INF/views/config/%s.jsp" )
@@ -117,48 +110,6 @@ public class ConfigController implements InterfaceExtender
         return null;
     }
 
-    public static class SigningServiceEntry implements Comparable<SigningServiceEntry>
-    {
-        private final String id;
-
-        private final String label;
-
-        public SigningServiceEntry ( final String id, final String label )
-        {
-            this.id = id;
-            this.label = label == null ? id : label;
-        }
-
-        public String getId ()
-        {
-            return this.id;
-        }
-
-        public String getLabel ()
-        {
-            return this.label;
-        }
-
-        @Override
-        public int compareTo ( final SigningServiceEntry o )
-        {
-            return this.label.compareTo ( o.label );
-        }
-
-        @Override
-        public String toString ()
-        {
-            if ( this.label != null )
-            {
-                return String.format ( "%s (%s)", this.label, this.id );
-            }
-            else
-            {
-                return this.id;
-            }
-        }
-    }
-
     @RequestMapping ( "/channel/{channelId}/edit" )
     public ModelAndView edit ( @PathVariable ( "channelId" ) final String channelId) throws Exception
     {
@@ -167,7 +118,7 @@ public class ConfigController implements InterfaceExtender
             final Map<String, Object> model = new HashMap<> ();
 
             model.put ( "channel", channel.getInformation () );
-            model.put ( "signingServices", getSigningServices () );
+            model.put ( "signingServices", SigningServiceEntry.getSigningServices () );
 
             final ChannelConfiguration dist = new ChannelConfiguration ();
 
@@ -181,7 +132,6 @@ public class ConfigController implements InterfaceExtender
             model.put ( "command", dist );
 
             return new ModelAndView ( "edit", model );
-
         } );
     }
 
@@ -199,47 +149,10 @@ public class ConfigController implements InterfaceExtender
             }
 
             model.put ( "channel", channel.getInformation () );
-            model.put ( "signingServices", getSigningServices () );
+            model.put ( "signingServices", SigningServiceEntry.getSigningServices () );
 
             return new ModelAndView ( "edit", model );
-
         } );
     }
 
-    private List<SigningServiceEntry> getSigningServices ()
-    {
-        final List<SigningServiceEntry> result = new LinkedList<> ();
-
-        final BundleContext ctx = FrameworkUtil.getBundle ( ConfigController.class ).getBundleContext ();
-        Collection<ServiceReference<SigningService>> refs;
-        try
-        {
-            refs = ctx.getServiceReferences ( SigningService.class, null );
-        }
-        catch ( final InvalidSyntaxException e )
-        {
-            return Collections.emptyList ();
-        }
-
-        if ( refs != null )
-        {
-            for ( final ServiceReference<SigningService> ref : refs )
-            {
-                final String pid = makeString ( ref.getProperty ( Constants.SERVICE_PID ) );
-                final String description = makeString ( ref.getProperty ( Constants.SERVICE_DESCRIPTION ) );
-                result.add ( new SigningServiceEntry ( pid, description ) );
-            }
-        }
-
-        return result;
-    }
-
-    private String makeString ( final Object property )
-    {
-        if ( property instanceof String )
-        {
-            return (String)property;
-        }
-        return null;
-    }
 }

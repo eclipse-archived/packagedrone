@@ -14,6 +14,7 @@ import static java.util.Optional.empty;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -156,6 +157,7 @@ public class YumServlet extends AbstractChannelServiceServlet
             request.setAttribute ( "channel", channel.getInformation () );
 
             final List<CacheEntryInformation> files = channel.getCacheEntries ().values ().stream ().filter ( ce -> ce.getKey ().getNamespace ().equals ( Constants.YUM_ASPECT_ID ) && ce.getName ().startsWith ( "repodata/" ) ).collect ( Collectors.toList () );
+            files.sort ( Comparator.comparing ( CacheEntryInformation::getName ) );
             request.setAttribute ( "entries", files );
 
             viewJsp ( request, response, "repodata.jsp" );
@@ -224,7 +226,7 @@ public class YumServlet extends AbstractChannelServiceServlet
             return;
         }
 
-        final Optional<String> name = segs.length > 2 ? Optional.of ( segs[segs.length - 1] ) : Optional.empty ();
+        final Optional<String> name = segs.length > 2 ? Optional.ofNullable ( segs[segs.length - 1] ) : Optional.empty ();
 
         DownloadHelper.streamArtifact ( response, artifact.get (), empty (), true, channel, art -> name.orElse ( art.getName () ) );
     }

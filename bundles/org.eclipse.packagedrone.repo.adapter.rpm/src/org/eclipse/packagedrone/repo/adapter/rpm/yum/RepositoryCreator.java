@@ -19,11 +19,14 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation.Changelog;
@@ -31,6 +34,7 @@ import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation.Dependency;
 import org.eclipse.packagedrone.repo.aspect.common.spool.OutputSpooler;
 import org.eclipse.packagedrone.repo.aspect.common.spool.SpoolOutTarget;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+import org.eclipse.packagedrone.repo.signing.SigningService;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.packagedrone.utils.rpm.RpmDependencyFlags;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
@@ -39,6 +43,10 @@ import org.w3c.dom.Element;
 
 public class RepositoryCreator
 {
+    private static final String MD_NAME = "SHA-256";
+
+    private static final String MD_TAG = "sha256";
+
     private final XmlHelper xml = new XmlHelper ();
 
     private final OutputSpooler primaryStreamBuilder;
@@ -52,6 +60,12 @@ public class RepositoryCreator
     private final List<Pattern> primaryFiles;
 
     private final List<Pattern> primaryDirs;
+
+    private final String primaryUniqueName;
+
+    private final String filelistsUniqueName;
+
+    private final String otherUniqueName;
 
     public interface Context
     {
@@ -334,7 +348,7 @@ public class RepositoryCreator
         }
     }
 
-    public RepositoryCreator ( final SpoolOutTarget target )
+    public RepositoryCreator ( @NonNull final SpoolOutTarget target, @Nullable final SigningService signing )
     {
         // filters
 
@@ -344,38 +358,46 @@ public class RepositoryCreator
         this.primaryFiles = Arrays.stream ( fileFilter.split ( "," ) ).map ( re -> Pattern.compile ( re ) ).collect ( Collectors.toList () );
         this.primaryDirs = Arrays.stream ( dirFilter.split ( "," ) ).map ( re -> Pattern.compile ( re ) ).collect ( Collectors.toList () );
 
+        this.primaryUniqueName = UUID.randomUUID ().toString ().replace ( "-", "" );
+        this.filelistsUniqueName = UUID.randomUUID ().toString ().replace ( "-", "" );
+        this.otherUniqueName = UUID.randomUUID ().toString ().replace ( "-", "" );
+
         // primary
 
         this.primaryStreamBuilder = new OutputSpooler ( target );
 
-        this.primaryStreamBuilder.addDigest ( "SHA1" );
+        this.primaryStreamBuilder.addDigest ( MD_NAME );
 
-        this.primaryStreamBuilder.addOutput ( "repodata/primary.xml", "application/xml" );
-        this.primaryStreamBuilder.addOutput ( "repodata/primary.xml.gz", "application/x-gzip", output -> new GZIPOutputStream ( output ) );
+        this.primaryStreamBuilder.addOutput ( String.format ( "repodata/%s-primary.xml", this.primaryUniqueName ), "application/xml" );
+        this.primaryStreamBuilder.addOutput ( String.format ( "repodata/%s-primary.xml.gz", this.primaryUniqueName ), "application/x-gzip", output -> new GZIPOutputStream ( output ) );
 
         // filelists
 
         this.filelistsStreamBuilder = new OutputSpooler ( target );
 
-        this.filelistsStreamBuilder.addDigest ( "SHA1" );
+        this.filelistsStreamBuilder.addDigest ( MD_NAME );
 
-        this.filelistsStreamBuilder.addOutput ( "repodata/filelists.xml", "application/xml" );
-        this.filelistsStreamBuilder.addOutput ( "repodata/filelists.xml.gz", "application/x-gzip", output -> new GZIPOutputStream ( output ) );
+        this.filelistsStreamBuilder.addOutput ( String.format ( "repodata/%s-filelists.xml", this.filelistsUniqueName ), "application/xml" );
+        this.filelistsStreamBuilder.addOutput ( String.format ( "repodata/%s-filelists.xml.gz", this.filelistsUniqueName ), "application/x-gzip", output -> new GZIPOutputStream ( output ) );
 
         // other
 
         this.otherStreamBuilder = new OutputSpooler ( target );
 
-        this.otherStreamBuilder.addDigest ( "SHA1" );
+        this.otherStreamBuilder.addDigest ( MD_NAME );
 
-        this.otherStreamBuilder.addOutput ( "repodata/other.xml", "application/xml" );
-        this.otherStreamBuilder.addOutput ( "repodata/other.xml.gz", "application/x-gzip", output -> new GZIPOutputStream ( output ) );
+        this.otherStreamBuilder.addOutput ( String.format ( "repodata/%s-other.xml", this.otherUniqueName ), "application/xml" );
+        this.otherStreamBuilder.addOutput ( String.format ( "repodata/%s-other.xml.gz", this.otherUniqueName ), "application/x-gzip", output -> new GZIPOutputStream ( output ) );
 
         // md
 
         this.mdStreamBuilder = new OutputSpooler ( target );
 
         this.mdStreamBuilder.addOutput ( "repodata/repomd.xml", "application/xml" );
+        if ( signing != null )
+        {
+            this.mdStreamBuilder.addOutput ( "repodata/repomd.xml.asc", "text/plain", output -> signing.signingStream ( output, false ) );
+        }
     }
 
     public boolean matches ( final String pathName, final List<Pattern> filterList )
@@ -424,9 +446,9 @@ public class RepositoryCreator
 
         root.setAttribute ( "revision", "" + now / 1000 );
 
-        addDataFile ( root, this.primaryStreamBuilder, "primary", now );
-        addDataFile ( root, this.filelistsStreamBuilder, "filelists", now );
-        addDataFile ( root, this.otherStreamBuilder, "other", now );
+        addDataFile ( root, this.primaryStreamBuilder, this.primaryUniqueName + "-primary", now );
+        addDataFile ( root, this.filelistsStreamBuilder, this.filelistsUniqueName + "-filelists", now );
+        addDataFile ( root, this.otherStreamBuilder, this.otherUniqueName + "-other", now );
 
         try
         {
@@ -444,11 +466,11 @@ public class RepositoryCreator
 
         data.setAttribute ( "type", baseName );
 
-        final Element checksum = addElement ( data, "checksum", spooler.getChecksum ( "repodata/" + baseName + ".xml.gz", "SHA1" ) );
-        checksum.setAttribute ( "type", "sha" );
+        final Element checksum = addElement ( data, "checksum", spooler.getChecksum ( "repodata/" + baseName + ".xml.gz", MD_NAME ) );
+        checksum.setAttribute ( "type", MD_TAG );
 
-        final Element openChecksum = addElement ( data, "open-checksum", spooler.getChecksum ( "repodata/" + baseName + ".xml", "SHA1" ) );
-        openChecksum.setAttribute ( "type", "sha" );
+        final Element openChecksum = addElement ( data, "open-checksum", spooler.getChecksum ( "repodata/" + baseName + ".xml", MD_NAME ) );
+        openChecksum.setAttribute ( "type", MD_TAG );
 
         final Element location = addElement ( data, "location" );
         location.setAttribute ( "href", "repodata/" + baseName + ".xml.gz" );
