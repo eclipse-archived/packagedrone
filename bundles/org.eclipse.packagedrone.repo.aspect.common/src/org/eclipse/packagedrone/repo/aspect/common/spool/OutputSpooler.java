@@ -24,11 +24,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.packagedrone.utils.io.IOFunction;
-
-import java.util.Set;
 
 import com.google.common.io.BaseEncoding;
 
@@ -265,7 +265,7 @@ public class OutputSpooler
         this.sizes.put ( key, length );
     }
 
-    static void closeAll ( final java.util.stream.Stream<OutputStream> stream ) throws IOException
+    static void closeAll ( final Stream<OutputStream> stream ) throws IOException
     {
         final List<Exception> ex = new LinkedList<> ();
 
