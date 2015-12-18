@@ -70,6 +70,8 @@ public class Helper
         session.setTransferListener ( new LoggerTransferListener () );
         session.setConfigProperty ( ConfigurationProperties.USER_AGENT, VersionInformation.USER_AGENT );
 
+        session.setConfigProperty ( ConfigurationProperties.CONNECT_TIMEOUT, Integer.getInteger ( "drone.aether.connectTimeout", 30_000 ) );
+
         return session;
     }
 
