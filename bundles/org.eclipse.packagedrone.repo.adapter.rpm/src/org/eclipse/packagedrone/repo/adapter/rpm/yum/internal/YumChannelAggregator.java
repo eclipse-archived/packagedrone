@@ -29,6 +29,8 @@ import org.osgi.framework.ServiceReference;
 
 public class YumChannelAggregator implements ChannelAggregator
 {
+    private static final MetaKey KEY_SIGNING_ID = new MetaKey ( "yum", "signingServiceId" );
+
     private static final MetaKey KEY_SHA1 = new MetaKey ( "hasher", "sha1" );
 
     private final BundleContext context;
@@ -41,7 +43,7 @@ public class YumChannelAggregator implements ChannelAggregator
     @Override
     public Map<String, String> aggregateMetaData ( final AggregationContext context ) throws Exception
     {
-        final String signingServiceId = context.getChannelMetaData ().get ( new MetaKey ( "yum", "signingServiceId" ) );
+        final String signingServiceId = context.getChannelMetaData ().get ( KEY_SIGNING_ID );
         ServiceReference<SigningService> ssref = null;
         SigningService signingService = null;
         if ( signingServiceId != null && !signingServiceId.isEmpty () )

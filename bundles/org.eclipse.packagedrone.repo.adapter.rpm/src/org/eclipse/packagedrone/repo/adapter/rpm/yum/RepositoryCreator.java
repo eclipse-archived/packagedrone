@@ -446,9 +446,9 @@ public class RepositoryCreator
 
         root.setAttribute ( "revision", "" + now / 1000 );
 
-        addDataFile ( root, this.primaryStreamBuilder, this.primaryUniqueName + "-primary", now );
-        addDataFile ( root, this.filelistsStreamBuilder, this.filelistsUniqueName + "-filelists", now );
-        addDataFile ( root, this.otherStreamBuilder, this.otherUniqueName + "-other", now );
+        addDataFile ( root, this.primaryStreamBuilder, this.primaryUniqueName, "primary", now );
+        addDataFile ( root, this.filelistsStreamBuilder, this.filelistsUniqueName, "filelists", now );
+        addDataFile ( root, this.otherStreamBuilder, this.otherUniqueName, "other", now );
 
         try
         {
@@ -460,23 +460,24 @@ public class RepositoryCreator
         }
     }
 
-    private void addDataFile ( final Element root, final OutputSpooler spooler, final String baseName, final long now )
+    private void addDataFile ( final Element root, final OutputSpooler spooler, final String unique, final String baseName, final long now )
     {
+        final String filename = "repodata/" + unique + "-" + baseName + ".xml";
         final Element data = addElement ( root, "data" );
 
         data.setAttribute ( "type", baseName );
 
-        final Element checksum = addElement ( data, "checksum", spooler.getChecksum ( "repodata/" + baseName + ".xml.gz", MD_NAME ) );
+        final Element checksum = addElement ( data, "checksum", spooler.getChecksum ( filename + ".gz", MD_NAME ) );
         checksum.setAttribute ( "type", MD_TAG );
 
-        final Element openChecksum = addElement ( data, "open-checksum", spooler.getChecksum ( "repodata/" + baseName + ".xml", MD_NAME ) );
+        final Element openChecksum = addElement ( data, "open-checksum", spooler.getChecksum ( filename, MD_NAME ) );
         openChecksum.setAttribute ( "type", MD_TAG );
 
         final Element location = addElement ( data, "location" );
-        location.setAttribute ( "href", "repodata/" + baseName + ".xml.gz" );
+        location.setAttribute ( "href", filename + ".gz" );
         addElement ( data, "timestamp", now / 1000 );
 
-        addElement ( data, "size", "" + spooler.getSize ( "repodata/" + baseName + ".xml.gz" ) );
-        addElement ( data, "open-size", "" + spooler.getSize ( "repodata/" + baseName + ".xml" ) );
+        addElement ( data, "size", "" + spooler.getSize ( filename + ".gz" ) );
+        addElement ( data, "open-size", "" + spooler.getSize ( filename ) );
     }
 }
