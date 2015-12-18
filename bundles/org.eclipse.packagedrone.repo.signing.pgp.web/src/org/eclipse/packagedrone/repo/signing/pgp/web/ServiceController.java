@@ -54,7 +54,7 @@ import org.eclipse.scada.utils.ExceptionHelper;
 @ControllerInterceptor ( SecuredControllerInterceptor.class )
 @HttpConstraint ( rolesAllowed = "ADMIN" )
 @ControllerInterceptor ( HttpContraintControllerInterceptor.class )
-@ViewResolver ( "/WEB-INF/views/%s.jsp" )
+@ViewResolver ( "/WEB-INF/views/local/%s.jsp" )
 @RequestMapping ( "/pgp.sign" )
 public class ServiceController implements InterfaceExtender
 {
@@ -105,7 +105,7 @@ public class ServiceController implements InterfaceExtender
     }
 
     @RequestMapping ( "/{id}/delete" )
-    public ModelAndView delete ( @PathVariable ( "id" ) final String id )
+    public ModelAndView delete ( @PathVariable ( "id" ) final String id)
     {
         try
         {
@@ -126,7 +126,7 @@ public class ServiceController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/add", method = RequestMethod.POST )
-    public ModelAndView addPost ( @Valid @FormData ( "command" ) final AddEntry data, final BindingResult result )
+    public ModelAndView addPost ( @Valid @FormData ( "command" ) final AddEntry data, final BindingResult result)
     {
         final Map<String, Object> model = new HashMap<> ();
 

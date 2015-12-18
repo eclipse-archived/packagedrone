@@ -10,11 +10,19 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.signing.pgp;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPKeyRing;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.bouncycastle.openpgp.PGPSecretKeyRing;
 import org.bouncycastle.openpgp.PGPUtil;
@@ -24,6 +32,67 @@ public final class PgpHelper
 {
     private PgpHelper ()
     {
+    }
+
+    public static InputStream fromString ( final String data )
+    {
+        return new ByteArrayInputStream ( data.getBytes ( StandardCharsets.US_ASCII ) );
+    }
+
+    public static Stream<PGPKeyRing> streamKeyring ( final InputStream input ) throws IOException, PGPException
+    {
+        final BcPGPSecretKeyRingCollection keyrings = new BcPGPSecretKeyRingCollection ( PGPUtil.getDecoderStream ( input ) );
+
+        final Iterator<?> keyRingIter = keyrings.getKeyRings ();
+
+        final Stream<?> s = StreamSupport.stream ( Spliterators.spliteratorUnknownSize ( keyRingIter, Spliterator.ORDERED ), false );
+
+        return s.map ( o -> (PGPKeyRing)o );
+    }
+
+    public static Stream<PGPSecretKeyRing> streamSecretKeyring ( final InputStream input ) throws IOException, PGPException
+    {
+        final Stream<PGPKeyRing> s = streamKeyring ( input );
+        return s.filter ( k -> k instanceof PGPSecretKeyRing ).map ( o -> (PGPSecretKeyRing)o );
+    }
+
+    public static Stream<PGPSecretKey> streamSecretKeys ( final InputStream input ) throws IOException, PGPException
+    {
+        final Stream<PGPSecretKeyRing> s = streamSecretKeyring ( input );
+        return s.flatMap ( k -> {
+            final Iterator<?> i = k.getSecretKeys ();
+
+            final Stream<?> ks = StreamSupport.stream ( Spliterators.spliteratorUnknownSize ( i, Spliterator.ORDERED ), false );
+
+            return ks.map ( o -> (PGPSecretKey)o );
+        } );
+    }
+
+    public static String makeShortKey ( final PGPSecretKey key )
+    {
+        final long shortId = key.getKeyID () & 0xFFFFFFFFL;
+        return String.format ( "%08X", shortId );
+    }
+
+    public static Predicate<PGPSecretKey> keyShortId ( final String keyId )
+    {
+        final long keyIdNum = Long.parseUnsignedLong ( keyId, 16 );
+
+        return new Predicate<PGPSecretKey> () {
+
+            @Override
+            public boolean test ( final PGPSecretKey key )
+            {
+                final long shortId = key.getKeyID () & 0xFFFFFFFFL;
+
+                if ( key.getKeyID () != keyIdNum && shortId != keyIdNum )
+                {
+                    return false;
+                }
+
+                return true;
+            }
+        };
     }
 
     public static PGPSecretKey loadSecretKey ( final InputStream input, final String keyId ) throws IOException, PGPException

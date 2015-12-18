@@ -8,7 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.signing.pgp.internal;
+package org.eclipse.packagedrone.repo.signing.pgp.internal.local;
 
 import java.util.Dictionary;
 import java.util.HashMap;

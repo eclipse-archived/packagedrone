@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.signing.pgp.internal;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,30 +26,18 @@ import org.bouncycastle.openpgp.PGPSignatureGenerator;
 import org.bouncycastle.openpgp.operator.bc.BcPBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.bc.BcPGPDigestCalculatorProvider;
+import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.signing.SigningService;
-import org.eclipse.packagedrone.repo.signing.pgp.PgpHelper;
 
-public class PgpSigningService implements SigningService
+public abstract class AbstractSecretKeySigningService implements SigningService
 {
     private final PGPSecretKey secretKey;
 
     private final PGPPrivateKey privateKey;
 
-    public static PgpSigningService create ( final File file, final String keyId, final String passphrase ) throws IOException, PGPException
+    public AbstractSecretKeySigningService ( final PGPSecretKey secretKey, final String passphrase ) throws PGPException
     {
-        try ( InputStream is = new FileInputStream ( file ) )
-        {
-            return new PgpSigningService ( is, keyId, passphrase );
-        }
-    }
-
-    public PgpSigningService ( final InputStream keyring, final String keyId, final String passphrase ) throws IOException, PGPException
-    {
-        this.secretKey = PgpHelper.loadSecretKey ( keyring, keyId );
-        if ( this.secretKey == null )
-        {
-            throw new IllegalStateException ( String.format ( "Signing key '%08X' could not be found", keyId ) );
-        }
+        this.secretKey = secretKey;
         this.privateKey = this.secretKey.extractPrivateKey ( new BcPBESecretKeyDecryptorBuilder ( new BcPGPDigestCalculatorProvider () ).build ( passphrase.toCharArray () ) );
     }
 
@@ -59,6 +45,7 @@ public class PgpSigningService implements SigningService
     public void printPublicKey ( final OutputStream out ) throws IOException
     {
         final ArmoredOutputStream armoredOutput = new ArmoredOutputStream ( out );
+        armoredOutput.setHeader ( "Version", VersionInformation.VERSIONED_PRODUCT );
         final PublicKeyPacket pubKey = this.privateKey.getPublicKeyPacket ();
         pubKey.encode ( new BCPGOutputStream ( armoredOutput ) );
         armoredOutput.close ();
@@ -72,6 +59,7 @@ public class PgpSigningService implements SigningService
         signatureGenerator.init ( PGPSignature.BINARY_DOCUMENT, this.privateKey );
 
         final ArmoredOutputStream armoredOutput = new ArmoredOutputStream ( out );
+        armoredOutput.setHeader ( "Version", VersionInformation.VERSIONED_PRODUCT );
 
         if ( inline )
         {
@@ -97,5 +85,4 @@ public class PgpSigningService implements SigningService
 
         armoredOutput.close ();
     }
-
 }

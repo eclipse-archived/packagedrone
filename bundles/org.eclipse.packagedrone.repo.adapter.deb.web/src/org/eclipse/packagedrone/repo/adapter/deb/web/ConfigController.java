@@ -148,7 +148,14 @@ public class ConfigController implements InterfaceExtender
         @Override
         public String toString ()
         {
-            return String.format ( "%s (%s)", this.label, this.id );
+            if ( this.label != null )
+            {
+                return String.format ( "%s (%s)", this.label, this.id );
+            }
+            else
+            {
+                return this.id;
+            }
         }
     }
 

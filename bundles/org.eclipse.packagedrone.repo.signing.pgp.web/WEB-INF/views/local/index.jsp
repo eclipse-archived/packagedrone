@@ -12,17 +12,13 @@
 pageContext.setAttribute ( "TAG", ServiceManager.ACTION_TAG_PGP );
 %>
 
-<h:main title="PGP Signing">
+<h:main title="PGP Signing" subtitle="Local Keychain">
 
 <h:buttonbar menu="${menuManager.getActions(TAG) }" />
 
-<div class="container-fluid ">
+<div class="table-responsive">
 
-<div class="row">
-
-<div class="col-sm-8">
-
-<table class="table tablue-responsive">
+<table class="table">
     <thead>
         <tr>
             <th>ID</th>
@@ -50,11 +46,7 @@ pageContext.setAttribute ( "TAG", ServiceManager.ACTION_TAG_PGP );
     </tbody>
 </table>
 
-</div> <%-- col --%>
-
-</div> <%-- row --%>
-
-</div> <%-- container --%>
+</div>
 
 
 </h:main>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" configuration-policy="ignore" immediate="false" name="org.eclipse.packagedrone.repo.signing.pgp">
-   <implementation class="org.eclipse.packagedrone.repo.signing.pgp.internal.PgpSigningServiceFactory"/>
+   <implementation class="org.eclipse.packagedrone.repo.signing.pgp.internal.local.PgpSigningServiceFactory"/>
    <service>
       <provide interface="org.osgi.service.cm.ManagedServiceFactory"/>
    </service>
