@@ -49,6 +49,30 @@ This tries to load the TldScanner, which is handled differently in this scenario
 But having this file causes strange warnings on the console which confuses people looking at
 the log output. 
 
+## src/org/apache/jasper/compiler/TagLibraryInfoImpl.java
+
+Fix a possible NPE.
+
+```
+diff --git a/bundles/org.apache.jasper.glassfish/src/org/apache/jasper/compiler/TagLibraryInfoImpl.java b/bundles/org.apache.jasper.glassfish/src/org/apache/jasper/compiler/TagLibraryInfoImpl.java
+index 78d7a3e..76eb6a2 100644
+--- a/bundles/org.apache.jasper.glassfish/src/org/apache/jasper/compiler/TagLibraryInfoImpl.java
++++ b/bundles/org.apache.jasper.glassfish/src/org/apache/jasper/compiler/TagLibraryInfoImpl.java
+@@ -626,7 +626,11 @@
+ 
+ 	if (path.startsWith("/META-INF/tags")) {
+ 	    // Tag file packaged in JAR
+-	    ctxt.getTagFileJarUrls().put(path, jarFileUrl);
++	    // STARTJR: fix possible NPE
++	    if(jarFileUrl != null) {
++	        ctxt.getTagFileJarUrls().put(path, jarFileUrl);
++	    }
++	    // ENDJR: fix possible NPE
+ 	} else if (!path.startsWith("/WEB-INF/tags")) {
+ 	    err.jspError("jsp.error.tagfile.illegalPath", path);
+ 	}
+```
+
 ## src/org/apache/jasper/compiler/AntJavaCompiler.java
 
 Delete the file.
