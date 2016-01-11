@@ -23,9 +23,9 @@ import javax.validation.Valid;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.MetaKeys;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
+import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
-import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.generator.GeneratorProcessor;
 import org.eclipse.packagedrone.repo.generator.p2.xml.CategoryXmlGenerator;
 import org.eclipse.packagedrone.repo.web.utils.Channels;
@@ -250,7 +250,7 @@ public class GeneratorController
         final String name = file.getSubmittedFileName ();
 
         this.service.accessRun ( By.id ( channelId ), ModifiableChannel.class, channel -> {
-            channel.getContext ().createGeneratorArtifact ( CategoryXmlGenerator.ID, new ByteArrayInputStream ( new byte[0] ), name, null );
+            channel.getContext ().createGeneratorArtifact ( CategoryXmlGenerator.ID, file.getInputStream (), name, null );
         } );
 
         return redirectViewChannel ( channelId );
