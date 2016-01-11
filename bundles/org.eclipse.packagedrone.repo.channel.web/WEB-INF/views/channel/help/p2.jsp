@@ -1,5 +1,9 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ page
+	language="java"
+	contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"
+    trimDirectiveWhitespaces="true"
+%>
     
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -9,7 +13,6 @@
 <%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
 <c:set var="idUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/p2/' ).concat ( channel.id )) }"/>
-<c:set var="nameUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/p2/' ).concat ( web:encode(channel.name) )) }"/>
 
 <h:main title="Channel" subtitle="${pm:channel(channel) }">
 
@@ -41,10 +44,13 @@
 		            The main URL for this repository is <code>${idUrl }</code>.
 		            </p>
 		            
-		            <c:if test="${not empty channel.name }">
-		              <p>The alias URL for this repository is <code>${ nameUrl }</code>.
-		              The channel alias is unique, but may be changed in the future.
-		              </p>
+		            <c:if test="${not empty channel.names }">
+		            	<p>The channel has the following alias URLs:</p>
+		            	<ul>
+		            	<c:forEach var="name" items="${channel.names }">
+		            		<li><code>${ fn:escapeXml(sitePrefix.concat ( '/p2/' ).concat ( web:encode(name) )) }</code></li>
+		            	</c:forEach>
+		            	</ul>
 		            </c:if>
 		            
                 </div>
