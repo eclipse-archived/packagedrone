@@ -13,9 +13,6 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 %>
 
 <c:set var="idUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( channel.id )) }"/>
-<c:if test="${not empty channel.name }">
-    <c:set var="nameUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( web:encode(channel.name) )) }"/>
-</c:if>
 
 <c:set var="exampleUrl" value="${ fn:escapeXml(exampleSitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( channel.id )) }" />
 
@@ -42,8 +39,10 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
     </p>
     <ul>
         <li><code>${idUrl }</code></li>
-        <c:if test="${not empty nameUrl }">
-           <li><code>${nameUrl }</code></li>    
+        <c:if test="${not empty channel.names }">
+			<c:forEach var="name" items="${channel.names }">
+           		<li><code>${ fn:escapeXml(sitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( web:encode(name) )) }</code></li>
+           	</c:forEach>    
         </c:if>
     </ul>
     <p>
