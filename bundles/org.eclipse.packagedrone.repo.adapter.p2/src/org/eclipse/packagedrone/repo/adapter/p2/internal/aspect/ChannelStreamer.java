@@ -25,11 +25,15 @@ import org.eclipse.packagedrone.repo.MetaKeys;
 import org.eclipse.packagedrone.repo.adapter.p2.P2ChannelInformation;
 import org.eclipse.packagedrone.repo.adapter.p2.aspect.P2RepoConstants;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 
 public class ChannelStreamer
 {
+    private final static Logger logger = LoggerFactory.getLogger ( ChannelStreamer.class );
+
     private final boolean writeCompressed;
 
     private final boolean writePlain;
@@ -139,9 +143,9 @@ public class ChannelStreamer
                 return false;
             }
 
-            final String[] keys = keysString.split ( ExtractorImpl.DELIM );
-            final String[] sums = sumsString.split ( ExtractorImpl.DELIM );
-            final String[] data = dataString.split ( ExtractorImpl.DELIM );
+            final String[] keys = keysString.split ( ExtractorImpl.DELIM, -1 );
+            final String[] sums = sumsString.split ( ExtractorImpl.DELIM, -1 );
+            final String[] data = dataString.split ( ExtractorImpl.DELIM, -1 );
 
             if ( keys.length != sums.length || keys.length != data.length )
             {
@@ -150,7 +154,22 @@ public class ChannelStreamer
 
             for ( int i = 0; i < keys.length; i++ )
             {
-                final String old = this.checksums.put ( keys[i], sums[i] );
+                final String sum = sums[i];
+                final boolean hasSum = sum != null && !sum.isEmpty ();
+
+                final String old;
+
+                if ( hasSum )
+                {
+                    old = this.checksums.put ( keys[i], sums[i] );
+                }
+                else
+                {
+                    old = null;
+                }
+
+                // now process
+
                 if ( old == null || old.equals ( sums[i] ) )
                 {
                     // not yet present - add to repo
@@ -162,14 +181,18 @@ public class ChannelStreamer
                     this.checksumErrors.add ( keys[i] );
                 }
 
-                // record source of artifact
-                this.checksumArtifacts.put ( keys[i], artifact.getId () );
+                if ( hasSum )
+                {
+                    // record source of artifact
+                    this.checksumArtifacts.put ( keys[i], artifact.getId () );
+                }
             }
 
             return true;
         }
         catch ( final Exception e )
         {
+            logger.info ( "Failed to process artifact", e );
             return false;
         }
     }
@@ -193,6 +216,7 @@ public class ChannelStreamer
         }
         catch ( final Exception e )
         {
+            logger.info ( "Failed to process metadat", e );
             return false;
         }
     }
