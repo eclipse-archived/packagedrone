@@ -48,7 +48,7 @@ public class P2Servlet extends AbstractChannelServiceServlet
     @Override
     protected void service ( final HttpServletRequest req, final HttpServletResponse resp ) throws ServletException, IOException
     {
-        logger.debug ( "Request: {} / {}", req.getMethod (), req.getServletPath () );
+        logger.debug ( "Request: {} / {} / {}", req.getMethod (), req.getServletPath (), req.getPathInfo () );
         super.service ( req, resp );
     }
 
