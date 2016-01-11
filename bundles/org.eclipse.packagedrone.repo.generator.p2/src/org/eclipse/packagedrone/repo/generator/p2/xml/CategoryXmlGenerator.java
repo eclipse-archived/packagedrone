@@ -11,7 +11,7 @@
 package org.eclipse.packagedrone.repo.generator.p2.xml;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,7 +45,7 @@ public class CategoryXmlGenerator implements ArtifactGenerator
     public void generate ( final GenerationContext context ) throws Exception
     {
         Document doc;
-        try ( BufferedInputStream is = new BufferedInputStream ( new FileInputStream ( context.getFile ().toFile () ) ) )
+        try ( BufferedInputStream is = new BufferedInputStream ( Files.newInputStream ( context.getFile () ) ) )
         {
             doc = this.xml.parse ( is );
         }
