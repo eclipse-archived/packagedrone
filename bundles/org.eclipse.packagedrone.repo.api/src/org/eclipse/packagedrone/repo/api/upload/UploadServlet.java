@@ -111,18 +111,28 @@ public class UploadServlet extends AbstractChannelServiceServlet
 
         try
         {
-            service.accessRun ( by, ModifiableChannel.class, channel -> {
+            final String artifactId = service.accessCall ( by, ModifiableChannel.class, channel -> {
 
                 // do store
 
-                store ( channel, parentArtifactId, artifactName, req, resp );
-
+                return store ( channel, parentArtifactId, artifactName, req, resp );
             } );
+            sendResponse ( resp, HttpServletResponse.SC_OK, artifactId != null ? artifactId : "" );
         }
         catch ( final ChannelNotFoundException e )
         {
-            sendResponse ( resp, HttpServletResponse.SC_NOT_FOUND, String.format ( "Unable to find channel: %s", channelIdOrName ) );;
+            sendResponse ( resp, HttpServletResponse.SC_NOT_FOUND, String.format ( "Unable to find channel: %s", channelIdOrName ) );
             return;
+        }
+        catch ( final Exception e )
+        {
+            final Throwable cause = ExceptionHelper.getRootCause ( e );
+            int state = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            if ( cause instanceof IllegalArgumentException )
+            {
+                state = HttpServletResponse.SC_BAD_REQUEST;
+            }
+            sendResponse ( resp, state, ExceptionHelper.getMessage ( e ) );
         }
     }
 
@@ -133,7 +143,7 @@ public class UploadServlet extends AbstractChannelServiceServlet
         response.getWriter ().println ( message );
     }
 
-    private static void store ( final ModifiableChannel channel, final String parentArtifactId, final String name, final HttpServletRequest request, final HttpServletResponse response ) throws IOException
+    private static String store ( final ModifiableChannel channel, final String parentArtifactId, final String name, final HttpServletRequest request, final HttpServletResponse response ) throws IOException
     {
         try
         {
@@ -142,12 +152,13 @@ public class UploadServlet extends AbstractChannelServiceServlet
             if ( art != null )
             {
                 // no veto
-                response.getWriter ().println ( art.getId () );
+                return art.getId ();
             }
+            return null; // veto
         }
         catch ( final IllegalArgumentException e )
         {
-            sendResponse ( response, HttpServletResponse.SC_BAD_REQUEST, ExceptionHelper.getMessage ( e ) );
+            throw new RuntimeException ( e );
         }
     }
 
