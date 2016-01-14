@@ -94,6 +94,7 @@
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.maven.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.npm</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.p2</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.p2.tests</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.p2.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.r5</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.r5.web</module>
