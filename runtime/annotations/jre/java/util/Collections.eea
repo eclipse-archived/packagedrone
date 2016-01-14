@@ -1,0 +1,7 @@
+class java/util/Collections
+emptyList
+ <T:Ljava/lang/Object;>()Ljava/util/List<TT;>;
+ <T:Ljava/lang/Object;>()L1java/util/List<TT;>;
+emptyMap
+ <K:Ljava/lang/Object;V:Ljava/lang/Object;>()Ljava/util/Map<TK;TV;>;
+ <K:Ljava/lang/Object;V:Ljava/lang/Object;>()L1java/util/Map<TK;TV;>;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,7 @@ import javax.validation.Valid;
 import javax.xml.ws.Holder;
 
 import org.apache.http.client.utils.URIBuilder;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.ChannelAspectInformation;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectProcessor;
@@ -110,7 +111,6 @@ import com.google.common.io.ByteStreams;
 import com.google.common.net.UrlEscapers;
 import com.google.gson.GsonBuilder;
 
-// FIXME: fix setting channel names
 @Secured
 @Controller
 @ViewResolver ( "/WEB-INF/views/%s.jsp" )
@@ -515,14 +515,12 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
             final Optional<ChannelArtifactInformation> artifact = channel.getArtifact ( artifactId );
             if ( !artifact.isPresent () )
             {
-                return CommonController.createNotFound ( "aspect", artifactId );
+                return CommonController.createNotFound ( "artifact", artifactId );
             }
 
             final Map<String, Object> model = new HashMap<String, Object> ( 1 );
             model.put ( "artifact", artifact.get () );
             model.put ( "sortedMetaData", new TreeMap<> ( artifact.get ().getMetaData () ) );
-
-            model.put ( "aspects", Activator.getAspects ().getAspectInformations () );
 
             return new ModelAndView ( "artifact/view", model );
         } );
@@ -674,7 +672,10 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
             final String exampleKey;
             if ( request.isUserInRole ( "MANAGER" ) )
             {
-                exampleKey = this.channelService.getChannelDeployKeys ( By.id ( channel.getId ().getId () ) ).orElse ( Collections.emptyList () ).stream ().map ( DeployKey::getKey ).findFirst ().orElse ( DEFAULT_EXAMPLE_KEY );
+                @SuppressWarnings ( "null" )
+                @NonNull
+                final Collection<DeployKey> keys = (@NonNull Collection<DeployKey>)this.channelService.getChannelDeployKeys ( By.id ( channel.getId ().getId () ) ).orElse ( Collections.emptyList () );
+                exampleKey = keys.stream ().map ( DeployKey::getKey ).findFirst ().orElse ( DEFAULT_EXAMPLE_KEY );
             }
             else
             {
