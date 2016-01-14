@@ -65,7 +65,7 @@
 		</div>
 		
 		<div class="col-md-2 col-lg-3">
-		   <c:if test="${ duplicateEmail }">
+		   <c:if test="${ not empty duplicateEmail and duplicateEmail }">
 		   
 		   <div class="panel panel-info" id="duplicateEmailBox">
 		       <div class="panel-heading"><h3 class="panel-title">Re-Request E-Mail</h3></div>
