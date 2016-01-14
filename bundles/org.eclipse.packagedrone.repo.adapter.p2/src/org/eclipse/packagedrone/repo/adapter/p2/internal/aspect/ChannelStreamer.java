@@ -143,9 +143,9 @@ public class ChannelStreamer
                 return false;
             }
 
-            final String[] keys = keysString.split ( ExtractorImpl.DELIM, -1 );
-            final String[] sums = sumsString.split ( ExtractorImpl.DELIM, -1 );
-            final String[] data = dataString.split ( ExtractorImpl.DELIM, -1 );
+            final String[] keys = keysString.split ( P2RepoConstants.ENTRY_DELIMITER, -1 );
+            final String[] sums = sumsString.split ( P2RepoConstants.ENTRY_DELIMITER, -1 );
+            final String[] data = dataString.split ( P2RepoConstants.ENTRY_DELIMITER, -1 );
 
             if ( keys.length != sums.length || keys.length != data.length )
             {

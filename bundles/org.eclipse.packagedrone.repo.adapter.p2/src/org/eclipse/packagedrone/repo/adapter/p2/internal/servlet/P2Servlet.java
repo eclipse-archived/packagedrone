@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.p2.internal.servlet;
 
+import static java.util.Optional.empty;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,11 +24,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.adapter.p2.internal.aspect.ChannelStreamer;
+import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
+import org.eclipse.packagedrone.repo.channel.util.DownloadHelper;
 import org.eclipse.packagedrone.repo.servlet.Handler;
 import org.eclipse.packagedrone.repo.web.utils.ChannelCacheHandler;
 import org.slf4j.Logger;
@@ -48,7 +53,10 @@ public class P2Servlet extends AbstractChannelServiceServlet
     @Override
     protected void service ( final HttpServletRequest req, final HttpServletResponse resp ) throws ServletException, IOException
     {
-        logger.debug ( "Request: {} / {} / {}", req.getMethod (), req.getServletPath (), req.getPathInfo () );
+        if ( logger.isDebugEnabled () )
+        {
+            logger.debug ( "Request: {} / {} / {}", req.getMethod (), req.getServletPath (), req.getPathInfo () );
+        }
         super.service ( req, resp );
     }
 
@@ -137,6 +145,14 @@ public class P2Servlet extends AbstractChannelServiceServlet
                     final String fileName = paths[5];
                     process ( req, resp, new DownloadHandler ( channelId, service, id, version, fileName, "eclipse.feature" ) );
                 }
+                else if ( paths.length == 6 && "binary".equals ( paths[2] ) )
+                {
+                    logger.debug ( "Download binary: {}", path );
+                    final String id = paths[3];
+                    final String version = paths[4];
+                    final String fileName = paths[5];
+                    processBinary ( req, resp, channel, id, version, fileName );
+                }
                 else
                 {
                     logger.info ( "Not found for: {}", path );
@@ -150,6 +166,20 @@ public class P2Servlet extends AbstractChannelServiceServlet
             return;
         }
 
+    }
+
+    private void processBinary ( final HttpServletRequest request, final HttpServletResponse response, final ReadableChannel channel, final String id, final String version, final String fileName ) throws IOException
+    {
+        final Optional<ArtifactInformation> ai = BinaryLocator.findByMaven ( channel, id, version );
+
+        if ( ai.isPresent () )
+        {
+            DownloadHelper.streamArtifact ( response, ai.get (), empty (), true, channel, art -> fileName );
+        }
+        else
+        {
+            notFound ( request, response, String.format ( "Binary not found: %s / %s / %s", id, version, fileName ) );
+        }
     }
 
     private String decode ( final String string )

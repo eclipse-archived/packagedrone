@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.p2.internal.aspect;
 
+import static org.eclipse.packagedrone.repo.adapter.p2.aspect.P2RepoConstants.ENTRY_DELIMITER;
+
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -33,8 +35,6 @@ import org.w3c.dom.Element;
 
 public class ExtractorImpl implements Extractor
 {
-    static final String DELIM = ";";
-
     private final XmlToolsFactory xml;
 
     public ExtractorImpl ( final XmlToolsFactory xmlToolsFactory )
@@ -84,7 +84,7 @@ public class ExtractorImpl implements Extractor
             {
                 if ( count > 0 )
                 {
-                    sw.append ( DELIM );
+                    sw.append ( ENTRY_DELIMITER );
                 }
                 count++;
                 XmlHelper.write ( this.xml.newTransformerFactory (), ele, new StreamResult ( sw ), t -> {
@@ -107,8 +107,8 @@ public class ExtractorImpl implements Extractor
             }
 
             metadata.put ( P2RepoConstants.KEY_FRAGMENT_DATA.getKey (), sw.toString () );
-            metadata.put ( P2RepoConstants.KEY_FRAGMENT_KEYS.getKey (), StringHelper.join ( keys, DELIM ) );
-            metadata.put ( P2RepoConstants.KEY_FRAGMENT_MD5.getKey (), StringHelper.join ( sums, DELIM ) );
+            metadata.put ( P2RepoConstants.KEY_FRAGMENT_KEYS.getKey (), StringHelper.join ( keys, ENTRY_DELIMITER ) );
+            metadata.put ( P2RepoConstants.KEY_FRAGMENT_MD5.getKey (), StringHelper.join ( sums, ENTRY_DELIMITER ) );
             metadata.put ( P2RepoConstants.KEY_FRAGMENT_COUNT.getKey (), "" + count );
         }
     }

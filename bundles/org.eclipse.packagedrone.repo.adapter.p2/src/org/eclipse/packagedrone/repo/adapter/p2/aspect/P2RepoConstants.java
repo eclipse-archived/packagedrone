@@ -25,4 +25,6 @@ public interface P2RepoConstants
     public static final MetaKey KEY_FRAGMENT_TYPE = new MetaKey ( P2RepositoryAspect.ID, "fragment-type" );
 
     public static final MetaKey KEY_REPO_TITLE = new MetaKey ( "p2.repo", "title" );
+
+    public static final String ENTRY_DELIMITER = ";";
 }
