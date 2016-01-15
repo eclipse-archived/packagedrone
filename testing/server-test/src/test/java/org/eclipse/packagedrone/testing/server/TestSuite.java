@@ -18,6 +18,7 @@ import org.eclipse.packagedrone.testing.server.channel.DebTest;
 import org.eclipse.packagedrone.testing.server.channel.MavenTest;
 import org.eclipse.packagedrone.testing.server.channel.MvnOsgiTest;
 import org.eclipse.packagedrone.testing.server.channel.OsgiTest;
+import org.eclipse.packagedrone.testing.server.channel.P2Test;
 import org.eclipse.packagedrone.testing.server.channel.RpmTest;
 import org.eclipse.packagedrone.testing.server.channel.UploadApiTest;
 import org.eclipse.packagedrone.testing.server.channel.UploadTest;
@@ -41,6 +42,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
         MailTest.class, //
         DeployGroupTest.class, //
         UploadTest.class, //
+        P2Test.class, //
         DebTest.class, //
         RpmTest.class, //
         OsgiTest.class, //
