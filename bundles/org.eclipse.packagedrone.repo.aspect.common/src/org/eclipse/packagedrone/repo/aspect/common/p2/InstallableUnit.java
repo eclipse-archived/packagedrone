@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -91,16 +91,19 @@ public class InstallableUnit
         }
     }
 
-    public static class Key
+    public static class Entry<T>
     {
         private final String namespace;
 
         private final String key;
 
-        public Key ( final String namespace, final String key )
+        private final T value;
+
+        public Entry ( final String namespace, final String key, final T value )
         {
             this.namespace = namespace;
             this.key = key;
+            this.value = value;
         }
 
         public String getKey ()
@@ -113,55 +116,9 @@ public class InstallableUnit
             return this.namespace;
         }
 
-        @Override
-        public int hashCode ()
+        public T getValue ()
         {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ( this.key == null ? 0 : this.key.hashCode () );
-            result = prime * result + ( this.namespace == null ? 0 : this.namespace.hashCode () );
-            return result;
-        }
-
-        @Override
-        public boolean equals ( final Object obj )
-        {
-            if ( this == obj )
-            {
-                return true;
-            }
-            if ( obj == null )
-            {
-                return false;
-            }
-            if ( ! ( obj instanceof Key ) )
-            {
-                return false;
-            }
-            final Key other = (Key)obj;
-            if ( this.key == null )
-            {
-                if ( other.key != null )
-                {
-                    return false;
-                }
-            }
-            else if ( !this.key.equals ( other.key ) )
-            {
-                return false;
-            }
-            if ( this.namespace == null )
-            {
-                if ( other.namespace != null )
-                {
-                    return false;
-                }
-            }
-            else if ( !this.namespace.equals ( other.namespace ) )
-            {
-                return false;
-            }
-            return true;
+            return this.value;
         }
     }
 
@@ -260,9 +217,9 @@ public class InstallableUnit
 
     private List<License> licenses = new LinkedList<> ();
 
-    private Map<Key, Requirement> requires = new HashMap<> ();
+    private List<Entry<Requirement>> requires = new LinkedList<> ();
 
-    private Map<Key, String> provides = new HashMap<> ();
+    private List<Entry<String>> provides = new LinkedList<> ();
 
     private Set<Artifact> artifacts = new HashSet<> ();
 
@@ -324,22 +281,22 @@ public class InstallableUnit
         return this.filter;
     }
 
-    public void setRequires ( final Map<Key, Requirement> requires )
+    public void setRequires ( final List<Entry<Requirement>> requires )
     {
         this.requires = requires;
     }
 
-    public Map<Key, Requirement> getRequires ()
+    public List<Entry<Requirement>> getRequires ()
     {
         return this.requires;
     }
 
-    public void setProvides ( final Map<Key, String> provides )
+    public void setProvides ( final List<Entry<String>> provides )
     {
         this.provides = provides;
     }
 
-    public Map<Key, String> getProvides ()
+    public List<Entry<String>> getProvides ()
     {
         return this.provides;
     }
@@ -418,9 +375,9 @@ public class InstallableUnit
 
         // provides
 
-        result.getProvides ().put ( new Key ( "org.eclipse.equinox.p2.iu", feature.getId () + ".feature.jar" ), "" + feature.getVersion () );
-        result.getProvides ().put ( new Key ( "org.eclipse.update.feature", feature.getId () ), "" + feature.getVersion () );
-        result.getProvides ().put ( new Key ( "org.eclipse.equinox.p2.eclipse.type", "feature" ), "1.0.0" );
+        addProvides ( result, "org.eclipse.equinox.p2.iu", feature.getId () + ".feature.jar", "" + feature.getVersion () );
+        addProvides ( result, "org.eclipse.update.feature", feature.getId (), "" + feature.getVersion () );
+        addProvides ( result, "org.eclipse.equinox.p2.eclipse.type", "feature", "1.0.0" );
 
         // filter
 
@@ -465,7 +422,7 @@ public class InstallableUnit
 
         // provides
 
-        result.getProvides ().put ( new Key ( "org.eclipse.equinox.p2.iu", feature.getId () + ".feature.group" ), "" + feature.getVersion () );
+        addProvides ( result, "org.eclipse.equinox.p2.iu", feature.getId () + ".feature.group", "" + feature.getVersion () );
 
         // properties
 
@@ -482,25 +439,25 @@ public class InstallableUnit
 
         // requirements
 
-        final Map<Key, Requirement> reqs = result.getRequires ();
+        final List<Entry<Requirement>> reqs = result.getRequires ();
 
         final String versionRange = String.format ( "[%1$s,%1$s]", version );
         logger.debug ( "VersionRange: {}", versionRange );
 
-        reqs.put ( new Key ( "org.eclipse.equinox.p2.iu", feature.getId () + ".feature.jar" ), new Requirement ( new VersionRange ( versionRange ), false, null, "(org.eclipse.update.install.features=true)" ) );
+        addRequires ( reqs, "org.eclipse.equinox.p2.iu", feature.getId () + ".feature.jar", new Requirement ( new VersionRange ( versionRange ), false, null, "(org.eclipse.update.install.features=true)" ) );
 
         for ( final FeatureInclude fi : feature.getIncludedFeatures () )
         {
             final String filter = fi.getQualifiers ().toFilterString ();
             final VersionRange range = fi.makeVersionRange ();
-            reqs.put ( new Key ( "org.eclipse.equinox.p2.iu", fi.getId () + ".feature.group" ), new Requirement ( range, fi.isOptional (), null, filter ) );
+            addRequires ( reqs, "org.eclipse.equinox.p2.iu", fi.getId () + ".feature.group", new Requirement ( range, fi.isOptional (), null, filter ) );
         }
 
         for ( final PluginInclude pi : feature.getIncludedPlugins () )
         {
             final String filter = pi.getQualifiers ().toFilterString ();
             final VersionRange range = pi.makeVersionRange ();
-            reqs.put ( new Key ( "org.eclipse.equinox.p2.iu", pi.getId () ), new Requirement ( range, false, null, filter ) );
+            addRequires ( reqs, "org.eclipse.equinox.p2.iu", pi.getId (), new Requirement ( range, false, null, filter ) );
         }
 
         for ( final org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.Requirement ri : feature.getRequirements () )
@@ -525,7 +482,7 @@ public class InstallableUnit
                 v = Version.emptyVersion;
             }
 
-            reqs.put ( new Key ( "org.eclipse.equinox.p2.iu", id ), new Requirement ( ri.getMatchRule ().makeRange ( v ), false, null, null ) );
+            addRequires ( reqs, "org.eclipse.equinox.p2.iu", id, new Requirement ( ri.getMatchRule ().makeRange ( v ), false, null, null ) );
         }
 
         // filter
@@ -568,13 +525,13 @@ public class InstallableUnit
 
         // provides
 
-        result.getProvides ().put ( new Key ( "osgi.bundle", bundle.getId () ), "" + bundle.getVersion () );
-        result.getProvides ().put ( new Key ( "org.eclipse.equinox.p2.iu", bundle.getId () ), "" + bundle.getVersion () );
-        result.getProvides ().put ( new Key ( "org.eclipse.equinox.p2.eclipse.type", "bundle" ), "1.0.0" );
+        addProvides ( result, "osgi.bundle", bundle.getId (), "" + bundle.getVersion () );
+        addProvides ( result, "org.eclipse.equinox.p2.iu", bundle.getId (), "" + bundle.getVersion () );
+        addProvides ( result, "org.eclipse.equinox.p2.eclipse.type", "bundle", "1.0.0" );
 
         for ( final PackageExport pe : bundle.getPackageExports () )
         {
-            result.getProvides ().put ( new Key ( "java.package", pe.getName () ), makeVersion ( pe.getVersion () ) );
+            addProvides ( result, "java.package", pe.getName (), makeVersion ( pe.getVersion () ) );
         }
 
         // localization
@@ -585,14 +542,14 @@ public class InstallableUnit
 
         for ( final PackageImport pi : bundle.getPackageImports () )
         {
-            result.getRequires ().put ( new Key ( "java.package", pi.getName () ), new Requirement ( pi.getVersionRange (), pi.isOptional (), pi.isOptional () ? false : null, null ) );
+            addRequires ( result, "java.package", pi.getName (), new Requirement ( pi.getVersionRange (), pi.isOptional (), pi.isOptional () ? false : null, null ) );
         }
 
         final String systemBundleAlias = getSystemBundleAlias ( info );
 
         for ( final BundleRequirement br : bundle.getBundleRequirements () )
         {
-            result.getRequires ().put ( new Key ( "osgi.bundle", transformBundleName ( systemBundleAlias, br.getId () ) ), new Requirement ( br.getVersionRange (), br.isOptional (), br.isOptional () ? false : null, null ) );
+            addRequires ( result, "osgi.bundle", transformBundleName ( systemBundleAlias, br.getId () ), new Requirement ( br.getVersionRange (), br.isOptional (), br.isOptional () ? false : null, null ) );
         }
 
         // artifacts
@@ -659,11 +616,31 @@ public class InstallableUnit
         props.put ( key, value );
     }
 
-    private static void addLocalization ( final Map<String, String> properties, final Map<Key, String> provides, final Map<String, Properties> localization )
+    private static void addProvides ( final InstallableUnit result, final String namespace, final String key, final String value )
+    {
+        addProvides ( result.getProvides (), namespace, key, value );
+    }
+
+    private static void addProvides ( final List<Entry<String>> provides, final String namespace, final String key, final String value )
+    {
+        provides.add ( new Entry<> ( namespace, key, value ) );
+    }
+
+    private static void addRequires ( final InstallableUnit result, final String namespace, final String key, final Requirement value )
+    {
+        addRequires ( result.getRequires (), namespace, key, value );
+    }
+
+    private static void addRequires ( final List<Entry<Requirement>> requires, final String namespace, final String key, final Requirement value )
+    {
+        requires.add ( new Entry<> ( namespace, key, value ) );
+    }
+
+    private static void addLocalization ( final Map<String, String> properties, final List<Entry<String>> provides, final Map<String, Properties> localization )
     {
         for ( final String loc : localization.keySet () )
         {
-            provides.put ( new Key ( "org.eclipse.equinox.p2.localization", loc ), "1.0.0" );
+            addProvides ( provides, "org.eclipse.equinox.p2.localization", loc, "1.0.0" );
         }
 
         for ( final Map.Entry<String, Properties> le : localization.entrySet () )
@@ -763,11 +740,11 @@ public class InstallableUnit
             xsw.writeStartElement ( "provides" );
             xsw.writeAttribute ( "size", "" + this.provides.size () );
 
-            for ( final Map.Entry<Key, String> entry : this.provides.entrySet () )
+            for ( final Entry<String> entry : this.provides )
             {
                 xsw.writeStartElement ( "provided" );
-                xsw.writeAttribute ( "namespace", entry.getKey ().getNamespace () );
-                xsw.writeAttribute ( "name", entry.getKey ().getKey () );
+                xsw.writeAttribute ( "namespace", entry.getNamespace () );
+                xsw.writeAttribute ( "name", entry.getKey () );
                 xsw.writeAttribute ( "version", entry.getValue () );
                 xsw.writeEndElement ();
             }
@@ -779,12 +756,12 @@ public class InstallableUnit
             xsw.writeStartElement ( "requires" );
             xsw.writeAttribute ( "size", "" + this.requires.size () );
 
-            for ( final Map.Entry<Key, Requirement> entry : this.requires.entrySet () )
+            for ( final Entry<Requirement> entry : this.requires )
             {
                 xsw.writeStartElement ( "required" );
 
-                xsw.writeAttribute ( "namespace", entry.getKey ().getNamespace () );
-                xsw.writeAttribute ( "name", entry.getKey ().getKey () );
+                xsw.writeAttribute ( "namespace", entry.getNamespace () );
+                xsw.writeAttribute ( "name", entry.getKey () );
                 xsw.writeAttribute ( "range", makeString ( entry.getValue ().getRange () ) );
 
                 if ( entry.getValue ().isOptional () )
