@@ -1,5 +1,9 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page
+	language="java"
+	contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"
+    trimDirectiveWhitespaces="true"
+    %>
     
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -8,7 +12,6 @@
 <%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="storage" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/web/form" prefix="form" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
-
 
 <%
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
@@ -37,6 +40,13 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 			   <h:formCheckbox label="Only root artifacts" path="onlyRootArtifacts" command="command">
 			     <span class="help-block">
 			     If checked, then only root elements will be cleared and child elements will be ignored.
+			     </span>
+			   </h:formCheckbox>
+			   
+			   <h:formCheckbox label="Require all keys" path="requireAllMatching" command="command">
+			     <span class="help-block">
+			     If checked, then only artifacts will be processed which have all aggregator properties present.
+			     Artifacts which are missing one ore more aggregator properties will simply be ignored.
 			     </span>
 			   </h:formCheckbox>
 			   

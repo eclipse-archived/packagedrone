@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,10 +26,10 @@ import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.MetaKeys;
 import org.eclipse.packagedrone.repo.aspect.cleanup.Aggregator;
 import org.eclipse.packagedrone.repo.aspect.cleanup.CleanupConfiguration;
+import org.eclipse.packagedrone.repo.aspect.cleanup.CleanupTester.Action;
 import org.eclipse.packagedrone.repo.aspect.cleanup.ResultEntry;
 import org.eclipse.packagedrone.repo.aspect.cleanup.ResultKey;
 import org.eclipse.packagedrone.repo.aspect.cleanup.Sorter;
-import org.eclipse.packagedrone.repo.aspect.cleanup.CleanupTester.Action;
 import org.eclipse.packagedrone.repo.aspect.listener.ChannelListener;
 import org.eclipse.packagedrone.repo.aspect.listener.PostAddContext;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
@@ -38,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 public class CleanupListener implements ChannelListener
 {
-
     private final static Logger logger = LoggerFactory.getLogger ( CleanupListener.class );
 
     @Override
@@ -50,11 +49,11 @@ public class CleanupListener implements ChannelListener
 
         if ( cfg.getNumberOfVersions () <= 0 || cfg.getSorter () == null )
         {
-            logger.info ( "Cleanup is unconfigured" );
+            logger.info ( "Cleanup is not configured" );
             return;
         }
 
-        final Map<List<String>, LinkedList<ArtifactInformation>> artifacts = aggregate ( cfg.getAggregator (), cfg.getSorter (), cfg.isOnlyRootArtifacts (), context.getChannelArtifacts () );
+        final Map<List<String>, LinkedList<ArtifactInformation>> artifacts = aggregate ( cfg.getAggregator (), cfg.getSorter (), cfg.isOnlyRootArtifacts (), cfg.isRequireAllMatching (), context.getChannelArtifacts () );
 
         final SortedMap<ResultKey, List<ResultEntry>> result = process ( cfg, artifacts );
 
@@ -94,7 +93,7 @@ public class CleanupListener implements ChannelListener
         return result;
     }
 
-    static Map<List<String>, LinkedList<ArtifactInformation>> aggregate ( final Aggregator aggregator, final Sorter sorter, final boolean rootOnly, final Collection<? extends ArtifactInformation> artifacts )
+    static Map<List<String>, LinkedList<ArtifactInformation>> aggregate ( final Aggregator aggregator, final Sorter sorter, final boolean rootOnly, final boolean requireAll, final Collection<? extends ArtifactInformation> artifacts )
     {
         final Map<List<String>, LinkedList<ArtifactInformation>> result = new HashMap<> ();
 
@@ -102,6 +101,7 @@ public class CleanupListener implements ChannelListener
         {
             if ( !art.is ( "stored" ) )
             {
+                // we delete only stored artifacts
                 continue;
             }
 
@@ -112,12 +112,18 @@ public class CleanupListener implements ChannelListener
             }
 
             // make key
-            final List<String> key = aggregator.makeKey ( art.getMetaData () );
+            final List<String> key = aggregator.makeKey ( art.getMetaData (), requireAll );
+
+            if ( key == null )
+            {
+                // unable to build the key
+                continue;
+            }
 
             // get list
             LinkedList<ArtifactInformation> list = result.get ( key );
 
-            // .. or create and put
+            // ... or create and put
             if ( list == null )
             {
                 list = new LinkedList<> ();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,9 @@ public class CleanupConfiguration
     @MetaKeyBinding ( namespace = CleanupAspect.ID, key = "only-root" )
     private boolean onlyRootArtifacts;
 
+    @MetaKeyBinding ( namespace = CleanupAspect.ID, key = "require-all-matching" )
+    private boolean requireAllMatching;
+
     @MetaKeyBinding ( namespace = CleanupAspect.ID, key = "sorter" )
     private Sorter sorter;
 
@@ -35,6 +38,16 @@ public class CleanupConfiguration
     public void setOnlyRootArtifacts ( final boolean onlyRootArtifacts )
     {
         this.onlyRootArtifacts = onlyRootArtifacts;
+    }
+
+    public boolean isRequireAllMatching ()
+    {
+        return this.requireAllMatching;
+    }
+
+    public void setRequireAllMatching ( final boolean requireAllMatching )
+    {
+        this.requireAllMatching = requireAllMatching;
     }
 
     public Aggregator getAggregator ()
