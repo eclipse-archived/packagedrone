@@ -131,6 +131,8 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
     private final static List<MenuEntry> menuEntries = Collections.singletonList ( new MenuEntry ( "Channels", 100, new LinkTarget ( "/channel" ), Modifier.DEFAULT, null ) );
 
+    private static final Comparator<ArtifactInformation> TREE_ARTIFACTS_COMPARATOR = Comparator.comparing ( ArtifactInformation::getName ).thenComparing ( ArtifactInformation::getCreationInstant );
+
     private DeployAuthService deployAuthService;
 
     private SitePrefixService sitePrefix;
@@ -394,18 +396,31 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
                 final ModelAndView result = new ModelAndView ( "channel/tree" );
 
+                // build artifacts tree
+
                 final Map<String, List<ArtifactInformation>> tree = new HashMap<> ();
 
                 for ( final ArtifactInformation entry : channel.getContext ().getArtifacts ().values () )
                 {
-                    List<ArtifactInformation> list = tree.get ( entry.getParentId () );
+                    final String parentId = entry.getParentId ();
+
+                    List<ArtifactInformation> list = tree.get ( parentId );
                     if ( list == null )
                     {
-                        list = new LinkedList<> ();
-                        tree.put ( entry.getParentId (), list );
+                        list = new ArrayList<> ( parentId == null ? 1000 : 10 );
+                        tree.put ( parentId, list );
                     }
                     list.add ( entry );
                 }
+
+                // now sort them
+
+                for ( final List<ArtifactInformation> list : tree.values () )
+                {
+                    Collections.sort ( list, TREE_ARTIFACTS_COMPARATOR );
+                }
+
+                // set result
 
                 result.put ( "channel", channel.getInformation () );
                 result.put ( "treeArtifacts", tree );
