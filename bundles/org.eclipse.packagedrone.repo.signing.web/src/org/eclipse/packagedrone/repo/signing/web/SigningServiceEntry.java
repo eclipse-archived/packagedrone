@@ -68,7 +68,7 @@ public class SigningServiceEntry implements Comparable<SigningServiceEntry>
         final List<SigningServiceEntry> result = new LinkedList<> ();
 
         final BundleContext ctx = FrameworkUtil.getBundle ( SigningServiceEntry.class ).getBundleContext ();
-        Collection<ServiceReference<SigningService>> refs;
+        final Collection<ServiceReference<SigningService>> refs;
         try
         {
             refs = ctx.getServiceReferences ( SigningService.class, null );

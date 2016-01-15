@@ -8,3 +8,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.packagedrone.repo.signing.web;version="1.0.0"
 Import-Package: org.eclipse.packagedrone.repo.signing;version="1.0.0",
  org.osgi.framework
+Bundle-ActivationPolicy: lazy
