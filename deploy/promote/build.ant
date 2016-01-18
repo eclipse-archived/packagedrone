@@ -8,6 +8,7 @@
 	</description>
 	
 	<property name="output.dir" location="output" />
+	<property name="download.dir" location="download" />
 	<property name="temp.dir" location="temp" />
 	<property name="build.output" location="../../products" />
 	
@@ -49,9 +50,9 @@
           target: fetch
          ================================= -->
     <target name="fetch" depends="check, clean">
-    	<mkdir dir="${output.dir}"/>
+    	<mkdir dir="${download.dir}"/>
     	
-    	<exec dir="${output.dir}" executable="rsync"  failifexecutionfails="true" failonerror="true">
+    	<exec dir="${download.dir}" executable="rsync"  failifexecutionfails="true" failonerror="true">
     		<arg value="-azv"/>
     		<arg value="--exclude-from"/>
     		<arg file="excludes.txt"/>
@@ -59,6 +60,16 @@
     		<arg value="--delete-excluded" />
     		<arg value="${eclipse.committer}@build.eclipse.org:/home/data/httpd/download.eclipse.org/package-drone/"/>
     		<arg value="."/>
+    	</exec>
+    	
+    	<mkdir dir="${output.dir}"/>
+    	
+		<!-- copy with "cp" to preserve timestamps and links -->
+    	
+    	<exec executable="cp">
+    		<arg value="-a"/>
+    		<arg file="${download.dir}"/>
+    		<arg file="${output.dir}"/>
     	</exec>
     </target>
 
