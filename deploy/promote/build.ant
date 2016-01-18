@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ======================================================================
+	 Assemble and promote from local build to Eclipse download area
+     ====================================================================== -->
+<project name="promote" default="assemble">
+	<description>
+		Assemble and promote from local build to Eclipse download area
+	</description>
+	
+	<property name="output.dir" location="output" />
+	<property name="temp.dir" location="temp" />
+	<property name="build.output" location="../../products" />
+	
+	<property file="local.properties"/>
+	
+	<property name="dryRun" value="-n"/>
+	
+	<condition property="hasEclipseCommitter">
+		<isset property="eclipse.committer" />
+	</condition>
+	
+	<condition property="hasKeyId">
+		<isset property="keyId" />
+	</condition>
+	
+	<condition property="hasVersion">
+		<and>
+			<isset property="baseVersion"/>
+			<isset property="release"/>
+			<isset property="buildType"/>
+		</and>
+	</condition>
+	
+	<property name="version" value="${baseVersion}.${release}"/>
+	
+	<!-- ================================= 
+          target: check
+         ================================= -->
+    <target name="check">
+    	<fail message="Set 'eclipse.committer' to the user id of the Eclipse committer which performs the upload"
+    		unless="${hasEclipseCommitter}"/>
+    	<fail message="Set 'baseVersion', 'release' and 'buildType'"
+    		unless="${hasVersion}"/>
+    	<fail message="Set 'keyId' to the ID of the GPG key to use for signing"
+    		unless="${hasKeyId}"/>
+    </target>
+
+	<!-- ================================= 
+          target: fetch
+         ================================= -->
+    <target name="fetch" depends="check, clean">
+    	<mkdir dir="${output.dir}"/>
+    	
+    	<exec dir="${output.dir}" executable="rsync"  failifexecutionfails="true" failonerror="true">
+    		<arg value="-azv"/>
+    		<arg value="--exclude-from"/>
+    		<arg file="excludes.txt"/>
+    		<arg value="--delete" />
+    		<arg value="--delete-excluded" />
+    		<arg value="--progress" />
+    		<arg value="${eclipse.committer}@build.eclipse.org:/home/data/httpd/download.eclipse.org/package-drone/"/>
+    		<arg value="."/>
+    	</exec>
+    </target>
+
+    <!-- ================================= 
+          target: assemble
+         ================================= -->
+    <target name="assemble" depends="fetch">
+    	<!--
+    	We do this in a two step approach here. If the version does not match the first copy task will fail.
+    	-->
+    	<copy todir="${output.dir}/drops/${buildType}/${version}"
+    		file="${build.output}/org.eclipse.packagedrone.server/target/org.eclipse.packagedrone.server-${version}.zip" />
+    	
+    	<copy todir="${output.dir}/drops/${buildType}/${version}">
+    		<fileset dir="${build.output}/org.eclipse.packagedrone.server/target">
+    			<include name="org.eclipse.packagedrone.server_*.deb" />
+    			<include name="org.eclipse.packagedrone.server-*.rpm" />
+    		</fileset>
+		</copy>
+    </target>
+	
+	<!-- ================================= 
+          target: build
+         ================================= -->
+    <target name="build" depends="assemble,build.exportKey,build.apt,build.yum,build.link">
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: build.exportKey
+         - - - - - - - - - - - - - - - - - -->
+    <target name="build.exportKey">
+        <exec executable="gpg" failifexecutionfails="true" failonerror="true" output="${output.dir}/PD-GPG-KEY">
+            <arg value="--export" />
+        	<arg value="--armor" />
+        	<arg value="${keyId}" />
+        </exec>
+    </target>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: build.apt
+         - - - - - - - - - - - - - - - - - -->
+    <target name="build.apt">
+    	<mkdir dir="${temp.dir}/ubuntu"/>
+    	
+    	<!-- filter config file -->
+    	
+    	<copy file="apt/conf/distributions.in" tofile="apt/conf/distributions">
+			<filterset>
+				<filter token="keyId" value="${keyId}"/>
+    		</filterset>
+    	</copy>
+    	
+    	<!-- gather all build type debs -->
+    	
+    	<copy todir="${temp.dir}/ubuntu" flatten="true">
+    		<fileset dir="${output.dir}/drops/${buildType}">
+    			<include name="**/*.deb"/>
+    		</fileset>
+    	</copy>
+
+    	<!-- clean working directory -->
+    	
+    	<delete dir="apt/db"/>
+    	<delete dir="apt/dists"/>
+    	<delete dir="apt/pool"/>
+    	
+		<!-- build repository -->
+    	
+    	<exec executable="bash" failifexecutionfails="true" failonerror="true">
+    		<arg value="-c"/>
+    		<arg value="for i in $(ls ${output.dir}/drops/${buildType}/${version}/*.deb); do echo Including: $i; reprepro -b apt includedeb package-drone $i; done"/>
+		</exec>
+    	
+    	<mkdir dir="${output.dir}/${buildType}/${baseVersion}/ubuntu"/>
+    	
+    	<copy todir="${output.dir}/${buildType}/${baseVersion}/ubuntu">
+    		<fileset dir="apt">
+    			<include name="dists/**"/>
+    			<include name="pool/**"/>
+    		</fileset>
+    	</copy>
+    </target>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: processYum
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="processYum">
+    	<attribute name="os"/>
+    	<attribute name="tag"/>
+        <sequential>
+            <mkdir dir="${output.dir}/${buildType}/${baseVersion}/@{os}"/>
+        	
+        	<copy todir="${output.dir}/${buildType}/${baseVersion}/@{os}" flatten="true">
+        		<fileset dir="${output.dir}/drops/${buildType}">
+        			<include name="**/*.@{tag}.*.rpm"/>
+        		</fileset>
+        	</copy>
+        	
+    		<exec executable="createrepo" dir="${output.dir}/${buildType}/${baseVersion}/@{os}" failifexecutionfails="true" failonerror="true">
+    			<arg value="--workers"/><arg value="4"/>
+    			<arg value="." />
+    		</exec>
+        	
+        	<exec executable="gpg" dir="${output.dir}/${buildType}/${baseVersion}/@{os}" failifexecutionfails="true" failonerror="true">
+	            <arg value="--detach-sign" />
+	            <arg value="--batch" />
+	            <arg value="--use-agent" />
+	            <arg value="-u" />
+	            <arg value="${keyId}" />
+	            <arg value="--armor" />
+	            <arg value="repodata/repomd.xml" />
+	        </exec>
+        	
+        </sequential>
+    </macrodef>
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: build.yum
+         - - - - - - - - - - - - - - - - - -->
+    <target name="build.yum">
+    	<processYum os="rhel6" tag="el6"/>
+    	<processYum os="rhel7" tag="el7"/>
+    	<processYum os="opensuse13" tag="os13"/>
+    </target>
+	
+	<!-- = = = = = = = = = = = = = = = = =
+          macrodef: currentLink
+         = = = = = = = = = = = = = = = = = -->
+    <macrodef name="currentLink">
+        <attribute name="type"/>
+    	<attribute name="target"/>
+        <sequential>
+        	<mkdir dir="${output.dir}/@{type}/@{target}"/>
+        	<symlink link="${output.dir}/@{type}/current" resource="@{target}" overwrite="true"/>
+        </sequential>
+    </macrodef>
+
+	
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: build.link
+         - - - - - - - - - - - - - - - - - -->
+    <target name="build.link">
+    	<currentLink type="milestone" target="0.12"/>
+    	<currentLink type="release" target="0.12"/>
+    </target>
+	
+	<!-- ================================= 
+          target: publish
+         ================================= -->
+    <target name="publish" depends="check">
+    	<exec dir="${output.dir}" executable="rsync" failifexecutionfails="true" failonerror="true">
+    		<arg value="-azv"/>
+    		<arg value="${dryRun}"/> <!-- dry run -->
+    		<arg value="--exclude-from"/>
+    		<arg file="excludes.txt"/>
+    		<arg value="--delete" />
+    		<arg value="--delete-excluded" />
+    		<arg value="--progress" />
+    		<arg value="."/>
+    		<arg value="${eclipse.committer}@build.eclipse.org:/home/data/httpd/download.eclipse.org/package-drone/"/>
+    	</exec>
+    </target>
+	
+	<!-- ================================= 
+          target: clean
+         ================================= -->
+    <target name="clean">
+		<delete dir="${output.dir}" />
+    	<delete dir="${temp.dir}" />
+    </target>
+	
+</project>

@@ -1,5 +1,5 @@
 Codename: package-drone
 Components: main
 Architectures: i386 amd64
-Description: Package drone APT repository
-SignWith: 320E6224
+Description: Package Drone
+SignWith: @keyId@

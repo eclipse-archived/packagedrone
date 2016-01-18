@@ -1,3 +1,0 @@
-apt/db
-apt/conf
-*/.gitignore
