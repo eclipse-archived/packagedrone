@@ -1,5 +1,5 @@
 Codename: package-drone
-Components: main
+Components: default
 Architectures: i386 amd64
 Description: Package Drone
 SignWith: @keyId@
