@@ -62,14 +62,12 @@
     		<arg value="."/>
     	</exec>
     	
-    	<mkdir dir="${output.dir}"/>
-    	
-		<!-- copy with "cp" to preserve timestamps and links -->
+	<!-- copy with "cp" to preserve timestamps and links -->
     	
     	<exec executable="cp">
     		<arg value="-a"/>
     		<arg file="${download.dir}"/>
-    		<arg file="${output.dir}"/>
+		<arg file="${output.dir}"/>
     	</exec>
     </target>
 
@@ -103,7 +101,7 @@
     <target name="build.exportKey">
     	<delete file="${output.dir}/PD-GPG-KEY"/>
         <exec executable="gpg" failifexecutionfails="true" failonerror="true" output="${output.dir}/PD-GPG-KEY">
-            <arg value="--export" />
+      <arg value="--export" />
         	<arg value="--armor" />
         	<arg value="${keyId}" />
         </exec>
