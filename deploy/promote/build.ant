@@ -2,7 +2,7 @@
 <!-- ======================================================================
 	 Assemble and promote from local build to Eclipse download area
      ====================================================================== -->
-<project name="promote" default="assemble">
+<project name="promote" default="build">
 	<description>
 		Assemble and promote from local build to Eclipse download area
 	</description>
