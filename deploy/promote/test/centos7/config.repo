@@ -1,0 +1,5 @@
+[package-drone]
+name=Package Drone
+baseurl=http://download.eclipse.org/package-drone/milestone/0.12/rhel7
+enabled=1
+gpgcheck=1
