@@ -57,7 +57,6 @@
     		<arg file="excludes.txt"/>
     		<arg value="--delete" />
     		<arg value="--delete-excluded" />
-    		<arg value="--progress" />
     		<arg value="${eclipse.committer}@build.eclipse.org:/home/data/httpd/download.eclipse.org/package-drone/"/>
     		<arg value="."/>
     	</exec>
@@ -217,7 +216,6 @@
     		<arg file="excludes.txt"/>
     		<arg value="--delete" />
     		<arg value="--delete-excluded" />
-    		<arg value="--progress" />
     		<arg value="."/>
     		<arg value="${eclipse.committer}@build.eclipse.org:/home/data/httpd/download.eclipse.org/package-drone/"/>
     	</exec>
