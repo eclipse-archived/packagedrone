@@ -2,7 +2,7 @@
 <!-- ======================================================================
 	 Assemble and promote from local build to Eclipse download area
      ====================================================================== -->
-<project name="promote" default="build">
+<project name="promote" default="default">
 	<description>
 		Assemble and promote from local build to Eclipse download area
 	</description>
@@ -49,7 +49,7 @@
 	<!-- ================================= 
           target: fetch
          ================================= -->
-    <target name="fetch" depends="check, clean">
+    <target name="fetch" depends="check">
     	<mkdir dir="${download.dir}"/>
     	
     	<exec dir="${download.dir}" executable="rsync"  failifexecutionfails="true" failonerror="true">
@@ -74,7 +74,7 @@
     <!-- ================================= 
           target: assemble
          ================================= -->
-    <target name="assemble" depends="fetch">
+    <target name="assemble">
     	<!--
     	We do this in a two step approach here. If the version does not match the first copy task will fail.
     	-->
@@ -92,7 +92,7 @@
 	<!-- ================================= 
           target: build
          ================================= -->
-    <target name="build" depends="assemble,build.exportKey,build.apt,build.yum,build.link">
+    <target name="build" depends="build.exportKey,build.apt,build.yum,build.link">
     </target>
 	
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -227,6 +227,13 @@
     	<currentLink type="release" target="0.12"/>
     </target>
 	
+	
+	<!-- ================================= 
+          target: default
+         ================================= -->
+    <target name="default" depends="clean, fetch, assemble, build">
+	</target>
+
 	<!-- ================================= 
           target: publish
          ================================= -->
