@@ -204,7 +204,17 @@
     	<attribute name="target"/>
         <sequential>
         	<mkdir dir="${output.dir}/@{type}/@{target}"/>
-        	<symlink link="${output.dir}/@{type}/current" resource="@{target}" overwrite="true"/>
+        	
+        	<!--
+        	Since the Eclipse download area does not support symlinks
+        	we do need to copy all files
+        	-->
+        	
+        	<delete dir="${output.dir}/@{type}/current"/>
+        	<mkdir dir="${output.dir}/@{type}/current"/>
+        	<copy todir="${output.dir}/@{type}/current">
+        		<fileset dir="${output.dir}/@{type}/${target}" />
+    		</copy>
         </sequential>
     </macrodef>
 
