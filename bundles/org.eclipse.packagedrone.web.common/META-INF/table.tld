@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+    version="2.1">
+
+	<tlib-version>1.0</tlib-version>
+	<short-name>table</short-name>
+	<uri>http://eclipse.org/packagedrone/web/common/table</uri>
+
+	<tag>
+    	<name>extender</name>
+    	<tag-class>org.eclipse.packagedrone.web.common.tags.TableExtenderTag</tag-class>
+    	<body-content>scriptless</body-content>
+    	
+    	<attribute>
+    		<description>The ID of the table</description>
+    		<name>id</name>
+    		<required>true</required>
+    		<rtexprvalue>true</rtexprvalue>
+    		<type>java.lang.String</type>
+    	</attribute>
+    	
+    	<attribute>
+    		<description>Comma separated list of tags</description>
+    		<name>tags</name>
+    		<required>false</required>
+    		<rtexprvalue>true</rtexprvalue>
+    		<type>java.lang.String</type>
+    	</attribute>
+    	
+    	<dynamic-attributes>true</dynamic-attributes>
+    </tag>
+    
+    <tag>
+    	<name>columns</name>
+    	<tag-class>org.eclipse.packagedrone.web.common.tags.TableColumnsTag</tag-class>
+    	<body-content>scriptless</body-content>
+    	
+    	<attribute>
+    		<name>var</name>
+    		<required>true</required>
+    		<rtexprvalue>true</rtexprvalue>
+    		<type>java.lang.String</type>
+    	</attribute>
+    	
+    	<attribute>
+    		<name>start</name>
+    		<required>false</required>
+    		<rtexprvalue>true</rtexprvalue>
+    		<type>int</type>
+    	</attribute>
+    	
+    	<attribute>
+    		<name>end</name>
+    		<required>false</required>
+    		<rtexprvalue>true</rtexprvalue>
+    		<type>int</type>
+    	</attribute>
+    </tag>
+    
+    <tag>
+    	<name>row</name>
+    	<tag-class>org.eclipse.packagedrone.web.common.tags.TableRowTag</tag-class>
+    	<body-content>scriptless</body-content>
+    	
+    	<attribute>
+    		<name>item</name>
+    		<required>true</required>
+    		<rtexprvalue>true</rtexprvalue>
+    	</attribute>
+    	
+    	<attribute>
+    		<name>start</name>
+    		<required>false</required>
+    		<rtexprvalue>true</rtexprvalue>
+    		<type>int</type>
+    	</attribute>
+    	
+    	<attribute>
+    		<name>end</name>
+    		<required>false</required>
+    		<rtexprvalue>true</rtexprvalue>
+    		<type>int</type>
+    	</attribute>
+    </tag>
+    
+    <tag>
+    	<name>extension</name>
+    	<tag-class>org.eclipse.packagedrone.web.common.tags.TableExtensionTag</tag-class>
+    	<body-content>empty</body-content>
+    </tag>
+
+</taglib>

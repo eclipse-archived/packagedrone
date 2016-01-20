@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.web.ci.extender">
+   <implementation class="org.eclipse.packagedrone.repo.web.ci.BuildUrlExtender"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.web.common.table.TableExtender"/>
+   </service>
+</scr:component>

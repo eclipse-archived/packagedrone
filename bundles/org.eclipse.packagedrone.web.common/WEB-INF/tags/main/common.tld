@@ -4,8 +4,8 @@
     version="2.1">
 
 	<tlib-version>1.0</tlib-version>
-	<short-name>pm</short-name>
-	<uri>http://eclipse.org/packagedrone/repo/channel/web</uri>
+	<short-name>common</short-name>
+	<uri>http://eclipse.org/packagedrone/web/common</uri>
 
 	<function>
         <name>modifier</name>
@@ -18,4 +18,5 @@
         <function-class>org.eclipse.packagedrone.web.common.tags.Functions</function-class>
         <function-signature>java.util.SortedSet metadata(java.util.Map,java.lang.String,java.lang.String)</function-signature>
     </function>
+    
 </taglib>

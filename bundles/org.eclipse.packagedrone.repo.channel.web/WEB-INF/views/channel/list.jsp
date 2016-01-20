@@ -3,8 +3,6 @@
     pageEncoding="UTF-8"
     trimDirectiveWhitespaces="true"
     %>
-
-<%@ page import="org.eclipse.packagedrone.repo.channel.web.Tags"%>
     
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -13,6 +11,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
+
+<%@ page import="org.eclipse.packagedrone.repo.channel.web.Tags"%>
 
 <%
 pageContext.setAttribute ( "TAG", Tags.ACTION_TAG_CHANNELS );

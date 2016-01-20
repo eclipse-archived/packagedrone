@@ -15,17 +15,26 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestHandler;
+import org.eclipse.packagedrone.web.common.internal.table.OsgiTableExtensionManager;
 import org.eclipse.packagedrone.web.common.menu.MenuManager;
 import org.eclipse.packagedrone.web.common.menu.MenuManagerImpl;
+import org.eclipse.packagedrone.web.common.table.TableExtensionManager;
+import org.eclipse.packagedrone.web.common.table.TableExtensionManagerRequest;
 import org.eclipse.packagedrone.web.interceptor.ModelAndViewInterceptorAdapter;
+import org.osgi.framework.InvalidSyntaxException;
 
 public class MenuInterceptor extends ModelAndViewInterceptorAdapter
 {
     private MenuManagerImpl menuManager;
 
-    public void activate ()
+    private OsgiTableExtensionManager tableExtensionManager;
+
+    public void activate () throws InvalidSyntaxException
     {
         this.menuManager = new MenuManagerImpl ();
+
+        this.tableExtensionManager = new OsgiTableExtensionManager ();
+        this.tableExtensionManager.start ();
     }
 
     public void deactivate ()
@@ -35,6 +44,12 @@ public class MenuInterceptor extends ModelAndViewInterceptorAdapter
             this.menuManager.close ();
             this.menuManager = null;
         }
+
+        if ( this.tableExtensionManager != null )
+        {
+            this.tableExtensionManager.stop ();
+            this.tableExtensionManager = null;
+        }
     }
 
     @Override
@@ -43,6 +58,12 @@ public class MenuInterceptor extends ModelAndViewInterceptorAdapter
         if ( modelAndView != null && !modelAndView.isRedirect () )
         {
             modelAndView.put ( "menuManager", new MenuManager ( this.menuManager, request ) );
+
+            final TableExtensionManager table = this.tableExtensionManager;
+            if ( table != null && request != null )
+            {
+                modelAndView.put ( TableExtensionManagerRequest.PROPERTY_NAME, new TableExtensionManagerRequest ( table, request ) );
+            }
         }
     }
 

@@ -1,14 +1,19 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-    
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
-<%@ taglib tagdir="/WEB-INF/tags/storage" prefix="s" %>
+<%@ page language="java"
+	contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"
+    trimDirectiveWhitespaces="true"
+    %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="storage" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
+
+<%@ taglib prefix="h" tagdir="/WEB-INF/tags/main" %>
+<%@ taglib prefix="s" tagdir="/WEB-INF/tags/storage" %>
+
+<%@ taglib prefix="table" uri="http://eclipse.org/packagedrone/web/common/table" %>
 
 <%
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
@@ -27,7 +32,7 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 </jsp:attribute>
 
 <jsp:attribute name="head">
-<s:dz_head/>
+	<s:dz_head/>
 </jsp:attribute>
 
 <jsp:attribute name="body">
@@ -42,6 +47,7 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 
 <h:nav menu="${menuManager.getViews(channel) }"/>
 
+<table:extender id="artifacts.list" tags="artifacts">
 <table id="artifacts" class="table table-striped table-condensed table-hover">
 
 <thead>
@@ -49,10 +55,12 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
         <th>Name</th>
         <th>Size</th>
         <th>Created</th>
+        <table:columns end="0" var="col"><th id="col-${col.id }" title="${fn:escapeXml(col.description) }">${fn:escapeXml(col.label) }</th></table:columns>
         <th></th>
         <th></th>
         <th></th>
         <th></th>
+        <table:columns start="0" var="col"><th id="col-${col.id }" title="${fn:escapeXml(col.description) }">${fn:escapeXml(col.label) }</th></table:columns>
     </tr>
 </thead>
 
@@ -62,17 +70,33 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
         <td>${ fn:escapeXml(artifact.name) }</td>
         <td class="text-right"><web:bytes amount="${ artifact.size}"/></td>
         <td style="white-space: nowrap;"><fmt:formatDate value="${artifact.creationTimestamp }" type="both" /> </td>
+        
+        <%-- extensions - before 0 --%>
+        
+		<table:row end="0" item="${artifact }">
+        	<td><table:extension/></td>
+        </table:row>
+        
+        <%-- commands --%>
+        
         <td><a href="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${ fn:escapeXml(artifact.id) }/get"/>">Download</a></td>
         <td>
           <c:if test='${artifact.is("stored") and manager}'><a href="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${ fn:escapeXml(artifact.id) }/delete"/>">Delete</a></c:if>
         </td>
         <td><a href="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${ fn:escapeXml(artifact.id) }/view"/>">Details</a></td>
         <td><a href="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${ fn:escapeXml(artifact.id) }/dump"/>">View</a></td>
+        
+        <%-- extensions - after 0 --%>
+        
+		<table:row start="0" item="${artifact }">
+        	<td><table:extension/></td>
+        </table:row>
     </tr>
 </c:forEach>
 </tbody>
 
 </table>
+</table:extender>
 
 <s:dz_init/>
 

@@ -142,6 +142,7 @@
 		<module>bundles/org.eclipse.packagedrone.repo.utils.osgi.tests</module>
 		<module>bundles/org.eclipse.packagedrone.repo.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.web.analytics</module>
+		<module>bundles/org.eclipse.packagedrone.repo.web.ci</module>
 		<module>bundles/org.eclipse.packagedrone.repo.web.googlebot</module>
 		<module>bundles/org.eclipse.packagedrone.repo.web.sitemap</module>
 		<module>bundles/org.eclipse.packagedrone.repo.web.sitemap.servlet</module>

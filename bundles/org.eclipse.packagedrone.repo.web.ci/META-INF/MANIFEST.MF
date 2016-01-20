@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CI Helper Integration
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.web.ci
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Eclipse Package Drone
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.google.common.escape;version="18.0.0",
+ com.google.common.html;version="18.0.0",
+ javax.servlet.http;version="3.1.0",
+ org.eclipse.jdt.annotation,
+ org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel,
+ org.eclipse.packagedrone.utils;version="1.0.0",
+ org.eclipse.packagedrone.web;version="1.0.0",
+ org.eclipse.packagedrone.web.common;version="1.0.0",
+ org.eclipse.packagedrone.web.common.menu;version="1.0.0",
+ org.eclipse.packagedrone.web.common.table;version="1.0.0"
+Service-Component: OSGI-INF/extender.xml

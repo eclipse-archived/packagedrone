@@ -8,53 +8,14 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="storage" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/repo/channel/web" prefix="pm" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web/common" prefix="pm" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
+<%@ taglib prefix="table" uri="http://eclipse.org/packagedrone/web/common/table"  %>
 
 <%
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 %>
-
-<web:define name="list">
-	<c:forEach var="artifact" items="${ artifacts }">
-		<tr style="display: none;" data-parent="${parent }" data-parents="${ parents }" data-level="${level }"
-		      class="${storage:severityWithDefault(treeSeverityTester.getState(artifact),'') }"
-		      data-severity="${artifact.getOverallValidationState() }">
-		    <td style="padding-left: ${1+(level*2)}em;">
-		      <c:choose>
-		          <c:when test="${not empty map.get(artifact.id) }">
-		              <a data-artifact="${artifact.id }" class="expander" href="#"><i class="fa fa-plus-square-o"></i></a>
-		          </c:when>
-		          <c:otherwise>
-                      <i style="visibility: hidden;" class="fa fa-square-o"></i>
-                  </c:otherwise>
-		      </c:choose>
-		      
-		      ${fn:escapeXml(artifact.name) }
-		    </td>
-		    
-		    <td>
-                <c:forEach var="value" items="${pm:metadata(artifact.metaData, null, 'artifactLabel') }" >
-                    <span class="label label-info">${fn:escapeXml(value) }</span>
-                </c:forEach>
-		    </td>
-		    
-		    <td class="text-right"><web:bytes amount="${artifact.size }"/></td>
-		    
-		    <td style="white-space: nowrap;"><fmt:formatDate value="${artifact.creationTimestamp }" type="both" /> </td>
-		    
-		    <td><a href="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${ fn:escapeXml(artifact.id) }/get"/>">Download</a></td>
-	        <td>
-	          <c:if test='${artifact.is("stored") and manager}'><a href="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${artifact.id}/delete"/>">Delete</a></c:if>
-	        </td>
-	        <td><a href="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${ fn:escapeXml(artifact.id) }/view"/>">Details</a></td>
-	        <td><a href="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${ fn:escapeXml(artifact.id) }/dump"/>">View</a></td>
-		</tr>
-		
-		<web:call name="list" parent="${artifact.id }" parents="${parents } ${artifact.id }" artifacts="${map.get(artifact.id) }" level="${level+1 }"/>
-	</c:forEach>
-</web:define>
 
 <h:main title="Channel" subtitle="${storage:channel(channel) }">
 
@@ -90,26 +51,30 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 <h:nav menu="${menuManager.getViews(channel) }" />
 
 <div class="table-responsive">
-	<table id="artifacts" class="table table-condensed table-hover">
-	
-		<thead>
-		    <tr>
-		        <th>Name</th>
-		        <th>Classifier</th>
-		        <th>Size</th>
-		        <th>Created</th>
-		        <th></th>
-		        <th></th>
-		        <th></th>
-		        <th></th>
-		    </tr>
-		</thead>
-	
-		<tbody>
-		    <web:call name="list" map="${treeArtifacts }" artifacts="${treeArtifacts.get(null) }" level="${0 }"/>
-		</tbody>
-	
-	</table>
+	<table:extender id="artifacts.tree" tags="artifacts, default" channel="${channel }">
+		<table id="artifacts" class="table table-condensed table-hover">
+		
+			<thead>
+			    <tr>
+			        <th>Name</th>
+			        <th>Classifier</th>
+			        <th>Size</th>
+			        <th>Created</th>
+			        <table:columns var="col" end="0"><th id="col-${col.id }" title="${fn:escapeXml(col.description) }">${fn:escapeXml(col.label) }</th></table:columns>
+			        <th></th>
+			        <th></th>
+			        <th></th>
+			        <th></th>
+			        <table:columns var="col" start="0"><th id="col-${col.id }">${fn:escapeXml(col.label) }</th></table:columns>
+			    </tr>
+			</thead>
+		
+			<tbody>
+				<s:tree_fragment map="${treeArtifacts }" artifacts="${treeArtifacts.get(null) }" level="${0 }"/>
+			</tbody>
+		
+		</table>
+	</table:extender>
 </div>
 
 <script type="text/javascript">

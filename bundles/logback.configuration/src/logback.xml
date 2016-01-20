@@ -20,8 +20,7 @@
 	<logger name="de.dentrassi.pm.storage.service.internal" level="TRACE"/>
 	<logger name="de.dentrassi.osgi.web.DispatcherServlet" level="TRACE"/>
 	 -->
-	 <logger name="org.eclipse.packagedrone.repo.adapter.p2.internal.servlet.P2Servlet" level="DEBUG"/>
-	              
+	           
 	<root level="warn">
 		<appender-ref ref="STDOUT" />
 	</root>

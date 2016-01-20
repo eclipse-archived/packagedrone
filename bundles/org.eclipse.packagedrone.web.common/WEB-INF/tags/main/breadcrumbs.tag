@@ -2,7 +2,7 @@
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/repo/channel/web" prefix="pm" %>
+<%@ taglib uri="http://eclipse.org/packagedrone/web/common" prefix="pm" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
