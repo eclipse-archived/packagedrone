@@ -66,11 +66,11 @@
     	
     	<delete dir="${output.dir}"/>
     	
-    	<exec executable="cp">
+    	<exec executable="cp" failifexecutionfails="true" failonerror="true">
     		<arg value="-a"/>
     		<arg file="${download.dir}"/>
 			<arg file="${output.dir}"/>
-    	</exec>
+    	</exec>    	
     </target>
 
     <!-- ================================= 
@@ -212,7 +212,7 @@
         	we do need to copy all files
         	-->
         	
-        	<delete dir="${output.dir}/@{type}/current"/>
+        	<delete dir="${output.dir}/@{type}/current" followsymlinks="false"/>
         	<mkdir dir="${output.dir}/@{type}/current"/>
         	<copy todir="${output.dir}/@{type}/current">
         		<fileset dir="${output.dir}/@{type}/@{target}" />
