@@ -213,7 +213,7 @@
         	<delete dir="${output.dir}/@{type}/current"/>
         	<mkdir dir="${output.dir}/@{type}/current"/>
         	<copy todir="${output.dir}/@{type}/current">
-        		<fileset dir="${output.dir}/@{type}/${target}" />
+        		<fileset dir="${output.dir}/@{type}/@{target}" />
     		</copy>
         </sequential>
     </macrodef>
