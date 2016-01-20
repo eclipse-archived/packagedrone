@@ -64,17 +64,19 @@
     	
 		<!-- copy with "cp" to preserve timestamps and links -->
     	
+    	<delete dir="${output.dir}"/>
+    	
     	<exec executable="cp">
     		<arg value="-a"/>
     		<arg file="${download.dir}"/>
-		<arg file="${output.dir}"/>
+			<arg file="${output.dir}"/>
     	</exec>
     </target>
 
     <!-- ================================= 
           target: assemble
          ================================= -->
-    <target name="assemble">
+    <target name="assemble" depends="check">
     	<!--
     	We do this in a two step approach here. If the version does not match the first copy task will fail.
     	-->
@@ -92,7 +94,7 @@
 	<!-- ================================= 
           target: build
          ================================= -->
-    <target name="build" depends="build.exportKey,build.apt,build.yum,build.link">
+    <target name="build" depends="check,build.exportKey,build.apt,build.yum,build.link">
     </target>
 	
 	<!-- - - - - - - - - - - - - - - - - - 
@@ -231,7 +233,7 @@
 	<!-- ================================= 
           target: default
          ================================= -->
-    <target name="default" depends="clean, fetch, assemble, build">
+    <target name="default" depends="check, clean, fetch, assemble, build">
 	</target>
 
 	<!-- ================================= 
