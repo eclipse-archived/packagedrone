@@ -212,7 +212,7 @@
         	we do need to copy all files
         	-->
         	
-        	<delete dir="${output.dir}/@{type}/current" followsymlinks="false"/>
+        	<delete dir="${output.dir}/@{type}/current" followsymlinks="false" removeNotFollowedSymlinks="true"/>
         	<mkdir dir="${output.dir}/@{type}/current"/>
         	<copy todir="${output.dir}/@{type}/current">
         		<fileset dir="${output.dir}/@{type}/@{target}" />
