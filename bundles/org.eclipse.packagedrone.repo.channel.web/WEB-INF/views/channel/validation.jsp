@@ -14,15 +14,19 @@
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 %>
 
-<h:main title="Channel" subtitle="${storage:channel(channel) }">
+<h:main title="Channel details" subtitle="${storage:channel(channel) }">
 
-<h:buttonbar menu="${menuManager.getActions(channel) }" />
+<jsp:attribute name="subtitleHtml"><s:channelSubtitle channel="${channel }" /></jsp:attribute>
 
-<h:nav menu="${menuManager.getViews(channel) }"/>
+<jsp:body>
+  <h:buttonbar menu="${menuManager.getActions(channel) }" />
+  
+  <h:nav menu="${menuManager.getViews(channel) }"/>
+  
+  <div class="table-responsive">
+  	<s:valTable messages="${messages }"/>
+  </div>
 
-<div class="table-responsive">
-	<s:valTable messages="${messages }"/>
-</div>
-
+</jsp:body>
 
 </h:main>

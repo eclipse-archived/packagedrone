@@ -1,22 +1,31 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ page
+  language="java"
+  contentType="text/html; charset=UTF-8"
+  pageEncoding="UTF-8"
+  trimDirectiveWhitespaces="true"
+  %>
 
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="pm" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
+<%@ taglib prefix="h" tagdir="/WEB-INF/tags/main" %>
+<%@ taglib prefix="s" tagdir="/WEB-INF/tags/storage" %>
+
 <%
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 %>
 
 <c:set var="idUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( channel.id )) }"/>
-
 <c:set var="exampleUrl" value="${ fn:escapeXml(exampleSitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( channel.id )) }" />
 
 <h:main title="API Upload" subtitle="${pm:channel(channel) }">
+
+<jsp:attribute name="subtitleHtml"><s:channelSubtitle channel="${channel }" /></jsp:attribute>
+
+<jsp:body>
 
 <h:buttonbar menu="${menuManager.getActions(channel) }"/>
 <h:nav menu="${menuManager.getViews(channel) }"/>
@@ -67,5 +76,7 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
     <pre>curl -X PUT --data-binary @<strong>my.jar</strong> ${exampleUrl }/my.jar<strong>?test:foo=bar</strong></pre>
     
 </div>
+
+</jsp:body>
 
 </h:main>

@@ -1,23 +1,27 @@
 <%@ page
-	language="java"
-	contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"
-    trimDirectiveWhitespaces="true"
-%>
+  language="java"
+  contentType="text/html; charset=UTF-8"
+  pageEncoding="UTF-8"
+  trimDirectiveWhitespaces="true"
+  %>
     
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="pm" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
+<%@ taglib prefix="h" tagdir="/WEB-INF/tags/main" %>
+<%@ taglib prefix="s" tagdir="/WEB-INF/tags/storage" %>
+
 <c:set var="idUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/p2/' ).concat ( channel.id )) }"/>
 
 <h:main title="Channel" subtitle="${pm:channel(channel) }">
 
-<h:buttonbar menu="${menuManager.getActions(channel) }"/>
+<jsp:attribute name="subtitleHtml"><s:channelSubtitle channel="${channel }" /></jsp:attribute>
 
+<jsp:body>
+<h:buttonbar menu="${menuManager.getActions(channel) }"/>
 <h:nav menu="${menuManager.getViews(channel) }"/>
 
 <div class="container-fluid form-padding">
@@ -126,5 +130,7 @@ location "${idUrl }" {
 </c:choose>
 
 </div>
+
+</jsp:body>
 
 </h:main>

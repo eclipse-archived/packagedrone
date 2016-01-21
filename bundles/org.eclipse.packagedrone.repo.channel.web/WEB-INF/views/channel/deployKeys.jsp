@@ -1,13 +1,15 @@
-
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ page
+  language="java"
+  contentType="text/html; charset=UTF-8"
+  pageEncoding="UTF-8"
+  trimDirectiveWhitespaces="true"
+  %>
 
 <%@ page import="java.util.Collections"%>
 <%@ page import="java.util.ArrayList"%>
 <%@ page import="java.util.List"%>
 <%@ page import="org.eclipse.packagedrone.repo.channel.deploy.DeployGroup"%>
     
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -15,6 +17,8 @@
 <%@ taglib uri="http://eclipse.org/packagedrone/web/form" prefix="form" %>
 <%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
+<%@ taglib prefix="h" tagdir="/WEB-INF/tags/main" %>
+<%@ taglib prefix="s" tagdir="/WEB-INF/tags/storage" %>
 
 <web:define name="named">
 <c:choose>
@@ -25,8 +29,11 @@
 
 <h:main title="Channel" subtitle="${pm:channel(channel) }">
 
-<h:buttonbar menu="${menuManager.getActions(channel) }"/>
+<jsp:attribute name="subtitleHtml"><s:channelSubtitle channel="${channel }" /></jsp:attribute>
 
+<jsp:body>
+
+<h:buttonbar menu="${menuManager.getActions(channel) }"/>
 <h:nav menu="${menuManager.getViews(channel) }"/>
 
 <div class="container-fluid form-padding">
@@ -198,5 +205,7 @@ $('#settings-modal').on('show.bs.modal', function (event) {
 	  modal.find('.data-channel').text(button.data('channel'));
 	});
 </script>
+
+</jsp:body>
 
 </h:main>
