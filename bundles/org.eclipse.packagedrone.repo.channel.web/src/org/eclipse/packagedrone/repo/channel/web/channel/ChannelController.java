@@ -34,6 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
@@ -1082,20 +1083,43 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @ControllerValidator ( formDataClass = CreateChannel.class )
     public void validateCreate ( final CreateChannel data, final ValidationContext ctx )
     {
-        validateChannelNamesUnique ( null, splitChannelNames ( data.getNames () ), ctx );
+        validateChannelNames ( null, splitChannelNames ( data.getNames () ), ctx );
     }
 
     @ControllerValidator ( formDataClass = EditChannel.class )
     public void validateEdit ( final EditChannel data, final ValidationContext ctx )
     {
-        validateChannelNamesUnique ( data.getId (), splitChannelNames ( data.getNames () ), ctx );
+        validateChannelNames ( data.getId (), splitChannelNames ( data.getNames () ), ctx );
     }
 
-    private void validateChannelNamesUnique ( final String id, final Iterable<String> names, final ValidationContext ctx )
+    private void validateChannelNames ( final String id, final Iterable<String> names, final ValidationContext ctx )
     {
         for ( final String name : names )
         {
+            validateChannelName ( name, ctx );
             validateChannelNameUnique ( id, name, ctx );
+        }
+    }
+
+    /**
+     * Validate the name of the channel
+     *
+     * @param name
+     *            the channel name to test
+     * @param ctx
+     *            the validation context
+     */
+    private static void validateChannelName ( final String name, final ValidationContext ctx )
+    {
+        if ( name == null || name.isEmpty () )
+        {
+            return;
+        }
+
+        final Matcher m = ChannelService.NAME_PATTERN.matcher ( name );
+        if ( !m.matches () )
+        {
+            ctx.error ( "names", String.format ( "The channel name '%s' must match the pattern '%s'", name, ChannelService.NAME_PATTERN.pattern () ) );
         }
     }
 
@@ -1120,7 +1144,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
             return;
         }
 
-        ctx.error ( "name", String.format ( "The channel name '%s' is already in use by channel '%s'", name, other.getId () ) );
+        ctx.error ( "names", String.format ( "The channel name '%s' is already in use by channel '%s'", name, other.getId () ) );
     }
 
     @RequestMapping ( value = "/channel/{channelId}/artifact/{artifactId}/attach", method = RequestMethod.GET )
