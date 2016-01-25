@@ -64,6 +64,11 @@ import org.eclipse.packagedrone.repo.channel.stats.ChannelStatistics;
  */
 public interface ChannelService
 {
+    /**
+     * The pattern of valid channel names
+     */
+    public static final Pattern NAME_PATTERN = Pattern.compile ( "[a-zA-Z0-9\\-_\\.]+" );
+
     @FunctionalInterface
     public interface ChannelOperation<R, T>
     {
@@ -277,6 +282,4 @@ public interface ChannelService
      * Delete all channels
      */
     public void wipeClean ();
-
-    public static final Pattern NAME_PATTERN = Pattern.compile ( "[a-zA-Z0-9\\-_\\.]+" );
 }
