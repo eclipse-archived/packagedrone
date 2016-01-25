@@ -7,6 +7,7 @@ Bundle-Vendor: Markus Rathgeb
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.maven.model,
  org.apache.maven.model.io.xpp3,
+ org.eclipse.jdt.annotation,
  org.eclipse.packagedrone.repo;version="1.0.0",
  org.eclipse.packagedrone.repo.aspect;version="1.0.0",
  org.eclipse.packagedrone.repo.aspect.common.osgi;version="1.0.0",
