@@ -1,0 +1,4 @@
+class java/lang/Object
+getClass
+ ()Ljava/lang/Class<*>;
+ ()L1java/lang/Class<*>;

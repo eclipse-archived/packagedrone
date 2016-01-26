@@ -5,3 +5,9 @@ emptyList
 emptyMap
  <K:Ljava/lang/Object;V:Ljava/lang/Object;>()Ljava/util/Map<TK;TV;>;
  <K:Ljava/lang/Object;V:Ljava/lang/Object;>()L1java/util/Map<TK;TV;>;
+emptySet
+ <T:Ljava/lang/Object;>()Ljava/util/Set<TT;>;
+ <T:Ljava/lang/Object;>()L1java/util/Set<TT;>;
+unmodifiableMap
+ <K:Ljava/lang/Object;V:Ljava/lang/Object;>(Ljava/util/Map<+TK;+TV;>;)Ljava/util/Map<TK;TV;>;
+ <K:Ljava/lang/Object;V:Ljava/lang/Object;>(Ljava/util/Map<+TK;+TV;>;)L1java/util/Map<TK;TV;>;
