@@ -42,7 +42,7 @@ public class JspBundle
 
         logger.info ( "Registering JSP servlet - resources: /WEB-INF, alias: {}, bundle: {}", this.alias, bundle.getSymbolicName () );
 
-        final Dictionary<String, Object> initparams = new Hashtable<> ( 2 );
+        final Dictionary<String, String> initparams = new Hashtable<> ( 2 );
         initparams.put ( "compilerSourceVM", "1.8" );
         initparams.put ( "compilerTargetVM", "1.8" );
 
