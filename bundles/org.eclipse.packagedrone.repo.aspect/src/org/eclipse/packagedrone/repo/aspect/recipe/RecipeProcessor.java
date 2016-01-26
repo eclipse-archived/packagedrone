@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,23 +10,21 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.aspect.recipe;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.aspect.PropertiesHelper;
+import org.eclipse.packagedrone.utils.osgi.FactoryTracker;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-public class RecipeProcessor
+public class RecipeProcessor extends FactoryTracker<Recipe, RecipeProcessor.Entry>
 {
     public static class GenericComparator<T, C extends Comparable<C>> implements Comparator<T>
     {
@@ -80,76 +78,44 @@ public class RecipeProcessor
         }
     }
 
-    private final BundleContext context;
-
-    private final ServiceTracker<Recipe, Entry> tracker;
-
-    private final ServiceTrackerCustomizer<Recipe, Entry> customizer = new ServiceTrackerCustomizer<Recipe, Entry> () {
-
-        @Override
-        public void removedService ( final ServiceReference<Recipe> reference, final Entry service )
-        {
-            RecipeProcessor.this.entries.remove ( service.getInformation ().getId () );
-            RecipeProcessor.this.context.ungetService ( reference );
-        }
-
-        @Override
-        public void modifiedService ( final ServiceReference<Recipe> reference, final Entry service )
-        {
-        }
-
-        @Override
-        public Entry addingService ( final ServiceReference<Recipe> reference )
-        {
-            final Entry entry = makeEntry ( reference );
-
-            if ( entry != null )
-            {
-                RecipeProcessor.this.entries.put ( entry.getInformation ().getId (), entry );
-            }
-
-            return entry;
-        }
-    };
-
-    private final Map<String, Entry> entries = new ConcurrentHashMap<> ();
-
-    public RecipeProcessor ( final BundleContext context )
+    public RecipeProcessor ( @NonNull final BundleContext context )
     {
-        this.context = context;
-
-        this.tracker = new ServiceTracker<Recipe, Entry> ( context, Recipe.class, this.customizer );
-        this.tracker.open ();
+        super ( context, Recipe.class );
+        open ();
     }
 
     public void dispose ()
     {
-        this.tracker.close ();
+        close ();
     }
 
-    public Collection<RecipeInformation> getRecipes ()
+    public List<RecipeInformation> getRecipes ()
     {
-        return this.entries.values ().stream ().map ( Entry::getInformation ).collect ( Collectors.toSet () );
+        final List<RecipeInformation> result = new ArrayList<> ();
+        consumeAll ( stream -> stream.forEach ( entry -> result.add ( entry.getInformation () ) ) );
+        return result;
     }
 
     public <C extends Comparable<C>> List<RecipeInformation> getSortedRecipes ( final Function<RecipeInformation, C> func )
     {
-        return this.entries.values ().stream ().map ( Entry::getInformation ).sorted ( new GenericComparator<RecipeInformation, C> ( func ) ).collect ( Collectors.toList () );
+        final List<RecipeInformation> result = getRecipes ();
+        Collections.sort ( result, new GenericComparator<RecipeInformation, C> ( func ) );
+        return result;
     }
 
     public void process ( final String id, final Consumer<Recipe> recipe ) throws RecipeNotFoundException
     {
-        final Entry entry = this.entries.get ( id );
-
-        if ( entry == null )
-        {
-            throw new RecipeNotFoundException ( id );
-        }
-
-        recipe.accept ( entry.getRecipe () );
+        consume ( id, entry -> recipe.accept ( entry.getRecipe () ), () -> new RecipeNotFoundException ( id ) );
     }
 
-    protected Entry makeEntry ( final ServiceReference<Recipe> reference )
+    @Override
+    protected String getFactoryId ( final ServiceReference<Recipe> reference )
+    {
+        return getString ( reference, Constants.SERVICE_PID );
+    }
+
+    @Override
+    protected Entry mapService ( final ServiceReference<Recipe> reference, final Recipe service )
     {
         // get id
 
@@ -175,22 +141,6 @@ public class RecipeProcessor
             description = PropertiesHelper.loadUrl ( reference.getBundle (), getString ( reference, "drone.description.url" ) );
         }
 
-        // get service
-
-        final Recipe recipe = this.context.getService ( reference );
-
-        // create result
-
-        return new Entry ( new RecipeInformation ( id, label, description ), recipe );
-    }
-
-    protected static String getString ( final ServiceReference<?> ref, final String name )
-    {
-        final Object val = ref.getProperty ( name );
-        if ( val instanceof String )
-        {
-            return (String)val;
-        }
-        return null;
+        return new Entry ( new RecipeInformation ( id, label, description ), service );
     }
 }
