@@ -1,4 +1,4 @@
-<%@ tag language="java" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ tag language="java" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -6,20 +6,19 @@
 <%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 
-<%@attribute name="entry" required="true" type="org.eclipse.packagedrone.web.common.menu.Entry"%>
-<%@attribute name="cssClass" required="false" type="java.lang.String" %>
-<%@attribute name="role" required="false" type="java.lang.String" %>
+<%@ attribute name="entry" required="true" type="org.eclipse.packagedrone.web.common.menu.Entry"%>
+<%@ attribute name="cssClass" required="false" type="java.lang.String" %>
+<%@ attribute name="role" required="false" type="java.lang.String" %>
 
 <c:if test="${not empty entry }">
 <c:set var="url" value="${entry.target.renderFull(pageContext)}" />
 
-<a
-    <c:if test="${not empty entry.modal }">${' ' } data-toggle="modal" data-target="#modal-${entry.id }" href="#"</c:if>
-    <c:if test="${empty entry.modal }">${' ' } href="${url }"</c:if>
-    <c:if test="${not empty role }">${' ' } role="${role }"</c:if>
-    <c:if test="${not empty cssClass }">${' ' } class="${cssClass }"</c:if>
-    <c:if test="${entry.newWindow }"> target="_blank"</c:if>
-><h:menuEntry entry="${entry }"></h:menuEntry></a>
+<a 
+  <c:if test="${not empty entry.modal }">${' ' } data-toggle="modal" data-target="#modal-${entry.id }" href="#"</c:if>
+  <c:if test="${empty entry.modal }">${' ' } href="${url }"</c:if>
+  <c:if test="${not empty role }">${' ' } role="${role }"</c:if>
+  <c:if test="${not empty cssClass }">${' ' } class="${cssClass }"</c:if>
+  <c:if test="${entry.newWindow }"> target="_blank"</c:if>><h:menuEntry entry="${entry }"></h:menuEntry></a>
 
 <c:if test="${not empty entry.modal }">
 <web:push name="modal">

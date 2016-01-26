@@ -4,7 +4,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 
-<%@attribute name="entry" required="true" type="org.eclipse.packagedrone.web.common.menu.Node"%>
+<%@ attribute name="entry" required="true" type="org.eclipse.packagedrone.web.common.menu.Node" %>
 
 <c:if test="${not empty entry }">
 <h:iconLabel label="${entry.label }" icon="${entry.icon }" />

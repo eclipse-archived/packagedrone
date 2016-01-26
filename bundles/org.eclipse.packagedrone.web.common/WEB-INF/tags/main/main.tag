@@ -4,11 +4,12 @@
 <%@ tag import="org.eclipse.packagedrone.sec.UserInformationPrincipal"%>
 <%@ tag import="java.security.Principal"%>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 
-<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
+<%@ taglib prefix="web" uri="http://eclipse.org/packagedrone/web" %>
+
+<%@ taglib prefix="h" tagdir="/WEB-INF/tags/main" %>
 
 <%@ attribute name="title" required="true" %>
 <%@ attribute name="subtitle" %>
@@ -132,7 +133,7 @@ if ( p instanceof UserInformationPrincipal )
     </div>
 </header>
 
-<section>
+<main>
     <div id="content">
         <c:choose>
             <c:when test="${not empty body }">
@@ -143,7 +144,7 @@ if ( p instanceof UserInformationPrincipal )
             </c:otherwise>
         </c:choose>
     </div>
-</section>
+</main>
 
 <web:pop name="modal"/>
 
