@@ -20,7 +20,7 @@ public class Disposing<T> implements AutoCloseable, InvocationHandler
 
     private final T proxy;
 
-    private boolean disposed;
+    private volatile boolean disposed;
 
     public Disposing ( final Class<T> clazz, final T target )
     {
