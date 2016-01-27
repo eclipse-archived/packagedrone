@@ -72,7 +72,6 @@
         	
         	<!-- JDT core -->
         	<get src="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.5.1-201509040015/ecj-4.5.1.jar&amp;r=1" dest="download/bundles/ecj.jar" usetimestamp="true" />
-        	<get src="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops4/R-4.5.1-201509040015/org.eclipse.jdt-4.5.1.zip&amp;r=1" dest="download/org.eclipse.jdt.jar" usetimestamp="true" />
 
         	<get src="http://www.eclipse.org/downloads/download.php?file=/equinox/drops/R-Mars-201506032000/equinox-SDK-Mars.zip&amp;r=1" dest="download/equinox-SDK.zip" usetimestamp="true" />
         	
@@ -193,7 +192,6 @@
     	<unzip src="download/equinox-SDK.zip" dest="unpack/equinox" />
     	<unzip src="download/aether-bin.zip" dest="unpack/aether/bin" />
     	<unzip src="download/aether-src.zip" dest="unpack/aether/src" />
-    	<unzip src="download/org.eclipse.jdt.jar" dest="unpack/jdt"/>
     </target>
 
     <!-- ================================= 
@@ -267,10 +265,6 @@
         	<fileset dir="unpack/aether/bin">
         	    <exclude name="**/*-wagon-*.jar"/>
         	    <include name="*/*.jar"/>
-        	</fileset>
-        	
-        	<fileset dir="unpack/jdt/plugins">
-        		<include name="org.eclipse.jdt.annotation_2.*.jar"/>
         	</fileset>
         	
             <fileset dir="download/bundles" />

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,9 +21,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.provider.Channel;
+import org.eclipse.packagedrone.repo.channel.provider.ChannelOperationContext;
 import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider;
 import org.eclipse.packagedrone.repo.channel.provider.ProviderInformation;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
@@ -82,7 +82,7 @@ public class ChannelProviderImpl implements ChannelProvider
     }
 
     @Override
-    public Channel load ( @NonNull final String channelId, @NonNull final Map<MetaKey, String> configuration )
+    public Channel load ( final String channelId, final Map<MetaKey, String> configuration )
     {
         Objects.requireNonNull ( channelId );
         Objects.requireNonNull ( configuration );
@@ -91,7 +91,7 @@ public class ChannelProviderImpl implements ChannelProvider
     }
 
     @Override
-    public void create ( @NonNull final String channelId, @NonNull final Map<MetaKey, String> configuration )
+    public void create ( final String channelId, final Map<MetaKey, String> configuration )
     {
         Objects.requireNonNull ( channelId );
         Objects.requireNonNull ( configuration );
@@ -99,7 +99,7 @@ public class ChannelProviderImpl implements ChannelProvider
         createNewChannel ( channelId, configuration );
     }
 
-    protected void createNewChannel ( @NonNull final String channelId, @NonNull final Map<MetaKey, String> configuration )
+    protected void createNewChannel ( final String channelId, final Map<MetaKey, String> configuration )
     {
         Objects.requireNonNull ( channelId );
         Objects.requireNonNull ( configuration );
@@ -109,7 +109,7 @@ public class ChannelProviderImpl implements ChannelProvider
         {
             channel.modifyRun ( model -> {
                 // nothing .. just write the model for the first time
-            } );
+            } , ChannelOperationContext.NOOP );
         }
         finally
         {

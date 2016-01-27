@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.web.breadcrumbs;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.packagedrone.web.LinkTarget;
+
+import com.google.common.escape.Escaper;
+import com.google.common.net.UrlEscapers;
 
 public class Breadcrumbs
 {
@@ -68,6 +74,60 @@ public class Breadcrumbs
     public List<Entry> getEntries ()
     {
         return this.entries;
+    }
+
+    public static class Builder
+    {
+        private final List<Entry> entries = new LinkedList<> ();
+
+        public Builder ()
+        {
+        }
+
+        public Builder add ( final Entry entry )
+        {
+            this.entries.add ( entry );
+            return this;
+        }
+
+        public Builder add ( final String label )
+        {
+            this.entries.add ( new Entry ( label ) );
+            return this;
+        }
+
+        public Builder add ( final String label, final String target )
+        {
+            this.entries.add ( new Entry ( label, target ) );
+            return this;
+        }
+
+        public Builder add ( final String label, final String targetPattern, final String... pathSegments )
+        {
+            Objects.requireNonNull ( targetPattern );
+            Objects.requireNonNull ( pathSegments );
+
+            final Escaper esc = UrlEscapers.urlPathSegmentEscaper ();
+
+            final Object[] encoded = new String[pathSegments.length];
+            for ( int i = 0; i < pathSegments.length; i++ )
+            {
+                encoded[i] = esc.escape ( pathSegments[i] );
+            }
+
+            this.entries.add ( new Entry ( label, MessageFormat.format ( targetPattern, encoded ) ) );
+            return this;
+        }
+
+        public Breadcrumbs build ()
+        {
+            return new Breadcrumbs ( this.entries );
+        }
+
+        public void buildTo ( final Map<String, Object> model )
+        {
+            model.put ( "breadcrumbs", build () );
+        }
     }
 
     public static Entry create ( final String label, final Class<?> controllerClazz, final String methodName )

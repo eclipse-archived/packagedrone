@@ -73,7 +73,7 @@ public class ArtifactController implements InterfaceExtender
     @Override
     public List<MenuEntry> getActions ( final HttpServletRequest request, final Object object )
     {
-        if ( object instanceof org.eclipse.packagedrone.repo.channel.ArtifactInformation )
+        if ( object instanceof org.eclipse.packagedrone.repo.channel.ChannelArtifactInformation )
         {
             final ChannelArtifactInformation ai = (ChannelArtifactInformation)object;
 
@@ -116,5 +116,4 @@ public class ArtifactController implements InterfaceExtender
         }
         return null;
     }
-
 }

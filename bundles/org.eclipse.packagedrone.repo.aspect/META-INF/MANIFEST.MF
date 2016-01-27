@@ -19,7 +19,6 @@ Export-Package: org.eclipse.packagedrone.repo.aspect;version="1.0.0";
  org.eclipse.packagedrone.repo.aspect.recipe;version="1.0.0";uses:="org.osgi.framework,org.eclipse.packagedrone.repo.channel,org.eclipse.packagedrone.web",
  org.eclipse.packagedrone.repo.aspect.virtual;version="1.0.0";uses:="org.eclipse.packagedrone.repo.channel"
 Import-Package: com.google.common.io;version="18.0.0",
- org.eclipse.jdt.annotation,
  org.eclipse.packagedrone.repo;version="1.0.0",
  org.eclipse.packagedrone.repo.channel;version="1.0.0",
  org.eclipse.packagedrone.repo.utils;version="1.0.0",

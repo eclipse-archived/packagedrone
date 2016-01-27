@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.aspect.listener;
 
+import org.eclipse.packagedrone.repo.channel.PreAddContext;
+
 public interface ChannelListener
 {
     /**

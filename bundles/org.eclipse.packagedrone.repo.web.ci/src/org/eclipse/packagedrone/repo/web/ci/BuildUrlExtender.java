@@ -17,7 +17,6 @@ import java.util.function.Consumer;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.utils.MapOnce;
@@ -31,26 +30,26 @@ import org.eclipse.packagedrone.web.common.table.TableExtender;
  */
 public class BuildUrlExtender implements TableExtender
 {
-    private static final @NonNull TableColumn COLUMN_URL = new TableColumn ( "ci-link", -10_000, "CI", "Continous Integration" );
+    private static final TableColumn COLUMN_URL = new TableColumn ( "ci-link", -10_000, "CI", "Continous Integration" );
 
-    private static final @NonNull MetaKey KEY_JENKINS_NUMBER = new MetaKey ( "jenkins", "buildNumber" );
+    private static final MetaKey KEY_JENKINS_NUMBER = new MetaKey ( "jenkins", "buildNumber" );
 
-    private static final @NonNull MetaKey KEY_JENKINS_JOB_NAME = new MetaKey ( "jenkins", "jobName" );
+    private static final MetaKey KEY_JENKINS_JOB_NAME = new MetaKey ( "jenkins", "jobName" );
 
-    private static final @NonNull MetaKey KEY_JENKINS_URL = new MetaKey ( "jenkins", "buildUrl" );
+    private static final MetaKey KEY_JENKINS_URL = new MetaKey ( "jenkins", "buildUrl" );
 
-    private static final @NonNull String SERVER_NAME_JENKINS = "Jenkins";
+    private static final String SERVER_NAME_JENKINS = "Jenkins";
 
-    private static final @NonNull MetaKey KEY_HUDSON_NUMBER = new MetaKey ( "hudson", "buildNumber" );
+    private static final MetaKey KEY_HUDSON_NUMBER = new MetaKey ( "hudson", "buildNumber" );
 
-    private static final @NonNull MetaKey KEY_HUDSON_URL = new MetaKey ( "hudson", "buildUrl" );
+    private static final MetaKey KEY_HUDSON_URL = new MetaKey ( "hudson", "buildUrl" );
 
-    private static final @NonNull MetaKey KEY_HUDSON_JOB_NAME = new MetaKey ( "hudson", "jobName" );
+    private static final MetaKey KEY_HUDSON_JOB_NAME = new MetaKey ( "hudson", "jobName" );
 
-    private static final @NonNull String SERVER_NAME_HUDSON = "Hudson";
+    private static final String SERVER_NAME_HUDSON = "Hudson";
 
     @Override
-    public void getColumns ( @NonNull final HttpServletRequest request, @NonNull final TableDescriptor descriptor, @NonNull final Consumer<TableColumnProvider> columnReceiver )
+    public void getColumns ( final HttpServletRequest request, final TableDescriptor descriptor, final Consumer<TableColumnProvider> columnReceiver )
     {
         if ( !descriptor.hasTag ( "artifacts" ) )
         {
@@ -85,7 +84,7 @@ public class BuildUrlExtender implements TableExtender
         return fromUrlAndNumber ( art, KEY_HUDSON_URL, KEY_HUDSON_NUMBER, KEY_HUDSON_JOB_NAME, SERVER_NAME_HUDSON );
     }
 
-    private static String fromUrlAndNumber ( final ArtifactInformation art, @NonNull final MetaKey keyUrl, @NonNull final MetaKey keyNumber, @NonNull final MetaKey keyJobName, @NonNull final String serverName )
+    private static String fromUrlAndNumber ( final ArtifactInformation art, final MetaKey keyUrl, final MetaKey keyNumber, final MetaKey keyJobName, final String serverName )
     {
         final String url = art.getMetaData ().get ( keyUrl );
         final String number = art.getMetaData ().get ( keyNumber );

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,20 +10,19 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.web.common.internal.menu;
 
+import java.util.function.BiFunction;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.packagedrone.web.ModelAndView;
-import org.eclipse.packagedrone.web.RequestHandler;
 import org.eclipse.packagedrone.web.common.internal.table.OsgiTableExtensionManager;
 import org.eclipse.packagedrone.web.common.menu.MenuManager;
 import org.eclipse.packagedrone.web.common.menu.MenuManagerImpl;
-import org.eclipse.packagedrone.web.common.table.TableExtensionManager;
 import org.eclipse.packagedrone.web.common.table.TableExtensionManagerRequest;
-import org.eclipse.packagedrone.web.interceptor.ModelAndViewInterceptorAdapter;
+import org.eclipse.packagedrone.web.interceptor.Interceptor;
 import org.osgi.framework.InvalidSyntaxException;
 
-public class MenuInterceptor extends ModelAndViewInterceptorAdapter
+public class MenuInterceptor implements Interceptor
 {
     private MenuManagerImpl menuManager;
 
@@ -53,17 +52,19 @@ public class MenuInterceptor extends ModelAndViewInterceptorAdapter
     }
 
     @Override
-    protected void postHandle ( final HttpServletRequest request, final HttpServletResponse response, final RequestHandler requestHandler, final ModelAndView modelAndView )
+    public boolean preHandle ( final HttpServletRequest request, final HttpServletResponse response ) throws Exception
     {
-        if ( modelAndView != null && !modelAndView.isRedirect () )
-        {
-            modelAndView.put ( "menuManager", new MenuManager ( this.menuManager, request ) );
+        safeSet ( request, MenuManager.PROPERTY_NAME, this.menuManager, MenuManager::new );
+        safeSet ( request, TableExtensionManagerRequest.PROPERTY_NAME, this.tableExtensionManager, TableExtensionManagerRequest::new );
 
-            final TableExtensionManager table = this.tableExtensionManager;
-            if ( table != null && request != null )
-            {
-                modelAndView.put ( TableExtensionManagerRequest.PROPERTY_NAME, new TableExtensionManagerRequest ( table, request ) );
-            }
+        return true;
+    }
+
+    protected <T, R> void safeSet ( final HttpServletRequest request, final String property, final T value, final BiFunction<T, HttpServletRequest, R> func )
+    {
+        if ( value != null && request != null )
+        {
+            request.setAttribute ( property, func.apply ( value, request ) );
         }
     }
 

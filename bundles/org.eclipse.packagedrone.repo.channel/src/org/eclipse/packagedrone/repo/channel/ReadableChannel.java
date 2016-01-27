@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
@@ -58,9 +57,7 @@ public interface ReadableChannel
             return Optional.empty ();
         }
 
-        @SuppressWarnings ( "null" )
-        final @NonNull List<ArtifactInformation> result = art.getChildIds ().stream ().map ( childId -> ctx.getArtifacts ().get ( childId ) ).collect ( Collectors.toList () );
-        return Optional.of ( result );
+        return Optional.of ( art.getChildIds ().stream ().map ( childId -> ctx.getArtifacts ().get ( childId ) ).collect ( Collectors.toList () ) );
     }
 
     public default boolean hasAspect ( final String aspectId )

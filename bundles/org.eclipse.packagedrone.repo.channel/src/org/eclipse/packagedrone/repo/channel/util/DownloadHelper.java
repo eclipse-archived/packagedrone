@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import java.util.function.Function;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelArtifactInformation;
@@ -47,7 +46,7 @@ public final class DownloadHelper
         streamArtifact ( response, service, channelId, artifactId, mimetype, download, ArtifactInformation::getName );
     }
 
-    public static void streamArtifact ( final HttpServletResponse response, final ChannelService service, final String channelId, final String artifactId, @NonNull final Optional<String> mimetype, final boolean download, final Function<ArtifactInformation, String> nameFunc ) throws IOException
+    public static void streamArtifact ( final HttpServletResponse response, final ChannelService service, final String channelId, final String artifactId, final Optional<String> mimetype, final boolean download, final Function<ArtifactInformation, String> nameFunc ) throws IOException
     {
         try
         {
@@ -78,7 +77,7 @@ public final class DownloadHelper
         streamArtifact ( response, service, channelId, artifactId, Optional.ofNullable ( mimetype ), download, nameFunc );
     }
 
-    public static boolean streamArtifact ( final HttpServletResponse response, final String artifactId, @NonNull final Optional<String> mimetype, final boolean download, final ReadableChannel channel, final Function<ArtifactInformation, String> nameFunc ) throws IOException
+    public static boolean streamArtifact ( final HttpServletResponse response, final String artifactId, final Optional<String> mimetype, final boolean download, final ReadableChannel channel, final Function<ArtifactInformation, String> nameFunc ) throws IOException
     {
         final Optional<ChannelArtifactInformation> artifact = channel.getArtifact ( artifactId );
         if ( !artifact.isPresent () )
@@ -91,14 +90,14 @@ public final class DownloadHelper
         } );
     }
 
-    public static boolean streamArtifact ( final HttpServletResponse response, final ArtifactInformation artifact, @NonNull final Optional<String> mimetype, final boolean download, final ReadableChannel channel, final Function<ArtifactInformation, String> nameFunc ) throws IOException
+    public static boolean streamArtifact ( final HttpServletResponse response, final ArtifactInformation artifact, final Optional<String> mimetype, final boolean download, final ReadableChannel channel, final Function<ArtifactInformation, String> nameFunc ) throws IOException
     {
         return channel.getContext ().stream ( artifact.getId (), stream -> {
             streamArtifact ( response, artifact, stream, mimetype, download, nameFunc );
         } );
     }
 
-    public static void streamArtifact ( final HttpServletResponse response, final ArtifactInformation artifact, final InputStream stream, @NonNull final Optional<String> mimetype, final boolean download, final Function<ArtifactInformation, String> nameFunc ) throws IOException
+    public static void streamArtifact ( final HttpServletResponse response, final ArtifactInformation artifact, final InputStream stream, final Optional<String> mimetype, final boolean download, final Function<ArtifactInformation, String> nameFunc ) throws IOException
     {
         final String mt = mimetype.orElseGet ( () -> evalMimeType ( artifact ) );
 

@@ -10,7 +10,7 @@
 	<function>
 		<name>channel</name>
 		<function-class>org.eclipse.packagedrone.repo.web.tags.Functions</function-class>
-		<function-signature>java.lang.String channel(org.eclipse.packagedrone.repo.channel.ChannelInformation)</function-signature>
+		<function-signature>java.lang.String channel(org.eclipse.packagedrone.repo.channel.ChannelId)</function-signature>
 	</function>
 	
     <function>

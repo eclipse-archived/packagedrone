@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.web.common.table.TableColumnProvider;
 import org.eclipse.packagedrone.web.common.table.TableDescriptor;
 import org.eclipse.packagedrone.web.common.table.TableExtender;
@@ -31,12 +30,11 @@ public abstract class AbstractTableExtensionManager implements TableExtensionMan
 {
     private final class TableExtensionImpl implements TableExtension
     {
-        private @NonNull final TableDescriptor descriptor;
+        private final TableDescriptor descriptor;
 
-        private @NonNull final List<TableColumnProvider> providers;
+        private final List<TableColumnProvider> providers;
 
-        @SuppressWarnings ( "null" )
-        private TableExtensionImpl ( @NonNull final TableDescriptor descriptor, @NonNull final List<TableColumnProvider> providers )
+        private TableExtensionImpl ( final TableDescriptor descriptor, final List<TableColumnProvider> providers )
         {
             Collections.sort ( providers, Comparator.comparing ( provider -> provider.getColumn ().getPriority () ) );
             this.descriptor = descriptor;
@@ -44,7 +42,7 @@ public abstract class AbstractTableExtensionManager implements TableExtensionMan
         }
 
         @Override
-        public @NonNull TableDescriptor geTableDescriptor ()
+        public TableDescriptor geTableDescriptor ()
         {
             return this.descriptor;
         }
@@ -68,7 +66,7 @@ public abstract class AbstractTableExtensionManager implements TableExtensionMan
     protected abstract void access ( final Consumer<Collection<TableExtender>> extenders );
 
     @Override
-    public @NonNull TableExtension createExtensions ( @NonNull final HttpServletRequest request, @NonNull final TableDescriptor descriptor )
+    public TableExtension createExtensions ( final HttpServletRequest request, final TableDescriptor descriptor )
     {
         final List<TableColumnProvider> providers = new ArrayList<> ();
 

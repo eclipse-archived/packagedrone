@@ -12,9 +12,7 @@ package org.eclipse.packagedrone.web.common.table;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 public interface TableExtensionManager
 {
-    public @NonNull TableExtension createExtensions ( @NonNull HttpServletRequest request, @NonNull TableDescriptor descriptor );
+    public TableExtension createExtensions ( HttpServletRequest request, TableDescriptor descriptor );
 }

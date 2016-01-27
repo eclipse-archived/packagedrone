@@ -44,7 +44,10 @@ import org.eclipse.packagedrone.repo.aspect.extract.Extractor;
 import org.eclipse.packagedrone.repo.aspect.listener.PostAddContext;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ValidationMessage;
+import org.eclipse.packagedrone.repo.channel.VetoPolicy;
+import org.eclipse.packagedrone.repo.channel.apm.ChannelContextAccessor;
 import org.eclipse.packagedrone.repo.channel.apm.internal.Activator;
+import org.eclipse.packagedrone.repo.channel.provider.ChannelOperationContext;
 import org.eclipse.packagedrone.repo.event.AddedEvent;
 import org.eclipse.packagedrone.repo.event.RemovedEvent;
 import org.eclipse.packagedrone.utils.Exceptions;
@@ -89,11 +92,17 @@ public class AspectContextImpl
     {
         this.context = context;
         this.processor = processor;
+
         this.aspectStates = context.getModifiableAspectStates ();
 
         this.aggregation = new Guard ( this::runAggregators );
         this.postAdd = new Guard ( this::runPostAdd );
         this.tracker = new RegenerationTracker ( this::runRegeneration );
+    }
+
+    protected ChannelOperationContext getOperationContext ()
+    {
+        return ChannelContextAccessor.current ().orElseThrow ( () -> new IllegalStateException ( "No ChannelOperationContext present" ) );
     }
 
     public SortedMap<String, String> getAspectStates ()
@@ -471,9 +480,14 @@ public class AspectContextImpl
 
                     // check veto
 
-                    if ( checkVetoAdd ( name, tmp, type.isExternal () ) )
+                    final VetoPolicy veto = checkVetoAdd ( name, tmp, type.isExternal () );
+                    if ( VetoPolicy.REJECT == veto )
                     {
                         return null;
+                    }
+                    else if ( VetoPolicy.FAIL == veto )
+                    {
+                        throw new RuntimeException ( String.format ( "Veto[FAIL] adding artifact - name: %s", name ) );
                     }
 
                     // store artifact
@@ -609,9 +623,11 @@ public class AspectContextImpl
         } );
     }
 
-    private boolean checkVetoAdd ( final String name, final Path file, final boolean external )
+    private VetoPolicy checkVetoAdd ( final String name, final Path file, final boolean external )
     {
         final PreAddContextImpl ctx = new PreAddContextImpl ( name, file, external );
+
+        getOperationContext ().artifactPreAdd ( ctx );
 
         this.processor.process ( this.aspectStates.keySet (), ChannelAspect::getChannelListener, listener -> {
 
@@ -619,7 +635,7 @@ public class AspectContextImpl
 
         } );
 
-        return ctx.isVeto ();
+        return ctx.getVeto ();
     }
 
     public boolean deleteArtifacts ( final Set<String> artifactIds )

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.packagedrone.web;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -41,6 +42,8 @@ public class DispatcherServlet extends HttpServlet
     private RequestHandlerFactory controllerLocator;
 
     private InterceptorLocator interceptorLocator;
+
+    private Optional<ErrorHandler> errorHandler = Optional.empty ();
 
     @Override
     public void init () throws ServletException
@@ -73,6 +76,11 @@ public class DispatcherServlet extends HttpServlet
             this.interceptorLocator = null;
         }
         super.destroy ();
+    }
+
+    public void setErrorHandler ( final ErrorHandler errorHandler )
+    {
+        this.errorHandler = Optional.ofNullable ( errorHandler );
     }
 
     @Override
@@ -121,13 +129,9 @@ public class DispatcherServlet extends HttpServlet
                 runAfterCompletion ( interceptors, request, response, ex );
             }
         }
-        catch ( final ServletException e )
-        {
-            throw e;
-        }
         catch ( final Exception e )
         {
-            throw new ServletException ( e );
+            this.errorHandler.orElse ( ErrorHandler.DEFAULT ).handleError ( request, response, e );
         }
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,7 +80,7 @@ public class PeristencePerformanceTest
 
         final ModifyContextImpl read;
         try ( InputStream stream = new BufferedInputStream ( Files.newInputStream ( root.resolve ( "state.json" ) ) );
-              ChannelReader reader = new ChannelReader ( stream, "id", null, store, cacheStore ); )
+              ChannelReader reader = new ChannelReader ( stream, "id", store, cacheStore ); )
         {
             read = reader.read ();
         }
@@ -168,7 +168,7 @@ public class PeristencePerformanceTest
         cacheEntries.put ( KEY_BAR_FOO, new CacheEntryInformation ( KEY_BAR_FOO, "name1", 123, "foo/bar", Instant.now () ) );
         cacheEntries.put ( KEY_BAR_FOO_TOO, new CacheEntryInformation ( KEY_BAR_FOO_TOO, "name1", 123, "foo/bar", Instant.now () ) );
 
-        return new ModifyContextImpl ( "id", null, store, cacheStore, state.build (), aspects, artifacts, cacheEntries, extractedMetaData, providedMetaData );
+        return new ModifyContextImpl ( "id", store, cacheStore, state.build (), aspects, artifacts, cacheEntries, extractedMetaData, providedMetaData );
     }
 
     private String makeData ( final int i )

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperation;
 import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
 import org.eclipse.packagedrone.repo.channel.provider.Channel;
+import org.eclipse.packagedrone.repo.channel.provider.ChannelOperationContext;
 import org.eclipse.packagedrone.repo.channel.provider.ModifyContext;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
 import org.eclipse.packagedrone.storage.apm.StorageRegistration;
@@ -25,6 +26,8 @@ import org.osgi.service.event.EventAdmin;
 
 public class ChannelImpl implements Channel
 {
+    private static final MetaKey KEY_APM_DIR_OVERRIDE = new MetaKey ( "apm", "dir-override" );
+
     private final String storageId;
 
     private final MetaKey storageKey;
@@ -43,13 +46,13 @@ public class ChannelImpl implements Channel
 
         this.storageKey = new MetaKey ( "channel", storageId );
 
-        String dir = configuration.get ( new MetaKey ( "apm", "dir-override" ) );
+        String dir = configuration.get ( KEY_APM_DIR_OVERRIDE );
         if ( dir == null )
         {
             dir = storageId;
         }
 
-        this.handle = manager.registerModel ( 10_000, this.storageKey, new ChannelModelProvider ( eventAdmin, storageId, dir ) );
+        this.handle = manager.registerModel ( 10_000, this.storageKey, new ChannelModelProvider ( storageId, dir ) );
     }
 
     @Override
@@ -72,11 +75,19 @@ public class ChannelImpl implements Channel
     }
 
     @Override
-    public <T> T modifyCall ( final ChannelOperation<T, ModifyContext> operation )
+    public <T> T modifyCall ( final ChannelOperation<T, ModifyContext> operation, final ChannelOperationContext context )
     {
-        return this.manager.modifyCall ( this.storageKey, ModifyContext.class, model -> wrapException ( () -> {
-            return operation.process ( model );
-        } ) );
+        ChannelContextAccessor.push ( context );
+        try
+        {
+            return this.manager.modifyCall ( this.storageKey, ModifyContext.class, model -> wrapException ( () -> {
+                return operation.process ( model );
+            } ) );
+        }
+        finally
+        {
+            ChannelContextAccessor.pop ();
+        }
     }
 
     @Override

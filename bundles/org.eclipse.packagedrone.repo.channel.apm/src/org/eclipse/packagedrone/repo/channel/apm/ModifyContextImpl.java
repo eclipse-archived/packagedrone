@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,20 +43,17 @@ import org.eclipse.packagedrone.repo.channel.apm.internal.Activator;
 import org.eclipse.packagedrone.repo.channel.apm.store.BlobStore;
 import org.eclipse.packagedrone.repo.channel.apm.store.BlobStore.Transaction;
 import org.eclipse.packagedrone.repo.channel.apm.store.CacheStore;
+import org.eclipse.packagedrone.repo.channel.provider.ChannelOperationContext;
 import org.eclipse.packagedrone.repo.channel.provider.ModifyContext;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
 import org.eclipse.packagedrone.utils.Exceptions;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventAdmin;
 
 public class ModifyContextImpl implements ModifyContext, AspectableContext
 {
     private static final String FACET_GENERATOR = "generator";
 
     private final String channelId;
-
-    private final EventAdmin eventAdmin;
 
     private final BlobStore store;
 
@@ -108,11 +105,14 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
      * @param cacheStore
      *            the cache store
      */
-    public ModifyContextImpl ( final String channelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore )
+    public ModifyContextImpl ( final String channelId, final BlobStore store, final CacheStore cacheStore )
     {
+        Objects.requireNonNull ( channelId );
+        Objects.requireNonNull ( store );
+        Objects.requireNonNull ( cacheStore );
+
         this.channelId = channelId;
 
-        this.eventAdmin = eventAdmin;
         this.store = store;
         this.cacheStore = cacheStore;
 
@@ -141,11 +141,14 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         this.aspectContext = new AspectContextImpl ( this, Activator.getProcessor () );
     }
 
-    public ModifyContextImpl ( final String channelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore, final ChannelState state, final Map<String, String> aspectStates, final Map<String, ArtifactInformation> artifacts, final Map<MetaKey, CacheEntryInformation> cacheEntries, final Map<MetaKey, String> extractedMetaData, final Map<MetaKey, String> providedMetaData )
+    public ModifyContextImpl ( final String channelId, final BlobStore store, final CacheStore cacheStore, final ChannelState state, final Map<String, String> aspectStates, final Map<String, ArtifactInformation> artifacts, final Map<MetaKey, CacheEntryInformation> cacheEntries, final Map<MetaKey, String> extractedMetaData, final Map<MetaKey, String> providedMetaData )
     {
+        Objects.requireNonNull ( channelId );
+        Objects.requireNonNull ( store );
+        Objects.requireNonNull ( cacheStore );
+
         this.channelId = channelId;
 
-        this.eventAdmin = eventAdmin;
         this.store = store;
         this.cacheStore = cacheStore;
 
@@ -176,9 +179,10 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
     public ModifyContextImpl ( final ModifyContextImpl other )
     {
+        Objects.requireNonNull ( other );
+
         this.channelId = other.channelId;
 
-        this.eventAdmin = other.eventAdmin;
         this.store = other.store;
         this.cacheStore = other.cacheStore;
 
@@ -273,6 +277,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public void applyMetaData ( final Map<MetaKey, String> changes )
     {
+        Objects.requireNonNull ( changes );
+
         testLocked ();
 
         for ( final Map.Entry<MetaKey, String> entry : changes.entrySet () )
@@ -306,6 +312,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public void applyMetaData ( final String artifactId, final Map<MetaKey, String> changes )
     {
+        Objects.requireNonNull ( artifactId );
+        Objects.requireNonNull ( changes );
+
         testLocked ();
 
         final ArtifactInformation artifact = this.modArtifacts.get ( artifactId );
@@ -413,6 +422,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public ArtifactInformation createArtifact ( final String parentId, final InputStream source, final String name, final Map<MetaKey, String> providedMetaData )
     {
+        Objects.requireNonNull ( source );
+        Objects.requireNonNull ( name );
+
         testLocked ();
 
         markModified ();
@@ -435,6 +447,10 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public ArtifactInformation createGeneratorArtifact ( final String generatorId, final InputStream source, final String name, final Map<MetaKey, String> providedMetaData )
     {
+        Objects.requireNonNull ( name );
+        Objects.requireNonNull ( source );
+        Objects.requireNonNull ( generatorId );
+
         testLocked ();
 
         markModified ();
@@ -445,6 +461,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public ArtifactInformation createPlainArtifact ( final String parentId, final InputStream source, final String name, final Map<MetaKey, String> providedMetaData, final Set<String> facets, final String virtualizerAspectId )
     {
+        Objects.requireNonNull ( name );
+        Objects.requireNonNull ( source );
+
         ensureTransaction ();
 
         markModified ();
@@ -569,6 +588,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public ArtifactInformation deletePlainArtifact ( final String id )
     {
+        Objects.requireNonNull ( id );
+
         markModified ();
 
         try
@@ -593,6 +614,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public boolean deleteArtifact ( final String id )
     {
+        Objects.requireNonNull ( id );
+
         testLocked ();
 
         markModified ();
@@ -635,6 +658,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public boolean streamCacheEntry ( final MetaKey key, final IOConsumer<CacheEntry> consumer ) throws IOException
     {
+        Objects.requireNonNull ( key );
+        Objects.requireNonNull ( consumer );
+
         final CacheEntryInformation entry = this.cacheEntries.get ( key );
 
         if ( entry == null )
@@ -712,6 +738,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public void addAspects ( final Set<String> aspectIds )
     {
+        Objects.requireNonNull ( aspectIds, "'aspectIds' must not be null" );
+
         testLocked ();
 
         markModified ();
@@ -752,6 +780,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
     protected ArtifactInformation modifyArtifact ( final String artifactId, final Consumer<Manipulator> modification )
     {
+        Objects.requireNonNull ( artifactId );
+        Objects.requireNonNull ( modification );
+
         final ArtifactInformation art = this.artifacts.get ( artifactId );
 
         if ( art == null )
@@ -776,6 +807,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public ArtifactInformation setExtractedMetaData ( final String artifactId, final Map<MetaKey, String> metaData )
     {
+        Objects.requireNonNull ( artifactId );
+        Objects.requireNonNull ( metaData );
+
         return modifyArtifact ( artifactId, art -> {
             // set the extracted data
             art.setExtractedMetaData ( new HashMap<> ( metaData ) );
@@ -785,6 +819,9 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public ArtifactInformation setValidationMessages ( final String artifactId, final List<ValidationMessage> messages )
     {
+        Objects.requireNonNull ( artifactId );
+        Objects.requireNonNull ( messages );
+
         return modifyArtifact ( artifactId, art -> {
             // set validation messages
             art.setValidationMessages ( messages );
@@ -794,6 +831,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public void setExtractedMetaData ( final Map<MetaKey, String> metaData )
     {
+        Objects.requireNonNull ( metaData );
+
         this.modExtractedMetadata.clear ();
         this.modExtractedMetadata.putAll ( metaData );
 
@@ -804,6 +843,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public void setValidationMessages ( final List<ValidationMessage> messages )
     {
+        Objects.requireNonNull ( messages );
+
         this.state.setValidationMessages ( messages );
         markModified ();
     }
@@ -817,6 +858,8 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public void regenerate ( final String artifactId )
     {
+        Objects.requireNonNull ( artifactId );
+
         testLocked ();
 
         this.aspectContext.regenerate ( artifactId );
@@ -844,6 +887,10 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     @Override
     public void createCacheEntry ( final MetaKey key, final String name, final String mimeType, final IOConsumer<OutputStream> creator ) throws IOException
     {
+        Objects.requireNonNull ( key );
+        Objects.requireNonNull ( name );
+        Objects.requireNonNull ( creator );
+
         ensureCacheTransaction ();
 
         final long size = this.cacheTransaction.put ( key, creator );
@@ -852,6 +899,11 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         this.modCacheEntries.put ( key, entry );
 
         markModified ();
+    }
+
+    protected ChannelOperationContext getOperationContext ()
+    {
+        return ChannelContextAccessor.current ().orElseThrow ( () -> new IllegalStateException ( "No ChannelOperationContext present" ) );
     }
 
     protected void postAspectEvents ( final Set<String> aspectIds, final String operation )
@@ -867,19 +919,7 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
     protected void postAspectEvent ( final String channelId, final String aspectId, final String operation )
     {
-        if ( this.eventAdmin != null )
-        {
-            final Map<String, Object> data = new HashMap<> ( 2 );
-            data.put ( "operation", operation );
-            data.put ( "aspectFactoryId", aspectId );
-
-            this.eventAdmin.postEvent ( new Event ( String.format ( "drone/channel/%s/aspect", makeSafeTopic ( channelId ) ), data ) );
-        }
-    }
-
-    private static String makeSafeTopic ( final String aspectId )
-    {
-        return aspectId.replaceAll ( "[^a-zA-Z0-9_\\-]", "_" );
+        getOperationContext ().postAspectOperation ( aspectId, operation );
     }
 
     private void markModified ()

@@ -14,15 +14,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.function.Function;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 public interface TableColumnProvider
 {
-    public @NonNull TableColumn getColumn ();
+    public TableColumn getColumn ();
 
-    public void provideContent ( @NonNull TableDescriptor descriptor, Object object, @NonNull PrintWriter out ) throws IOException;
+    public void provideContent ( TableDescriptor descriptor, Object object, PrintWriter out ) throws IOException;
 
-    public static <T> TableColumnProvider stringProvider ( @NonNull final TableColumn column, @NonNull final Class<T> clazz, @NonNull final Function<T, String> func )
+    public static <T> TableColumnProvider stringProvider ( final TableColumn column, final Class<T> clazz, final Function<T, String> func )
     {
         return provider ( column, clazz, ( item, out ) -> {
             final String value = func.apply ( item );
@@ -33,18 +31,18 @@ public interface TableColumnProvider
         } );
     }
 
-    public static <T> TableColumnProvider provider ( @NonNull final TableColumn column, @NonNull final Class<T> clazz, @NonNull final ContentProvider<T> provider )
+    public static <T> TableColumnProvider provider ( final TableColumn column, final Class<T> clazz, final ContentProvider<T> provider )
     {
         return new TableColumnProvider () {
 
             @Override
-            public @NonNull TableColumn getColumn ()
+            public TableColumn getColumn ()
             {
                 return column;
             }
 
             @Override
-            public void provideContent ( @NonNull final TableDescriptor descriptor, final Object object, @NonNull final PrintWriter out ) throws IOException
+            public void provideContent ( final TableDescriptor descriptor, final Object object, final PrintWriter out ) throws IOException
             {
                 if ( object == null )
                 {
@@ -53,9 +51,7 @@ public interface TableColumnProvider
 
                 if ( clazz.isAssignableFrom ( object.getClass () ) )
                 {
-                    @SuppressWarnings ( "null" )
-                    @NonNull
-                    final T value = (@NonNull T)clazz.cast ( object );
+                    final T value = clazz.cast ( object );
                     provider.provide ( value, out );
                 }
             }

@@ -11,6 +11,7 @@
 package org.eclipse.packagedrone.repo.channel.web.channel;
 
 import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -46,7 +47,6 @@ import javax.validation.Valid;
 import javax.xml.ws.Holder;
 
 import org.apache.http.client.utils.URIBuilder;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.ChannelAspectInformation;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectProcessor;
@@ -599,7 +599,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
         }
         catch ( final Throwable e )
         {
-            logger.debug ( "Failed to drop file", e );
+            logger.warn ( "Failed to drop file", e );
             response.setStatus ( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
             response.getWriter ().write ( "Internal error: " + ExceptionHelper.getMessage ( e ) );
             return;
@@ -688,9 +688,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
             final String exampleKey;
             if ( request.isUserInRole ( "MANAGER" ) )
             {
-                @SuppressWarnings ( "null" )
-                @NonNull
-                final Collection<DeployKey> keys = (@NonNull Collection<DeployKey>)this.channelService.getChannelDeployKeys ( By.id ( channel.getId ().getId () ) ).orElse ( Collections.emptyList () );
+                final Collection<DeployKey> keys = this.channelService.getChannelDeployKeys ( By.id ( channel.getId ().getId () ) ).orElse ( emptyList () );
                 exampleKey = keys.stream ().map ( DeployKey::getKey ).findFirst ().orElse ( DEFAULT_EXAMPLE_KEY );
             }
             else
@@ -968,9 +966,9 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @Override
     public List<MenuEntry> getActions ( final HttpServletRequest request, final Object object )
     {
-        if ( object instanceof ChannelInformation )
+        if ( object instanceof ChannelId )
         {
-            final ChannelInformation channel = (ChannelInformation)object;
+            final ChannelId channel = (ChannelId)object;
 
             final Map<String, Object> model = new HashMap<> ( 1 );
             model.put ( "channelId", channel.getId () );
@@ -979,17 +977,22 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
             if ( request.isUserInRole ( "MANAGER" ) )
             {
-                if ( !channel.getState ().isLocked () )
+                if ( object instanceof ChannelInformation )
                 {
-                    result.add ( new MenuEntry ( "Add Artifact", 100, LinkTarget.createFromController ( ChannelController.class, "add" ).expand ( model ), Modifier.PRIMARY, null ) );
-                    result.add ( new MenuEntry ( "Delete Channel", 400, LinkTarget.createFromController ( ChannelController.class, "delete" ).expand ( model ), Modifier.DANGER, "trash" ).makeModalMessage ( "Delete channel", "Are you sure you want to delete the whole channel?" ) );
-                    result.add ( new MenuEntry ( "Clear Channel", 500, LinkTarget.createFromController ( ChannelController.class, "clear" ).expand ( model ), Modifier.WARNING, null ).makeModalMessage ( "Clear channel", "Are you sure you want to delete all artifacts from this channel?" ) );
+                    final ChannelInformation channelInformation = (ChannelInformation)object;
 
-                    result.add ( new MenuEntry ( "Lock Channel", 600, LinkTarget.createFromController ( ChannelController.class, "lock" ).expand ( model ), Modifier.DEFAULT, null ) );
-                }
-                else
-                {
-                    result.add ( new MenuEntry ( "Unlock Channel", 600, LinkTarget.createFromController ( ChannelController.class, "unlock" ).expand ( model ), Modifier.DEFAULT, null ) );
+                    if ( !channelInformation.getState ().isLocked () )
+                    {
+                        result.add ( new MenuEntry ( "Add Artifact", 100, LinkTarget.createFromController ( ChannelController.class, "add" ).expand ( model ), Modifier.PRIMARY, null ) );
+                        result.add ( new MenuEntry ( "Delete Channel", 400, LinkTarget.createFromController ( ChannelController.class, "delete" ).expand ( model ), Modifier.DANGER, "trash" ).makeModalMessage ( "Delete channel", "Are you sure you want to delete the whole channel?" ) );
+                        result.add ( new MenuEntry ( "Clear Channel", 500, LinkTarget.createFromController ( ChannelController.class, "clear" ).expand ( model ), Modifier.WARNING, null ).makeModalMessage ( "Clear channel", "Are you sure you want to delete all artifacts from this channel?" ) );
+
+                        result.add ( new MenuEntry ( "Lock Channel", 600, LinkTarget.createFromController ( ChannelController.class, "lock" ).expand ( model ), Modifier.DEFAULT, null ) );
+                    }
+                    else
+                    {
+                        result.add ( new MenuEntry ( "Unlock Channel", 600, LinkTarget.createFromController ( ChannelController.class, "unlock" ).expand ( model ), Modifier.DEFAULT, null ) );
+                    }
                 }
 
                 result.add ( new MenuEntry ( "Edit", 150, "Edit Channel", 200, LinkTarget.createFromController ( ChannelController.class, "edit" ).expand ( model ), Modifier.DEFAULT, null ) );

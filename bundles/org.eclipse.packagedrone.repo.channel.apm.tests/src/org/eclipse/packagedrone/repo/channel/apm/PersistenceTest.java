@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,7 +67,7 @@ public class PersistenceTest
 
         final Map<MetaKey, CacheEntryInformation> cacheEntries = new HashMap<> ();
 
-        final ModifyContextImpl model = new ModifyContextImpl ( "id", null, store, cacheStore, state.build (), aspects, artifacts, cacheEntries, extractedMetaData, providedMetaData );
+        final ModifyContextImpl model = new ModifyContextImpl ( "id", store, cacheStore, state.build (), aspects, artifacts, cacheEntries, extractedMetaData, providedMetaData );
 
         final ByteArrayOutputStream bos = new ByteArrayOutputStream ();
         try ( ChannelWriter w = new ChannelWriter ( bos ) )
@@ -77,7 +77,7 @@ public class PersistenceTest
         bos.close ();
 
         ModifyContextImpl model2;
-        try ( final ChannelReader r = new ChannelReader ( new ByteArrayInputStream ( bos.toByteArray () ), "id", null, store, cacheStore ) )
+        try ( final ChannelReader r = new ChannelReader ( new ByteArrayInputStream ( bos.toByteArray () ), "id", store, cacheStore ) )
         {
             model2 = r.read ();
         }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.packagedrone.repo.channel.ChannelState.Builder;
 import org.eclipse.packagedrone.repo.channel.ValidationMessage;
 import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
 import org.eclipse.packagedrone.repo.channel.provider.Channel;
+import org.eclipse.packagedrone.repo.channel.provider.ChannelOperationContext;
 import org.eclipse.packagedrone.repo.channel.provider.ModifyContext;
 import org.eclipse.packagedrone.utils.Exceptions;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
@@ -45,7 +46,7 @@ final class ErrorChannel implements Channel
     }
 
     @Override
-    public <T> T modifyCall ( final ChannelOperation<T, ModifyContext> operation )
+    public <T> T modifyCall ( final ChannelOperation<T, ModifyContext> operation, final ChannelOperationContext context )
     {
         throw new UnsupportedOperationException ();
     }

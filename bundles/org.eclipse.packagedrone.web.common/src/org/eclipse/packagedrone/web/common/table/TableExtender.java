@@ -14,9 +14,7 @@ import java.util.function.Consumer;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 public interface TableExtender
 {
-    public void getColumns ( @NonNull HttpServletRequest request, @NonNull final TableDescriptor descriptor, @NonNull Consumer<TableColumnProvider> columnReceiver );
+    public void getColumns ( HttpServletRequest request, final TableDescriptor descriptor, Consumer<TableColumnProvider> columnReceiver );
 }

@@ -25,8 +25,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation.Changelog;
@@ -348,7 +346,7 @@ public class RepositoryCreator
         }
     }
 
-    public RepositoryCreator ( @NonNull final SpoolOutTarget target, @Nullable final SigningService signing )
+    public RepositoryCreator ( final SpoolOutTarget target, final SigningService signing )
     {
         // filters
 

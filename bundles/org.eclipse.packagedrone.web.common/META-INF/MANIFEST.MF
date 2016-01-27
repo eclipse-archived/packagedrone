@@ -11,14 +11,14 @@ Import-Package: com.google.common.escape;version="18.0.0",
  javax.servlet.http;version="3.1.0",
  javax.servlet.jsp;version="2.2.0",
  javax.servlet.jsp.tagext;version="2.2.0",
- org.eclipse.jdt.annotation,
  org.eclipse.packagedrone.repo;version="1.0.0",
  org.eclipse.packagedrone.sec;version="1.0.0",
  org.eclipse.packagedrone.utils;version="1.0.0",
  org.eclipse.scada.utils;version="0.2.0",
  org.eclipse.scada.utils.lang;version="0.2.0",
  org.osgi.framework;version="1.8.0",
- org.osgi.util.tracker;version="1.5.1"
+ org.osgi.util.tracker;version="1.5.1",
+ org.slf4j;version="1.7.2"
 Web-Static-Resources: /resources;target:="/resources",
  /resources/favicon.ico;target:="/favicon.ico"
 Web-Export-Taglib: WEB-INF/tags/main/common.tld, META-INF/table.tld

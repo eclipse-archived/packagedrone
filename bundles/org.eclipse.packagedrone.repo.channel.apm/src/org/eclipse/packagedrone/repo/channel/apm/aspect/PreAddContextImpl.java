@@ -11,8 +11,10 @@
 package org.eclipse.packagedrone.repo.channel.apm.aspect;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
-import org.eclipse.packagedrone.repo.aspect.listener.PreAddContext;
+import org.eclipse.packagedrone.repo.channel.PreAddContext;
+import org.eclipse.packagedrone.repo.channel.VetoPolicy;
 
 public class PreAddContextImpl implements PreAddContext
 {
@@ -22,14 +24,14 @@ public class PreAddContextImpl implements PreAddContext
 
     private final boolean external;
 
+    private VetoPolicy veto;
+
     public PreAddContextImpl ( final String name, final Path file, final boolean external )
     {
         this.name = name;
         this.file = file;
         this.external = external;
     }
-
-    private boolean veto;
 
     @Override
     public String getName ()
@@ -44,12 +46,17 @@ public class PreAddContextImpl implements PreAddContext
     }
 
     @Override
-    public void vetoAdd ()
+    public void vetoAdd ( final VetoPolicy veto )
     {
-        this.veto = true;
+        Objects.requireNonNull ( veto );
+
+        if ( this.veto == null || this.veto.ordinal () < veto.ordinal () )
+        {
+            this.veto = veto;
+        }
     }
 
-    public boolean isVeto ()
+    public VetoPolicy getVeto ()
     {
         return this.veto;
     }

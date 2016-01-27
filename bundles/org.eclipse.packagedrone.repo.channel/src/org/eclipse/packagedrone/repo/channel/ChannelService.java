@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
@@ -60,6 +59,10 @@ import org.eclipse.packagedrone.repo.channel.stats.ChannelStatistics;
  * <dt>{@link DeployKeysChannelAdapter}</dt>
  * <dd>An instance for managing the deploy keys of a channel. Won't lock the
  * channel itself.</dt>
+ * <dt>{@link org.eclipse.packagedrone.repo.trigger.TriggeredChannel}</dt>
+ * <dd>An instance for managing triggers on this channel. Will lock the channel
+ * configuration.
+ * </dd>
  * </dl>
  */
 public interface ChannelService
@@ -184,7 +187,7 @@ public interface ChannelService
      */
     public Optional<ChannelInformation> getState ( By by );
 
-    public ChannelId create ( @NonNull String providerId, @NonNull ChannelDetails details, @NonNull Map<MetaKey, String> configuration );
+    public ChannelId create ( String providerId, ChannelDetails details, Map<MetaKey, String> configuration );
 
     /**
      * Delete a channel
@@ -241,17 +244,17 @@ public interface ChannelService
         } );
     }
 
-    public default @NonNull Optional<Collection<DeployKey>> getChannelDeployKeys ( final By by )
+    public default Optional<Collection<DeployKey>> getChannelDeployKeys ( final By by )
     {
         return getChannelDeployGroups ( by ).map ( groups -> groups.stream ().flatMap ( group -> group.getKeys ().stream () ).collect ( toList () ) );
     }
 
-    public default @NonNull Optional<Set<String>> getChannelDeployKeyStrings ( final By by )
+    public default Optional<Set<String>> getChannelDeployKeyStrings ( final By by )
     {
         return getChannelDeployGroups ( by ).map ( groups -> groups.stream ().flatMap ( group -> group.getKeys ().stream () ).map ( DeployKey::getKey ).collect ( toSet () ) );
     }
 
-    public @NonNull Optional<Collection<DeployGroup>> getChannelDeployGroups ( By by );
+    public Optional<Collection<DeployGroup>> getChannelDeployGroups ( By by );
 
     public default boolean streamArtifact ( final String channelId, final String artifactId, final ArtifactReceiver receiver )
     {

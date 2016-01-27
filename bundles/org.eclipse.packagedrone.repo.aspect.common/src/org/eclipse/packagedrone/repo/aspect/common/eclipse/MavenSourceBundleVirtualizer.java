@@ -25,8 +25,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.common.osgi.OsgiExtractor;
@@ -66,7 +64,6 @@ public class MavenSourceBundleVirtualizer implements Virtualizer
             return;
         }
 
-        @Nullable
         final ArtifactInformation parent = findParent ( context );
         if ( parent == null )
         {
@@ -90,7 +87,7 @@ public class MavenSourceBundleVirtualizer implements Virtualizer
         }
     }
 
-    private boolean isSourceBundle ( @NonNull final ArtifactInformation parent )
+    private boolean isSourceBundle ( final ArtifactInformation parent )
     {
         final String full = parent.getMetaData ().get ( OsgiExtractor.KEY_FULL_MANIFEST );
         if ( full == null )
@@ -193,12 +190,12 @@ public class MavenSourceBundleVirtualizer implements Virtualizer
         return sb.toString ();
     }
 
-    private @Nullable ArtifactInformation findParent ( @NonNull final Context context )
+    private ArtifactInformation findParent ( final Context context )
     {
         return context.getOtherArtifactInformation ( context.getArtifactInformation ().getParentId () );
     }
 
-    private @Nullable BundleInformation findBundleInformation ( @NonNull final ArtifactInformation parent )
+    private BundleInformation findBundleInformation ( final ArtifactInformation parent )
     {
         final String biString = parent.getMetaData ().get ( BundleInformation.META_KEY );
         return BundleInformation.fromJson ( biString );

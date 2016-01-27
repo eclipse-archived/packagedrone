@@ -135,7 +135,7 @@
         <setupTask
             xsi:type="setup:PreferenceTask"
             key="compiler.annotation.nullanalysis"
-            value="enabled">
+            value="disabled">
           <description></description>
         </setupTask>
         <setupTask

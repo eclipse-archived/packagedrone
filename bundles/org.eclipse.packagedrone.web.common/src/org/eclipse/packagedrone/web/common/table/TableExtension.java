@@ -16,29 +16,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 public interface TableExtension
 {
-    public @NonNull TableDescriptor geTableDescriptor ();
+    public TableDescriptor geTableDescriptor ();
 
     public default List<TableColumn> getColumns ()
     {
         return getColumns ( Integer.MIN_VALUE, Integer.MAX_VALUE );
     }
 
-    public default void extend ( @NonNull final Object value, @NonNull final PrintWriter out ) throws IOException
+    public default void extend ( final Object value, final PrintWriter out ) throws IOException
     {
         extend ( value, out, Integer.MIN_VALUE, Integer.MAX_VALUE );
     }
 
-    @SuppressWarnings ( "null" )
-    public default @NonNull List<TableColumn> getColumns ( final int fromPriority, final int toPriority )
+    public default List<TableColumn> getColumns ( final int fromPriority, final int toPriority )
     {
         return streamProviders ( fromPriority, toPriority ).map ( TableColumnProvider::getColumn ).collect ( Collectors.toList () );
     }
 
-    public default void extend ( @NonNull final Object value, @NonNull final PrintWriter out, final int fromPriority, final int toPriority ) throws IOException
+    public default void extend ( final Object value, final PrintWriter out, final int fromPriority, final int toPriority ) throws IOException
     {
         for ( final TableColumnProvider provider : (Iterable<TableColumnProvider>)streamProviders ( fromPriority, toPriority )::iterator )
         {

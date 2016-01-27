@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,9 +24,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.eclipse.packagedrone.web.common.InterfaceExtender;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MenuManagerImpl
 {
+    private final static Logger logger = LoggerFactory.getLogger ( MenuManagerImpl.class );
+
     private final ServiceTracker<InterfaceExtender, InterfaceExtender> tracker;
 
     public MenuManagerImpl ()
@@ -61,10 +65,18 @@ public class MenuManagerImpl
 
         for ( final InterfaceExtender me : this.tracker.getTracked ().values () )
         {
-            final List<MenuEntry> actions = func.apply ( me );
-            if ( actions != null )
+            try
             {
-                result.addAll ( actions );
+                final List<MenuEntry> actions = func.apply ( me );
+                if ( actions != null )
+                {
+                    result.addAll ( actions );
+                }
+            }
+            catch ( final Exception e )
+            {
+                // ignore
+                logger.warn ( "Failed to create interface extensions: " + me, e );
             }
         }
 

@@ -21,8 +21,6 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.storage.apm.StorageManager;
-import org.eclipse.packagedrone.storage.apm.StorageRegistration;
 import org.eclipse.scada.utils.io.RecursiveDeleteVisitor;
 import org.junit.After;
 import org.junit.Before;
@@ -68,7 +66,7 @@ public class BaseTest
     }
 
     /**
-     * Test a plain registration and diposal
+     * Test a plain registration and disposal
      */
     @Test
     public void test2a ()
@@ -80,7 +78,7 @@ public class BaseTest
     }
 
     /**
-     * Test a registration and unregistration after disposal
+     * Test a registration and un-registration after disposal
      * <p>
      * Although the unregister method is called after the close method, this
      * must not cause any troubles.

@@ -1,10 +1,10 @@
-<%@ tag language="java" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ tag language="java" pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="web" uri="http://eclipse.org/packagedrone/web" %>
 
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
+<%@ taglib prefix="h" tagdir="/WEB-INF/tags/main" %>
 
 <%@ attribute name="menu" required="true" type="org.eclipse.packagedrone.web.common.menu.Menu"%>
 

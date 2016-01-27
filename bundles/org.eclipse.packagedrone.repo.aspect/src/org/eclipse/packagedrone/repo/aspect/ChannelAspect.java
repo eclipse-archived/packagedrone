@@ -33,8 +33,10 @@ public interface ChannelAspect
     }
 
     /**
+     * @deprecated Use the trigger system instead
      * @return a channel listener or <code>null</code>
      */
+    @Deprecated
     public default ChannelListener getChannelListener ()
     {
         return null;

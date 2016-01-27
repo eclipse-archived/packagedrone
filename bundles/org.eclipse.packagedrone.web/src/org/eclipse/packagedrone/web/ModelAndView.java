@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,16 @@ public class ModelAndView
 
     public ModelAndView ()
     {
+    }
+
+    public static ModelAndView redirect ( final String target )
+    {
+        return new ModelAndView ( REDIRECT_PREFIX + target );
+    }
+
+    public static ModelAndView referer ( final String target )
+    {
+        return new ModelAndView ( REFERER_PREFIX + target );
     }
 
     /**

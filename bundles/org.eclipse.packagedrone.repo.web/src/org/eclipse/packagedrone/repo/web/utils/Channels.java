@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.repo.web.utils;
 
 import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.eclipse.packagedrone.repo.channel.ChannelArtifactInformation;
@@ -38,6 +39,8 @@ public final class Channels
 
     public static <T> ModelAndView withChannel ( final ChannelService service, final String channelId, final Class<T> clazz, final ChannelOperation<ModelAndView, T> operation )
     {
+        Objects.requireNonNull ( service, "'service' must not be null" );
+
         try
         {
             return service.accessCall ( By.id ( channelId ), clazz, operation );

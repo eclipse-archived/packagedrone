@@ -16,8 +16,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 
@@ -39,13 +37,13 @@ public final class MavenLocator
     {
     }
 
-    public static List<ArtifactInformation> findByMavenCoordinates ( @NonNull final Collection<ArtifactInformation> artifacts, @Nullable final String groupId, @Nullable final String artifactId, @Nullable final String version, @Nullable final String snapshotVersion, @Nullable final String extension, @Nullable final String classifier )
+    public static List<ArtifactInformation> findByMavenCoordinates ( final Collection<ArtifactInformation> artifacts, final String groupId, final String artifactId, final String version, final String snapshotVersion, final String extension, final String classifier )
     {
         final Stream<ArtifactInformation> s = filterByCoordinates ( artifacts.stream (), groupId, artifactId, version, snapshotVersion, extension, classifier );
         return s.collect ( Collectors.toList () );
     }
 
-    public static @NonNull <T extends ArtifactInformation> Stream<T> filterByCoordinates ( @NonNull Stream<T> s, @Nullable final String groupId, @Nullable final String artifactId, @Nullable final String version, @Nullable final String snapshotVersion, @Nullable final String extension, @Nullable final String classifier )
+    public static <T extends ArtifactInformation> Stream<T> filterByCoordinates ( Stream<T> s, final String groupId, final String artifactId, final String version, final String snapshotVersion, final String extension, final String classifier )
     {
         s = s.filter ( art -> has ( art, KEY_GROUP_ID, groupId ) );
         s = s.filter ( art -> has ( art, KEY_ARTIFACT_ID, artifactId ) );
@@ -74,38 +72,38 @@ public final class MavenLocator
         return actualValue.equals ( expectedValue );
     }
 
-    private static @Nullable String get ( @NonNull final ArtifactInformation art, final MetaKey key )
+    private static String get ( final ArtifactInformation art, final MetaKey key )
     {
         Objects.requireNonNull ( art );
         return art.getMetaData ().get ( key );
     }
 
-    public static @Nullable String getGroupId ( @NonNull final ArtifactInformation art )
+    public static String getGroupId ( final ArtifactInformation art )
     {
         return get ( art, KEY_GROUP_ID );
     }
 
-    public static @Nullable String getArtifactId ( @NonNull final ArtifactInformation art )
+    public static String getArtifactId ( final ArtifactInformation art )
     {
         return get ( art, KEY_ARTIFACT_ID );
     }
 
-    public static @Nullable String getVersion ( @NonNull final ArtifactInformation art )
+    public static String getVersion ( final ArtifactInformation art )
     {
         return get ( art, KEY_VERSION );
     }
 
-    public static @Nullable String getSnapshotVersion ( @NonNull final ArtifactInformation art )
+    public static String getSnapshotVersion ( final ArtifactInformation art )
     {
         return get ( art, KEY_SNAPSHOT_VERSION );
     }
 
-    public static @Nullable String getExtension ( @NonNull final ArtifactInformation art )
+    public static String getExtension ( final ArtifactInformation art )
     {
         return get ( art, KEY_EXTENSION );
     }
 
-    public static @Nullable String getClassifier ( @NonNull final ArtifactInformation art )
+    public static String getClassifier ( final ArtifactInformation art )
     {
         return get ( art, KEY_CLASSIFIER );
     }

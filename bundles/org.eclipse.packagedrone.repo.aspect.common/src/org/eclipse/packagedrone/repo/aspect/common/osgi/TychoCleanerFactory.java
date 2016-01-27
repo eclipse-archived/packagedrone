@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspect;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectFactory;
 import org.eclipse.packagedrone.repo.aspect.listener.ChannelListener;
-import org.eclipse.packagedrone.repo.aspect.listener.PreAddContext;
+import org.eclipse.packagedrone.repo.channel.PreAddContext;
 
 public class TychoCleanerFactory implements ChannelAspectFactory
 {

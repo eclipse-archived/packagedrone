@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,7 +35,6 @@ import org.eclipse.packagedrone.repo.channel.ChannelState;
 import org.eclipse.packagedrone.repo.channel.ValidationMessage;
 import org.eclipse.packagedrone.repo.channel.apm.store.BlobStore;
 import org.eclipse.packagedrone.repo.channel.apm.store.CacheStore;
-import org.osgi.service.event.EventAdmin;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -46,8 +45,6 @@ public class ChannelReader implements AutoCloseable
 
     private final String channelId;
 
-    private final EventAdmin eventAdmin;
-
     private final BlobStore store;
 
     private final CacheStore cacheStore;
@@ -56,11 +53,10 @@ public class ChannelReader implements AutoCloseable
 
     private long numberOfBytes;
 
-    public ChannelReader ( final InputStream stream, final String channelId, final EventAdmin eventAdmin, final BlobStore store, final CacheStore cacheStore )
+    public ChannelReader ( final InputStream stream, final String channelId, final BlobStore store, final CacheStore cacheStore )
     {
         this.stream = stream;
         this.channelId = channelId;
-        this.eventAdmin = eventAdmin;
         this.store = store;
         this.cacheStore = cacheStore;
 
@@ -137,7 +133,7 @@ public class ChannelReader implements AutoCloseable
 
         // create result
 
-        return new ModifyContextImpl ( this.channelId, this.eventAdmin, this.store, this.cacheStore, state.build (), aspects, artifacts, cacheEntries, extractedMetaData, providedMetaData );
+        return new ModifyContextImpl ( this.channelId, this.store, this.cacheStore, state.build (), aspects, artifacts, cacheEntries, extractedMetaData, providedMetaData );
     }
 
     private Map<String, String> readAspects ( final JsonReader jr ) throws IOException

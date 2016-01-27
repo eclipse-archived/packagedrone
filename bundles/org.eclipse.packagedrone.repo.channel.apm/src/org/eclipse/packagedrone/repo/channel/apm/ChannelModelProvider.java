@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,6 @@ import org.eclipse.packagedrone.storage.apm.util.ReplaceOnCloseOutputStream;
 import org.eclipse.packagedrone.utils.Suppressed;
 import org.eclipse.packagedrone.utils.profiler.Profile;
 import org.eclipse.packagedrone.utils.profiler.Profile.Handle;
-import org.osgi.service.event.EventAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,15 +53,12 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
 
     private CacheStore cacheStore;
 
-    private final EventAdmin eventAdmin;
-
     private final String dir;
 
-    public ChannelModelProvider ( final EventAdmin eventAdmin, final String channelId, final String dir )
+    public ChannelModelProvider ( final String channelId, final String dir )
     {
         super ( AccessContext.class, ModifyContextImpl.class );
 
-        this.eventAdmin = eventAdmin;
         this.channelId = channelId;
         this.dir = dir;
     }
@@ -225,7 +221,7 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
         final Path path = makeStatePath ( context, this.dir );
 
         try ( InputStream stream = new BufferedInputStream ( Files.newInputStream ( path ) );
-              ChannelReader reader = new ChannelReader ( stream, this.channelId, this.eventAdmin, this.store, this.cacheStore ); )
+              ChannelReader reader = new ChannelReader ( stream, this.channelId, this.store, this.cacheStore ); )
         {
             final ModifyContextImpl model = reader.read ();
             if ( model == null )
@@ -243,7 +239,7 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
 
             model.setCreationTimestamp ( new Date () );
 
-            return new ModifyContextImpl ( this.channelId, this.eventAdmin, this.store, this.cacheStore );
+            return new ModifyContextImpl ( this.channelId, this.store, this.cacheStore );
         }
     }
 

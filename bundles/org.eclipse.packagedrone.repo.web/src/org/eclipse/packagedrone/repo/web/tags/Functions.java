@@ -17,11 +17,11 @@ import java.util.List;
 
 import org.eclipse.packagedrone.repo.Severity;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
-import org.eclipse.packagedrone.repo.channel.ChannelInformation;
+import org.eclipse.packagedrone.repo.channel.ChannelId;
 
 public class Functions
 {
-    public static String channel ( final ChannelInformation channel )
+    public static String channel ( final ChannelId channel )
     {
         if ( channel == null )
         {

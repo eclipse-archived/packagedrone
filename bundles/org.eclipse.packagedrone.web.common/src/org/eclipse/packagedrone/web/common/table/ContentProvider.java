@@ -13,10 +13,8 @@ package org.eclipse.packagedrone.web.common.table;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 @FunctionalInterface
 public interface ContentProvider<T>
 {
-    public void provide ( @NonNull T object, @NonNull PrintWriter out ) throws IOException;
+    public void provide ( T object, PrintWriter out ) throws IOException;
 }

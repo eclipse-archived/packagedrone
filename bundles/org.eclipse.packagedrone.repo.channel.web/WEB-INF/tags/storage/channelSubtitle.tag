@@ -15,7 +15,7 @@
       IBH SYSTEMS GmbH - initial API and implementation
 --%>
 
-<%@ attribute name="channel" type="org.eclipse.packagedrone.repo.channel.ChannelInformation" %>
+<%@ attribute name="channel" type="org.eclipse.packagedrone.repo.channel.ChannelId" %>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>

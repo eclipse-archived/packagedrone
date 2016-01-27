@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,13 +27,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectProcessor;
-import org.eclipse.packagedrone.repo.channel.AspectableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelDetails;
 import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.ChannelInformation;
@@ -41,22 +39,21 @@ import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.DeployKeysChannelAdapter;
 import org.eclipse.packagedrone.repo.channel.DescriptorAdapter;
-import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployAuthService;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
 import org.eclipse.packagedrone.repo.channel.impl.model.ChannelConfiguration;
-import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
 import org.eclipse.packagedrone.repo.channel.provider.Channel;
 import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider;
-import org.eclipse.packagedrone.repo.channel.provider.ModifyContext;
 import org.eclipse.packagedrone.repo.channel.stats.ChannelStatistics;
+import org.eclipse.packagedrone.repo.trigger.ProcessorFactoryTracker;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
 import org.eclipse.packagedrone.storage.apm.StorageRegistration;
 import org.eclipse.packagedrone.utils.Locks.Locked;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.event.EventAdmin;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -88,9 +85,13 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
 
     private ChannelAspectProcessor aspectProcessor;
 
-    private final ChannelProviderTracker providerTracker;
+    private ChannelProviderTracker providerTracker;
 
     private final Map<String, ChannelInstance> channels = new HashMap<> ();
+
+    private EventAdmin eventAdmin;
+
+    private ProcessorFactoryTracker processorFactoryTracker;
 
     public ChannelServiceImpl ()
     {
@@ -100,8 +101,11 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
 
         this.readLock = lock.readLock ();
         this.writeLock = lock.writeLock ();
+    }
 
-        this.providerTracker = new ChannelProviderTracker ( this.context );
+    public void setEventAdmin ( final EventAdmin eventAdmin )
+    {
+        this.eventAdmin = eventAdmin;
     }
 
     public void setStorageManager ( final StorageManager manager )
@@ -112,29 +116,44 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
     public void start ()
     {
         this.aspectProcessor = new ChannelAspectProcessor ( this.context );
+
+        this.providerTracker = new ChannelProviderTracker ( this.context );
         this.providerTracker.start ();
+
+        this.processorFactoryTracker = new ProcessorFactoryTracker ( this.context );
 
         this.handle = this.manager.registerModel ( 1_000, KEY_STORAGE, new ChannelServiceModelProvider () );
 
-        this.manager.accessRun ( KEY_STORAGE, ChannelServiceAccess.class, model -> {
-            updateDeployGroupCache ( model );
+        try
+        {
+            this.manager.accessRun ( KEY_STORAGE, ChannelServiceAccess.class, model -> {
+                updateDeployGroupCache ( model );
 
-            for ( final Map.Entry<String, ChannelConfiguration> entry : model.getChannels ().entrySet () )
-            {
-                loadChannel ( entry.getKey (), entry.getValue () );
-            }
-        } );
-    }
-
-    private void loadChannel ( @NonNull final String channelId, @NonNull final ChannelConfiguration configuration )
-    {
-        this.channels.put ( channelId, new ChannelInstance ( channelId, configuration.getProviderId (), configuration.getConfiguration (), this.providerTracker ) );
+                for ( final Map.Entry<String, ChannelConfiguration> entry : model.getChannels ().entrySet () )
+                {
+                    loadChannel ( entry.getKey (), entry.getValue () );
+                }
+            } );
+        }
+        catch ( final Exception e )
+        {
+            dispose ();
+            throw e;
+        }
     }
 
     public void stop ()
     {
-        this.channels.values ().stream ().forEach ( ChannelInstance::dispose );
-        this.channels.clear ();
+        dispose ();
+    }
+
+    private void dispose ()
+    {
+        try ( Locked l = lock ( this.writeLock ) )
+        {
+            this.channels.values ().stream ().forEach ( ChannelInstance::dispose );
+            this.channels.clear ();
+        }
 
         if ( this.handle != null )
         {
@@ -148,21 +167,35 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
             this.aspectProcessor = null;
         }
 
-        this.providerTracker.stop ();
+        if ( this.providerTracker != null )
+        {
+            this.providerTracker.stop ();
+            this.providerTracker = null;
+        }
+
+        if ( this.processorFactoryTracker != null )
+        {
+            this.processorFactoryTracker.close ();
+            this.processorFactoryTracker = null;
+        }
     }
 
-    private ChannelInformation accessState ( final ChannelInstance channelEntry )
+    private void loadChannel ( final String channelId, final ChannelConfiguration configuration )
     {
-        return accessRead ( channelEntry, channel -> channel.getInformation () );
+        this.channels.put ( channelId, new ChannelInstance ( channelId, configuration.getProviderId (), configuration.getConfiguration (), this.providerTracker, this.aspectProcessor, this.eventAdmin, this.manager, this.processorFactoryTracker ) );
+    }
+
+    private ChannelInformation accessState ( final ChannelServiceAccess channels, final ChannelInstance channel )
+    {
+        return channel.access ( buildId ( channel.getChannelId (), channels ), ReadableChannel.class, ReadableChannel::getInformation );
     }
 
     @Override
     public Collection<ChannelInformation> list ()
     {
-        try ( Locked l = lock ( this.readLock ) )
-        {
-            return this.channels.values ().stream ().map ( this::accessState ).collect ( Collectors.toList () );
-        }
+        return accessChannels ( channels -> {
+            return this.channels.values ().stream ().map ( instance -> accessState ( channels, instance ) ).collect ( Collectors.toList () );
+        } );
     }
 
     /**
@@ -202,7 +235,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
         }
     }
 
-    private @NonNull Optional<@Nullable ChannelInstance> findById ( @Nullable final String id )
+    private Optional<ChannelInstance> findById ( final String id )
     {
         if ( id == null )
         {
@@ -220,7 +253,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
      * @return the optional channel entry, never returns {@code null} but my
      *         return {@link Optional#empty()}.
      */
-    private @NonNull Optional<ChannelInstance> findByName ( @Nullable final String name )
+    private Optional<ChannelInstance> findByName ( final String name )
     {
         if ( name == null )
         {
@@ -237,14 +270,13 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
     @Override
     public Optional<ChannelInformation> getState ( final By by )
     {
-        try ( Locked l = lock ( this.readLock ) )
-        {
-            return find ( by ).map ( this::accessState );
-        }
+        return accessChannels ( channels -> {
+            return find ( by ).map ( instance -> accessState ( channels, instance ) );
+        } );
     }
 
     @Override
-    public ChannelId create ( @NonNull final String providerId, @NonNull final ChannelDetails details, @NonNull final Map<MetaKey, String> configuration )
+    public ChannelId create ( final String providerId, final ChannelDetails details, final Map<MetaKey, String> configuration )
     {
         final String channelId = UUID.randomUUID ().toString ();
 
@@ -268,9 +300,9 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
         return new ChannelId ( channelId );
     }
 
-    private void commitCreateChannel ( @NonNull final String channelId, @NonNull final String providerId, @NonNull final Map<MetaKey, String> configuration )
+    private void commitCreateChannel ( final String channelId, final String providerId, final Map<MetaKey, String> configuration )
     {
-        final ChannelInstance channel = new ChannelInstance ( channelId, providerId, configuration, this.providerTracker );
+        final ChannelInstance channel = new ChannelInstance ( channelId, providerId, configuration, this.providerTracker, this.aspectProcessor, this.eventAdmin, this.manager, this.processorFactoryTracker );
 
         try ( Locked l = lock ( this.writeLock ) )
         {
@@ -278,86 +310,50 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
         }
     }
 
+    private <R> R accessChannels ( final Function<ChannelServiceAccess, R> operation )
+    {
+        return this.manager.accessCall ( KEY_STORAGE, ChannelServiceAccess.class, channels -> {
+            return operation.apply ( channels );
+        } );
+    }
+
+    private <R> R modifyChannels ( final Function<ChannelServiceModify, R> operation )
+    {
+        return this.manager.modifyCall ( KEY_STORAGE, ChannelServiceModify.class, channels -> {
+            return operation.apply ( channels );
+        } );
+    }
+
+    private <R, T> R modifyChannel ( final By by, final Function<ChannelInstance, R> operation )
+    {
+        return modifyChannels ( channels -> {
+            final ChannelInstance channelInstance = findChannel ( by );
+            return operation.apply ( channelInstance );
+        } );
+    }
+
     @SuppressWarnings ( "unchecked" )
     @Override
     public <R, T> R accessCall ( final By by, final Class<T> clazz, final ChannelOperation<R, T> operation )
     {
-        if ( ReadableChannel.class.equals ( clazz ) )
+        if ( DeployKeysChannelAdapter.class.equals ( clazz ) )
         {
-            return accessRead ( findChannel ( by ), (ChannelOperation<R, ReadableChannel>)operation );
-        }
-        else if ( ModifiableChannel.class.equals ( clazz ) )
-        {
-            return accessModify ( findChannel ( by ), (ChannelOperation<R, ModifiableChannel>)operation );
-        }
-        else if ( DeployKeysChannelAdapter.class.equals ( clazz ) )
-        {
-            return handleDeployKeys ( findChannel ( by ), (ChannelOperation<R, DeployKeysChannelAdapter>)operation );
+            return modifyChannel ( by, channelInstance -> handleDeployKeys ( channelInstance, (ChannelOperation<R, DeployKeysChannelAdapter>)operation ) );
         }
         else if ( DescriptorAdapter.class.equals ( clazz ) )
         {
-            return handleDescribe ( findChannel ( by ), (ChannelOperation<R, DescriptorAdapter>)operation );
+            return modifyChannel ( by, channelInstance -> handleDescribe ( channelInstance, (ChannelOperation<R, DescriptorAdapter>)operation ) );
         }
-        else if ( AspectableChannel.class.equals ( clazz ) )
-        {
-            return accessModify ( findChannel ( by ), (ChannelOperation<R, ModifiableChannel>)operation );
-        }
-        else
-        {
-            throw new IllegalArgumentException ( String.format ( "Unknown channel adapter: %s", clazz.getName () ) );
-        }
-    }
 
-    private <R> R accessRead ( final ChannelInstance channelEntry, final ChannelOperation<R, ReadableChannel> operation )
-    {
-        return this.manager.accessCall ( KEY_STORAGE, ChannelServiceAccess.class, channels -> {
-
-            final ChannelId id = buildId ( channelEntry, channels );
-
-            @SuppressWarnings ( "null" )
-            @NonNull
-            final Channel channelInstance = (@NonNull Channel)channelEntry.getChannel ().orElse ( new ErrorChannel ( unboundMessage ( channelEntry ) ) );
-
-            return channelInstance.accessCall ( ctx -> {
-
-                try ( Disposing<AccessContext> wrappedCtx = Disposing.proxy ( AccessContext.class, ctx );
-                      Disposing<ReadableChannel> channel = Disposing.proxy ( ReadableChannel.class, new ReadableChannelAdapter ( id, wrappedCtx.getTarget () ) ) )
-                {
-                    return operation.process ( channel.getTarget () );
-                }
-            } );
+        return accessChannels ( channels -> {
+            final ChannelInstance channelInstance = findChannel ( by );
+            final ChannelId id = buildId ( channelInstance.getChannelId (), channels );
+            return channelInstance.access ( id, clazz, operation );
         } );
     }
 
-    private <R> R accessModify ( final ChannelInstance channelEntry, final ChannelOperation<R, ModifiableChannel> operation )
+    private static ChannelId buildId ( final String channelId, final ChannelServiceAccess channels )
     {
-        return this.manager.accessCall ( KEY_STORAGE, ChannelServiceAccess.class, channels -> {
-
-            final ChannelId id = buildId ( channelEntry, channels );
-
-            if ( !channelEntry.getChannel ().isPresent () )
-            {
-                throw new IllegalStateException ( unboundMessage ( channelEntry ) );
-            }
-
-            return channelEntry.getChannel ().get ().modifyCall ( ctx -> {
-                try ( Disposing<ModifyContext> wrappedCtx = Disposing.proxy ( ModifyContext.class, ctx );
-                      Disposing<ModifiableChannel> channel = Disposing.proxy ( ModifiableChannel.class, new ModifiableChannelAdapter ( id, wrappedCtx.getTarget (), this.aspectProcessor ) ) )
-                {
-                    return operation.process ( channel.getTarget () );
-                }
-            } );
-        } );
-    }
-
-    private static String unboundMessage ( final ChannelInstance channelEntry )
-    {
-        return String.format ( "Channel '%s' is not bound to provider '%s'", channelEntry.getChannelId (), channelEntry.getProviderId () );
-    }
-
-    private ChannelId buildId ( final ChannelInstance channelEntry, final ChannelServiceAccess channels )
-    {
-        final String channelId = channelEntry.getChannelId ();
         final Set<String> names = new LinkedHashSet<> ( channels.getNameMappings ( channelId ) );
         final String description = channels.getDescription ( channelId );
         return new ChannelId ( channelId, names, description );
@@ -408,7 +404,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
     }
 
     @Override
-    public @NonNull Optional<Collection<DeployGroup>> getChannelDeployGroups ( final By by )
+    public Optional<Collection<DeployGroup>> getChannelDeployGroups ( final By by )
     {
         try ( Locked l = lock ( this.readLock ) )
         {
@@ -431,6 +427,15 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
         } );
     }
 
+    /**
+     * Find a channel
+     *
+     * @param by
+     *            the search criteria
+     * @return the found channel, never returns {@code null}
+     * @throws ChannelNotFoundException
+     *             if there was no channel found
+     */
     private ChannelInstance findChannel ( final By by )
     {
         final Optional<ChannelInstance> channel;
@@ -458,15 +463,15 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
                 return false;
             }
 
-            final ChannelInstance entry = channelInstance.get ();
+            final ChannelInstance instance = channelInstance.get ();
 
-            final Optional<Channel> channel = entry.getChannel ();
+            final Optional<Channel> channel = instance.getChannel ();
             if ( !channel.isPresent () )
             {
-                throw new IllegalStateException ( String.format ( "Can only delete channel %s when the provider %s is present", entry.getChannelId (), entry.getProviderId () ) );
+                throw new IllegalStateException ( String.format ( "Can only delete channel %s when the provider %s is present", instance.getChannelId (), instance.getProviderId () ) );
             }
 
-            deleteChannel ( entry );
+            deleteChannel ( instance );
 
             channel.get ().delete ();
 
@@ -654,5 +659,4 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
 
         return cs;
     }
-
 }

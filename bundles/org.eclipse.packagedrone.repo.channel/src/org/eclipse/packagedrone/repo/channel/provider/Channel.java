@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ public interface Channel
 {
     public <T> T accessCall ( ChannelOperation<T, AccessContext> operation );
 
-    public <T> T modifyCall ( ChannelOperation<T, ModifyContext> operation );
+    public <T> T modifyCall ( ChannelOperation<T, ModifyContext> operation, ChannelOperationContext context );
 
     public default void accessRun ( final ChannelOperationVoid<AccessContext> operation )
     {
@@ -27,12 +27,12 @@ public interface Channel
         } );
     }
 
-    public default void modifyRun ( final ChannelOperationVoid<ModifyContext> operation )
+    public default void modifyRun ( final ChannelOperationVoid<ModifyContext> operation, final ChannelOperationContext context )
     {
         modifyCall ( channel -> {
             operation.process ( channel );
             return null;
-        } );
+        } , context );
     }
 
     /**

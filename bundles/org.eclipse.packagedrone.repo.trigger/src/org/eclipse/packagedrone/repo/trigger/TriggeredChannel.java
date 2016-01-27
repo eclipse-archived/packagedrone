@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,14 +10,32 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.trigger;
 
-import java.util.Map;
+import java.util.Collection;
 import java.util.Optional;
+
+import org.eclipse.packagedrone.repo.channel.ChannelId;
 
 public interface TriggeredChannel
 {
-    public ConfigurableTriggerInstance createTrigger ( String triggerFactoryId, Map<String, String> configuration );
+    public ChannelId getId ();
 
-    public Map<String, TriggerInstance> listTriggers ();
+    public Collection<TriggerHandle> listTriggers ();
 
-    public Optional<TriggerInstance> getTrigger ( String id );
+    public Optional<TriggerHandle> getTrigger ( String triggerId );
+
+    // configured triggered
+
+    public TriggerHandle addConfiguredTrigger ( String triggerFactoryId, String configuration );
+
+    public void modifyConfiguredTrigger ( String triggerConfigurationId, String configuration );
+
+    public void deleteConfiguredTrigger ( String triggerConfigurationId );
+
+    // processors
+
+    public TriggerProcessorConfiguration addProcessor ( String triggerId, String processorFactoryId, String configuration );
+
+    public void modifyProcessor ( String triggerId, String processorId, String configuration );
+
+    public void deleteProcessor ( String triggerId, String processorId );
 }

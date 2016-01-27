@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.junit.BeforeClass;
@@ -30,7 +29,7 @@ import org.junit.Test;
 
 public class MavenLocatorTest
 {
-    private @NonNull static final List<ArtifactInformation> arts = new LinkedList<> ();
+    private static final List<ArtifactInformation> arts = new LinkedList<> ();
 
     @BeforeClass
     public static void setup ()

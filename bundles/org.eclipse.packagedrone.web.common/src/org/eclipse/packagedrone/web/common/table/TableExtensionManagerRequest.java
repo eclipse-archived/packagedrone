@@ -15,17 +15,15 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.eclipse.jdt.annotation.NonNull;
-
 public class TableExtensionManagerRequest
 {
     public static final String PROPERTY_NAME = "tableExtensionManager";
 
-    private @NonNull final TableExtensionManager manager;
+    private final TableExtensionManager manager;
 
-    private @NonNull final HttpServletRequest request;
+    private final HttpServletRequest request;
 
-    public TableExtensionManagerRequest ( @NonNull final TableExtensionManager manager, @NonNull final HttpServletRequest request )
+    public TableExtensionManagerRequest ( final TableExtensionManager manager, final HttpServletRequest request )
     {
         this.manager = manager;
         this.request = request;

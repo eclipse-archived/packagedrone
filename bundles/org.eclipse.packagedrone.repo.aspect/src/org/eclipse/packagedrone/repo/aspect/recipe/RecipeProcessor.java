@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.packagedrone.repo.aspect.PropertiesHelper;
 import org.eclipse.packagedrone.utils.osgi.FactoryTracker;
 import org.osgi.framework.BundleContext;
@@ -78,7 +77,7 @@ public class RecipeProcessor extends FactoryTracker<Recipe, RecipeProcessor.Entr
         }
     }
 
-    public RecipeProcessor ( @NonNull final BundleContext context )
+    public RecipeProcessor ( final BundleContext context )
     {
         super ( context, Recipe.class );
         open ();

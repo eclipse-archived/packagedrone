@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,6 +71,8 @@ public class DispatcherServletInitializer
 
     private DispatcherHttpContext context;
 
+    private ErrorHandlerTracker errorHandler;
+
     public void setWebContainer ( final WebContainer webContainer )
     {
         this.webContainer = webContainer;
@@ -85,10 +87,14 @@ public class DispatcherServletInitializer
         final BundleContext bundleContext = FrameworkUtil.getBundle ( DispatcherServletInitializer.class ).getBundleContext ();
         this.context = Dispatcher.createContext ( bundleContext );
 
+        this.errorHandler = new ErrorHandlerTracker ();
+
         Dictionary<String, String> initparams = new Hashtable<> ();
 
         final MultipartConfigElement multipart = Servlets.createMultiPartConfiguration ( PROP_PREFIX_MP );
-        this.webContainer.registerServlet ( new DispatcherServlet (), "dispatcher", new String[] { "/" }, initparams, 1, false, multipart, this.context );
+        final DispatcherServlet servlet = new DispatcherServlet ();
+        servlet.setErrorHandler ( this.errorHandler );
+        this.webContainer.registerServlet ( servlet, "dispatcher", new String[] { "/" }, initparams, 1, false, multipart, this.context );
 
         this.proxyFilter = new FilterTracker ( bundleContext );
         this.webContainer.registerFilter ( this.proxyFilter, new String[] { "/*" }, null, null, this.context );
@@ -106,6 +112,7 @@ public class DispatcherServletInitializer
         this.context.dispose ();
         this.jspTracker.close ();
         this.webContainer.unregister ( "/" );
+        this.errorHandler.dispose ();
     }
 
 }

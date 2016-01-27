@@ -35,6 +35,11 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.pde.ds.core.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jem.workbench.JavaEMFNature</nature>
@@ -44,4 +49,17 @@
 		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
 		<nature>org.eclipse.wst.jsdt.core.jsNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>WEB-INF/tags/main</name>
+			<type>2</type>
+			<locationURI>MAIN_TAGS_LOC</locationURI>
+		</link>
+	</linkedResources>
+	<variableList>
+		<variable>
+			<name>MAIN_TAGS_LOC</name>
+			<value>$%7BPARENT-1-PROJECT_LOC%7D/org.eclipse.packagedrone.web.common/WEB-INF/tags/main</value>
+		</variable>
+	</variableList>
 </projectDescription>

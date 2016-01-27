@@ -12,8 +12,6 @@ package org.eclipse.packagedrone.repo.aspect.common.osgi;
 
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspect;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectFactory;
@@ -27,30 +25,30 @@ public class OsgiAspectFactory implements ChannelAspectFactory
 {
     private final static Logger logger = LoggerFactory.getLogger ( OsgiAspectFactory.class );
 
-    public static final @NonNull String ID = "osgi";
+    public static final String ID = "osgi";
 
     private static class ChannelAspectImpl implements ChannelAspect
     {
         @Override
-        public @NonNull Extractor getExtractor ()
+        public Extractor getExtractor ()
         {
             return new OsgiExtractor ();
         }
 
         @Override
-        public @NonNull String getId ()
+        public String getId ()
         {
             return ID;
         }
     }
 
     @Override
-    public @NonNull ChannelAspect createAspect ()
+    public ChannelAspect createAspect ()
     {
         return new ChannelAspectImpl ();
     }
 
-    public static <T extends BundleInformation> @Nullable T fetchBundleInformation ( @NonNull final Map<MetaKey, String> metadata, @NonNull final Class<T> clazz )
+    public static <T extends BundleInformation> T fetchBundleInformation ( final Map<MetaKey, String> metadata, final Class<T> clazz )
     {
         final String string = metadata.get ( OsgiExtractor.KEY_BUNDLE_INFORMATION );
         if ( string == null )
@@ -69,7 +67,7 @@ public class OsgiAspectFactory implements ChannelAspectFactory
         }
     }
 
-    public static <T extends FeatureInformation> @Nullable T fetchFeatureInformation ( @NonNull final Map<MetaKey, String> metadata, @NonNull final Class<T> clazz )
+    public static <T extends FeatureInformation> T fetchFeatureInformation ( final Map<MetaKey, String> metadata, final Class<T> clazz )
     {
         final String string = metadata.get ( OsgiExtractor.KEY_FEATURE_INFORMATION );
         if ( string == null )
@@ -88,12 +86,12 @@ public class OsgiAspectFactory implements ChannelAspectFactory
         }
     }
 
-    public static BundleInformation fetchBundleInformation ( @NonNull final Map<MetaKey, String> metadata )
+    public static BundleInformation fetchBundleInformation ( final Map<MetaKey, String> metadata )
     {
         return fetchBundleInformation ( metadata, BundleInformation.class );
     }
 
-    public static FeatureInformation fetchFeatureInformation ( @NonNull final Map<MetaKey, String> metadata )
+    public static FeatureInformation fetchFeatureInformation ( final Map<MetaKey, String> metadata )
     {
         return fetchFeatureInformation ( metadata, FeatureInformation.class );
     }

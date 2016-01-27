@@ -138,6 +138,11 @@
 		<module>bundles/org.eclipse.packagedrone.repo.signing.pgp.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.signing.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.tests</module>
+		
+		<module>bundles/org.eclipse.packagedrone.repo.trigger</module>
+		<module>bundles/org.eclipse.packagedrone.repo.trigger.common</module>
+		<module>bundles/org.eclipse.packagedrone.repo.trigger.web</module>
+		
 		<module>bundles/org.eclipse.packagedrone.repo.utils.osgi</module>
 		<module>bundles/org.eclipse.packagedrone.repo.utils.osgi.tests</module>
 		<module>bundles/org.eclipse.packagedrone.repo.web</module>
