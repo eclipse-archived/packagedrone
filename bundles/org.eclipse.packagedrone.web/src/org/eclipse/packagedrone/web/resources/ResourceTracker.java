@@ -170,6 +170,7 @@ public class ResourceTracker implements RequestHandlerFactory
         final String method = request.getMethod ().toUpperCase ();
         if ( ! ( method.equals ( "GET" ) || method.equals ( "HEAD" ) ) )
         {
+            // static resources only support GET or HEAD
             return null;
         }
 
