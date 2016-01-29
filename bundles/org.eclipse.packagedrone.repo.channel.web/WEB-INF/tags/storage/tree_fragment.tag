@@ -17,6 +17,7 @@
 <%@ taglib prefix="s" tagdir="/WEB-INF/tags/storage" %>
 	
 <%@ attribute name="map" type="java.util.Map" %>
+<%@ attribute name="manager"  required="true"%>
 <%@ attribute name="parentId" %>
 <%@ attribute name="parents" %>
 <%@ attribute name="artifacts" type="java.util.Collection" %>
@@ -71,5 +72,5 @@
         </table:row>
 	</tr>
 	
-	<s:tree_fragment map="${map }" parentId="${artifact.id }" parents="${parents } ${artifact.id }" artifacts="${map.get(artifact.id) }" level="${level+1 }"/>
+	<s:tree_fragment map="${map }" manager="${manager}" parentId="${artifact.id }" parents="${parents } ${artifact.id }" artifacts="${map.get(artifact.id) }" level="${level+1 }"/>
 </c:forEach>

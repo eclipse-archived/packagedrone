@@ -62,7 +62,7 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 			</thead>
 		
 			<tbody>
-				<s:tree_fragment map="${treeArtifacts }" artifacts="${treeArtifacts.get(null) }" level="${0 }"/>
+				<s:tree_fragment map="${treeArtifacts }" manager="${manager }" artifacts="${treeArtifacts.get(null) }" level="${0 }"/>
 			</tbody>
 		
 		</table>
