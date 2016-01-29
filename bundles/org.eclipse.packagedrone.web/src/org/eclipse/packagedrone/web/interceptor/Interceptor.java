@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,9 +17,16 @@ import org.eclipse.packagedrone.web.RequestHandler;
 
 public interface Interceptor
 {
-    public boolean preHandle ( HttpServletRequest request, HttpServletResponse response ) throws Exception;
+    public default boolean preHandle ( final HttpServletRequest request, final HttpServletResponse response ) throws Exception
+    {
+        return true;
+    }
 
-    public void postHandle ( HttpServletRequest request, HttpServletResponse response, RequestHandler requestHandler ) throws Exception;
+    public default void postHandle ( final HttpServletRequest request, final HttpServletResponse response, final RequestHandler requestHandler ) throws Exception
+    {
+    }
 
-    public void afterCompletion ( HttpServletRequest request, HttpServletResponse response, Exception ex ) throws Exception;
+    public default void afterCompletion ( final HttpServletRequest request, final HttpServletResponse response, final Exception ex ) throws Exception
+    {
+    }
 }
