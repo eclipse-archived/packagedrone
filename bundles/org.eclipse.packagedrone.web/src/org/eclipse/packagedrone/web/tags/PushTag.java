@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,19 +10,20 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.web.tags;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
+import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.JspFragment;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 public class PushTag extends SimpleTagSupport
 {
     private String name;
 
-    public static String ATTR = PushTag.class.getName () + ".stacks";
+    static final String ATTR = PushTag.class.getName () + ".writers";
 
     public void setName ( final String name )
     {
@@ -31,24 +32,22 @@ public class PushTag extends SimpleTagSupport
 
     @Override
     @SuppressWarnings ( "unchecked" )
-    public void setJspBody ( final JspFragment jspBody )
+    public void doTag () throws JspException, IOException
     {
-        super.setJspBody ( jspBody );
-
-        Map<String, LinkedList<JspFragment>> stacks = (Map<String, LinkedList<JspFragment>>)getJspContext ().getAttribute ( ATTR, PageContext.REQUEST_SCOPE );
-        if ( stacks == null )
+        Map<String, StringWriter> writers = (Map<String, StringWriter>)getJspContext ().getAttribute ( ATTR, PageContext.REQUEST_SCOPE );
+        if ( writers == null )
         {
-            stacks = new HashMap<> ();
-            getJspContext ().setAttribute ( ATTR, stacks, PageContext.REQUEST_SCOPE );
+            writers = new HashMap<> ();
+            getJspContext ().setAttribute ( ATTR, writers, PageContext.REQUEST_SCOPE );
         }
 
-        LinkedList<JspFragment> stack = stacks.get ( this.name );
-        if ( stack == null )
+        StringWriter writer = writers.get ( this.name );
+        if ( writer == null )
         {
-            stack = new LinkedList<> ();
-            stacks.put ( this.name, stack );
+            writer = new StringWriter ();
+            writers.put ( this.name, writer );
         }
 
-        stack.add ( jspBody );
+        getJspBody ().invoke ( writer );
     }
 }

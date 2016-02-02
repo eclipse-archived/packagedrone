@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,12 +11,11 @@
 package org.eclipse.packagedrone.web.tags;
 
 import java.io.IOException;
-import java.util.LinkedList;
+import java.io.StringWriter;
 import java.util.Map;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.JspFragment;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 public class PopTag extends SimpleTagSupport
@@ -32,24 +31,19 @@ public class PopTag extends SimpleTagSupport
     @Override
     public void doTag () throws JspException, IOException
     {
-        final Map<String, LinkedList<JspFragment>> stacks = (Map<String, LinkedList<JspFragment>>)getJspContext ().getAttribute ( PushTag.ATTR, PageContext.REQUEST_SCOPE );
+        final Map<String, StringWriter> writers = (Map<String, StringWriter>)getJspContext ().getAttribute ( PushTag.ATTR, PageContext.REQUEST_SCOPE );
 
-        if ( stacks == null )
+        if ( writers == null )
         {
             return;
         }
 
-        final LinkedList<JspFragment> stack = stacks.get ( this.name );
-        if ( stack == null )
+        final StringWriter writer = writers.remove ( this.name );
+        if ( writer == null )
         {
             return;
         }
 
-        for ( final JspFragment fragment : stack )
-        {
-            fragment.invoke ( getJspContext ().getOut () );
-        }
-
-        stack.clear ();
+        getJspContext ().getOut ().write ( writer.toString () );
     }
 }
