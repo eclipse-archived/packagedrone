@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.sec.web.ui;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -40,6 +39,7 @@ import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.filter.SecurityFilter;
 import org.eclipse.packagedrone.web.Controller;
 import org.eclipse.packagedrone.web.LinkTarget;
+import org.eclipse.packagedrone.web.LinkTarget.ControllerMethod;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestMapping;
 import org.eclipse.packagedrone.web.RequestMethod;
@@ -64,9 +64,9 @@ import org.eclipse.packagedrone.web.controller.form.FormData;
 @ControllerInterceptor ( HttpContraintControllerInterceptor.class )
 public class UserController extends AbstractUserCreationController implements InterfaceExtender
 {
-    private static final Method METHOD_LIST = LinkTarget.getControllerMethod ( UserController.class, "list" );
+    private static final ControllerMethod METHOD_LIST = LinkTarget.getControllerMethod ( UserController.class, "list" );
 
-    private static final Method METHOD_ADD_USER = LinkTarget.getControllerMethod ( UserController.class, "addUser" );
+    private static final ControllerMethod METHOD_ADD_USER = LinkTarget.getControllerMethod ( UserController.class, "addUser" );
 
     @Override
     public List<MenuEntry> getMainMenuEntries ( final HttpServletRequest request )

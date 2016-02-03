@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,17 +23,11 @@ import org.eclipse.packagedrone.web.controller.routing.RequestMappingInformation
 
 public final class Controllers
 {
-    public static RequestMappingInformation fromMethod ( final Method method )
+    public static RequestMappingInformation fromMethod ( final Class<?> controllerClazz, final Method method )
     {
         final RequestMapping methodAn = method.getAnnotation ( RequestMapping.class );
-        final RequestMapping classAn = getAnnotation ( method.getDeclaringClass (), RequestMapping.class );
+        final RequestMapping classAn = getAnnotation ( controllerClazz, RequestMapping.class );
 
-        /*
-        if ( methodAn == null && classAn == null )
-        {
-            return null;
-        }
-        */
         if ( methodAn == null )
         {
             return null;

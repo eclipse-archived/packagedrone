@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.sec.web.controller;
 
-import java.lang.reflect.Method;
-
 import javax.servlet.annotation.HttpConstraint;
 import javax.servlet.http.HttpServletRequest;
+
+import org.eclipse.packagedrone.web.LinkTarget.ControllerMethod;
 
 public class HttpConstraints
 {
@@ -21,13 +21,13 @@ public class HttpConstraints
     {
     }
 
-    public static boolean isCallAllowed ( final Method m, final HttpServletRequest request )
+    public static boolean isCallAllowed ( final ControllerMethod m, final HttpServletRequest request )
     {
-        HttpConstraint constraint = m.getAnnotation ( HttpConstraint.class );
+        HttpConstraint constraint = m.getMethod ().getAnnotation ( HttpConstraint.class );
 
         if ( constraint == null )
         {
-            constraint = m.getDeclaringClass ().getAnnotation ( HttpConstraint.class );
+            constraint = m.getControllerClazz ().getAnnotation ( HttpConstraint.class );
         }
 
         if ( constraint == null )

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.packagedrone.mail.web;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.security.Principal;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -34,6 +33,7 @@ import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;
 import org.eclipse.packagedrone.web.Controller;
 import org.eclipse.packagedrone.web.LinkTarget;
+import org.eclipse.packagedrone.web.LinkTarget.ControllerMethod;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestMapping;
 import org.eclipse.packagedrone.web.RequestMethod;
@@ -65,7 +65,7 @@ public class ConfigController implements InterfaceExtender
 
     private volatile DefaultMailService mailService;
 
-    private static final Method METHOD_INDEX = LinkTarget.getControllerMethod ( ConfigController.class, "index" );
+    private static final ControllerMethod METHOD_INDEX = LinkTarget.getControllerMethod ( ConfigController.class, "index" );
 
     public void setMailService ( final DefaultMailService mailService )
     {

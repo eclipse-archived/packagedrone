@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -137,9 +137,9 @@ public class LinkTarget
         return String.format ( "[LinkTarget: %s]", this.url );
     }
 
-    private static Set<String> getRawPaths ( final Method method )
+    private static Set<String> getRawPaths ( final Class<?> controllerClazz, final Method method )
     {
-        final RequestMappingInformation rmi = Controllers.fromMethod ( method );
+        final RequestMappingInformation rmi = Controllers.fromMethod ( controllerClazz, method );
         if ( rmi == null )
         {
             return null;
@@ -148,33 +148,54 @@ public class LinkTarget
         return rmi.getRawPaths ();
     }
 
+    public static LinkTarget createFromController ( final ControllerMethod m )
+    {
+        final Set<String> paths = getRawPaths ( m.getControllerClazz (), m.getMethod () );
+
+        if ( paths != null && !paths.isEmpty () )
+        {
+            return new LinkTarget ( paths.iterator ().next () );
+        }
+
+        throw new IllegalArgumentException ( String.format ( "Controller class '%s' has no request method '%s'", m.getControllerClazz ().getName (), m.getMethod ().getName () ) );
+    }
+
     public static LinkTarget createFromController ( final Class<?> controllerClazz, final String methodName )
     {
-        final Method m = getControllerMethod ( controllerClazz, methodName );
+        final ControllerMethod m = getControllerMethod ( controllerClazz, methodName );
 
         if ( m != null )
         {
-            final Set<String> paths = getRawPaths ( m );
-            if ( paths != null && !paths.isEmpty () )
-            {
-                return new LinkTarget ( paths.iterator ().next () );
-            }
-
+            return createFromController ( m );
         }
 
         throw new IllegalArgumentException ( String.format ( "Controller class '%s' has no request method '%s'", controllerClazz.getName (), methodName ) );
     }
 
-    public static Method getControllerMethod ( final Object controller, final String methodName )
+    public static class ControllerMethod
     {
-        if ( controller == null )
+        private final Class<?> controllerClazz;
+
+        private final Method method;
+
+        public ControllerMethod ( final Class<?> controllerClazz, final Method method )
         {
-            return null;
+            this.controllerClazz = controllerClazz;
+            this.method = method;
         }
-        return getControllerMethod ( controller.getClass (), methodName );
+
+        public Class<?> getControllerClazz ()
+        {
+            return this.controllerClazz;
+        }
+
+        public Method getMethod ()
+        {
+            return this.method;
+        }
     }
 
-    public static Method getControllerMethod ( final Class<?> controllerClazz, final String methodName )
+    public static ControllerMethod getControllerMethod ( final Class<?> controllerClazz, final String methodName )
     {
         for ( final Method m : controllerClazz.getMethods () )
         {
@@ -183,11 +204,12 @@ public class LinkTarget
                 continue;
             }
 
-            return m;
+            return new ControllerMethod ( controllerClazz, m );
         }
         return null;
     }
 
+    /*
     public static LinkTarget createFromController ( final Method method )
     {
         if ( method == null )
@@ -203,4 +225,5 @@ public class LinkTarget
 
         return new LinkTarget ( paths.iterator ().next () );
     }
+    */
 }

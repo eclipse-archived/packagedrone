@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.packagedrone.repo.manage.setup.web;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +34,7 @@ import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;
 import org.eclipse.packagedrone.web.Controller;
 import org.eclipse.packagedrone.web.LinkTarget;
+import org.eclipse.packagedrone.web.LinkTarget.ControllerMethod;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestMapping;
 import org.eclipse.packagedrone.web.RequestMethod;
@@ -63,7 +63,7 @@ public class ConfigController implements InterfaceExtender
 
     private static final String PID_STORAGE_MANAGER = "drone.storage.manager";
 
-    private final static Method METHOD_MAIN = LinkTarget.getControllerMethod ( ConfigController.class, "config" );
+    private final static ControllerMethod METHOD_MAIN = LinkTarget.getControllerMethod ( ConfigController.class, "config" );
 
     private ConfigurationAdmin configurationAdmin;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ public class ControllerEntry
     {
         this.controller = controller;
 
-        final Class<? extends Object> clazz = controller.getClass ();
+        final Class<?> clazz = controller.getClass ();
 
         this.viewResolver = clazz.getAnnotation ( ViewResolver.class );
 
@@ -49,7 +49,7 @@ public class ControllerEntry
 
         for ( final Method m : clazz.getMethods () )
         {
-            final RequestMappingInformation rmi = parse ( m );
+            final RequestMappingInformation rmi = parse ( clazz, m );
 
             if ( rmi != null )
             {
@@ -89,9 +89,9 @@ public class ControllerEntry
         return this.viewResolver;
     }
 
-    protected static RequestMappingInformation parse ( final Method method )
+    protected static RequestMappingInformation parse ( final Class<?> controllerClazz, final Method method )
     {
-        return Controllers.fromMethod ( method );
+        return Controllers.fromMethod ( controllerClazz, method );
     }
 
     public RequestHandler findHandler ( final HttpServletRequest request, final HttpServletResponse response )

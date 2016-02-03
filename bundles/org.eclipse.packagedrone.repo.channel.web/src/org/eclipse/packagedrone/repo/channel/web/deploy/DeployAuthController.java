@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,6 @@ package org.eclipse.packagedrone.repo.channel.web.deploy;
 
 import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,6 +33,7 @@ import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;
 import org.eclipse.packagedrone.web.Controller;
 import org.eclipse.packagedrone.web.LinkTarget;
+import org.eclipse.packagedrone.web.LinkTarget.ControllerMethod;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestMapping;
 import org.eclipse.packagedrone.web.RequestMethod;
@@ -62,9 +62,9 @@ public class DeployAuthController implements InterfaceExtender
 
     private static final int PAGE_SIZE = 25;
 
-    private static final Method METHOD_LIST_GROUPS = LinkTarget.getControllerMethod ( DeployAuthController.class, "listGroups" );
+    private static final ControllerMethod METHOD_LIST_GROUPS = LinkTarget.getControllerMethod ( DeployAuthController.class, "listGroups" );
 
-    private static final Method METHOD_ADD_GROUP = LinkTarget.getControllerMethod ( DeployAuthController.class, "addGroup" );
+    private static final ControllerMethod METHOD_ADD_GROUP = LinkTarget.getControllerMethod ( DeployAuthController.class, "addGroup" );
 
     private DeployAuthService service;
 

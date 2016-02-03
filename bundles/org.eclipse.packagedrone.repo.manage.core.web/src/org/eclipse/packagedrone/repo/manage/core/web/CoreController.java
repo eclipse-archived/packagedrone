@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.manage.core.web;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +30,7 @@ import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;
 import org.eclipse.packagedrone.web.Controller;
 import org.eclipse.packagedrone.web.LinkTarget;
+import org.eclipse.packagedrone.web.LinkTarget.ControllerMethod;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestMapping;
 import org.eclipse.packagedrone.web.RequestMethod;
@@ -54,9 +54,9 @@ public class CoreController implements InterfaceExtender
 
     private SystemService systemService;
 
-    private static final Method METHOD_LIST = LinkTarget.getControllerMethod ( CoreController.class, "list" );
+    private static final ControllerMethod METHOD_LIST = LinkTarget.getControllerMethod ( CoreController.class, "list" );
 
-    private static final Method METHOD_SITE = LinkTarget.getControllerMethod ( CoreController.class, "site" );
+    private static final ControllerMethod METHOD_SITE = LinkTarget.getControllerMethod ( CoreController.class, "site" );
 
     public void setCoreService ( final CoreService service )
     {
