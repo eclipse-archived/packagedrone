@@ -112,6 +112,7 @@ public class ChannelInstance implements ProviderListener
         }
         catch ( final Exception e )
         {
+            logger.warn ( "Failed to create channel instance: " + channelId, e );
             this.handle.unregister ();
             throw e;
         }
