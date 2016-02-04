@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -163,12 +163,6 @@ public class BindingManager
         {
             ( (ModelAndView)result ).put ( BindingResult.ATTRIBUTE_NAME, this.result );
         }
-        else if ( result instanceof String )
-        {
-            final ModelAndView mav = new ModelAndView ( (String)result );
-            mav.put ( BindingResult.ATTRIBUTE_NAME, this.result );
-            return mav;
-        }
         return result;
     }
 
@@ -184,7 +178,7 @@ public class BindingManager
      * If the binder has to be initialized then all methods annotated with
      * {@link Initializer} will be called.
      * </p>
-     * 
+     *
      * @param binder
      *            the binder to add
      * @param initializeBinder
