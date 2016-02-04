@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,7 +67,7 @@ public class FormDataBinder implements Binder
         final ConstructionResult cr;
         try
         {
-            cr = contruct ( clazz, bindingManager, target );
+            cr = construct ( clazz, bindingManager, target );
         }
         catch ( final Exception e )
         {
@@ -104,7 +104,7 @@ public class FormDataBinder implements Binder
         }
     }
 
-    private ConstructionResult contruct ( final Class<?> clazz, final BindingManager bindingManager, final BindTarget target ) throws Exception
+    private ConstructionResult construct ( final Class<?> clazz, final BindingManager bindingManager, final BindTarget target ) throws Exception
     {
         final Object o = clazz.newInstance ();
 
