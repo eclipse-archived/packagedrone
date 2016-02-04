@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.eclipse.packagedrone.utils.converter.ConverterManager;
 import org.eclipse.packagedrone.web.ModelAndView;
+import org.eclipse.packagedrone.web.controller.binding.Binder.Initializer;
 import org.eclipse.packagedrone.web.controller.validator.ValidationResult;
 import org.eclipse.packagedrone.web.controller.validator.Validator;
 
@@ -177,6 +178,18 @@ public class BindingManager
 
     private final Result result = new Result ();
 
+    /**
+     * Add a new binder
+     * <p>
+     * If the binder has to be initialized then all methods annotated with
+     * {@link Initializer} will be called.
+     * </p>
+     * 
+     * @param binder
+     *            the binder to add
+     * @param initializeBinder
+     *            whether the binder will be initialized
+     */
     public void addBinder ( final Binder binder, final boolean initializeBinder )
     {
         if ( initializeBinder )
@@ -186,6 +199,16 @@ public class BindingManager
         this.binders.add ( binder );
     }
 
+    /**
+     * Add a new binder
+     * <p>
+     * The new binder will be initialized.
+     * </p>
+     *
+     * @see #addBinder(Binder, boolean)
+     * @param binder
+     *            the binder to add
+     */
     public void addBinder ( final Binder binder )
     {
         addBinder ( binder, true );
