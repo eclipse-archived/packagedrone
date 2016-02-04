@@ -51,7 +51,7 @@ public class BindingManager
      * binders:
      * </p>
      * <ul>
-     * <li>{@link BindingManager}</li>
+     * <li>{@link MapBinder}</li>
      * <li>{@link BindingManagerBinder}</li>
      * </ul>
      *
