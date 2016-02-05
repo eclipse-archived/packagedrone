@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.packagedrone.product.server"
       label="Package Drone Server Product"
-      version="0.12.0.qualifier"
+      version="0.13.0.qualifier"
       provider-name="IBH SYSTEMS GmbH"
       plugin="org.eclipse.packagedrone">
 
