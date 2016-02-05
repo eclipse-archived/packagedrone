@@ -8,16 +8,23 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.converter;
+package org.eclipse.packagedrone.utils.converter.impl;
 
-public class StringToPrimitiveIntegerConverter implements Converter
+import org.eclipse.packagedrone.utils.converter.Converter;
+import org.eclipse.packagedrone.utils.converter.JSON;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+public class StringToJsonConverter implements Converter
 {
-    public static final StringToPrimitiveIntegerConverter INSTANCE = new StringToPrimitiveIntegerConverter ();
+    public static final StringToJsonConverter INSTANCE = new StringToJsonConverter ();
 
     @Override
     public boolean canConvert ( final Class<?> from, final Class<?> to )
     {
-        if ( from.equals ( String.class ) && to.equals ( int.class ) )
+        final boolean isJson = to.isAnnotationPresent ( JSON.class );
+        if ( from.equals ( String.class ) && isJson )
         {
             return true;
         }
@@ -32,8 +39,9 @@ public class StringToPrimitiveIntegerConverter implements Converter
             return null;
         }
 
-        final String str = value.toString ();
+        final String val = (String)value;
 
-        return Integer.parseInt ( str );
+        final Gson gson = new GsonBuilder ().create ();
+        return gson.fromJson ( val, clazz );
     }
 }

@@ -8,16 +8,18 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.converter;
+package org.eclipse.packagedrone.utils.converter.impl;
 
-public class StringToPrimitiveLongConverter implements Converter
+import org.eclipse.packagedrone.utils.converter.Converter;
+
+public class IntegerToStringConverter implements Converter
 {
-    public static final StringToPrimitiveLongConverter INSTANCE = new StringToPrimitiveLongConverter ();
+    public static final IntegerToStringConverter INSTANCE = new IntegerToStringConverter ();
 
     @Override
     public boolean canConvert ( final Class<?> from, final Class<?> to )
     {
-        if ( from.equals ( String.class ) && to.equals ( long.class ) )
+        if ( from.equals ( Integer.class ) && to.equals ( String.class ) )
         {
             return true;
         }
@@ -25,15 +27,12 @@ public class StringToPrimitiveLongConverter implements Converter
     }
 
     @Override
-    public Object convertTo ( final Object value, final Class<?> clazz )
+    public String convertTo ( final Object value, final Class<?> clazz )
     {
         if ( value == null )
         {
             return null;
         }
-
-        final String str = value.toString ();
-
-        return Long.parseLong ( str );
+        return value.toString ();
     }
 }

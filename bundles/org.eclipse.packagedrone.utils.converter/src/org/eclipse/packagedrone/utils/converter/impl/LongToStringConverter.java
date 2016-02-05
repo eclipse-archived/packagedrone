@@ -8,16 +8,18 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.converter;
+package org.eclipse.packagedrone.utils.converter.impl;
 
-public class IntegerToStringConverter implements Converter
+import org.eclipse.packagedrone.utils.converter.Converter;
+
+public class LongToStringConverter implements Converter
 {
-    public static final IntegerToStringConverter INSTANCE = new IntegerToStringConverter ();
+    public static final LongToStringConverter INSTANCE = new LongToStringConverter ();
 
     @Override
     public boolean canConvert ( final Class<?> from, final Class<?> to )
     {
-        if ( from.equals ( Integer.class ) && to.equals ( String.class ) )
+        if ( from.equals ( Long.class ) && to.equals ( String.class ) )
         {
             return true;
         }

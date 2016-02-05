@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,20 +10,15 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.converter;
 
-public class PrimitiveBooleanDefault implements DefaultProvider
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+@Retention ( RUNTIME )
+@Target ( { TYPE } )
+public @interface ConvertBys
 {
-    public static final DefaultProvider INSTANCE = new PrimitiveBooleanDefault ();
-
-    @Override
-    public boolean providesFor ( final Class<?> clazz )
-    {
-        return clazz.isAssignableFrom ( boolean.class );
-    }
-
-    @Override
-    public Object defaultValue ()
-    {
-        return false;
-    }
-
+    ConvertBy[] value ();
 }

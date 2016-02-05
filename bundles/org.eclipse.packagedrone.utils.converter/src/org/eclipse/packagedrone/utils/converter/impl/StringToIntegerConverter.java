@@ -8,16 +8,19 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.converter;
+package org.eclipse.packagedrone.utils.converter.impl;
 
-public class StringToLongConverter implements Converter
+import org.eclipse.packagedrone.utils.converter.ConversionException;
+import org.eclipse.packagedrone.utils.converter.Converter;
+
+public class StringToIntegerConverter implements Converter
 {
-    public static final StringToLongConverter INSTANCE = new StringToLongConverter ();
+    public static final StringToIntegerConverter INSTANCE = new StringToIntegerConverter ();
 
     @Override
     public boolean canConvert ( final Class<?> from, final Class<?> to )
     {
-        if ( from.equals ( String.class ) && to.equals ( Long.class ) )
+        if ( from.equals ( String.class ) && to.equals ( Integer.class ) )
         {
             return true;
         }
@@ -25,7 +28,7 @@ public class StringToLongConverter implements Converter
     }
 
     @Override
-    public Long convertTo ( final Object value, final Class<?> clazz )
+    public Integer convertTo ( final Object value, final Class<?> clazz )
     {
         if ( value == null )
         {
@@ -40,7 +43,7 @@ public class StringToLongConverter implements Converter
                 return null;
             }
 
-            return Long.parseLong ( value.toString () );
+            return Integer.parseInt ( value.toString () );
         }
         catch ( final NumberFormatException e )
         {

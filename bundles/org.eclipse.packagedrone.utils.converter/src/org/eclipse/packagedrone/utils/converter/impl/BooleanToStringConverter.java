@@ -8,16 +8,18 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.converter;
+package org.eclipse.packagedrone.utils.converter.impl;
 
-public class StringToBooleanConverter implements Converter
+import org.eclipse.packagedrone.utils.converter.Converter;
+
+public class BooleanToStringConverter implements Converter
 {
-    public static final StringToBooleanConverter INSTANCE = new StringToBooleanConverter ();
+    public static final BooleanToStringConverter INSTANCE = new BooleanToStringConverter ();
 
     @Override
     public boolean canConvert ( final Class<?> from, final Class<?> to )
     {
-        if ( from.equals ( String.class ) && to.equals ( Boolean.class ) )
+        if ( from.equals ( Boolean.class ) && to.equals ( String.class ) )
         {
             return true;
         }
@@ -25,24 +27,12 @@ public class StringToBooleanConverter implements Converter
     }
 
     @Override
-    public Boolean convertTo ( final Object value, final Class<?> clazz )
+    public String convertTo ( final Object value, final Class<?> clazz )
     {
         if ( value == null )
         {
             return null;
         }
-
-        final String str = value.toString ();
-
-        if ( "true".equalsIgnoreCase ( str ) )
-        {
-            return true;
-        }
-        if ( "on".equalsIgnoreCase ( str ) )
-        {
-            return true;
-        }
-
-        return false;
+        return value.toString ();
     }
 }

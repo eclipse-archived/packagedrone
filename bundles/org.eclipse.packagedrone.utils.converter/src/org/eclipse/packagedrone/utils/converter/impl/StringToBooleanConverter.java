@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,16 +8,18 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.converter;
+package org.eclipse.packagedrone.utils.converter.impl;
 
-public class StringToIntegerConverter implements Converter
+import org.eclipse.packagedrone.utils.converter.Converter;
+
+public class StringToBooleanConverter implements Converter
 {
-    public static final StringToIntegerConverter INSTANCE = new StringToIntegerConverter ();
+    public static final StringToBooleanConverter INSTANCE = new StringToBooleanConverter ();
 
     @Override
     public boolean canConvert ( final Class<?> from, final Class<?> to )
     {
-        if ( from.equals ( String.class ) && to.equals ( Integer.class ) )
+        if ( from.equals ( String.class ) && to.equals ( Boolean.class ) )
         {
             return true;
         }
@@ -25,26 +27,24 @@ public class StringToIntegerConverter implements Converter
     }
 
     @Override
-    public Integer convertTo ( final Object value, final Class<?> clazz )
+    public Boolean convertTo ( final Object value, final Class<?> clazz )
     {
         if ( value == null )
         {
             return null;
         }
 
-        try
-        {
-            final String str = value.toString ();
-            if ( str.isEmpty () )
-            {
-                return null;
-            }
+        final String str = value.toString ();
 
-            return Integer.parseInt ( value.toString () );
-        }
-        catch ( final NumberFormatException e )
+        if ( "true".equalsIgnoreCase ( str ) )
         {
-            throw new ConversionException ( String.format ( "'%s' is not a number", value ) );
+            return true;
         }
+        if ( "on".equalsIgnoreCase ( str ) )
+        {
+            return true;
+        }
+
+        return false;
     }
 }

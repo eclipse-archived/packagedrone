@@ -8,7 +8,10 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.converter;
+package org.eclipse.packagedrone.utils.converter.impl;
+
+import org.eclipse.packagedrone.utils.converter.Converter;
+import org.eclipse.packagedrone.utils.converter.JSON;
 
 import com.google.gson.GsonBuilder;
 
