@@ -34,12 +34,12 @@
 	</prerequisites>
 
 	<scm>
-		<connection>scm:git:git://github.com/ctron/package-drone</connection>
-		<url>https://github.com/ctron/package-drone</url>
+		<connection>scm:git:git://github.com/eclipse/packagedrone</connection>
+		<url>https://github.com/eclipse/packagedrone</url>
 	</scm>
 
 	<issueManagement>
-		<url>https://github.com/ctron/package-drone/issues</url>
+		<url>https://github.com/eclipse/packagedrone/issues</url>
 		<system>GitHub Issues</system>
 	</issueManagement>
 
