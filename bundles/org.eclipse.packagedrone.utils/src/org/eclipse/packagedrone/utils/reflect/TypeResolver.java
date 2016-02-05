@@ -92,8 +92,15 @@ public class TypeResolver
 
                 for ( int i = 0; i < tp.length; i++ )
                 {
-                    result.put ( tp[i], atp[i] );
+                    Type at = atp[i];
+                    if ( at instanceof TypeVariable<?> )
+                    {
+                        at = result.get ( at );
+                    }
+                    result.put ( tp[i], at );
                 }
+
+                fillFrom ( rtc, result );
             }
         }
     }

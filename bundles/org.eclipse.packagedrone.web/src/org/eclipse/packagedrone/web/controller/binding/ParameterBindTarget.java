@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,26 +12,39 @@ package org.eclipse.packagedrone.web.controller.binding;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
+
+import org.eclipse.packagedrone.utils.reflect.TypeResolver;
 
 public class ParameterBindTarget implements BindTarget
 {
-
     private final Parameter parameter;
 
     private final Object[] args;
 
     private final int argumentIndex;
 
-    public ParameterBindTarget ( final Parameter parameter, final Object[] args, final int argumentIndex )
+    private final TypeResolver typeResolver;
+
+    public ParameterBindTarget ( final Parameter parameter, final Object[] args, final int argumentIndex, final TypeResolver typeResolver )
     {
         this.parameter = parameter;
         this.args = args;
         this.argumentIndex = argumentIndex;
+        this.typeResolver = typeResolver;
     }
 
     @Override
     public Class<?> getType ()
     {
+        if ( this.typeResolver != null )
+        {
+            final Type result = this.typeResolver.resolveParameterType ( this.parameter );
+            if ( result instanceof Class<?> )
+            {
+                return (Class<?>)result;
+            }
+        }
         return this.parameter.getType ();
     }
 

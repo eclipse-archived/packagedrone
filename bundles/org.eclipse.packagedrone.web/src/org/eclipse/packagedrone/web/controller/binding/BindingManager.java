@@ -19,8 +19,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.packagedrone.utils.converter.ConverterManager;
+import org.eclipse.packagedrone.utils.reflect.TypeResolver;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.controller.binding.Binder.Initializer;
 import org.eclipse.packagedrone.web.controller.validator.ValidationResult;
@@ -83,9 +85,9 @@ public class BindingManager
         return null;
     }
 
-    private BindTarget createParameterTarget ( final Parameter parameter, final Object[] args, final int argumentIndex )
+    private BindTarget createParameterTarget ( final Parameter parameter, final Object[] args, final int argumentIndex, final TypeResolver typeResolver )
     {
-        return new ParameterBindTarget ( parameter, args, argumentIndex );
+        return new ParameterBindTarget ( parameter, args, argumentIndex, typeResolver );
     }
 
     protected BindTarget createPropertyTarget ( final Object object, final PropertyDescriptor pd )
@@ -95,6 +97,11 @@ public class BindingManager
 
     public Call bind ( final Method method, final Object targetObject )
     {
+        Objects.requireNonNull ( method );
+        Objects.requireNonNull ( targetObject );
+
+        final TypeResolver typeResolver = new TypeResolver ( targetObject.getClass () );
+
         final Parameter[] p = method.getParameters ();
 
         final Binding[] bindings = new Binding[p.length];
@@ -102,7 +109,7 @@ public class BindingManager
 
         for ( int i = 0; i < p.length; i++ )
         {
-            final BindTarget target = createParameterTarget ( p[i], args, i );
+            final BindTarget target = createParameterTarget ( p[i], args, i, typeResolver );
             final Binding binding = bindValue ( target, this.converter );
 
             if ( binding != null )
