@@ -7,7 +7,8 @@ Bundle-Vendor: Jens Reimann
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.packagedrone.utils;version="1.0.0",
  org.eclipse.packagedrone.utils.io;version="1.0.0",
- org.eclipse.packagedrone.utils.osgi;version="1.0.0"
+ org.eclipse.packagedrone.utils.osgi;version="1.0.0",
+ org.eclipse.packagedrone.utils.reflect;version="1.0.0"
 Import-Package: org.eclipse.packagedrone.utils.osgi;version="1.0.0",
  org.osgi.framework;version="1.7.0",
  org.osgi.util.tracker;version="1.5.1",
