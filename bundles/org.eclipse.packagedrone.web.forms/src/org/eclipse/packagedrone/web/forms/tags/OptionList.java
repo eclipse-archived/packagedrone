@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,13 +46,28 @@ public class OptionList extends OptionTagSupport
     {
         try
         {
-            final Object result = BeanUtils.getProperty ( o, this.itemValue );
+            final Object result = makeString ( o );
             renderOption ( writer, result, o, false );
         }
         catch ( NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e )
         {
             throw new JspException ( e );
         }
+    }
+
+    private Object makeString ( final Object o ) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
+    {
+        if ( this.itemValue != null && !this.itemValue.isEmpty () )
+        {
+            return BeanUtils.getProperty ( o, this.itemValue );
+        }
+
+        if ( o == null )
+        {
+            return "";
+        }
+
+        return o.toString ();
     }
 
     protected void renderOption ( final WriterHelper writer, final Object value, final Object label, final boolean selected ) throws JspException
