@@ -12,6 +12,8 @@ package org.eclipse.packagedrone.repo;
 
 import java.io.Serializable;
 
+import org.eclipse.packagedrone.utils.converter.ConvertBy;
+
 /**
  * A meta data key
  * <p>
@@ -23,6 +25,7 @@ import java.io.Serializable;
  * is first by namespace and then by key. Both compared as strings.
  * </p>
  */
+@ConvertBy ( StringToMetaKeyConverter.class )
 public class MetaKey implements Comparable<MetaKey>, Serializable
 {
     private static final long serialVersionUID = 1L;
