@@ -203,6 +203,7 @@
 		<attribute>
 			<name>items</name>
 			<rtexprvalue>true</rtexprvalue>
+			<type>java.util.Collection</type>
 		</attribute>
 		<attribute>
 			<name>itemValue</name>
