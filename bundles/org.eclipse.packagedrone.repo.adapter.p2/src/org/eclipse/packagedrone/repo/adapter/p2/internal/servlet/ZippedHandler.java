@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.packagedrone.repo.MetaKey;
+import org.eclipse.packagedrone.repo.adapter.p2.internal.aspect.ArtifactRule;
 import org.eclipse.packagedrone.repo.adapter.p2.internal.aspect.ChannelStreamer;
 import org.eclipse.packagedrone.repo.aspect.common.osgi.OsgiExtractor;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
@@ -50,7 +51,7 @@ public class ZippedHandler implements Handler
 
         final String title = this.channel.getInformation ().makeTitle ();
 
-        final ChannelStreamer streamer = new ChannelStreamer ( title, this.channel.getMetaData (), false, true );
+        final ChannelStreamer streamer = new ChannelStreamer ( title, this.channel.getMetaData (), false, true, ArtifactRule.getDefaultZipRules () );
 
         for ( final ArtifactInformation a : this.channel.getContext ().getArtifacts ().values () )
         {

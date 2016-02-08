@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBH SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.p2.internal.aspect;
 
 import static com.google.common.xml.XmlEscapers.xmlAttributeEscaper;
@@ -14,12 +24,15 @@ public class ArtifactsWriter extends AbstractWriter
 
     private final long numberOfEntries;
 
-    public ArtifactsWriter ( final List<String> fragments, final long numberOfEntries, final String title, final Instant now, final Map<String, String> additionalProperties, final boolean compressed )
+    private final List<ArtifactRule> rules;
+
+    public ArtifactsWriter ( final List<String> fragments, final long numberOfEntries, final String title, final Instant now, final Map<String, String> additionalProperties, final boolean compressed, final List<ArtifactRule> rules )
     {
         super ( "artifacts", title, "org.eclipse.equinox.p2.artifact.repository.simpleRepository", now, compressed, additionalProperties );
 
         this.fragments = fragments;
         this.numberOfEntries = numberOfEntries;
+        this.rules = rules;
     }
 
     @Override
@@ -31,11 +44,12 @@ public class ArtifactsWriter extends AbstractWriter
 
     private void writeMappings ( final PrintWriter out )
     {
-        out.append ( IN ).append ( "<mappings size='3'>" ).append ( NL );
+        out.append ( IN ).format ( "<mappings size='%d'>", this.rules.size () ).append ( NL );
 
-        writeRule ( out, "(& (classifier=osgi.bundle))", "${repoUrl}/plugins/${id}/${version}/${id}_${version}.jar" );
-        writeRule ( out, "(& (classifier=binary))", "${repoUrl}/binary/${id}/${version}/${id}_${version}" );
-        writeRule ( out, "(& (classifier=org.eclipse.update.feature))", "${repoUrl}/features/${id}/${version}/${id}_${version}.jar" );
+        for ( final ArtifactRule rule : this.rules )
+        {
+            writeRule ( out, rule.getFilter ().toString (), rule.getPattern () );
+        }
 
         out.append ( IN ).append ( "</mappings>" ).append ( NL );
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,8 @@ public class ChannelStreamer
 
     private final boolean writePlain;
 
+    private final List<ArtifactRule> rules;
+
     private final Instant now;
 
     private final Map<String, String> additionalProperties;
@@ -58,11 +60,12 @@ public class ChannelStreamer
 
     private final Set<String> checksumErrors = new HashSet<> (); // keys
 
-    public ChannelStreamer ( final String title, final Map<MetaKey, String> channelMetaData, final boolean writeCompressed, final boolean writePlain )
+    public ChannelStreamer ( final String title, final Map<MetaKey, String> channelMetaData, final boolean writeCompressed, final boolean writePlain, final List<ArtifactRule> rules )
     {
         this.now = Instant.now ();
         this.writeCompressed = writeCompressed;
         this.writePlain = writePlain;
+        this.rules = rules;
 
         this.title = makeTitle ( title, channelMetaData );
 
@@ -226,12 +229,12 @@ public class ChannelStreamer
         if ( this.writeCompressed )
         {
             spoolOut ( handler, new MetaDataWriter ( this.metaDataFragments, this.metaDataCounter, this.title, this.now, this.additionalProperties, true ) );
-            spoolOut ( handler, new ArtifactsWriter ( this.artifactsFragments, this.artifactsCounter, this.title, this.now, this.additionalProperties, true ) );
+            spoolOut ( handler, new ArtifactsWriter ( this.artifactsFragments, this.artifactsCounter, this.title, this.now, this.additionalProperties, true, this.rules ) );
         }
         if ( this.writePlain )
         {
             spoolOut ( handler, new MetaDataWriter ( this.metaDataFragments, this.metaDataCounter, this.title, this.now, this.additionalProperties, false ) );
-            spoolOut ( handler, new ArtifactsWriter ( this.artifactsFragments, this.artifactsCounter, this.title, this.now, this.additionalProperties, false ) );
+            spoolOut ( handler, new ArtifactsWriter ( this.artifactsFragments, this.artifactsCounter, this.title, this.now, this.additionalProperties, false, this.rules ) );
         }
     }
 
