@@ -12,7 +12,7 @@ package org.eclipse.packagedrone.repo.channel;
 
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.and;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.equal;
-import static org.eclipse.packagedrone.repo.channel.search.Predicates.field;
+import static org.eclipse.packagedrone.repo.channel.search.Predicates.attribute;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.isNotNull;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.isNull;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.not;
@@ -123,13 +123,13 @@ public class StreamArtifactLocatorTest
     @Test
     public void testSearch7 ()
     {
-        search ( isNull ( field ( KEY_SOME_OTHER ) ), "a1", "a2", "b2" );
+        search ( isNull ( attribute ( KEY_SOME_OTHER ) ), "a1", "a2", "b2" );
     }
 
     @Test
     public void testSearch8 ()
     {
-        search ( isNotNull ( field ( KEY_SOME_OTHER ) ), "b1" );
+        search ( isNotNull ( attribute ( KEY_SOME_OTHER ) ), "b1" );
     }
 
     private void search ( final Predicate predicate, final String... ids )

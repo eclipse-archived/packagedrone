@@ -58,7 +58,7 @@ public final class Predicates
         return new Literal ( value );
     }
 
-    public static Value field ( final MetaKey key )
+    public static Value attribute ( final MetaKey key )
     {
         return new MetaKeyValue ( key );
     }
@@ -70,7 +70,7 @@ public final class Predicates
 
     public static Predicate equal ( final MetaKey key, final String literal )
     {
-        return new Equal ( field ( key ), literal ( literal ) );
+        return new Equal ( attribute ( key ), literal ( literal ) );
     }
 
 }

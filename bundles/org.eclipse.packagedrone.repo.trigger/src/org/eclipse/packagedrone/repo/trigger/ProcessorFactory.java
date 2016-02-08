@@ -35,7 +35,7 @@ public interface ProcessorFactory
         return false;
     }
 
-    public Processor create ( String configuration ) throws IllegalArgumentException;
+    public Processor create ( String configuration );
 
     public default TriggerProcessorState validate ( final String configuration )
     {

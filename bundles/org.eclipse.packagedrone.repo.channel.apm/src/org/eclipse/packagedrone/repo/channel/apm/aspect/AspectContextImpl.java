@@ -46,6 +46,7 @@ import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ValidationMessage;
 import org.eclipse.packagedrone.repo.channel.VetoPolicy;
 import org.eclipse.packagedrone.repo.channel.apm.ChannelContextAccessor;
+import org.eclipse.packagedrone.repo.channel.apm.aspect.AspectableContext.ArtifactAddition;
 import org.eclipse.packagedrone.repo.channel.apm.internal.Activator;
 import org.eclipse.packagedrone.repo.channel.provider.ChannelOperationContext;
 import org.eclipse.packagedrone.repo.event.AddedEvent;
@@ -74,6 +75,47 @@ public class AspectContextImpl
     public interface ArtifactCreator
     {
         public ArtifactInformation internalCreateArtifact ( final String parentId, final IOConsumer<OutputStream> stream, final String name, final Map<MetaKey, String> providedMetaData, final ArtifactType type, String virtualizerAspectId ) throws IOException;
+    }
+
+    public static class CoreArtifactInformation
+    {
+        private final String id;
+
+        private final String name;
+
+        private final Instant creationTimestamp;
+
+        public CoreArtifactInformation ( final String id, final String name, final Instant creationTimestamp )
+        {
+            this.id = id;
+            this.name = name;
+            this.creationTimestamp = creationTimestamp;
+        }
+
+        public CoreArtifactInformation ( final ArtifactInformation ai )
+        {
+            this ( ai.getId (), ai.getName (), ai.getCreationInstant () );
+        }
+
+        public CoreArtifactInformation ( final ArtifactAddition addition )
+        {
+            this ( addition.getId (), addition.getName (), addition.getCreationTimestamp () );
+        }
+
+        public String getId ()
+        {
+            return this.id;
+        }
+
+        public String getName ()
+        {
+            return this.name;
+        }
+
+        public Instant getCreationTimestamp ()
+        {
+            return this.creationTimestamp;
+        }
     }
 
     private final AspectableContext context;
@@ -479,16 +521,40 @@ public class AspectContextImpl
                         producer.accept ( out );
                     }
 
-                    // check veto
+                    // check veto - pre add
 
-                    final VetoPolicy veto = checkVetoAdd ( name, tmp, type.isExternal () );
-                    if ( VetoPolicy.REJECT == veto )
                     {
-                        return null;
+                        final VetoPolicy veto = checkVetoPreAdd ( name, tmp, type.isExternal () );
+                        if ( VetoPolicy.REJECT == veto )
+                        {
+                            return null;
+                        }
+                        else if ( VetoPolicy.FAIL == veto )
+                        {
+                            throw new RuntimeException ( String.format ( "Veto[FAIL] pre-add artifact - name: %s", name ) );
+                        }
                     }
-                    else if ( VetoPolicy.FAIL == veto )
+
+                    // prepare artifact
+
+                    final ArtifactAddition addition = this.context.preparePlainArtifact ( parentId, name, providedMetaData, type.getFacetTypes (), virtualizerAspectId );
+
+                    // extract meta data
+
+                    final ExtractionResult extraction = extractMetaData ( new CoreArtifactInformation ( addition ), tmp, this.aspectStates.keySet () );
+
+                    // check veto - addition
+
                     {
-                        throw new RuntimeException ( String.format ( "Veto[FAIL] adding artifact - name: %s", name ) );
+                        final VetoPolicy veto = checkVetoAdding ( name, tmp, type.isExternal (), providedMetaData, extraction.metadata, extraction.messages );
+                        if ( VetoPolicy.REJECT == veto )
+                        {
+                            return null;
+                        }
+                        else if ( VetoPolicy.FAIL == veto )
+                        {
+                            throw new RuntimeException ( String.format ( "Veto[FAIL] adding artifact - name: %s", name ) );
+                        }
                     }
 
                     // store artifact
@@ -496,12 +562,11 @@ public class AspectContextImpl
                     ArtifactInformation result;
                     try ( InputStream in = new BufferedInputStream ( Files.newInputStream ( tmp ) ) )
                     {
-                        result = this.context.createPlainArtifact ( parentId, in, name, providedMetaData, type.getFacetTypes (), virtualizerAspectId );
+                        result = addition.create ( in );
                     }
 
-                    // extract meta data
+                    // set meta data and validation messages
 
-                    final ExtractionResult extraction = extractMetaData ( result, tmp, this.aspectStates.keySet () );
                     result = this.context.setExtractedMetaData ( result.getId (), extraction.metadata );
                     result = this.context.setValidationMessages ( result.getId (), extraction.messages );
 
@@ -625,7 +690,7 @@ public class AspectContextImpl
     }
 
     @SuppressWarnings ( "deprecation" )
-    private VetoPolicy checkVetoAdd ( final String name, final Path file, final boolean external )
+    private VetoPolicy checkVetoPreAdd ( final String name, final Path file, final boolean external )
     {
         final PreAddContextImpl ctx = new PreAddContextImpl ( name, file, external, this.context );
 
@@ -636,6 +701,15 @@ public class AspectContextImpl
             Exceptions.wrapException ( () -> listener.artifactPreAdd ( ctx ) );
 
         } );
+
+        return ctx.getVeto ();
+    }
+
+    private VetoPolicy checkVetoAdding ( final String name, final Path file, final boolean external, final Map<MetaKey, String> providedMetaData, final Map<MetaKey, String> extractMetaData, final List<ValidationMessage> validationMessages )
+    {
+        final AddingContextImpl ctx = new AddingContextImpl ( name, file, external, providedMetaData, extractMetaData, validationMessages, this.context );
+
+        getOperationContext ().artifactAdding ( ctx );
 
         return ctx.getVeto ();
     }
@@ -714,7 +788,7 @@ public class AspectContextImpl
 
     private ArtifactInformation extractFor ( final Set<String> aspectIds, final ArtifactInformation art, final Path path )
     {
-        final ExtractionResult result = extractMetaData ( art, path, aspectIds );
+        final ExtractionResult result = extractMetaData ( new CoreArtifactInformation ( art ), path, aspectIds );
 
         final Map<MetaKey, String> updatedMetaData = result.metadata;
         final Map<MetaKey, String> newMetaData = new HashMap<> ( art.getExtractedMetaData () );
@@ -747,18 +821,18 @@ public class AspectContextImpl
         final List<ValidationMessage> messages = new LinkedList<> ();
     }
 
-    private ExtractionResult extractMetaData ( final ArtifactInformation artifact, final Path path, final Collection<String> aspectIds )
+    private ExtractionResult extractMetaData ( final CoreArtifactInformation coreInformation, final Path path, final Collection<String> aspectIds )
     {
         final ExtractionResult result = new ExtractionResult ();
         this.processor.process ( aspectIds, ChannelAspect::getExtractor, ( aspect, extractor ) -> {
 
-            Exceptions.wrapException ( () -> extractMetaData ( artifact, result.metadata, result.messages, path, aspect, extractor ) );
+            Exceptions.wrapException ( () -> extractMetaData ( coreInformation, result.metadata, result.messages, path, aspect, extractor ) );
 
         } );
         return result;
     }
 
-    private void extractMetaData ( final ArtifactInformation artifact, final Map<MetaKey, String> result, final List<ValidationMessage> messages, final Path path, final ChannelAspect aspect, final Extractor extractor ) throws Exception
+    private void extractMetaData ( final CoreArtifactInformation coreInformation, final Map<MetaKey, String> result, final List<ValidationMessage> messages, final Path path, final ChannelAspect aspect, final Extractor extractor ) throws Exception
     {
         final Map<String, String> md = new HashMap<> ();
 
@@ -767,13 +841,13 @@ public class AspectContextImpl
             @Override
             public void validationMessage ( final Severity severity, final String message )
             {
-                messages.add ( new ValidationMessage ( aspect.getId (), severity, message, Collections.singleton ( artifact.getId () ) ) );
+                messages.add ( new ValidationMessage ( aspect.getId (), severity, message, Collections.singleton ( coreInformation.getId () ) ) );
             }
 
             @Override
             public String getName ()
             {
-                return artifact.getName ();
+                return coreInformation.getName ();
             }
 
             @Override
@@ -785,7 +859,7 @@ public class AspectContextImpl
             @Override
             public Instant getCreationTimestamp ()
             {
-                return artifact.getCreationInstant ();
+                return coreInformation.getCreationTimestamp ();
             }
         }, md );
 

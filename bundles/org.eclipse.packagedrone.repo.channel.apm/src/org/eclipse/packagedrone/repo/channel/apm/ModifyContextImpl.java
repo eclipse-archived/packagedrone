@@ -458,8 +458,74 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
         return Exceptions.wrapException ( () -> this.aspectContext.createGeneratorArtifact ( generatorId, source, name, providedMetaData ) );
     }
 
+    private class ArtifactAdditionImpl implements ArtifactAddition
+    {
+        private final String id;
+
+        private final String parentId;
+
+        private final String name;
+
+        private final Instant creationTimestamp;
+
+        private final Map<MetaKey, String> providedMetaData;
+
+        private final Set<String> facets;
+
+        private final String virtualizerAspectId;
+
+        private boolean created = false;
+
+        public ArtifactAdditionImpl ( final String id, final String parentId, final String name, final Instant creationTimestamp, final Map<MetaKey, String> providedMetaData, final Set<String> facets, final String virtualizerAspectId )
+        {
+            this.id = id;
+            this.parentId = parentId;
+            this.name = name;
+            this.creationTimestamp = creationTimestamp;
+            this.providedMetaData = providedMetaData != null ? new HashMap<> ( providedMetaData ) : Collections.emptyMap ();
+            this.facets = facets != null ? new HashSet<> ( facets ) : Collections.emptySet ();
+            this.virtualizerAspectId = virtualizerAspectId;
+        }
+
+        @Override
+        public String getId ()
+        {
+            return this.id;
+        }
+
+        @Override
+        public String getName ()
+        {
+            return this.name;
+        }
+
+        @Override
+        public Instant getCreationTimestamp ()
+        {
+            return this.creationTimestamp;
+        }
+
+        @Override
+        public ArtifactInformation create ( final InputStream stream )
+        {
+            if ( this.created )
+            {
+                throw new IllegalStateException ();
+            }
+
+            this.created = true;
+
+            return handleCreatePlainArtifact ( this.parentId, stream, this.name, this.providedMetaData, this.facets, this.virtualizerAspectId );
+        }
+    }
+
     @Override
-    public ArtifactInformation createPlainArtifact ( final String parentId, final InputStream source, final String name, final Map<MetaKey, String> providedMetaData, final Set<String> facets, final String virtualizerAspectId )
+    public ArtifactAddition preparePlainArtifact ( final String parentArtifactId, final String name, final Map<MetaKey, String> providedMetaData, final Set<String> facets, final String virtualizerAspectId )
+    {
+        return new ArtifactAdditionImpl ( UUID.randomUUID ().toString (), parentArtifactId, name, Instant.now (), providedMetaData, facets, virtualizerAspectId );
+    }
+
+    public ArtifactInformation handleCreatePlainArtifact ( final String parentId, final InputStream source, final String name, final Map<MetaKey, String> providedMetaData, final Set<String> facets, final String virtualizerAspectId )
     {
         Objects.requireNonNull ( name );
         Objects.requireNonNull ( source );

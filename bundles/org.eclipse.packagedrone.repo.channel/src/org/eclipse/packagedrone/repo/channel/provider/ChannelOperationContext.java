@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.provider;
 
+import org.eclipse.packagedrone.repo.channel.AddingContext;
 import org.eclipse.packagedrone.repo.channel.PreAddContext;
 
 public interface ChannelOperationContext
@@ -21,6 +22,10 @@ public interface ChannelOperationContext
     }
 
     public default void artifactPreAdd ( final PreAddContext ctx )
+    {
+    }
+
+    public default void artifactAdding ( final AddingContext ctx )
     {
     }
 }

@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.repo.channel.impl;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -21,6 +22,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectProcessor;
+import org.eclipse.packagedrone.repo.channel.AddingContext;
 import org.eclipse.packagedrone.repo.channel.AspectableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperation;
@@ -51,6 +53,8 @@ public class ChannelInstance implements ProviderListener
     private final static Logger logger = LoggerFactory.getLogger ( ChannelInstance.class );
 
     private static final String TRIGGER_ID_PRE_ADD = "pre-add";
+
+    private static final String TRIGGER_ID_ADDING = "adding";
 
     private static final String TRIGGER_ID_POST = "post";
 
@@ -120,9 +124,10 @@ public class ChannelInstance implements ProviderListener
 
     private static Map<String, TriggerDescriptor> makePredefinedTriggers ()
     {
-        final Map<String, TriggerDescriptor> result = new HashMap<> ();
+        final Map<String, TriggerDescriptor> result = new LinkedHashMap<> ();
 
         result.put ( TRIGGER_ID_PRE_ADD, new TriggerDescriptorImpl ( "Before addition", "This trigger is fired before an artifact is being added.", PreAddContext.class ) );
+        result.put ( TRIGGER_ID_ADDING, new TriggerDescriptorImpl ( "During addition", "This trigger is fired during the addition of the artifact.", AddingContext.class ) );
         result.put ( TRIGGER_ID_POST, new TriggerDescriptorImpl ( "Post operation", "This trigger is fired after each channel operation.", ModifiableChannel.class ) );
 
         return result;
@@ -295,6 +300,11 @@ public class ChannelInstance implements ProviderListener
         runTrigger ( TRIGGER_ID_PRE_ADD, ctx );
     }
 
+    private void runAddingTrigger ( final AddingContext ctx )
+    {
+        runTrigger ( TRIGGER_ID_ADDING, ctx );
+    }
+
     private void runPostTrigger ( final ModifiableChannel ctx )
     {
         runTrigger ( TRIGGER_ID_POST, ctx );
@@ -318,6 +328,12 @@ public class ChannelInstance implements ProviderListener
             public void artifactPreAdd ( final PreAddContext ctx )
             {
                 runPreAddTrigger ( ctx );
+            }
+
+            @Override
+            public void artifactAdding ( final AddingContext ctx )
+            {
+                runAddingTrigger ( ctx );
             }
 
             @Override

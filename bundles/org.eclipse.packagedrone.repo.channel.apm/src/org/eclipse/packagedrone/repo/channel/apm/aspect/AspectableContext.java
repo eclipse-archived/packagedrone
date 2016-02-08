@@ -13,6 +13,7 @@ package org.eclipse.packagedrone.repo.channel.apm.aspect;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +27,45 @@ import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 public interface AspectableContext
 {
+    public interface ArtifactAddition
+    {
+        /**
+         * The final artifact ID, this value is not going to change.
+         * 
+         * @return the artifact ID
+         */
+        public String getId ();
+
+        public String getName ();
+
+        public Instant getCreationTimestamp ();
+
+        /**
+         * Actually create the artifact
+         * <p>
+         * This will stream and store the binary data to the repository. It
+         * still can be rolled back by the outer transaction.
+         * </p>
+         * <p>
+         * <strong>Note: </strong> This method may only be called once per
+         * instance. Adding another artifacts requires to prepare a new artifact
+         * using
+         * {@link AspectableContext#preparePlainArtifact(String, String, Map, Set, String)}
+         * . Overwriting binary content is not allowed.
+         * </p>
+         *
+         * @param stream
+         *            A stream to the content to be added
+         * @return the final artifact information entry
+         */
+        public ArtifactInformation create ( InputStream stream );
+    }
+
     public String getChannelId ();
 
     public SortedMap<String, String> getModifiableAspectStates ();
 
-    public ArtifactInformation createPlainArtifact ( String parentArtifactId, InputStream source, String name, Map<MetaKey, String> providedMetaData, Set<String> facets, String virtualizerAspectId );
+    public ArtifactAddition preparePlainArtifact ( String parentArtifactId, String name, Map<MetaKey, String> providedMetaData, Set<String> facets, String virtualizerAspectId );
 
     public ArtifactInformation deletePlainArtifact ( String artifactId );
 
