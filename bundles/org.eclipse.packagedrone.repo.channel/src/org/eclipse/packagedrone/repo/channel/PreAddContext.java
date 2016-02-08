@@ -12,6 +12,8 @@ package org.eclipse.packagedrone.repo.channel;
 
 import java.nio.file.Path;
 
+import org.eclipse.packagedrone.repo.channel.search.ArtifactLocator;
+
 public interface PreAddContext
 {
     public Path getFile ();
@@ -29,4 +31,16 @@ public interface PreAddContext
      * A flag if this is an external or internal add operation
      */
     public boolean isExternal ();
+
+    /**
+     * Get an artifact locator for the current channel state
+     * <p>
+     * The artifact locator will work on the current channel state, which may or
+     * may not get committed. The artifact being processes by the request is not
+     * already part of this state.
+     * </p>
+     *
+     * @return the artifact locator, never returns {@code null}
+     */
+    public ArtifactLocator getArtifactLocator ();
 }

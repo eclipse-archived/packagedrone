@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,8 @@ import java.util.Objects;
 
 import org.eclipse.packagedrone.repo.channel.PreAddContext;
 import org.eclipse.packagedrone.repo.channel.VetoPolicy;
+import org.eclipse.packagedrone.repo.channel.search.ArtifactLocator;
+import org.eclipse.packagedrone.repo.channel.search.stream.StreamArtifactLocator;
 
 public class PreAddContextImpl implements PreAddContext
 {
@@ -26,11 +28,14 @@ public class PreAddContextImpl implements PreAddContext
 
     private VetoPolicy veto;
 
-    public PreAddContextImpl ( final String name, final Path file, final boolean external )
+    private final AspectableContext context;
+
+    public PreAddContextImpl ( final String name, final Path file, final boolean external, final AspectableContext context )
     {
         this.name = name;
         this.file = file;
         this.external = external;
+        this.context = context;
     }
 
     @Override
@@ -67,4 +72,9 @@ public class PreAddContextImpl implements PreAddContext
         return this.external;
     }
 
+    @Override
+    public ArtifactLocator getArtifactLocator ()
+    {
+        return new StreamArtifactLocator ( () -> this.context.getArtifacts ().values ().stream () );
+    }
 }

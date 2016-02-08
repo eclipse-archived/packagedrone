@@ -12,6 +12,9 @@ package org.eclipse.packagedrone.repo.channel;
 
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.and;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.equal;
+import static org.eclipse.packagedrone.repo.channel.search.Predicates.field;
+import static org.eclipse.packagedrone.repo.channel.search.Predicates.isNotNull;
+import static org.eclipse.packagedrone.repo.channel.search.Predicates.isNull;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.not;
 
 import java.time.Instant;
@@ -25,9 +28,9 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.channel.search.Predicates;
 import org.eclipse.packagedrone.repo.channel.search.Predicate;
-import org.eclipse.packagedrone.repo.channel.search.internal.StreamArtifactLocator;
+import org.eclipse.packagedrone.repo.channel.search.Predicates;
+import org.eclipse.packagedrone.repo.channel.search.stream.StreamArtifactLocator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,6 +40,8 @@ public class StreamArtifactLocatorTest
 
     private static final MetaKey KEY_FOO_BAR = new MetaKey ( "foo", "bar" );
 
+    private static final MetaKey KEY_SOME_OTHER = new MetaKey ( "some", "other" );
+
     private final ArrayList<ArtifactInformation> artifacts;
 
     public StreamArtifactLocatorTest ()
@@ -45,7 +50,7 @@ public class StreamArtifactLocatorTest
 
         this.artifacts.add ( makeMock ( "a1", "name1", "foo:bar", "baz", "foo:version", "1" ) );
         this.artifacts.add ( makeMock ( "a2", "name1", "foo:bar", "baz", "foo:version", "2" ) );
-        this.artifacts.add ( makeMock ( "b1", "name2", "foo:bar", "buz", "foo:version", "1" ) );
+        this.artifacts.add ( makeMock ( "b1", "name2", "foo:bar", "buz", "foo:version", "1", "some:other", "value" ) );
         this.artifacts.add ( makeMock ( "b2", "name2", "foo:bar", "buz", "foo:version", "2" ) );
     }
 
@@ -113,6 +118,18 @@ public class StreamArtifactLocatorTest
     public void testSearch6 ()
     {
         search ( and ( not ( equal ( KEY_FOO_BAR, "buz" ) ), equal ( KEY_FOO_VERSION, "1" ) ), "a1" );
+    }
+
+    @Test
+    public void testSearch7 ()
+    {
+        search ( isNull ( field ( KEY_SOME_OTHER ) ), "a1", "a2", "b2" );
+    }
+
+    @Test
+    public void testSearch8 ()
+    {
+        search ( isNotNull ( field ( KEY_SOME_OTHER ) ), "b1" );
     }
 
     private void search ( final Predicate predicate, final String... ids )

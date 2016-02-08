@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -110,6 +110,7 @@ public class AspectContextImpl
         return this.aspectStates;
     }
 
+    @SuppressWarnings ( "deprecation" )
     protected void runPostAdd ()
     {
         logger.debug ( "Running post add" );
@@ -623,9 +624,10 @@ public class AspectContextImpl
         } );
     }
 
+    @SuppressWarnings ( "deprecation" )
     private VetoPolicy checkVetoAdd ( final String name, final Path file, final boolean external )
     {
-        final PreAddContextImpl ctx = new PreAddContextImpl ( name, file, external );
+        final PreAddContextImpl ctx = new PreAddContextImpl ( name, file, external, this.context );
 
         getOperationContext ().artifactPreAdd ( ctx );
 

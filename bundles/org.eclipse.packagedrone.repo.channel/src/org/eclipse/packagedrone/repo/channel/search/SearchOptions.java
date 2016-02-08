@@ -8,7 +8,27 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-/**
- * Channel provider system
- */
-package org.eclipse.packagedrone.repo.channel.provider;
+package org.eclipse.packagedrone.repo.channel.search;
+
+public class SearchOptions
+{
+    public static final SearchOptions DEFAULT_OPTIONS = new SearchOptions ();
+
+    SearchOptions ()
+    {
+    }
+
+    SearchOptions ( final SearchOptions other )
+    {
+    }
+
+    public static class Builder
+    {
+        private final SearchOptions options = new SearchOptions ();
+
+        public SearchOptions build ()
+        {
+            return new SearchOptions ( this.options );
+        }
+    }
+}

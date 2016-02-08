@@ -8,7 +8,13 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-/**
- * Channel provider system
- */
-package org.eclipse.packagedrone.repo.channel.provider;
+package org.eclipse.packagedrone.repo.channel.search;
+
+public interface Predicate
+{
+    @Override
+    public int hashCode ();
+
+    @Override
+    public boolean equals ( final Object obj );
+}

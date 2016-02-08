@@ -8,7 +8,19 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-/**
- * Channel provider system
- */
-package org.eclipse.packagedrone.repo.channel.provider;
+package org.eclipse.packagedrone.repo.channel.search;
+
+import java.util.Collection;
+
+public class Or extends AbstractCompositePredicate
+{
+    Or ( final Collection<Predicate> predicates )
+    {
+        super ( predicates );
+    }
+
+    Or ( final Predicate... predicates )
+    {
+        super ( predicates );
+    }
+}
