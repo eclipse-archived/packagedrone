@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -234,10 +234,25 @@ public final class MetaKeys
         findFields ( clazz.getSuperclass (), result );
     }
 
+    /**
+     * Return an unmodifiable map of provided and extracted meta data
+     *
+     * @param providedMetaData
+     *            the provided meta data, or code {@code null}
+     * @param extractedMetaData
+     *            the extracted meta data, or code {@code null}
+     * @return the union of provided and extracted meta data, never returns
+     *         {@code null}
+     */
     public static Map<MetaKey, String> union ( final Map<MetaKey, String> providedMetaData, final Map<MetaKey, String> extractedMetaData )
     {
         final int size1 = providedMetaData != null ? providedMetaData.size () : 0;
         final int size2 = extractedMetaData != null ? extractedMetaData.size () : 0;
+
+        if ( size1 + size2 == 0 )
+        {
+            return Collections.emptyMap ();
+        }
 
         final Map<MetaKey, String> result = new HashMap<> ( size1 + size2 );
 
