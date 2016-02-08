@@ -392,6 +392,14 @@
           key="/instance/org.eclipse.jdt.ui/editor_save_participant_org.eclipse.jdt.ui.postsavelistener.cleanup"
           value="true"/>
     </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="Plug-in Settings">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.pde.api.tools/missing_default_api_profile"
+          value="Ignore"/>
+    </setupTask>
   </setupTask>
   <setupTask
       xsi:type="launching:LaunchTask"
