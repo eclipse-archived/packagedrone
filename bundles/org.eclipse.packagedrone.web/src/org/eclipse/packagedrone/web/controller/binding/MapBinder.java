@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.packagedrone.web.controller.binding;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.packagedrone.utils.converter.ConvertBy;
 import org.eclipse.packagedrone.utils.converter.ConverterManager;
 
 public class MapBinder implements Binder
@@ -48,7 +49,7 @@ public class MapBinder implements Binder
             {
                 try
                 {
-                    final Object cvtValue = converter.convertTo ( value, type );
+                    final Object cvtValue = converter.convertToBy ( value, type, () -> target.getAnnotationsByType ( ConvertBy.class ) );
                     return Binding.simpleBinding ( cvtValue );
                 }
                 catch ( final Exception e )

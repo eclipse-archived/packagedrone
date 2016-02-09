@@ -13,6 +13,8 @@ package org.eclipse.packagedrone.web.controller.binding;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.eclipse.packagedrone.utils.reflect.TypeResolver;
 
@@ -65,6 +67,12 @@ public class ParameterBindTarget implements BindTarget
     public <T extends Annotation> T getAnnotation ( final Class<T> clazz )
     {
         return this.parameter.getAnnotation ( clazz );
+    }
+
+    @Override
+    public <T extends Annotation> Collection<T> getAnnotationsByType ( final Class<T> annotationClass )
+    {
+        return Arrays.asList ( this.parameter.getAnnotationsByType ( annotationClass ) );
     }
 
     @Override

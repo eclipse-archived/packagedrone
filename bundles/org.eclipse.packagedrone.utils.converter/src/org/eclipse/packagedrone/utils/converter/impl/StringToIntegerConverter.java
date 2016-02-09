@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.converter.impl;
 
+import org.eclipse.packagedrone.utils.converter.ConversionContext;
 import org.eclipse.packagedrone.utils.converter.ConversionException;
 import org.eclipse.packagedrone.utils.converter.Converter;
 
@@ -28,7 +29,7 @@ public class StringToIntegerConverter implements Converter
     }
 
     @Override
-    public Integer convertTo ( final Object value, final Class<?> clazz )
+    public Integer convertTo ( final Object value, final Class<?> clazz, final ConversionContext context )
     {
         if ( value == null )
         {

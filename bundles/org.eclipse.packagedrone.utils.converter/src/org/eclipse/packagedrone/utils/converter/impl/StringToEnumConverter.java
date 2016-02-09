@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.converter.impl;
 
+import org.eclipse.packagedrone.utils.converter.ConversionContext;
 import org.eclipse.packagedrone.utils.converter.ConversionException;
 import org.eclipse.packagedrone.utils.converter.Converter;
 
@@ -25,7 +26,7 @@ public class StringToEnumConverter implements Converter
 
     @SuppressWarnings ( { "unchecked", "rawtypes" } )
     @Override
-    public Object convertTo ( final Object value, final Class<?> clazz ) throws ConversionException
+    public Object convertTo ( final Object value, final Class<?> clazz, final ConversionContext context ) throws ConversionException
     {
         final String string = (String)value;
         return Enum.valueOf ( (Class<? extends Enum>)clazz, string );

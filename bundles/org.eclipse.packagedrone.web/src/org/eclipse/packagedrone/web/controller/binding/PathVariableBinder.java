@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.web.controller.binding;
 
+import org.eclipse.packagedrone.utils.converter.ConvertBy;
 import org.eclipse.packagedrone.utils.converter.ConverterManager;
 import org.eclipse.packagedrone.web.controller.routing.RequestMappingInformation.Match;
 
@@ -35,7 +36,7 @@ public class PathVariableBinder implements Binder
 
         try
         {
-            final Object value = converter.convertTo ( valueString, target.getType () );
+            final Object value = converter.convertToBy ( valueString, target.getType (), () -> target.getAnnotationsByType ( ConvertBy.class ) );
             return Binding.simpleBinding ( value );
         }
         catch ( final Exception e )

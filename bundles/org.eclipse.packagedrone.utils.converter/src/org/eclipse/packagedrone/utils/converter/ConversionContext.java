@@ -10,20 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.converter;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Repeatable;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-@Retention ( RUNTIME )
-@Target ( { TYPE, FIELD, METHOD, PARAMETER } )
-@Repeatable ( ConvertBys.class )
-public @interface ConvertBy
+public interface ConversionContext
 {
-    Class<? extends Converter> value ();
+    public <T> T convert ( Object value, Class<T> clazz ) throws ConversionException;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.packagedrone.web.controller.binding;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.Part;
 
+import org.eclipse.packagedrone.utils.converter.ConvertBy;
 import org.eclipse.packagedrone.utils.converter.ConverterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,13 +67,13 @@ public class RequestParameterBinder implements Binder
                         throw new IllegalStateException ( String.format ( "Request parameter '%s' is required but missing.", rp.value () ) );
                     }
 
-                    final Object value = converter.convertTo ( null, type );
+                    final Object value = converter.convertToBy ( null, type, () -> target.getAnnotationsByType ( ConvertBy.class ) );
                     return Binding.simpleBinding ( value );
                 }
                 else
                 {
 
-                    final Object value = converter.convertTo ( valueString, type );
+                    final Object value = converter.convertToBy ( valueString, type, () -> target.getAnnotationsByType ( ConvertBy.class ) );
                     return Binding.simpleBinding ( value );
                 }
             }

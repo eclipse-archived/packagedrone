@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,9 @@ package org.eclipse.packagedrone.web.controller.binding;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +53,27 @@ public class PropertyBindTarget implements BindTarget
     public boolean isAnnotationPresent ( final Class<? extends Annotation> clazz )
     {
         return getAnnotation ( clazz ) != null;
+    }
+
+    @Override
+    public <T extends Annotation> Collection<T> getAnnotationsByType ( final Class<T> annotationClass )
+    {
+        final Collection<T> result = new LinkedList<> ();
+
+        result.addAll ( Arrays.asList ( this.propertyDescriptor.getWriteMethod ().getAnnotationsByType ( annotationClass ) ) );
+
+        Field field;
+        try
+        {
+            field = this.objectClass.getField ( this.propertyDescriptor.getName () );
+            result.addAll ( Arrays.asList ( field.getAnnotationsByType ( annotationClass ) ) );
+        }
+        catch ( final Exception e )
+        {
+            return null;
+        }
+
+        return result;
     }
 
     @Override

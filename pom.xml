@@ -169,6 +169,7 @@
 		<module>bundles/org.eclipse.packagedrone.utils</module>
 		<module>bundles/org.eclipse.packagedrone.utils.console</module>
 		<module>bundles/org.eclipse.packagedrone.utils.converter</module>
+		<module>bundles/org.eclipse.packagedrone.utils.converter.tests</module>
 		<module>bundles/org.eclipse.packagedrone.utils.deb</module>
 		<module>bundles/org.eclipse.packagedrone.utils.deb.tests</module>
 		<module>bundles/org.eclipse.packagedrone.utils.logging.jul</module>
