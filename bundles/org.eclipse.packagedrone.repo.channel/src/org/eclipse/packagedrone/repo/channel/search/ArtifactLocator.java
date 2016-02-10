@@ -13,6 +13,7 @@ package org.eclipse.packagedrone.repo.channel.search;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
@@ -36,5 +37,18 @@ public interface ArtifactLocator
         search ( predicate, SearchOptions.DEFAULT_OPTIONS, consumer );
     }
 
-    public void search ( Predicate predicate, SearchOptions options, Consumer<Stream<ArtifactInformation>> consumer );
+    public default void search ( final Predicate predicate, final SearchOptions options, final Consumer<Stream<ArtifactInformation>> consumer )
+    {
+        process ( predicate, options, stream -> {
+            consumer.accept ( stream );
+            return null;
+        } );
+    }
+
+    public default <R> R process ( final Predicate predicate, final Function<Stream<ArtifactInformation>, R> function )
+    {
+        return process ( predicate, SearchOptions.DEFAULT_OPTIONS, function );
+    }
+
+    public <R> R process ( final Predicate predicate, final SearchOptions options, final Function<Stream<ArtifactInformation>, R> function );
 }

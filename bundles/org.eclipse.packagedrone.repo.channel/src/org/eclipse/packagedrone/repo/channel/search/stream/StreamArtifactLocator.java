@@ -11,7 +11,7 @@
 package org.eclipse.packagedrone.repo.channel.search.stream;
 
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -30,11 +30,11 @@ public class StreamArtifactLocator implements ArtifactLocator
     }
 
     @Override
-    public void search ( final Predicate predicate, final SearchOptions options, final Consumer<Stream<ArtifactInformation>> consumer )
+    public <R> R process ( final Predicate predicate, final SearchOptions options, final Function<Stream<ArtifactInformation>, R> function )
     {
         try ( Stream<ArtifactInformation> stream = this.informationSupplier.get () )
         {
-            consumer.accept ( search ( stream, predicate, options ) );
+            return function.apply ( search ( stream, predicate, options ) );
         }
     }
 
@@ -54,6 +54,23 @@ public class StreamArtifactLocator implements ArtifactLocator
 
         // apply options
 
+        stream = applyOptions ( stream, options );
+
+        // return
+
+        return stream;
+    }
+
+    private static Stream<ArtifactInformation> applyOptions ( Stream<ArtifactInformation> stream, final SearchOptions options )
+    {
+        if ( options.getSkip () > 0 )
+        {
+            stream = stream.skip ( options.getSkip () );
+        }
+        if ( options.getLimit () > 0 )
+        {
+            stream = stream.limit ( options.getLimit () );
+        }
         return stream;
     }
 

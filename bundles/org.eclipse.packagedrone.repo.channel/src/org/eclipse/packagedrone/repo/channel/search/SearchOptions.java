@@ -14,6 +14,10 @@ public class SearchOptions
 {
     public static final SearchOptions DEFAULT_OPTIONS = new SearchOptions ();
 
+    private long limit = -1;
+
+    private long skip = 0;
+
     SearchOptions ()
     {
     }
@@ -22,9 +26,31 @@ public class SearchOptions
     {
     }
 
+    public long getLimit ()
+    {
+        return this.limit;
+    }
+
+    public long getSkip ()
+    {
+        return this.skip;
+    }
+
     public static class Builder
     {
         private final SearchOptions options = new SearchOptions ();
+
+        public Builder skip ( final long skip )
+        {
+            this.options.skip = skip;
+            return this;
+        }
+
+        public Builder limit ( final long limit )
+        {
+            this.options.limit = limit;
+            return this;
+        }
 
         public SearchOptions build ()
         {
