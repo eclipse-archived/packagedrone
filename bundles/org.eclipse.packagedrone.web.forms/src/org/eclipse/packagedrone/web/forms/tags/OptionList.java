@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.web.forms.tags;
 
-import java.lang.reflect.InvocationTargetException;
+import static org.eclipse.packagedrone.web.forms.tags.Helper.makeString;
+
 import java.util.Collection;
 import java.util.Collections;
 
 import javax.servlet.jsp.JspException;
-
-import org.apache.commons.beanutils.BeanUtils;
 
 public class OptionList extends OptionTagSupport
 {
@@ -44,30 +43,7 @@ public class OptionList extends OptionTagSupport
 
     protected void renderOption ( final WriterHelper writer, final Object o ) throws JspException
     {
-        try
-        {
-            final Object result = makeString ( o );
-            renderOption ( writer, result, o, false );
-        }
-        catch ( NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e )
-        {
-            throw new JspException ( e );
-        }
-    }
-
-    private Object makeString ( final Object o ) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
-    {
-        if ( this.itemValue != null && !this.itemValue.isEmpty () )
-        {
-            return BeanUtils.getProperty ( o, this.itemValue );
-        }
-
-        if ( o == null )
-        {
-            return "";
-        }
-
-        return o.toString ();
+        renderOption ( writer, makeString ( o, this.itemValue ), o, false );
     }
 
     protected void renderOption ( final WriterHelper writer, final Object value, final Object label, final boolean selected ) throws JspException

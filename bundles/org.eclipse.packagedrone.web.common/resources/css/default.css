@@ -175,3 +175,25 @@ ul.dependency-list li {
 ul.dependency-list > li:not(:last-child):after {
     content: ', ';
 }
+
+/* tags */
+
+.drone-tag-list {
+	display: block;
+	padding: 0px;
+}
+
+.drone-tag-list-item {
+	display: inline-block;
+	background-color: #E7E7E7;
+	border-radius: 4px;
+	padding: 0.2em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	margin-right: .5em;
+}
+
+.drone-tag-list-item .close {
+	margin-top: -2px;
+	padding-left: 0.2em;
+}

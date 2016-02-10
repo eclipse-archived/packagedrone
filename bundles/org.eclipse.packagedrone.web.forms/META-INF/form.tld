@@ -303,6 +303,30 @@
 	</tag>
 	
 	<tag>
+		<name>inputList</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.InputList</tag-class>
+		<body-content>scriptless</body-content>
+		
+		<attribute>
+			<name>path</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+			<description>The name of the variable which will receive the current item</description>
+			<name>var</name>
+			<required>true</required>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<name>inputListValue</name>
+		<tag-class>org.eclipse.packagedrone.web.forms.tags.InputListValue</tag-class>
+		<body-content>empty</body-content>
+	</tag>
+	
+	<tag>
 	   <name>withBinding</name>
 	   <tag-class>org.eclipse.packagedrone.web.forms.tags.WithBinding</tag-class>
 	   <body-content>JSP</body-content>
@@ -316,7 +340,6 @@
             <description>The name of the page context variable that will get the binding. The default is 'result'.</description>
             <name>var</name>
         </attribute>
-        
 	</tag>
     
     <function>

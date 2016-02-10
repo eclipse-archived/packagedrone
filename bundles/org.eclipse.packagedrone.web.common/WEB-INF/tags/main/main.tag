@@ -51,9 +51,10 @@ if ( p instanceof UserInformationPrincipal )
     
     <link rel="stylesheet" href="${fontAwesome}/css/font-awesome.min.css" />
     
-    <%-- custom styles --%>
+    <%-- custom styles and scripts --%>
     
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/default.css" />
+    <script src="${pageContext.request.contextPath}/resources/js/default.js"></script>
     
     <jsp:invoke fragment="head"/>
     
