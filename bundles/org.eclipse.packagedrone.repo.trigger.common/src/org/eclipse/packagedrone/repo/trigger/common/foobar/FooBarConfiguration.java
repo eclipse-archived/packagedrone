@@ -8,7 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.trigger.common;
+package org.eclipse.packagedrone.repo.trigger.common.foobar;
 
 import com.google.gson.GsonBuilder;
 
