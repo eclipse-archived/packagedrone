@@ -111,7 +111,7 @@ public final class MetaKeys
                 }
                 else
                 {
-                    value = converter.convertTo ( stringValue, field.getType () );
+                    value = converter.convertTo ( stringValue, field.getType (), field );
                 }
             }
 
@@ -152,7 +152,7 @@ public final class MetaKeys
             }
             else
             {
-                stringValue = converter.convertTo ( value, String.class );
+                stringValue = converter.convertTo ( value, String.class, field );
             }
 
             if ( ( stringValue == null || stringValue.isEmpty () ) && mkb.emptyAsNull () )

@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo;
 
+import org.eclipse.packagedrone.utils.converter.ConversionContext;
 import org.eclipse.packagedrone.utils.converter.ConversionException;
 import org.eclipse.packagedrone.utils.converter.Converter;
 
 public class StringToMetaKeyConverter implements Converter
 {
     @Override
-    public Object convertTo ( final Object value, final Class<?> clazz ) throws ConversionException
+    public Object convertTo ( final Object value, final Class<?> clazz, final ConversionContext context ) throws ConversionException
     {
         final String string = (String)value;
 
