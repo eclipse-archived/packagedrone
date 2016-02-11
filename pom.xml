@@ -5,7 +5,7 @@
 
 	<groupId>org.eclipse.packagedrone</groupId>
 	<artifactId>parent</artifactId>
-	<version>0.12.0-SNAPSHOT</version>
+	<version>0.12.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<url>http://packagedrone.org</url>
