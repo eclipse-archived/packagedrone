@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,9 @@
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.r5.internal;
+
+import static java.util.Optional.of;
+import static org.eclipse.packagedrone.utils.io.FileNames.getBasename;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -21,8 +24,8 @@ import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.adapter.r5.internal.handler.NotFoundHandler;
 import org.eclipse.packagedrone.repo.channel.ChannelArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
-import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
 import org.eclipse.packagedrone.repo.channel.util.DownloadHelper;
 import org.eclipse.packagedrone.repo.servlet.Handler;
@@ -53,7 +56,7 @@ public abstract class CommonRepoServlet extends AbstractChannelServiceServlet
 
     protected boolean process ( final HttpServletRequest req, final HttpServletResponse resp ) throws IOException
     {
-        final String path = req.getPathInfo ();
+        String path = req.getPathInfo ();
 
         if ( path == null || path.isEmpty () || "/".equals ( path ) )
         {
@@ -61,46 +64,54 @@ public abstract class CommonRepoServlet extends AbstractChannelServiceServlet
             return true;
         }
 
-        final String[] toks = req.getPathInfo ().split ( "\\/" );
+        if ( path.startsWith ( "/" ) )
+        {
+            path = path.substring ( 1 );
+        }
 
-        if ( toks.length == 2 )
+        final String[] toks = path.split ( "\\/", 4 );
+
+        final String channelId = toks.length > 0 ? toks[0] : null;
+
+        if ( toks.length == 1 )
         {
             try
             {
-                getService ( req ).accessRun ( By.nameOrId ( toks[1] ), ReadableChannel.class, channel -> {
+                getService ( req ).accessRun ( By.nameOrId ( channelId ), ReadableChannel.class, channel -> {
                     this.indexHandler.process ( channel, req, resp );
                 } );
             }
             catch ( final ChannelNotFoundException e )
             {
-                new NotFoundHandler ( String.format ( "Channel '%s' not found.", toks[1] ) ).process ( req, resp );
+                new NotFoundHandler ( String.format ( "Channel '%s' not found.", channelId ) ).process ( req, resp );
             }
             return true;
         }
 
-        // - URL type #1 : /<base>/<channel>/artifact/<artifactId>
-        // - URL type #2 : /<base>/<channel>/artifact/<artifactId>/<artifactName>
+        // - URL type #1 : /<channel>/artifact/<artifactId>
+        // - URL type #2 : /<channel>/artifact/<artifactId>/<artifactName>
 
-        if ( ( toks.length == 4 || toks.length == 5 ) && "artifact".equals ( toks[2] ) )
+        if ( ( toks.length == 3 || toks.length == 4 ) && "artifact".equals ( toks[1] ) )
         {
+            final String artifactId = toks[2];
             try
             {
-                getService ( req ).accessRun ( By.nameOrId ( toks[1] ), ReadableChannel.class, channel -> {
+                getService ( req ).accessRun ( By.nameOrId ( toks[0] ), ReadableChannel.class, channel -> {
 
-                    final Optional<ChannelArtifactInformation> artifact = channel.getArtifact ( toks[3] );
+                    final Optional<ChannelArtifactInformation> artifact = channel.getArtifact ( artifactId );
                     if ( !artifact.isPresent () )
                     {
-                        new NotFoundHandler ( String.format ( "Artifact '%s' not found.", toks[2] ) ).process ( req, resp );
+                        new NotFoundHandler ( String.format ( "Artifact '%s' not found.", artifactId ) ).process ( req, resp );
                     }
                     else
                     {
-                        DownloadHelper.streamArtifact ( resp, artifact.get (), Optional.of ( "application/vnd.osgi.bundle" ), true, channel, art -> toks.length == 5 ? toks[4] : art.getName () );
+                        DownloadHelper.streamArtifact ( resp, artifact.get (), of ( "application/vnd.osgi.bundle" ), true, channel, art -> getBasename ( toks.length == 4 ? toks[3] : art.getName () ) );
                     }
                 } );
             }
             catch ( final ChannelNotFoundException e )
             {
-                new NotFoundHandler ( String.format ( "Channel '%s' not found.", toks[1] ) ).process ( req, resp );
+                new NotFoundHandler ( String.format ( "Channel '%s' not found.", channelId ) ).process ( req, resp );
             }
             return true;
         }
