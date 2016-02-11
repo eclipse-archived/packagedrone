@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.MetaKeys;
+import org.eclipse.packagedrone.utils.io.FileNames;
 
 public class ArtifactInformation implements Comparable<ArtifactInformation>, Validated
 {
@@ -155,6 +156,11 @@ public class ArtifactInformation implements Comparable<ArtifactInformation>, Val
     public String getName ()
     {
         return this.name;
+    }
+
+    public String getBasename ()
+    {
+        return FileNames.getBasename ( this.name );
     }
 
     public long getSize ()
