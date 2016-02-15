@@ -149,8 +149,10 @@ if ( p instanceof UserInformationPrincipal )
 
 <web:pop name="modal"/>
 
-<footer>
+<footer id="footer">
+  <div class="container-fluid">
     <div class="pull-right"><a href="http://packagedrone.org" target="_blank">Package Drone ${droneVersion }</a></div>
+  </div>
 </footer>
 
 </body>
