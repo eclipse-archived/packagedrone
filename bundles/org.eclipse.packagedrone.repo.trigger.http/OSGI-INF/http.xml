@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.repo.trigger.http">
+   <implementation class="org.eclipse.packagedrone.repo.trigger.http.HttpTriggerFactory"/>
+   <property name="drone.trigger.factory.id" type="String" value="http.endpoint"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.repo.trigger.ConfiguredTriggerFactory"/>
+   </service>
+   <reference bind="setHttpService" cardinality="1..1" interface="org.osgi.service.http.HttpService" name="HttpService" policy="static"/>
+   <reference bind="setSitePrefixService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.manage.system.SitePrefixService" name="SitePrefixService" policy="static"/>
+   <reference bind="setChannelService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.channel.ChannelService" name="ChannelService" policy="static"/>
+</scr:component>

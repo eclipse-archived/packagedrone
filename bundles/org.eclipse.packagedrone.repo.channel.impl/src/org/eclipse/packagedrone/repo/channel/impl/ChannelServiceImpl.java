@@ -47,6 +47,7 @@ import org.eclipse.packagedrone.repo.channel.impl.model.ChannelConfiguration;
 import org.eclipse.packagedrone.repo.channel.provider.Channel;
 import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider;
 import org.eclipse.packagedrone.repo.channel.stats.ChannelStatistics;
+import org.eclipse.packagedrone.repo.trigger.ConfiguredTriggerFactoryTracker;
 import org.eclipse.packagedrone.repo.trigger.ProcessorFactoryTracker;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
 import org.eclipse.packagedrone.storage.apm.StorageRegistration;
@@ -93,6 +94,8 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
 
     private ProcessorFactoryTracker processorFactoryTracker;
 
+    private ConfiguredTriggerFactoryTracker triggerFactoryTracker;
+
     public ChannelServiceImpl ()
     {
         this.context = FrameworkUtil.getBundle ( ChannelServiceImpl.class ).getBundleContext ();
@@ -121,6 +124,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
         this.providerTracker.start ();
 
         this.processorFactoryTracker = new ProcessorFactoryTracker ( this.context );
+        this.triggerFactoryTracker = new ConfiguredTriggerFactoryTracker ( this.context );
 
         this.handle = this.manager.registerModel ( 1_000, KEY_STORAGE, new ChannelServiceModelProvider () );
 
@@ -178,11 +182,17 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
             this.processorFactoryTracker.close ();
             this.processorFactoryTracker = null;
         }
+
+        if ( this.triggerFactoryTracker != null )
+        {
+            this.triggerFactoryTracker.close ();
+            this.triggerFactoryTracker = null;
+        }
     }
 
     private void loadChannel ( final String channelId, final ChannelConfiguration configuration )
     {
-        this.channels.put ( channelId, new ChannelInstance ( channelId, configuration.getProviderId (), configuration.getConfiguration (), this.providerTracker, this.aspectProcessor, this.eventAdmin, this.manager, this.processorFactoryTracker ) );
+        this.channels.put ( channelId, new ChannelInstance ( channelId, configuration.getProviderId (), configuration.getConfiguration (), this.providerTracker, this.aspectProcessor, this.eventAdmin, this.manager, this.processorFactoryTracker, this.triggerFactoryTracker ) );
     }
 
     private ChannelInformation accessState ( final ChannelServiceAccess channels, final ChannelInstance channel )
@@ -302,7 +312,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
 
     private void commitCreateChannel ( final String channelId, final String providerId, final Map<MetaKey, String> configuration )
     {
-        final ChannelInstance channel = new ChannelInstance ( channelId, providerId, configuration, this.providerTracker, this.aspectProcessor, this.eventAdmin, this.manager, this.processorFactoryTracker );
+        final ChannelInstance channel = new ChannelInstance ( channelId, providerId, configuration, this.providerTracker, this.aspectProcessor, this.eventAdmin, this.manager, this.processorFactoryTracker, this.triggerFactoryTracker );
 
         try ( Locked l = lock ( this.writeLock ) )
         {

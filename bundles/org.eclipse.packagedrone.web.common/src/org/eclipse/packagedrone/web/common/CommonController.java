@@ -71,6 +71,11 @@ public class CommonController
 
     public static ModelAndView createError ( final String title, final String subtitle, final String result, final Throwable e, final Boolean showStackTrace )
     {
+        return createError ( title, subtitle, result, e, ExceptionHelper.getMessage ( e ), showStackTrace );
+    }
+
+    public static ModelAndView createError ( final String title, final String subtitle, final String result, final Throwable e, final String message, final Boolean showStackTrace )
+    {
         final ModelAndView mav = new ModelAndView ( ERROR_VIEW );
 
         if ( showStackTrace != null )
@@ -86,9 +91,11 @@ public class CommonController
         mav.put ( ERROR_VIEW_SUBTITLE, subtitle );
         mav.put ( ERROR_VIEW_RESULT, result );
         mav.put ( ERROR_VIEW_EXCEPTION, e );
+
+        mav.put ( ERROR_VIEW_MESSAGE, message );
+
         if ( e != null )
         {
-            mav.put ( ERROR_VIEW_MESSAGE, ExceptionHelper.getMessage ( e ) );
             mav.put ( ERROR_VIEW_STACKTRACE, ExceptionHelper.formatted ( e ) );
         }
 
@@ -100,6 +107,11 @@ public class CommonController
     public static ModelAndView createError ( final String title, final String result, final Throwable e )
     {
         return createError ( title, result, e, null );
+    }
+
+    public static ModelAndView createError ( final String title, final String result, final String message )
+    {
+        return createError ( title, null, result, null, message, null );
     }
 
     public static ModelAndView createAccessDenied ()

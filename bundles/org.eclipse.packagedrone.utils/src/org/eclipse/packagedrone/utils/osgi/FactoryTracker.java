@@ -13,9 +13,11 @@ package org.eclipse.packagedrone.utils.osgi;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -29,9 +31,13 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class FactoryTracker<S, T>
 {
+    private final static Logger logger = LoggerFactory.getLogger ( FactoryTracker.Entry.class );
+
     public static class Entry<T> implements Comparable<Entry<T>>
     {
         private final String id;
@@ -117,6 +123,13 @@ public abstract class FactoryTracker<S, T>
 
     private final Lock writeLock;
 
+    private final Map<String, Set<Consumer<T>>> listeners = new HashMap<> ();
+
+    /**
+     * A cache containing services with the highest priority per factory id
+     */
+    private final Map<String, T> serviceCache = new HashMap<> ();
+
     /**
      * Get the factory id
      *
@@ -155,6 +168,43 @@ public abstract class FactoryTracker<S, T>
         }
     }
 
+    public void addListener ( final String factoryId, final Consumer<T> consumer )
+    {
+        try ( Locked lock = Locks.lock ( this.writeLock ) )
+        {
+            Set<Consumer<T>> set = this.listeners.get ( factoryId );
+            if ( set == null )
+            {
+                set = new HashSet<> ();
+                this.listeners.put ( factoryId, set );
+            }
+
+            if ( set.add ( consumer ) )
+            {
+                // send current
+                final List<Entry<T>> current = this.entries.get ( factoryId );
+                if ( current != null && current.size () > 0 )
+                {
+                    consumer.accept ( current.get ( 0 ).getService () );
+                }
+            }
+        }
+    }
+
+    public void removeListener ( final String factoryId, final Consumer<T> consumer )
+    {
+        try ( Locked lock = Locks.lock ( this.writeLock ) )
+        {
+            final Set<Consumer<T>> set = this.listeners.get ( factoryId );
+            if ( set == null )
+            {
+                return;
+            }
+
+            set.remove ( consumer );
+        }
+    }
+
     private Entry<T> makeEntry ( final ServiceReference<S> reference )
     {
         final String id = getFactoryId ( reference );
@@ -172,6 +222,50 @@ public abstract class FactoryTracker<S, T>
         return new Entry<> ( id, mapService ( reference, service ), reference );
     }
 
+    private void updateBest ( final String factoryId )
+    {
+        final T best = getBestService ( factoryId );
+        final T current = this.serviceCache.get ( factoryId );
+
+        if ( best == current )
+        {
+            return;
+        }
+
+        if ( best != null )
+        {
+            this.serviceCache.put ( factoryId, current );
+        }
+        else
+        {
+            this.serviceCache.remove ( factoryId );
+        }
+
+        fireListeners ( factoryId, best );
+    }
+
+    private void fireListeners ( final String factoryId, final T service )
+    {
+        final Set<Consumer<T>> set = this.listeners.get ( factoryId );
+        if ( set == null )
+        {
+            return;
+        }
+
+        for ( final Consumer<T> listener : set )
+        {
+            try
+            {
+                listener.accept ( service );
+            }
+            catch ( final Exception e )
+            {
+                logger.warn ( "Failed to handle factory listener", e );
+                // ignore
+            }
+        }
+    }
+
     private void addEntry ( final Entry<T> entry )
     {
         try ( Locked l = Locks.lock ( this.writeLock ) )
@@ -187,6 +281,8 @@ public abstract class FactoryTracker<S, T>
 
             list.add ( entry );
             Collections.sort ( list );
+
+            updateBest ( entry.getId () );
         }
     }
 
@@ -214,7 +310,22 @@ public abstract class FactoryTracker<S, T>
                 this.entries.remove ( entry.getId () );
             }
 
+            updateBest ( entry.getId () );
+
             return entry;
+        }
+    }
+
+    private T getBestService ( final String factoryId )
+    {
+        try ( Locked l = Locks.lock ( this.readLock ) )
+        {
+            final List<Entry<T>> entries = this.entries.get ( factoryId );
+            if ( entries == null || entries.isEmpty () )
+            {
+                return null;
+            }
+            return entries.get ( 0 ).getService ();
         }
     }
 

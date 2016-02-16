@@ -36,6 +36,7 @@ import org.eclipse.packagedrone.repo.channel.provider.Channel;
 import org.eclipse.packagedrone.repo.channel.provider.ChannelOperationContext;
 import org.eclipse.packagedrone.repo.channel.provider.ChannelProvider;
 import org.eclipse.packagedrone.repo.channel.provider.ModifyContext;
+import org.eclipse.packagedrone.repo.trigger.ConfiguredTriggerFactoryTracker;
 import org.eclipse.packagedrone.repo.trigger.ProcessorFactoryTracker;
 import org.eclipse.packagedrone.repo.trigger.TriggerDescriptor;
 import org.eclipse.packagedrone.repo.trigger.TriggerRunner;
@@ -88,7 +89,7 @@ public class ChannelInstance implements ProviderListener
 
     private final ProcessorFactoryTracker processorFactoryTracker;
 
-    public ChannelInstance ( final String channelId, final String providerId, final Map<MetaKey, String> configuration, final ChannelProviderTracker providerTracker, final ChannelAspectProcessor aspectProcessor, final EventAdmin eventAdmin, final StorageManager storage, final ProcessorFactoryTracker processorFactoryTracker )
+    public ChannelInstance ( final String channelId, final String providerId, final Map<MetaKey, String> configuration, final ChannelProviderTracker providerTracker, final ChannelAspectProcessor aspectProcessor, final EventAdmin eventAdmin, final StorageManager storage, final ProcessorFactoryTracker processorFactoryTracker, final ConfiguredTriggerFactoryTracker triggerFactory )
     {
         this.channelId = channelId;
         this.providerId = providerId;
@@ -110,7 +111,7 @@ public class ChannelInstance implements ProviderListener
 
         try
         {
-            addFeature ( this.triggered = new TriggeredChannelFeature ( storage, channelKey, processorFactoryTracker, makePredefinedTriggers () ) );
+            addFeature ( this.triggered = new TriggeredChannelFeature ( channelId, storage, channelKey, processorFactoryTracker, triggerFactory, makePredefinedTriggers () ) );
 
             this.providerTracker.addListener ( this.providerId, this );
         }

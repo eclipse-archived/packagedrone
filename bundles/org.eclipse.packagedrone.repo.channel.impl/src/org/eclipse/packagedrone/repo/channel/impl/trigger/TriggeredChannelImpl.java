@@ -53,12 +53,15 @@ public final class TriggeredChannelImpl implements TriggeredChannel
 
     private boolean modified;
 
-    public TriggeredChannelImpl ( final ChannelId id, final ChannelInstanceModel channelModel, final ProcessorFactoryTracker processorFactoryTracker, final Map<String, TriggerDescriptor> predefined )
+    private final ConfiguredTriggerContext configuredContext;
+
+    public TriggeredChannelImpl ( final ChannelId id, final ChannelInstanceModel channelModel, final ProcessorFactoryTracker processorFactoryTracker, final Map<String, TriggerDescriptor> predefined, final ConfiguredTriggerContext configuredContext )
     {
         this.id = id;
         this.channelModel = channelModel;
         this.processorFactoryTracker = processorFactoryTracker;
         this.predefined = predefined;
+        this.configuredContext = configuredContext;
 
         this.model = loadConfiguration ( channelModel );
     }
@@ -76,6 +79,8 @@ public final class TriggeredChannelImpl implements TriggeredChannel
 
     public static TriggeredChannelModel loadConfiguration ( final ChannelInstanceModelAccess model )
     {
+        Objects.requireNonNull ( model );
+
         final String cfg = model.getConfigurations ().get ( CONFIG_KEY );
         if ( cfg != null )
         {
@@ -139,8 +144,10 @@ public final class TriggeredChannelImpl implements TriggeredChannel
 
     private TriggerHandle makeHandle ( final String triggerId )
     {
-        final Optional<TriggerDescriptor> descriptor = Optional.ofNullable ( TriggeredChannelImpl.this.predefined.get ( triggerId ) );
+        final Optional<TriggerDescriptor> descriptor = Optional.ofNullable ( findDescriptor ( triggerId ) );
         final List<TriggerProcessorConfiguration> processorConfigurations = TriggeredChannelImpl.this.model.getProcessors ( triggerId );
+
+        final Optional<TriggerConfiguration> configuration = this.model.getTriggerConfiguration ( triggerId );
 
         final List<TriggerProcessor> processors = processorConfigurations.stream ().map ( this::mapProcessor ).collect ( Collectors.toList () );
 
@@ -167,10 +174,20 @@ public final class TriggeredChannelImpl implements TriggeredChannel
             @Override
             public Optional<TriggerConfiguration> getConfiguration ()
             {
-                // FIXME: implement
-                return Optional.empty ();
+                return configuration;
             }
         };
+    }
+
+    private TriggerDescriptor findDescriptor ( final String triggerId )
+    {
+        final TriggerDescriptor result = this.predefined.get ( triggerId );
+        if ( result != null )
+        {
+            return result;
+        }
+
+        return this.configuredContext.get ( triggerId );
     }
 
     private TriggerProcessor mapProcessor ( final TriggerProcessorConfiguration cfg )
@@ -187,24 +204,39 @@ public final class TriggeredChannelImpl implements TriggeredChannel
     @Override
     public TriggerHandle addConfiguredTrigger ( final String triggerFactoryId, final String configuration )
     {
+        Objects.requireNonNull ( triggerFactoryId );
+
+        final String triggerId = UUID.randomUUID ().toString ();
+        final TriggerConfiguration cfg = new TriggerConfiguration ( triggerFactoryId, configuration );
+
+        this.model.addTrigger ( triggerId, cfg );
+        this.configuredContext.add ( triggerId, cfg );
+
         this.modified = true;
-        // FIXME: implement
-        return null;
+
+        return makeHandle ( triggerId );
     }
 
     @Override
     public void modifyConfiguredTrigger ( final String triggerConfigurationId, final String configuration )
     {
+        Objects.requireNonNull ( triggerConfigurationId );
+
+        this.model.modifyTrigger ( triggerConfigurationId, configuration );
+        this.configuredContext.modify ( triggerConfigurationId, configuration );
+
         this.modified = true;
-        // FIXME: implement
     }
 
     @Override
     public void deleteConfiguredTrigger ( final String triggerConfigurationId )
     {
-        this.modified = true;
+        Objects.requireNonNull ( triggerConfigurationId );
 
-        // FIXME: implement
+        this.model.deleteTrigger ( triggerConfigurationId );
+        this.configuredContext.dispose ( triggerConfigurationId );
+
+        this.modified = true;
     }
 
     @Override

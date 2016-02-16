@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.eclipse.packagedrone.utils.Holder;
-import org.eclipse.packagedrone.utils.osgi.FactoryTracker;
 import org.eclipse.packagedrone.utils.osgi.SimpleFactoryTracker;
 import org.osgi.framework.BundleContext;
 
@@ -47,7 +46,7 @@ public class ProcessorFactoryTracker
 
     public ProcessorFactoryTracker ( final BundleContext context )
     {
-        this.tracker = new SimpleFactoryTracker<> ( context, ProcessorFactory.class, ref -> FactoryTracker.getString ( ref, PROP_ID ), ( ref, service ) -> {
+        this.tracker = new SimpleFactoryTracker<> ( context, ProcessorFactory.class, ref -> getString ( ref, PROP_ID ), ( ref, service ) -> {
             return new ProcessorFactoryInformationExt ( getString ( ref, PROP_ID ), service );
         } );
         this.tracker.open ();

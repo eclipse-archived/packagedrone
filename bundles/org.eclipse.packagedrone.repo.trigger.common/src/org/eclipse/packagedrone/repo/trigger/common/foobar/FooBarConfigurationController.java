@@ -12,7 +12,7 @@ package org.eclipse.packagedrone.repo.trigger.common.foobar;
 
 import javax.servlet.annotation.HttpConstraint;
 
-import org.eclipse.packagedrone.repo.trigger.common.SimpleConfigurationController;
+import org.eclipse.packagedrone.repo.trigger.common.SimpleProcessorConfigurationController;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;
@@ -28,7 +28,7 @@ import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 @ControllerInterceptor ( SecuredControllerInterceptor.class )
 @HttpConstraint ( rolesAllowed = "ADMIN" )
 @ControllerInterceptor ( HttpContraintControllerInterceptor.class )
-public class FooBarConfigurationController extends SimpleConfigurationController<FooBarConfiguration>
+public class FooBarConfigurationController extends SimpleProcessorConfigurationController<FooBarConfiguration>
 {
     public FooBarConfigurationController ()
     {

@@ -24,17 +24,18 @@ import org.eclipse.packagedrone.repo.web.utils.ChannelServiceController;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestMapping;
 import org.eclipse.packagedrone.web.RequestMethod;
+import org.eclipse.packagedrone.web.common.CommonController;
 import org.eclipse.packagedrone.web.controller.binding.BindingResult;
 import org.eclipse.packagedrone.web.controller.binding.RequestParameter;
 import org.eclipse.packagedrone.web.controller.form.FormData;
 
-public abstract class AbstractSimpleConfigurationController<T> extends ChannelServiceController
+public abstract class AbstractCommonProcessorConfigurationController<T> extends ChannelServiceController
 {
     protected abstract ModelAndView handleEditUpdate ( final TriggeredChannel channel, final TriggerHandle triggerHandle, final TriggerProcessor triggerProcessor, final T command, final BindingResult result );
 
     protected abstract ModelAndView handleCreateUpdate ( final TriggeredChannel channel, final TriggerHandle triggerHandle, final T command, final BindingResult result );
 
-    protected abstract ModelAndView handleEdit ( final TriggeredChannel channel, final TriggerHandle trigger, final TriggerProcessor processor );
+    protected abstract ModelAndView handleEdit ( final TriggeredChannel channel, final TriggerHandle trigger, final TriggerProcessor triggerProcessor );
 
     protected abstract ModelAndView handleCreate ( final TriggeredChannel channel, final TriggerHandle trigger );
 
@@ -48,7 +49,7 @@ public abstract class AbstractSimpleConfigurationController<T> extends ChannelSe
 
             if ( !trigger.isPresent () )
             {
-                return notFound ( "trigger", triggerId );
+                return CommonController.createNotFound ( "trigger", triggerId );
             }
 
             if ( processorId == null || processorId.isEmpty () )
@@ -62,7 +63,7 @@ public abstract class AbstractSimpleConfigurationController<T> extends ChannelSe
                 final Optional<TriggerProcessor> processor = trigger.get ().getProcessor ( processorId );
                 if ( !processor.isPresent () )
                 {
-                    return notFound ( "processor", processorId );
+                    return CommonController.createNotFound ( "processor", triggerId );
                 }
                 return handleEdit ( channel, trigger.get (), processor.get () );
             }
@@ -80,7 +81,7 @@ public abstract class AbstractSimpleConfigurationController<T> extends ChannelSe
 
             if ( !trigger.isPresent () )
             {
-                return notFound ( "trigger", triggerId );
+                return CommonController.createNotFound ( "trigger", triggerId );
             }
 
             if ( processorId == null || processorId.isEmpty () )
@@ -94,7 +95,7 @@ public abstract class AbstractSimpleConfigurationController<T> extends ChannelSe
                 final Optional<TriggerProcessor> processor = trigger.get ().getProcessor ( processorId );
                 if ( !processor.isPresent () )
                 {
-                    return notFound ( "processor", processorId );
+                    return CommonController.createNotFound ( "processor", processorId );
                 }
                 return handleEditUpdate ( channel, trigger.get (), processor.get (), command, result );
             }
@@ -114,17 +115,12 @@ public abstract class AbstractSimpleConfigurationController<T> extends ChannelSe
             result.put ( "processorId", processor.getId () );
         }
 
+        fillModel ( result );
+
         return result;
     }
 
-    protected ModelAndView notFound ( final String type, final String id )
+    protected void fillModel ( final Map<String, Object> model )
     {
-        final Map<String, Object> model = new HashMap<> ( 2 );
-
-        model.put ( "type", type );
-        model.put ( "id", id );
-
-        return new ModelAndView ( "notFound", model );
     }
-
 }

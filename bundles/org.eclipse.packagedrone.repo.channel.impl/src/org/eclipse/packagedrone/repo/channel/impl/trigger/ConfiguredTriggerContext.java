@@ -8,18 +8,18 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.trigger;
+package org.eclipse.packagedrone.repo.channel.impl.trigger;
 
-public interface TriggerDescriptor
+import org.eclipse.packagedrone.repo.trigger.TriggerConfiguration;
+import org.eclipse.packagedrone.repo.trigger.TriggerDescriptor;
+
+public interface ConfiguredTriggerContext
 {
-    public String getLabel ();
+    public void add ( String id, TriggerConfiguration configuration );
 
-    public String getDescription ();
+    public void modify ( String id, String configuration );
 
-    public default String getHtmlState ()
-    {
-        return getDescription ();
-    }
+    public void dispose ( String id );
 
-    public Class<?>[] getSupportedContexts ();
+    public TriggerDescriptor get ( String triggerId );
 }

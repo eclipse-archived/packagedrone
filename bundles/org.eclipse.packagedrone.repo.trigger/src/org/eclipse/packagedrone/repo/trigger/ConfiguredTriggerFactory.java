@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.trigger;
 
-public interface TriggerDescriptor
+public interface ConfiguredTriggerFactory
 {
+    public ConfiguredTrigger create ( String configuration );
+
     public String getLabel ();
 
     public String getDescription ();
 
-    public default String getHtmlState ()
-    {
-        return getDescription ();
-    }
-
-    public Class<?>[] getSupportedContexts ();
+    public String getConfigurationUrl ();
 }

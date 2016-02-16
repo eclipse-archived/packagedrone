@@ -8,11 +8,14 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.trigger.common.unique;
+package org.eclipse.packagedrone.repo.trigger.http;
+
+import java.util.Map;
 
 import javax.servlet.annotation.HttpConstraint;
 
-import org.eclipse.packagedrone.repo.trigger.common.SimpleProcessorConfigurationController;
+import org.eclipse.packagedrone.repo.manage.system.SitePrefixService;
+import org.eclipse.packagedrone.repo.trigger.common.SimpleTriggerConfigurationController;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.controller.Secured;
 import org.eclipse.packagedrone.sec.web.controller.SecuredControllerInterceptor;
@@ -23,33 +26,46 @@ import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 
 @Controller
 @ViewResolver ( "/WEB-INF/views/%s.jsp" )
-@RequestMapping ( "/trigger/processor.factory/unique.artifact/configure" )
+@RequestMapping ( "/trigger/factory/" + HttpTriggerFactory.ID + "/configure" )
 @Secured
 @ControllerInterceptor ( SecuredControllerInterceptor.class )
 @HttpConstraint ( rolesAllowed = "ADMIN" )
 @ControllerInterceptor ( HttpContraintControllerInterceptor.class )
-public class UniqueArtifactConfigurationController extends SimpleProcessorConfigurationController<UniqueArtifactConfiguration>
+public class HttpTriggerController extends SimpleTriggerConfigurationController<HttpTriggerConfiguration>
 {
-    public UniqueArtifactConfigurationController ()
+    private SitePrefixService sitePrefixService;
+
+    public void setSitePrefixService ( final SitePrefixService sitePrefixService )
     {
-        super ( UniqueArtifactProcessorFactory.ID, "unique.artifact/configuration" );
+        this.sitePrefixService = sitePrefixService;
+    }
+
+    public HttpTriggerController ()
+    {
+        super ( HttpTriggerFactory.ID, "http.endpoint/configuration" );
     }
 
     @Override
-    protected UniqueArtifactConfiguration newModel ()
+    protected HttpTriggerConfiguration newModel ()
     {
-        return new UniqueArtifactConfiguration ();
+        return new HttpTriggerConfiguration ();
     }
 
     @Override
-    protected UniqueArtifactConfiguration parseModel ( final String configuration )
+    protected HttpTriggerConfiguration parseModel ( final String configuration )
     {
-        return UniqueArtifactConfiguration.fromJson ( configuration );
+        return HttpTriggerConfiguration.fromJson ( configuration );
     }
 
     @Override
-    protected String writeModel ( final UniqueArtifactConfiguration configuration )
+    protected String writeModel ( final HttpTriggerConfiguration configuration )
     {
         return configuration.toJson ();
+    }
+
+    @Override
+    protected void fillModel ( final Map<String, Object> model )
+    {
+        model.put ( "sitePrefix", this.sitePrefixService.getSitePrefix () );
     }
 }

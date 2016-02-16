@@ -11,19 +11,24 @@
 package org.eclipse.packagedrone.repo.channel.impl.trigger;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
+import org.eclipse.packagedrone.repo.trigger.TriggerConfiguration;
 import org.eclipse.packagedrone.repo.trigger.TriggerProcessorConfiguration;
 
 public class TriggeredChannelModel
 {
     private final Map<String, List<TriggerProcessorConfiguration>> processors = new HashMap<> ();
+
+    private final Map<String, TriggerConfiguration> triggers = new HashMap<> ();
 
     public static class UnknownProcessorException extends IllegalArgumentException
     {
@@ -112,9 +117,17 @@ public class TriggeredChannelModel
         }
     }
 
-    public Collection<String> getTriggers ()
+    public Set<String> getTriggers ()
     {
-        return this.processors.keySet ();
+        final Set<String> result = new HashSet<> ();
+        result.addAll ( this.processors.keySet () );
+        result.addAll ( this.triggers.keySet () );
+        return result;
+    }
+
+    public Map<String, TriggerConfiguration> getConfiguredTriggers ()
+    {
+        return this.triggers;
     }
 
     public List<TriggerProcessorConfiguration> getProcessors ( final String triggerId )
@@ -126,6 +139,44 @@ public class TriggeredChannelModel
         }
 
         return Collections.unmodifiableList ( trigger );
+    }
+
+    public void addTrigger ( final String triggerId, final TriggerConfiguration triggerConfiguration )
+    {
+        Objects.requireNonNull ( triggerId );
+        Objects.requireNonNull ( triggerConfiguration );
+
+        if ( this.triggers.containsKey ( triggerId ) )
+        {
+            throw new IllegalStateException ( String.format ( "Trigger '%s' already exists for this channel", triggerId ) );
+        }
+
+        this.triggers.put ( triggerId, triggerConfiguration );
+    }
+
+    public void modifyTrigger ( final String triggerId, final String configuration )
+    {
+        Objects.requireNonNull ( triggerId );
+        Objects.requireNonNull ( configuration );
+
+        final TriggerConfiguration trigger = this.triggers.get ( triggerId );
+
+        if ( trigger == null )
+        {
+            throw new IllegalStateException ( String.format ( "Trigger '%s' does not exist on this channel", triggerId ) );
+        }
+
+        this.triggers.put ( triggerId, new TriggerConfiguration ( trigger.getTriggerFactoryId (), configuration ) );
+    }
+
+    public void deleteTrigger ( final String triggerId )
+    {
+        this.triggers.remove ( triggerId );
+    }
+
+    public Optional<TriggerConfiguration> getTriggerConfiguration ( final String triggerId )
+    {
+        return Optional.ofNullable ( this.triggers.get ( triggerId ) );
     }
 
 }

@@ -5,5 +5,4 @@
       <provide interface="org.eclipse.packagedrone.repo.trigger.common.foobar.FooBarConfigurationController"/>
    </service>
    <reference bind="setChannelService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.channel.ChannelService" name="ChannelService" policy="static"/>
-   <property name="drone.trigger.processor.factory.id" type="String" value="unique.artifact"/>
 </scr:component>

@@ -22,18 +22,79 @@
 
   <h:breadcrumbs/>
   
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-1">
+        <c:if test="${not empty triggerFactories }">
+        <button class="btn btn-default" type="button" data-toggle="modal" data-target="#add-trigger-model" >Add trigger</button>
+        </c:if>
+      </div>
+      <div class="col-md-11">
+  
   <table class="table table-hover">
   
     <c:forEach var="trigger" items="${triggers }">
     
-      <tr>
+      <tr class="${ empty trigger.descriptor ? 'danger' : ''}">
+      
+        <c:choose>
+          <c:when test="${not empty trigger.configuration }">
+            <c:set var="ti" value="${triggerFactoryTracker.apply(trigger.configuration.triggerFactoryId)}"/>
+          </c:when>
+          <c:otherwise><c:remove var="ti"/></c:otherwise>
+        </c:choose>
+      
         <td id="row-trigger-${fn:escapeXml(trigger.id) }">
-          <h4><strong>${fn:escapeXml(trigger.descriptor.label) }</strong></h4>
-          <p>${fn:escapeXml(trigger.descriptor.description) }</p>
+        
+          <h4>
+            <c:choose>
+              <c:when test="${not empty trigger.descriptor }">
+                <strong>${fn:escapeXml(trigger.descriptor.label) }</strong>
+              </c:when>
+              <c:when test="${not empty trigger.configuration }">
+                ${fn:escapeXml(trigger.configuration.triggerFactoryId) } <span class="label label-danger" title="The factory implementing the functionality is missing or not active" data-toggle="tooltip">unbound</span>
+              </c:when>
+              <c:otherwise>
+                ${fn:escapeXml(trigger.id) } <span class="label label-danger" title="The factory implementing the functionality is missing or not active" data-toggle="tooltip">unbound</span>
+              </c:otherwise>
+            </c:choose>
+            
+            <c:if test="${not empty trigger.configuration }">
+              <span class="label label-default">configured</span>
+            </c:if>
+          </h4>
+          
+          <p>
+          <c:choose>
+            <%-- use get syntax due to issues with Java 8 default interface methods --%>
+            <c:when test="${not empty trigger.descriptor.getHtmlState() }">${trigger.descriptor.getHtmlState() }</c:when>
+            <c:otherwise>${fn:escapeXml(trigger.descriptor.description) }</c:otherwise>
+          </c:choose>
+          
+          </p>
         </td>
         
         <td align="right">
-          <button class="btn btn-default ${ empty trigger.availableProcessors ? 'disabled' : '' }" type="button" data-toggle="modal" data-target="#add-modal-${fn:escapeXml(trigger.id) }"><span class="glyphicon glyphicon-plus"></span></button>
+          
+          <form method="POST" action="removeTrigger">
+            <input type="hidden" name="triggerId" value="${fn:escapeXml(trigger.id) }">
+        
+            <button class="btn btn-default ${ empty trigger.availableProcessors ? 'disabled' : '' }" type="button" data-toggle="modal" data-target="#add-modal-${fn:escapeXml(trigger.id) }"><span class="glyphicon glyphicon-plus"></span></button>
+            
+            <c:if test="${not empty trigger.configuration }">
+            <button class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span></button>
+            </c:if>
+            
+            <c:if test="${not empty ti.configurationUrl }">
+              <c:url var="url" value="${ti.configurationUrl }">
+                <c:param name="channelId" value="${channel.id }" />
+                <c:param name="triggerId" value="${trigger.id }" />
+              </c:url>
+              <a href="${url }" class="btn btn-default" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
+            </c:if>
+              
+          </form>
+          
         </td>  
       </tr>
       
@@ -56,7 +117,7 @@
                         <c:param name="channelId" value="${channel.id }" />
                         <c:param name="triggerId" value="${trigger.id }" />
                       </c:url>
-                      <a href="${url }" class="list-group-item" onclick="add('${fn:escapeXml(trigger.id) }','${fn:escapeXml(processor.id)}');">
+                      <a href="${url }" class="list-group-item">
                         <h4 class="list-group-item-heading">${fn:escapeXml(processor.label) }</h4>
                         <p class="list-group-item-text">${fn:escapeXml(processor.description) }</p>
                       </a>
@@ -126,12 +187,55 @@
         
     </c:forEach>
   </table>
+
+      </div>
+    </div>
+  </div>
+
+<%-- activate tooltips --%>
   
 <script>
 $(function () {
 	  $('[data-toggle="tooltip"]').tooltip();
 })
 </script>
+
+<div id="add-trigger-model" class="modal" tabindex="-1" role="dialog" aria-labelledby="add-trigger-model-label">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="add-trigger-model-label">Add configured trigger</h4>
+      </div>
+      
+      <div class="modal-body">
+      
+        <div class="list-group">
+        
+          <c:forEach var="factory" items="${triggerFactories }">
+            <c:if test="${not empty factory.configurationUrl }">
+              <c:url var="url" value="${factory.configurationUrl }">
+                <c:param name="channelId" value="${channel.id }" />
+              </c:url>
+              <a href="${url }" class="list-group-item">
+                <h4 class="list-group-item-heading">${fn:escapeXml(factory.label) }</h4>
+                <p class="list-group-item-text">${fn:escapeXml(factory.description) }</p>
+              </a>
+            </c:if>
+          </c:forEach>
+      
+        </div>
+      
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
   
 </jsp:body>
 

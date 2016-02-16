@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,16 +21,16 @@ public class TriggerServlet extends HttpServlet
 {
     private static final long serialVersionUID = 1L;
 
-    private final HttpTrigger trigger;
+    private final Runnable triggerRunner;
 
-    public TriggerServlet ( final HttpTrigger trigger )
+    public TriggerServlet ( final Runnable triggerRunner )
     {
-        this.trigger = trigger;
+        this.triggerRunner = triggerRunner;
     }
 
     @Override
-    protected void doGet ( final HttpServletRequest req, final HttpServletResponse resp ) throws ServletException, IOException
+    protected void doPost ( final HttpServletRequest req, final HttpServletResponse resp ) throws ServletException, IOException
     {
-        this.trigger.process ();
+        this.triggerRunner.run ();
     }
 }

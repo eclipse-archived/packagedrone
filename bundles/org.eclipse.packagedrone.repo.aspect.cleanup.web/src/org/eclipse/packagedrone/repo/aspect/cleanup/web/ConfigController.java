@@ -207,7 +207,7 @@ public class ConfigController implements InterfaceExtender
             }
             else
             {
-                return CommonController.createError ( "Testing cleanup", "The configuration has errors", null );
+                return CommonController.createError ( "Error", "Testing cleanup", "The configuration has errors" );
             }
         } );
     }

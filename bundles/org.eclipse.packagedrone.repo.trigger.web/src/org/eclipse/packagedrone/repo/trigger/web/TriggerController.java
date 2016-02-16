@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs;
+import org.eclipse.packagedrone.repo.trigger.ConfiguredTriggerFactoryInformation;
+import org.eclipse.packagedrone.repo.trigger.ConfiguredTriggerFactoryTracker;
 import org.eclipse.packagedrone.repo.trigger.ProcessorFactoryInformation;
 import org.eclipse.packagedrone.repo.trigger.ProcessorFactoryTracker;
 import org.eclipse.packagedrone.repo.trigger.TriggerDescriptor;
@@ -50,6 +52,7 @@ import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 import org.eclipse.packagedrone.web.controller.binding.PathVariable;
 import org.eclipse.packagedrone.web.controller.binding.RequestParameter;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
 @Controller
@@ -63,9 +66,13 @@ public class TriggerController extends ChannelServiceController implements Inter
 {
     private ProcessorFactoryTracker processorFactoryTracker;
 
+    private ConfiguredTriggerFactoryTracker configuredTriggerFactoryTracker;
+
     public void start ()
     {
-        this.processorFactoryTracker = new ProcessorFactoryTracker ( FrameworkUtil.getBundle ( TriggerController.class ).getBundleContext () );
+        final BundleContext context = FrameworkUtil.getBundle ( TriggerController.class ).getBundleContext ();
+        this.processorFactoryTracker = new ProcessorFactoryTracker ( context );
+        this.configuredTriggerFactoryTracker = new ConfiguredTriggerFactoryTracker ( context );
     }
 
     public void stop ()
@@ -74,6 +81,11 @@ public class TriggerController extends ChannelServiceController implements Inter
         {
             this.processorFactoryTracker.close ();
             this.processorFactoryTracker = null;
+        }
+        if ( this.configuredTriggerFactoryTracker != null )
+        {
+            this.configuredTriggerFactoryTracker.close ();
+            this.configuredTriggerFactoryTracker = null;
         }
     }
 
@@ -92,10 +104,18 @@ public class TriggerController extends ChannelServiceController implements Inter
 
             model.put ( "channel", channel.getId () );
             model.put ( "triggers", makeEntries ( channel.listTriggers () ) );
+            model.put ( "triggerFactories", makeTriggerFactories () );
+
+            model.put ( "triggerFactoryTracker", (Function<String, ConfiguredTriggerFactoryInformation>) ( factoryId ) -> this.configuredTriggerFactoryTracker.getFactoryInformation ( factoryId ).orElse ( null ) );
             model.put ( "processorFactoryTracker", (Function<String, ProcessorFactoryInformation>) ( factoryId ) -> this.processorFactoryTracker.getFactoryInformation ( factoryId ).orElse ( null ) );
 
             return new ModelAndView ( "channel/list", model );
         } );
+    }
+
+    private List<ConfiguredTriggerFactoryInformation> makeTriggerFactories ()
+    {
+        return this.configuredTriggerFactoryTracker.getFactoryInformations ();
     }
 
     @RequestMapping ( value = "/channel/{channelId}/removeProcessor", method = RequestMethod.POST )
@@ -103,6 +123,15 @@ public class TriggerController extends ChannelServiceController implements Inter
     {
         return withChannel ( channelId, TriggeredChannel.class, channel -> {
             channel.deleteProcessor ( triggerId, processorId );
+            return referer ( String.format ( "/channel/%s", urlPathSegmentEscaper ().escape ( channelId ) ) );
+        } );
+    }
+
+    @RequestMapping ( value = "/channel/{channelId}/removeTrigger", method = RequestMethod.POST )
+    public ModelAndView removeTrigger ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "triggerId" ) final String triggerId)
+    {
+        return withChannel ( channelId, TriggeredChannel.class, channel -> {
+            channel.deleteConfiguredTrigger ( triggerId );
             return referer ( String.format ( "/channel/%s", urlPathSegmentEscaper ().escape ( channelId ) ) );
         } );
     }

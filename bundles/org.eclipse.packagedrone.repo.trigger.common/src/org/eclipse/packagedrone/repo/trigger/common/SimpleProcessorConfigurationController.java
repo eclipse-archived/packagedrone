@@ -18,7 +18,7 @@ import org.eclipse.packagedrone.repo.trigger.TriggeredChannel;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.controller.binding.BindingResult;
 
-public abstract class SimpleConfigurationController<T> extends AbstractSimpleConfigurationController<T>
+public abstract class SimpleProcessorConfigurationController<T> extends AbstractCommonProcessorConfigurationController<T>
 {
     private final String processorFactoryId;
 
@@ -30,7 +30,7 @@ public abstract class SimpleConfigurationController<T> extends AbstractSimpleCon
 
     protected abstract String writeModel ( T configuration );
 
-    public SimpleConfigurationController ( final String processorFactoryId, final String viewName )
+    public SimpleProcessorConfigurationController ( final String processorFactoryId, final String viewName )
     {
         this.processorFactoryId = processorFactoryId;
         this.viewName = viewName;
