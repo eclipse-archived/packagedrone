@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,7 +64,7 @@ public class ChannelServiceModelProvider extends AbstractSimpleStorageModelProvi
         builder.serializeNulls ();
         builder.setDateFormat ( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" );
         builder.registerTypeAdapter ( DeployGroup.class, new DeployGroupTypeAdapter () );
-        builder.registerTypeAdapter ( MetaKey.class, new MetaKeyTypeAdapter () );
+        builder.registerTypeAdapter ( MetaKey.class, MetaKeyTypeAdapter.INSTANCE );
         return builder.create ();
     }
 
