@@ -13,12 +13,7 @@
 	</appender>
 	
 	<!-- 
-	<logger name="org.eclipse.jetty" level="WARN"/>
-	<logger name="de.dentrassi.pm.p2" level="DEBUG"/>
-	<logger name="de.dentrassi.osgi.web.servlet.ContextImpl" level="INFO"/>
-	<logger name="de.dentrassi.osgi.web" level="INFO"/>
-	<logger name="de.dentrassi.pm.storage.service.internal" level="TRACE"/>
-	<logger name="de.dentrassi.osgi.web.DispatcherServlet" level="TRACE"/>
+	<logger name="org.eclipse.packagedrone" level="WARN"/>
 	 -->
 	           
 	<root level="warn">
