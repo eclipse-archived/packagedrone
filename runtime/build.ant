@@ -9,6 +9,7 @@
     
     <property name="eclipse.orbit.release" value="R20150519210750"/>
 	<property name="jetty.version" value="9.2.15.v20160210"/>
+	<property name="pax-web.version" value="4.2.5"/>
 
     <!-- ================================= 
           target: default
@@ -146,11 +147,11 @@
         	
         	<!-- pax web -->
         	
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-api" version="4.1.2"/>
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-spi" version="4.1.2"/>
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-runtime" version="4.1.2"/>
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-jetty" version="4.1.2"/>
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-extender-whiteboard" version="4.1.2"/>
+        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-api" version="${pax-web.version}"/>
+        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-spi" version="${pax-web.version}"/>
+        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-runtime" version="${pax-web.version}"/>
+        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-jetty" version="${pax-web.version}"/>
+        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-extender-whiteboard" version="${pax-web.version}"/>
         	
         	<mavenGet group="org/apache/xbean" artifact="xbean-finder" version="4.3"/>
         	<mavenGet group="org/apache/xbean" artifact="xbean-bundleutils" version="4.3"/>
