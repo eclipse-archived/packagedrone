@@ -38,13 +38,6 @@
         <delete dir="lib" />
     </target>
 	
-	<!-- ================================= 
-          target: download.provided              
-         ================================= -->
-    <target name="download.provided">
-        <get src="http://download.nextag.com/apache/felix/org.apache.felix.configadmin-1.8.4.jar" dest="provided" usetimestamp="true" />
-    </target>
-	
 	<!-- = = = = = = = = = = = = = = = = =
           macrodef: mavenGet          
          = = = = = = = = = = = = = = = = = -->
