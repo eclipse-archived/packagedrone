@@ -2,7 +2,13 @@
 <!-- ====================================================================== 
 	 Set up jetty target platform                                                          
      ====================================================================== -->
-<project name="project" default="default">
+<project
+	name="project"
+	default="default"
+	xmlns:if="ant:if"
+	xmlns:unless="ant:unless"
+	>
+	
     <description>
     	Set up jetty target platform
     </description>
@@ -48,6 +54,66 @@
     	<attribute name="version" />
         <sequential>
         	<get src="http://repo1.maven.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}.jar" dest="download/bundles" usetimestamp="true"/>
+        	<get src="http://repo1.maven.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}-sources.jar" dest="download/sources" usetimestamp="true" ignoreerrors="true"/>
+        	
+        	<local name="hasSource" />
+        	<local name="isSourceBundle" />
+        	<local name="bundleName" />
+        	<local name="bundleVersion" />
+        	
+        	<available file="download/sources/@{artifact}-@{version}-sources.jar" property="hasSource" />
+        	
+        	<sequential if:set="hasSource">
+            	<mkdir dir="download/repack/@{artifact}"/>
+            	<unzip src="download/sources/@{artifact}-@{version}-sources.jar" dest="download/repack/@{artifact}" />
+        		
+        		<condition property="isSourceBundle">
+        			<resourcecontains resource="download/repack/@{artifact}/META-INF/MANIFEST.MF" substring="Eclipse-SourceBundle:" />
+        		</condition>
+        		
+        		<copy file="download/sources/@{artifact}-@{version}-sources.jar" todir="download/sourcebundles" if:set="isSourceBundle"/>
+        		
+        		<sequential unless:set="isSourceBundle">
+        		
+	        		<unzip src="download/bundles/@{artifact}-@{version}.jar" dest="download/repack/@{artifact}">
+						<patternset>
+							<include name="META-INF/MANIFEST.MF"/>
+						</patternset>
+	    			</unzip>
+	        		
+	        		<loadfile property="bundleName" srcfile="download/repack/@{artifact}/META-INF/MANIFEST.MF">
+						<filterchain>
+							<linecontainsregexp>
+								<regexp pattern="Bundle-SymbolicName: (.*)"/>
+							</linecontainsregexp>
+							<replaceregex pattern="Bundle-SymbolicName: (.*)" replace="\1" />
+							<striplinebreaks/>
+						</filterchain>
+	        		</loadfile>
+	        		<loadfile property="bundleVersion" srcfile="download/repack/@{artifact}/META-INF/MANIFEST.MF">
+						<filterchain>
+							<linecontainsregexp>
+								<regexp pattern="Bundle-Version: (.*)"/>
+							</linecontainsregexp>
+							<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+							<striplinebreaks/>
+						</filterchain>
+	        		</loadfile>
+        			
+	        		<jar destfile="download/sourcebundles/@{artifact}-@{version}-sourcepacked.jar" basedir="download/repack/@{artifact}" includes="**/*.java" if:set="bundleName">
+	        			<manifest>
+	        				<attribute name="Manifest-Version" value="1.0"/>
+	        				<attribute name="Bundle-ManifestVersion" value="2"/>
+							<attribute name="Eclipse-SourceBundle" value="${bundleName};version=&quot;${bundleVersion}&quot;"/>
+	        				<attribute name="Bundle-SymbolicName" value="${bundleName}.source"/>
+	        				<attribute name="Bundle-Version" value="${bundleVersion}"/>
+	        			</manifest>
+	        		</jar>
+        			
+    			</sequential>
+        		
+        	</sequential>
+        	
         </sequential>
     </macrodef>
 
@@ -64,6 +130,9 @@
           target: download
          ================================= -->
     <target name="download">
+    	
+    	<delete dir="download/repack"/>
+    	
         <mkdir dir="download" />
         <mkdir dir="download/bundles" />
     	<mkdir dir="download/sources" />
@@ -200,6 +269,12 @@
          ================================= -->
     <target name="copy">
         <mkdir dir="lib/plugins" />
+    	<mkdir dir="lib/sourcebundles" />
+    	
+    	<copy todir="lib/sourcebundles">
+    		<fileset dir="download/sourcebundles" />
+    	</copy>
+    	
         <copy todir="lib/plugins">
         	
             <fileset dir="unpack/jetty/lib">
