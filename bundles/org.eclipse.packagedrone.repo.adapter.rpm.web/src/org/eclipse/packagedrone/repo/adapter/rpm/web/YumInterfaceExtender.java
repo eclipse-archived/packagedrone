@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.rpm.web;
+
+import static org.eclipse.packagedrone.repo.channel.util.RepositoryLinks.fillRepoLinks;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,6 +28,8 @@ import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 
 public class YumInterfaceExtender extends AbstractChannelInterfaceExtender
 {
+    private static final LinkTarget YUM_LINK_TEMPLATE = new LinkTarget ( "/yum/{idOrName}" );
+
     @Override
     protected boolean filterChannel ( final ChannelInformation channel )
     {
@@ -36,14 +40,9 @@ public class YumInterfaceExtender extends AbstractChannelInterfaceExtender
     protected List<MenuEntry> getChannelActions ( final HttpServletRequest request, final ChannelInformation channel )
     {
         final List<MenuEntry> result = new LinkedList<> ();
-        result.add ( new MenuEntry ( "YUM", 6_000, "YUM (ID)", 6_000, new LinkTarget ( String.format ( "/yum/%s", channel.getId () ) ), Modifier.LINK, null ) );
 
-        int i = 1;
-        for ( final String name : channel.getNames () )
-        {
-            result.add ( new MenuEntry ( "YUM", 6_000, String.format ( "YUM (name: %s)", name ), 6_000 + i, new LinkTarget ( String.format ( "/yum/%s", escapePathSegment ( name ) ) ), Modifier.LINK, null ) );
-            i++;
-        }
+        fillRepoLinks ( channel, result, "YUM", 6_000, YUM_LINK_TEMPLATE );
+
         return result;
     }
 

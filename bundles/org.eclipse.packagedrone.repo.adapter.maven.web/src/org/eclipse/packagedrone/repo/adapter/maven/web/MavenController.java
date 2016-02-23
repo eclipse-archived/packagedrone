@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.maven.web;
+
+import static org.eclipse.packagedrone.repo.channel.util.RepositoryLinks.fillRepoLinks;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,8 +22,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
-import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.ReadableChannel;
+import org.eclipse.packagedrone.repo.channel.util.AbstractChannelInterfaceExtender;
 import org.eclipse.packagedrone.repo.manage.system.SitePrefixService;
 import org.eclipse.packagedrone.repo.web.utils.Channels;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
@@ -31,7 +34,6 @@ import org.eclipse.packagedrone.web.LinkTarget;
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestMapping;
 import org.eclipse.packagedrone.web.ViewResolver;
-import org.eclipse.packagedrone.web.common.InterfaceExtender;
 import org.eclipse.packagedrone.web.common.Modifier;
 import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
@@ -41,8 +43,10 @@ import org.eclipse.packagedrone.web.controller.binding.PathVariable;
 @ViewResolver ( "/WEB-INF/views/%s.jsp" )
 @ControllerInterceptor ( SecuredControllerInterceptor.class )
 @ControllerInterceptor ( HttpContraintControllerInterceptor.class )
-public class MavenController implements InterfaceExtender
+public class MavenController extends AbstractChannelInterfaceExtender
 {
+    private static final LinkTarget MAVEN_LINK_TEMPLATE = new LinkTarget ( "/maven/{idOrName}" );
+
     private ChannelService service;
 
     private SitePrefixService sitePrefixService;
@@ -58,22 +62,16 @@ public class MavenController implements InterfaceExtender
     }
 
     @Override
-    public List<MenuEntry> getActions ( final HttpServletRequest request, final Object object )
+    protected List<MenuEntry> getChannelActions ( final HttpServletRequest request, final ChannelInformation channel )
     {
-        if ( object instanceof ChannelInformation )
+        final List<MenuEntry> result = new LinkedList<> ();
+
+        if ( channel.hasAspect ( "maven.repo" ) )
         {
-            final List<MenuEntry> result = new LinkedList<> ();
-
-            final ChannelInformation channel = (ChannelInformation)object;
-            if ( channel.hasAspect ( "maven.repo" ) )
-            {
-                result.add ( new MenuEntry ( "Maven Repository", 20_000, new LinkTarget ( "/maven/" + channel.getId () ), Modifier.LINK, null ) );
-            }
-
-            return result;
+            fillRepoLinks ( channel, result, "Maven", 20_000, MAVEN_LINK_TEMPLATE );
         }
 
-        return null;
+        return result;
     }
 
     @Override

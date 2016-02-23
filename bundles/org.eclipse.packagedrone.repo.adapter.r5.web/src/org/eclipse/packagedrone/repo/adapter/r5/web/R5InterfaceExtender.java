@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.r5.web;
 
+import static org.eclipse.packagedrone.repo.channel.util.RepositoryLinks.fillRepoLinks;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,11 +21,14 @@ import org.eclipse.packagedrone.repo.adapter.r5.R5RepositoryAspectFactory;
 import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.repo.channel.util.AbstractChannelInterfaceExtender;
 import org.eclipse.packagedrone.web.LinkTarget;
-import org.eclipse.packagedrone.web.common.Modifier;
 import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 
 public class R5InterfaceExtender extends AbstractChannelInterfaceExtender
 {
+    private static final LinkTarget R5_LINK_TEMPLATE = new LinkTarget ( "/r5/{idOrName}" );
+
+    private static final LinkTarget OBR_LINK_TEMPLATE = new LinkTarget ( "/obr/{idOrName}" );
+
     @Override
     protected List<MenuEntry> getChannelActions ( final HttpServletRequest request, final ChannelInformation channel )
     {
@@ -34,17 +39,10 @@ public class R5InterfaceExtender extends AbstractChannelInterfaceExtender
 
         final List<MenuEntry> result = new LinkedList<> ();
 
-        result.add ( new MenuEntry ( "R5/OBR", 10_000, "R5 (by ID)", 10_000, new LinkTarget ( "/r5/" + escapePathSegment ( channel.getId () ) ), Modifier.LINK, null ) );
-        result.add ( new MenuEntry ( "R5/OBR", 10_000, "OBR (by ID)", 11_000, new LinkTarget ( "/obr/" + escapePathSegment ( channel.getId () ) ), Modifier.LINK, null ) );
-
-        int i = 1;
-        for ( final String name : channel.getNames () )
-        {
-            result.add ( new MenuEntry ( "R5/OBR", 10_000, String.format ( "R5 (name: %s)", name ), 10_000 + i, new LinkTarget ( "/r5/" + escapePathSegment ( name ) ), Modifier.LINK, null ) );
-            result.add ( new MenuEntry ( "R5/OBR", 10_000, String.format ( "OBR (name: %s)", name ), 11_000 + i, new LinkTarget ( "/obr/" + escapePathSegment ( name ) ), Modifier.LINK, null ) );
-            i++;
-        }
+        fillRepoLinks ( channel, result, "R5/OBR", 10_000, "R5", 10_000, R5_LINK_TEMPLATE );
+        fillRepoLinks ( channel, result, "R5/OBR", 10_000, "OBR", 11_000, OBR_LINK_TEMPLATE );
 
         return result;
     }
+
 }

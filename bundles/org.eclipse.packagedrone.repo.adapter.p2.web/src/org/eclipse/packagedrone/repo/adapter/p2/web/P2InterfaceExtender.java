@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.p2.web;
+
+import static org.eclipse.packagedrone.repo.channel.util.RepositoryLinks.fillRepoLinks;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -27,6 +29,8 @@ import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 public class P2InterfaceExtender extends AbstractChannelInterfaceExtender
 {
     public static final String P2_METADATA_ASPECT_ID = "p2.metadata";
+
+    private static final LinkTarget P2_LINK_TEMPLATE = new LinkTarget ( "/p2/{idOrName}" );
 
     @Override
     protected List<MenuEntry> getChannelActions ( final HttpServletRequest request, final ChannelInformation channel )
@@ -59,13 +63,7 @@ public class P2InterfaceExtender extends AbstractChannelInterfaceExtender
             return;
         }
 
-        result.add ( new MenuEntry ( "P2", 9_000, "P2 (by ID)", 10_000, new LinkTarget ( "/p2/" + escapePathSegment ( channel.getId () ) ), Modifier.LINK, null, false, 0 ) );
-
-        final int i = 1;
-        for ( final String name : channel.getNames () )
-        {
-            result.add ( new MenuEntry ( "P2", 9_000, String.format ( "P2 (name: %s)", name ), 11_000 + i, new LinkTarget ( "/p2/" + escapePathSegment ( name ) ), Modifier.LINK, null, false, 0 ) );
-        }
+        fillRepoLinks ( channel, result, "P2", 9_000, P2_LINK_TEMPLATE );
 
         if ( request.isUserInRole ( "MANAGER" ) )
         {

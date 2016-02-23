@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.deb.web;
+
+import static org.eclipse.packagedrone.repo.channel.util.RepositoryLinks.fillRepoLinks;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -39,7 +41,6 @@ import org.eclipse.packagedrone.web.RequestMapping;
 import org.eclipse.packagedrone.web.RequestMethod;
 import org.eclipse.packagedrone.web.ViewResolver;
 import org.eclipse.packagedrone.web.common.InterfaceExtender;
-import org.eclipse.packagedrone.web.common.Modifier;
 import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 import org.eclipse.packagedrone.web.controller.binding.BindingResult;
@@ -55,6 +56,8 @@ import org.eclipse.packagedrone.web.controller.form.FormData;
 @ControllerInterceptor ( HttpContraintControllerInterceptor.class )
 public class ConfigController implements InterfaceExtender
 {
+    private static final LinkTarget APT_LINK_TEMPLATE = new LinkTarget ( "/apt/{idOrName}" );
+
     private ChannelService service;
 
     public void setService ( final ChannelService service )
@@ -72,10 +75,7 @@ public class ConfigController implements InterfaceExtender
 
             if ( channel.hasAspect ( AptChannelAspectFactory.ID ) )
             {
-                final Map<String, String> model = new HashMap<> ();
-                model.put ( "channelId", channel.getId () );
-
-                result.add ( new MenuEntry ( "APT Repository", 1_500, new LinkTarget ( "/apt/" + channel.getId () ), Modifier.LINK, null ) );
+                fillRepoLinks ( channel, result, "APT", 5_500, APT_LINK_TEMPLATE );
             }
 
             return result;
