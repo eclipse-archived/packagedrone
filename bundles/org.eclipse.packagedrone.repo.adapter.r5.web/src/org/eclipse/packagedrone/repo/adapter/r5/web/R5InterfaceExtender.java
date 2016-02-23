@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,8 +40,8 @@ public class R5InterfaceExtender extends AbstractChannelInterfaceExtender
         int i = 1;
         for ( final String name : channel.getNames () )
         {
-            result.add ( new MenuEntry ( "R5/OBR", 10_000, String.format ( "R5 (name: %s)", name ), 10_000 + 1, new LinkTarget ( "/r5/" + escapePathSegment ( name ) ), Modifier.LINK, null ) );
-            result.add ( new MenuEntry ( "R5/OBR", 10_000, String.format ( "OBR (name: %s)", name ), 11_000 + 1, new LinkTarget ( "/obr/" + escapePathSegment ( name ) ), Modifier.LINK, null ) );
+            result.add ( new MenuEntry ( "R5/OBR", 10_000, String.format ( "R5 (name: %s)", name ), 10_000 + i, new LinkTarget ( "/r5/" + escapePathSegment ( name ) ), Modifier.LINK, null ) );
+            result.add ( new MenuEntry ( "R5/OBR", 10_000, String.format ( "OBR (name: %s)", name ), 11_000 + i, new LinkTarget ( "/obr/" + escapePathSegment ( name ) ), Modifier.LINK, null ) );
             i++;
         }
 
