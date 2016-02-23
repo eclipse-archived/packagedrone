@@ -5,4 +5,4 @@ Bundle-SymbolicName: org.eclipse.packagedrone.web.common.ckeditor
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: IBH SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Web-Static-Resources: /resources/ckeditor;target:="/ckeditor",
+Web-Static-Resources: /resources/ckeditor;target:="/ckeditor"
