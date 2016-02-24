@@ -12,7 +12,10 @@ package org.eclipse.packagedrone.repo.signing.pgp.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
@@ -32,6 +35,8 @@ import org.eclipse.packagedrone.repo.signing.pgp.SigningStream;
 
 public abstract class AbstractSecretKeySigningService implements SigningService
 {
+    private static final byte[] NL_DATA = "\n".getBytes ( StandardCharsets.UTF_8 );
+
     private final PGPSecretKey secretKey;
 
     private final PGPPrivateKey privateKey;
@@ -64,7 +69,15 @@ public abstract class AbstractSecretKeySigningService implements SigningService
     {
         final int digest = HashAlgorithmTags.SHA1;
         final PGPSignatureGenerator signatureGenerator = new PGPSignatureGenerator ( new BcPGPContentSignerBuilder ( this.privateKey.getPublicKeyPacket ().getAlgorithm (), digest ) );
-        signatureGenerator.init ( PGPSignature.BINARY_DOCUMENT, this.privateKey );
+
+        if ( inline )
+        {
+            signatureGenerator.init ( PGPSignature.CANONICAL_TEXT_DOCUMENT, this.privateKey );
+        }
+        else
+        {
+            signatureGenerator.init ( PGPSignature.BINARY_DOCUMENT, this.privateKey );
+        }
 
         final ArmoredOutputStream armoredOutput = new ArmoredOutputStream ( out );
         armoredOutput.setHeader ( "Version", VersionInformation.VERSIONED_PRODUCT );
@@ -72,25 +85,64 @@ public abstract class AbstractSecretKeySigningService implements SigningService
         if ( inline )
         {
             armoredOutput.beginClearText ( digest );
-        }
 
-        final byte[] buffer = new byte[4096];
+            final LineNumberReader lnr = new LineNumberReader ( new InputStreamReader ( in, StandardCharsets.UTF_8 ) );
 
-        int rc;
-        while ( ( rc = in.read ( buffer ) ) >= 0 )
-        {
-            if ( inline )
+            String line;
+            while ( ( line = lnr.readLine () ) != null )
             {
-                armoredOutput.write ( buffer, 0, rc );
-            }
-            signatureGenerator.update ( buffer, 0, rc );
-        }
+                if ( lnr.getLineNumber () > 1 )
+                {
+                    signatureGenerator.update ( NL_DATA );
+                }
 
-        armoredOutput.endClearText ();
+                final byte[] data = trimTrailing ( line ).getBytes ( StandardCharsets.UTF_8 );
+
+                if ( inline )
+                {
+                    armoredOutput.write ( data );
+                    armoredOutput.write ( NL_DATA );
+                }
+                signatureGenerator.update ( data );
+            }
+
+            armoredOutput.endClearText ();
+        }
+        else
+        {
+
+            final byte[] buffer = new byte[4096];
+            int rc;
+            while ( ( rc = in.read ( buffer ) ) >= 0 )
+            {
+                signatureGenerator.update ( buffer, 0, rc );
+            }
+        }
 
         final PGPSignature signature = signatureGenerator.generate ();
         signature.encode ( new BCPGOutputStream ( armoredOutput ) );
 
         armoredOutput.close ();
+    }
+
+    private static String trimTrailing ( final String line )
+    {
+        final char[] content = line.toCharArray ();
+        int idx = content.length - 1;
+
+        loop: while ( idx > 0 )
+        {
+            switch ( content[idx] )
+            {
+                case ' ':
+                case '\t':
+                    idx--;
+                    break;
+                default:
+                    break loop;
+            }
+        }
+
+        return String.valueOf ( content, 0, idx + 1 );
     }
 }
