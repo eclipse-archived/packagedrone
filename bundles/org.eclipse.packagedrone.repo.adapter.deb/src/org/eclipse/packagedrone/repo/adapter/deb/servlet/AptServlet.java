@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,8 @@ import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServl
 
 public class AptServlet extends AbstractChannelServiceServlet
 {
+    private static final MetaKey KEY_GPG_KEY = new MetaKey ( AptChannelAspectFactory.ID, "GPG-KEY" );
+
     private static final long serialVersionUID = 1L;
 
     private static final Pattern POOL_PATTERN = Pattern.compile ( "pool/(?<aid>[^/]+)/(?<name>.*)" );
@@ -176,7 +178,7 @@ public class AptServlet extends AbstractChannelServiceServlet
 
         if ( toks.length == 1 && "GPG-KEY".equals ( toks[0] ) )
         {
-            return new ChannelCacheHandler ( channel, new MetaKey ( AptChannelAspectFactory.ID, "GPG-KEY" ) );
+            return new ChannelCacheHandler ( channel, KEY_GPG_KEY );
         }
 
         if ( toks.length == 2 && "dists".equals ( toks[0] ) && cfg.getDistribution ().equals ( toks[1] ) )
