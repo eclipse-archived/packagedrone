@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target ( ElementType.TYPE )
+@Target ( { ElementType.TYPE, ElementType.FIELD } )
 @Retention ( RetentionPolicy.RUNTIME )
 public @interface JSON
 {

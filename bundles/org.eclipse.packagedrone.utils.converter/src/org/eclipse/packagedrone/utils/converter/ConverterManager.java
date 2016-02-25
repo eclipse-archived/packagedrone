@@ -100,7 +100,7 @@ public class ConverterManager
 
     public <T> T convertTo ( final Object value, final Class<T> clazz, final AnnotatedElement targetElement ) throws ConversionException
     {
-        return convertToByClass ( value, clazz, () -> {
+        return convertToByClass ( value, clazz, targetElement, () -> {
             final ConvertBy[] ann = targetElement.getAnnotationsByType ( ConvertBy.class );
             if ( ann != null && ann.length > 0 )
             {
@@ -124,6 +124,11 @@ public class ConverterManager
     }
 
     public <T> T convertToByClass ( final Object value, final Class<T> clazz, final Supplier<Collection<Class<? extends Converter>>> converterProvider ) throws ConversionException
+    {
+        return convertToByClass ( value, clazz, null, converterProvider );
+    }
+
+    public <T> T convertToByClass ( final Object value, final Class<T> clazz, final AnnotatedElement annotatedElement, final Supplier<Collection<Class<? extends Converter>>> converterProvider ) throws ConversionException
     {
         if ( value == null )
         {
@@ -150,7 +155,7 @@ public class ConverterManager
             @Override
             public <R> R convert ( final Object value, final Class<R> clazz ) throws ConversionException
             {
-                return convertToByClass ( value, clazz, () -> cvtClasses );
+                return convertToByClass ( value, clazz, annotatedElement, () -> cvtClasses );
             }
         };
 
@@ -160,7 +165,7 @@ public class ConverterManager
 
         if ( cvtClasses != null )
         {
-            result = tryConvertByClass ( value, from, clazz, cvtClasses, context );
+            result = tryConvertByClass ( value, from, clazz, annotatedElement, cvtClasses, context );
             if ( result != null )
             {
                 return result.value;
@@ -173,7 +178,7 @@ public class ConverterManager
 
         if ( annotatedConverters != null )
         {
-            result = tryConvertByClass ( value, from, clazz, annotatedConverters, context );
+            result = tryConvertByClass ( value, from, clazz, annotatedElement, annotatedConverters, context );
             if ( result != null )
             {
                 return result.value;
@@ -182,7 +187,7 @@ public class ConverterManager
 
         // try registered converters
 
-        result = tryConvert ( value, from, clazz, this.converters, context );
+        result = tryConvert ( value, from, clazz, annotatedElement, this.converters, context );
         if ( result != null )
         {
             return result.value;
@@ -191,7 +196,7 @@ public class ConverterManager
         throw new ConversionException ( String.format ( "Unable to convert %s to %s", value.getClass (), clazz.getName () ) );
     }
 
-    private <T> ConversionResult<T> tryConvertByClass ( final Object value, final Class<?> from, final Class<T> to, final Collection<Class<? extends Converter>> converters, final ConversionContext context )
+    private <T> ConversionResult<T> tryConvertByClass ( final Object value, final Class<?> from, final Class<T> to, final AnnotatedElement annotatedElement, final Collection<Class<? extends Converter>> converters, final ConversionContext context )
     {
         for ( final Class<? extends Converter> cvtClass : converters )
         {
@@ -205,7 +210,7 @@ public class ConverterManager
                 logger.warn ( "Failed to instantiate converter", e );
                 continue;
             }
-            final ConversionResult<T> result = tryConvert ( value, from, to, cvt, context );
+            final ConversionResult<T> result = tryConvert ( value, from, to, annotatedElement, cvt, context );
             if ( result != null )
             {
                 return result;
@@ -214,11 +219,11 @@ public class ConverterManager
         return null;
     }
 
-    private <T> ConversionResult<T> tryConvert ( final Object value, final Class<?> from, final Class<T> to, final Collection<Converter> converters, final ConversionContext context )
+    private <T> ConversionResult<T> tryConvert ( final Object value, final Class<?> from, final Class<T> to, final AnnotatedElement annotatedElement, final Collection<Converter> converters, final ConversionContext context )
     {
         for ( final Converter cvt : converters )
         {
-            final ConversionResult<T> result = tryConvert ( value, from, to, cvt, context );
+            final ConversionResult<T> result = tryConvert ( value, from, to, annotatedElement, cvt, context );
             if ( result != null )
             {
                 return result;
@@ -228,9 +233,9 @@ public class ConverterManager
     }
 
     @SuppressWarnings ( "unchecked" )
-    private <T> ConversionResult<T> tryConvert ( final Object value, final Class<?> from, final Class<T> to, final Converter cvt, final ConversionContext context )
+    private <T> ConversionResult<T> tryConvert ( final Object value, final Class<?> from, final Class<T> to, final AnnotatedElement annotatedElement, final Converter cvt, final ConversionContext context )
     {
-        if ( !cvt.canConvert ( from, to ) )
+        if ( !cvt.canConvert ( from, to, annotatedElement ) )
         {
             return null;
         }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.converter.impl;
 
+import java.lang.reflect.AnnotatedElement;
+
 import org.eclipse.packagedrone.utils.converter.ConversionContext;
 import org.eclipse.packagedrone.utils.converter.Converter;
 import org.eclipse.packagedrone.utils.converter.JSON;
@@ -23,11 +25,27 @@ public class JsonToStringConverter implements Converter
     @Override
     public boolean canConvert ( final Class<?> from, final Class<?> to )
     {
-        final boolean isJson = from.isAnnotationPresent ( JSON.class );
-        if ( isJson && to.equals ( String.class ) )
+        return canConvert ( from, to, null );
+    }
+
+    @Override
+    public boolean canConvert ( final Class<?> from, final Class<?> to, final AnnotatedElement annotatedElement )
+    {
+        if ( !to.equals ( String.class ) )
         {
             return true;
         }
+
+        if ( from.isAnnotationPresent ( JSON.class ) )
+        {
+            return true;
+        }
+
+        if ( annotatedElement != null && annotatedElement.isAnnotationPresent ( JSON.class ) )
+        {
+            return true;
+        }
+
         return false;
     }
 
