@@ -70,7 +70,9 @@ public class ModelAndView
      * </p>
      *
      * @param alternateViewResolver
-     *            the view resolver to use instead of the controller class
+     *            The view resolver to use instead of the controller class. This
+     *            class needs to have the {@link ViewResolver} annotation
+     *            assigned.
      */
     public void setAlternateViewResolver ( final Class<?> alternateViewResolver )
     {
