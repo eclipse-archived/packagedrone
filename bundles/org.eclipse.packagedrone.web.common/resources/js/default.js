@@ -172,6 +172,21 @@
 		var content = $('<li class="drone-tag-list-item"><span class="drone-tag-list-item-label"></span><button type="button" class="close" data-dismiss="drone-tag" aria-label="Delete"><span aria-hidden="true">&times;</span></button></li>');
 		var label = this.options.labelProvider(tag, $('.drone-tag-list-item-label', content));
 		
+		if ( this.options["hiddenInputs"] != null ) {
+			var i = $(document.createElement("input"));
+			
+			i.attr("type","hidden");
+			i.attr("name",this.options["hiddenInputs"]);
+			
+			if ( this.options.valueProvider != null ) {
+				i.val(this.options.valueProvider(tag));
+			}
+			else {
+				i.val(tag);
+			}
+			content.append (i);
+		}
+		
 		var that = this;
 		
 		if ( this.options.sortable ) {
