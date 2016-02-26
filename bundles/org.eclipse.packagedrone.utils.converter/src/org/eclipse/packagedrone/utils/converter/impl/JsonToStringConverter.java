@@ -33,7 +33,7 @@ public class JsonToStringConverter implements Converter
     {
         if ( !to.equals ( String.class ) )
         {
-            return true;
+            return false;
         }
 
         if ( from.isAnnotationPresent ( JSON.class ) )

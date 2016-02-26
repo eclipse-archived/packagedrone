@@ -33,6 +33,7 @@ import org.eclipse.packagedrone.utils.converter.impl.StringToPrimitiveBooleanCon
 import org.eclipse.packagedrone.utils.converter.impl.StringToPrimitiveIntegerConverter;
 import org.eclipse.packagedrone.utils.converter.impl.StringToPrimitiveLongConverter;
 import org.eclipse.packagedrone.utils.converter.impl.StringToSetConverter;
+import org.eclipse.packagedrone.utils.converter.impl.StringifyConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,6 +74,7 @@ public class ConverterManager
 
         result.addConverter ( StringToEnumConverter.INSTANCE );
         result.addConverter ( StringToArrayConverter.INSTANCE );
+        result.addConverter ( StringifyConverter.INSTANCE );
 
         result.addDefault ( PrimitiveBooleanDefault.INSTANCE );
 
