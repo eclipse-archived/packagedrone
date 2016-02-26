@@ -243,8 +243,6 @@
 		
 		var $sc = this.options.validationStatusContainer == null ? this.$element : $(this.options.validationStatusContainer);
 		
-		console.log ( "SC: ", this.options.validationStatusContainer, " -> ", $sc );
-		
 		if ( msg != null ) {
 			var ele = $('<span></span>');
 			$sc.addClass("has-error");
