@@ -110,6 +110,18 @@
             <rtexprvalue>true</rtexprvalue>
             <type>boolean</type>
         </attribute>
+        
+        <attribute>
+        	<name>min</name>
+        	<rtexprvalue>true</rtexprvalue>
+        	<type>int</type>
+        </attribute>
+        
+        <attribute>
+        	<name>max</name>
+        	<rtexprvalue>true</rtexprvalue>
+        	<type>int</type>
+        </attribute>
 	</tag>
 	
 	<tag>

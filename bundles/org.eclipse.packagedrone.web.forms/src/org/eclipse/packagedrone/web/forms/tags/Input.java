@@ -26,6 +26,10 @@ public class Input extends FormValueTagSupport
 
     private String placeholder;
 
+    private Integer min;
+
+    private Integer max;
+
     @Override
     public int doStartTag () throws JspException
     {
@@ -37,6 +41,8 @@ public class Input extends FormValueTagSupport
         writer.writeOptionalAttribute ( "value", getPathValue ( this.path ) );
         writer.writeOptionalAttribute ( "type", this.type );
         writer.writeOptionalAttribute ( "placeholder", this.placeholder );
+        writer.writeOptionalAttribute ( "min", this.min );
+        writer.writeOptionalAttribute ( "max", this.max );
         writer.writeFlagAttribute ( "disabled", this.disabled );
         writer.writeFlagAttribute ( "readonly", this.readonly );
         writer.writeFlagAttribute ( "required", this.required );
@@ -69,6 +75,16 @@ public class Input extends FormValueTagSupport
     public void setPlaceholder ( final String placeholder )
     {
         this.placeholder = placeholder;
+    }
+
+    public void setMin ( final Integer min )
+    {
+        this.min = min;
+    }
+
+    public void setMax ( final Integer max )
+    {
+        this.max = max;
     }
 
 }
