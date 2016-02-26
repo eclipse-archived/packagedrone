@@ -195,17 +195,43 @@ ul.dependency-list > li:not(:last-child):after {
 
 /* tags */
 
-.drone-tag-list {
-	display: block;
+.drone-tag-list-form ul.drone-tag-list-content {
+	padding-top: 3px;
+}
+
+.drone-tag-list ul {
 	padding: 0px;
+	display: block;
+}
+
+.drone-tag-list [draggable] {
+	cursor: move;
+}
+
+.drone-tag-list-item.drone-tag-dragging {
+	opacity: 0.5;
+}
+
+.drone-tag-list-item * {
+	pointer-events: none;
+}
+
+.drone-tag-list-item button {
+	pointer-events: all;
+}
+
+.drone-tag-list-item.drone-tag-over {
+	background-color: #A7A7A7;
 }
 
 .drone-tag-list-item {
+	border: 2px hidden;
 	display: inline-block;
 	background-color: #E7E7E7;
 	border-radius: 4px;
-	padding: 0.2em;
 	padding-left: 0.5em;
+	padding-top: 3px;
+	padding-bottom: 3px;
 	padding-right: 0.5em;
 	margin-right: .5em;
 }
