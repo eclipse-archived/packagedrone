@@ -6,12 +6,13 @@
 
 <%@attribute name="path" required="false" type="java.lang.String"%>
 <%@attribute name="label" required="false" type="java.lang.String" %>
+<%@attribute name="id" required="false" type="java.lang.String" %>
 <%@attribute name="additionalCssClass" required="false" type="java.lang.String" %>
 
 <%@attribute name="body" required="true" fragment="true" %>
 <%@attribute name="errors" required="false" fragment="true" %>
 
-<div class="form-group ${additionalCssClass }">
+<div class="form-group ${additionalCssClass }" ${ not empty id ? 'id="'.concat(id).concat('"') : '' } >
     <c:choose>
         <c:when test="${empty label }">
             <div class="col-sm-2"></div>
