@@ -39,13 +39,13 @@ public abstract class SimpleProcessorConfigurationController<T> extends Abstract
     @Override
     protected ModelAndView handleCreate ( final TriggeredChannel channel, final TriggerHandle trigger )
     {
-        return new ModelAndView ( this.viewName, makeModel ( channel, trigger, null, this::newModel ) );
+        return new ModelAndView ( this.viewName, makeModel ( channel, trigger, null, false, this::newModel ) );
     }
 
     @Override
     protected ModelAndView handleEdit ( final TriggeredChannel channel, final TriggerHandle trigger, final TriggerProcessor processor )
     {
-        return new ModelAndView ( this.viewName, makeModel ( channel, trigger, processor, () -> parseModel ( processor.getConfiguration ().getConfiguration () ) ) );
+        return new ModelAndView ( this.viewName, makeModel ( channel, trigger, processor, true, () -> parseModel ( processor.getConfiguration ().getConfiguration () ) ) );
     }
 
     @Override
@@ -53,7 +53,7 @@ public abstract class SimpleProcessorConfigurationController<T> extends Abstract
     {
         if ( result.hasErrors () )
         {
-            return new ModelAndView ( this.viewName, makeModel ( channel, triggerHandle, null, () -> command ) );
+            return new ModelAndView ( this.viewName, makeModel ( channel, triggerHandle, null, false, () -> command ) );
         }
 
         channel.addProcessor ( triggerHandle.getId (), this.processorFactoryId, writeModel ( command ) );
@@ -66,7 +66,7 @@ public abstract class SimpleProcessorConfigurationController<T> extends Abstract
     {
         if ( result.hasErrors () )
         {
-            return new ModelAndView ( this.viewName, makeModel ( channel, triggerHandle, triggerProcessor, () -> command ) );
+            return new ModelAndView ( this.viewName, makeModel ( channel, triggerHandle, triggerProcessor, true, () -> command ) );
         }
 
         channel.modifyProcessor ( triggerHandle.getId (), triggerProcessor.getId (), writeModel ( command ) );

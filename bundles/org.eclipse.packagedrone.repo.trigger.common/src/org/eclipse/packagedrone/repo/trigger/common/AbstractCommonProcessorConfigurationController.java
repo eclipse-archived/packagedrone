@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import javax.validation.Valid;
-
 import org.eclipse.packagedrone.repo.trigger.TriggerHandle;
 import org.eclipse.packagedrone.repo.trigger.TriggerProcessor;
 import org.eclipse.packagedrone.repo.trigger.TriggeredChannel;
@@ -27,7 +25,6 @@ import org.eclipse.packagedrone.web.RequestMethod;
 import org.eclipse.packagedrone.web.common.CommonController;
 import org.eclipse.packagedrone.web.controller.binding.BindingResult;
 import org.eclipse.packagedrone.web.controller.binding.RequestParameter;
-import org.eclipse.packagedrone.web.controller.form.FormData;
 
 public abstract class AbstractCommonProcessorConfigurationController<T> extends ChannelServiceController
 {
@@ -70,10 +67,7 @@ public abstract class AbstractCommonProcessorConfigurationController<T> extends 
         } );
     }
 
-    @RequestMapping ( method = RequestMethod.POST )
-    public ModelAndView update ( @RequestParameter ( "channelId" ) final String channelId, @RequestParameter ( "triggerId" ) final String triggerId, @RequestParameter (
-            value = "processorId",
-            required = false ) final String processorId, @Valid @FormData ( "command" ) final T command, final BindingResult result)
+    public ModelAndView processUpdate ( final String channelId, final String triggerId, final String processorId, final T command, final BindingResult result )
     {
         return withChannel ( channelId, TriggeredChannel.class, channel -> {
 
@@ -102,10 +96,11 @@ public abstract class AbstractCommonProcessorConfigurationController<T> extends 
         } );
     }
 
-    protected Map<String, Object> makeModel ( final TriggeredChannel channel, final TriggerHandle trigger, final TriggerProcessor processor, final Supplier<T> configuration )
+    protected Map<String, Object> makeModel ( final TriggeredChannel channel, final TriggerHandle trigger, final TriggerProcessor processor, final boolean edit, final Supplier<T> configuration )
     {
         final Map<String, Object> result = new HashMap<> ();
 
+        result.put ( "buttonLabel", edit ? "Update" : "Create" );
         result.put ( "command", configuration.get () );
         result.put ( "channelId", channel.getId ().getId () );
         result.put ( "triggerId", trigger.getId () );

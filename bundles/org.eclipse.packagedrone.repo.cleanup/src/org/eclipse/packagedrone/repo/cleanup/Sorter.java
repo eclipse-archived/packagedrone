@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.aspect.cleanup;
+package org.eclipse.packagedrone.repo.cleanup;
 
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -22,7 +22,12 @@ import com.google.gson.GsonBuilder;
 @JSON
 public class Sorter
 {
-    private List<Field> fields = new LinkedList<> ();
+    private List<Field> fields;
+
+    public Sorter ()
+    {
+        this.fields = new LinkedList<> ();
+    }
 
     public void setFields ( final List<Field> fields )
     {

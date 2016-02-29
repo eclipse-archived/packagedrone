@@ -8,7 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.aspect.cleanup;
+package org.eclipse.packagedrone.repo.cleanup;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -21,7 +21,12 @@ import org.eclipse.packagedrone.utils.converter.JSON;
 @JSON
 public class Aggregator
 {
-    private List<MetaKey> fields = new LinkedList<> ();
+    private List<MetaKey> fields;
+
+    public Aggregator ()
+    {
+        this.fields = new LinkedList<> ();
+    }
 
     public List<MetaKey> getFields ()
     {

@@ -1,14 +1,25 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-    
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="storage" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/web/form" prefix="form" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
 
+<%@ page
+  language="java"
+  contentType="text/html; charset=UTF-8"
+  pageEncoding="UTF-8"
+  trimDirectiveWhitespaces="true"
+  %>
+  
+<%! @SuppressWarnings("unchecked") %>
+
+<%@ page import="org.eclipse.packagedrone.utils.io.IOConsumer"%>
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<%@ taglib prefix="web" uri="http://eclipse.org/packagedrone/web" %>
+<%@ taglib prefix="form" uri="http://eclipse.org/packagedrone/web/form" %>
+
+<%@ taglib prefix="storage" uri="http://eclipse.org/packagedrone/repo/channel" %>
+
+<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 
 <%
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
@@ -16,21 +27,18 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 
 <h:main title="Test Cleanup" subtitle="${storage:channel(channel) }">
 
-<h:buttonbar menu="${menuManager.getActions(channel) }" />
-
-<h:nav menu="${menuManager.getViews(channel) }"/>
-
+<div class="container-fluid">
 <div class="table-responsive">
 <table class="table table-bordered table-condensed table-hover">
 
     <thead>
         <tr>
-            <c:forEach var="field" items="${command.aggregator.fields }">
+            <c:forEach var="field" items="${cleaner.aggregator.fields }">
                 <th>
                     ${fn:escapeXml(field) }
                 </th>
             </c:forEach>
-            <c:forEach var="field" items="${command.sorter.fields }">
+            <c:forEach var="field" items="${cleaner.sorter.fields }">
                 <th>
                     <c:choose>
                         <c:when test="${field.order == 'ASCENDING' }">
@@ -50,7 +58,7 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
     
     <tbody>
     
-        <c:forEach var="entry" items="${result }">
+        <c:forEach var="entry" items="${result.entries }">
             <c:set var="span" value="${entry.value.size() }"/>
             <tr>
                 <c:forEach var="i" items="${entry.key.keys }">
@@ -61,7 +69,7 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
                 <c:set var="rowClass" value=""/>
                 <c:if test="${ art.action == 'DELETE' }"><c:set var="rowClass" value="danger" /></c:if>
 	            <tr class="${rowClass }">
-	                <c:forEach var="field" items="${command.sorter.fields }">
+	                <c:forEach var="field" items="${cleaner.sorter.fields }">
 	                   <td>${fn:escapeXml(art.artifact.metaData[field.key]) }</td>
 	                </c:forEach>
 	                <td>${fn:escapeXml(art.artifact.id) }</td>
@@ -75,16 +83,8 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 </table>
 </div>
 
-<div class="container-fluid">
-
-<div class="row">
-<div class="col-md-12">
-
-<form action="edit" method="get">
-    <input type="hidden" name="configuration" value="${fn:escapeXml(web:json(command)) }"/>
-    <button class="btn btn-primary" type="submit">Edit</button>
-</form>
-
-</div></div>
 </div>
+
+<c:if test="${ customizer != null }">${ customizer.accept(pageContext.out) }</c:if>
+
 </h:main>

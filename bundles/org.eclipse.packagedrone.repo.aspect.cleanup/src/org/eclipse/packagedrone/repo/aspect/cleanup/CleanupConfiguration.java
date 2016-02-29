@@ -12,6 +12,9 @@ package org.eclipse.packagedrone.repo.aspect.cleanup;
 
 import org.eclipse.packagedrone.repo.MetaKeyBinding;
 import org.eclipse.packagedrone.repo.aspect.cleanup.internal.CleanupAspect;
+import org.eclipse.packagedrone.repo.cleanup.Aggregator;
+import org.eclipse.packagedrone.repo.cleanup.Cleaner;
+import org.eclipse.packagedrone.repo.cleanup.Sorter;
 
 public class CleanupConfiguration
 {
@@ -78,5 +81,14 @@ public class CleanupConfiguration
     public int getNumberOfVersions ()
     {
         return this.numberOfVersions;
+    }
+
+    public void applyTo ( final Cleaner cleaner )
+    {
+        cleaner.setAggregator ( this.aggregator );
+        cleaner.setSorter ( this.sorter );
+        cleaner.setNumberOfEntries ( this.numberOfVersions );
+        cleaner.setRequireAll ( this.requireAllMatching );
+        cleaner.setRootOnly ( this.onlyRootArtifacts );
     }
 }

@@ -22,23 +22,23 @@ import org.eclipse.packagedrone.repo.channel.search.SearchOptions;
 
 public class StreamArtifactLocator implements ArtifactLocator
 {
-    private final Supplier<Stream<ArtifactInformation>> informationSupplier;
+    private final Supplier<Stream<? extends ArtifactInformation>> informationSupplier;
 
-    public StreamArtifactLocator ( final Supplier<Stream<ArtifactInformation>> informationSupplier )
+    public StreamArtifactLocator ( final Supplier<Stream<? extends ArtifactInformation>> informationSupplier )
     {
         this.informationSupplier = informationSupplier;
     }
 
     @Override
-    public <R> R process ( final Predicate predicate, final SearchOptions options, final Function<Stream<ArtifactInformation>, R> function )
+    public <R> R process ( final Predicate predicate, final SearchOptions options, final Function<Stream<? extends ArtifactInformation>, R> function )
     {
-        try ( Stream<ArtifactInformation> stream = this.informationSupplier.get () )
+        try ( Stream<? extends ArtifactInformation> stream = this.informationSupplier.get () )
         {
             return function.apply ( search ( stream, predicate, options ) );
         }
     }
 
-    public static Stream<ArtifactInformation> search ( Stream<ArtifactInformation> stream, final Predicate predicate, SearchOptions options )
+    public static <T extends ArtifactInformation> Stream<T> search ( Stream<T> stream, final Predicate predicate, SearchOptions options )
     {
         Objects.requireNonNull ( stream );
 
@@ -61,7 +61,7 @@ public class StreamArtifactLocator implements ArtifactLocator
         return stream;
     }
 
-    private static Stream<ArtifactInformation> applyOptions ( Stream<ArtifactInformation> stream, final SearchOptions options )
+    private static <T extends ArtifactInformation> Stream<T> applyOptions ( Stream<T> stream, final SearchOptions options )
     {
         if ( options.getSkip () > 0 )
         {

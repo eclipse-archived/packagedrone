@@ -1,0 +1,33 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Common Cleanup Bundle
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.cleanup
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Eclipse Package Drone
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.google.common.escape;version="18.0.0",
+ com.google.common.net;version="18.0.0",
+ com.google.gson;version="2.3.1",
+ javax.servlet;version="3.1.0",
+ javax.servlet.annotation;version="3.1.0",
+ javax.servlet.http;version="3.1.0",
+ javax.servlet.jsp;version="2.3.1",
+ javax.servlet.jsp.el;version="2.3.1",
+ javax.servlet.jsp.tagext;version="2.3.1",
+ javax.validation;version="1.1.0.Final",
+ org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel.web.breadcrumbs;version="1.0.0",
+ org.eclipse.packagedrone.repo.web.utils;version="1.0.0",
+ org.eclipse.packagedrone.sec.web.controller;version="1.0.0",
+ org.eclipse.packagedrone.utils.converter;version="1.0.0",
+ org.eclipse.packagedrone.utils.io;version="1.0.0",
+ org.eclipse.packagedrone.web;version="1.0.0",
+ org.eclipse.packagedrone.web.common;version="1.0.0",
+ org.eclipse.packagedrone.web.common.menu;version="1.0.0",
+ org.eclipse.packagedrone.web.controller;version="1.0.0",
+ org.eclipse.packagedrone.web.controller.binding;version="1.0.0",
+ org.eclipse.packagedrone.web.controller.form;version="1.0.0"
+Export-Package: org.eclipse.packagedrone.repo.cleanup;version="1.0.0",
+ org.eclipse.packagedrone.repo.cleanup.web;version="1.0.0"
+Require-Bundle: org.jboss.spec.javax.servlet.jstl.jboss-jstl-api_1.2_spec;bundle-version="1.1.2"

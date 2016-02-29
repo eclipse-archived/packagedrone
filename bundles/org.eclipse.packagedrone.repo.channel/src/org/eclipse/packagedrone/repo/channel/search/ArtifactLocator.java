@@ -32,12 +32,12 @@ public interface ArtifactLocator
         return result;
     }
 
-    public default void search ( final Predicate predicate, final Consumer<Stream<ArtifactInformation>> consumer )
+    public default void search ( final Predicate predicate, final Consumer<Stream<? extends ArtifactInformation>> consumer )
     {
         search ( predicate, SearchOptions.DEFAULT_OPTIONS, consumer );
     }
 
-    public default void search ( final Predicate predicate, final SearchOptions options, final Consumer<Stream<ArtifactInformation>> consumer )
+    public default void search ( final Predicate predicate, final SearchOptions options, final Consumer<Stream<? extends ArtifactInformation>> consumer )
     {
         process ( predicate, options, stream -> {
             consumer.accept ( stream );
@@ -45,10 +45,10 @@ public interface ArtifactLocator
         } );
     }
 
-    public default <R> R process ( final Predicate predicate, final Function<Stream<ArtifactInformation>, R> function )
+    public default <R> R process ( final Predicate predicate, final Function<Stream<? extends ArtifactInformation>, R> function )
     {
         return process ( predicate, SearchOptions.DEFAULT_OPTIONS, function );
     }
 
-    public <R> R process ( final Predicate predicate, final SearchOptions options, final Function<Stream<ArtifactInformation>, R> function );
+    public <R> R process ( final Predicate predicate, final SearchOptions options, final Function<Stream<? extends ArtifactInformation>, R> function );
 }

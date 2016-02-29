@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.aspect.cleanup.web;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,21 +18,22 @@ import java.util.Map;
 
 import javax.servlet.annotation.HttpConstraint;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.JspWriter;
 import javax.validation.Valid;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.MetaKeys;
-import org.eclipse.packagedrone.repo.aspect.cleanup.Aggregator;
 import org.eclipse.packagedrone.repo.aspect.cleanup.CleanupConfiguration;
-import org.eclipse.packagedrone.repo.aspect.cleanup.CleanupTester;
-import org.eclipse.packagedrone.repo.aspect.cleanup.Field;
-import org.eclipse.packagedrone.repo.aspect.cleanup.Sorter;
 import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs.Entry;
+import org.eclipse.packagedrone.repo.cleanup.Aggregator;
+import org.eclipse.packagedrone.repo.cleanup.Field;
+import org.eclipse.packagedrone.repo.cleanup.Sorter;
+import org.eclipse.packagedrone.repo.cleanup.web.TestConfigurationController;
 import org.eclipse.packagedrone.repo.web.utils.Channels;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.controller.Secured;
@@ -53,6 +55,7 @@ import org.eclipse.packagedrone.web.controller.form.FormData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.html.HtmlEscapers;
 import com.google.common.net.UrlEscapers;
 import com.google.gson.GsonBuilder;
 
@@ -67,18 +70,11 @@ public class ConfigController implements InterfaceExtender
 {
     private final static Logger logger = LoggerFactory.getLogger ( ConfigController.class );
 
-    private CleanupTester tester;
-
     private ChannelService service;
 
     public void setService ( final ChannelService service )
     {
         this.service = service;
-    }
-
-    public void setTester ( final CleanupTester tester )
-    {
-        this.tester = tester;
     }
 
     @Override
@@ -196,20 +192,25 @@ public class ConfigController implements InterfaceExtender
 
             if ( !result.hasErrors () )
             {
-                final Map<String, Object> model = new HashMap<> ();
-
-                model.put ( "command", cfg );
-                model.put ( "channel", channel.getInformation () );
-                fillModel ( model, channelId );
-
-                model.put ( "result", this.tester.testCleanup ( channel.getArtifacts (), cfg ) );
-                return new ModelAndView ( "testResult", model );
+                return TestConfigurationController.performTestCustomized ( channel, cfg::applyTo, out -> customize ( out, cfg ) );
             }
             else
             {
                 return CommonController.createError ( "Error", "Testing cleanup", "The configuration has errors" );
             }
         } );
+    }
+
+    private static void customize ( final JspWriter out, final CleanupConfiguration cfg ) throws IOException
+    {
+        final String json = HtmlEscapers.htmlEscaper ().escape ( new GsonBuilder ().create ().toJson ( cfg ) );
+
+        out.print ( "<div class=\"container-fluid\">" );
+        out.print ( "<div class=\"row\"><div class=\"col-md-12\">" );
+        out.print ( "<form action=\"edit\" method=\"get\">" );
+        out.print ( "<input type=\"hidden\" name=\"configuration\" value=\"" + json + "\"/>" );
+        out.print ( "<button class=\"btn btn-primary\" type=\"submit\">Edit</button>" );
+        out.println ( "</form></div></div></div>" );
     }
 
     private void fillModel ( final Map<String, Object> model, final String channelId )

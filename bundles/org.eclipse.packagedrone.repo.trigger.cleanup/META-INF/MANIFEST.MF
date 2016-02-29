@@ -1,0 +1,37 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Cleanup Processor
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.trigger.cleanup
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Eclipse Package Drone
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: com.google.gson;version="2.3.1",
+ javax.servlet;version="3.1.0",
+ javax.servlet.annotation;version="3.1.0",
+ javax.servlet.http;version="3.1.0",
+ javax.servlet.jsp;version="2.3.1",
+ javax.servlet.jsp.el;version="2.3.1",
+ javax.servlet.jsp.tagext;version="2.3.1",
+ org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.repo.aspect.cleanup;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel.provider;version="1.0.0",
+ org.eclipse.packagedrone.repo.cleanup;version="1.0.0",
+ org.eclipse.packagedrone.repo.cleanup.web;version="1.0.0",
+ org.eclipse.packagedrone.repo.gson;version="1.0.0",
+ org.eclipse.packagedrone.repo.trigger;version="1.0.0",
+ org.eclipse.packagedrone.repo.trigger.common;version="1.0.0",
+ org.eclipse.packagedrone.repo.web.utils;version="1.0.0",
+ org.eclipse.packagedrone.sec;version="1.0.0",
+ org.eclipse.packagedrone.sec.web.controller;version="1.0.0",
+ org.eclipse.packagedrone.utils.converter;version="1.0.0",
+ org.eclipse.packagedrone.web;version="1.0.0",
+ org.eclipse.packagedrone.web.common;version="1.0.0",
+ org.eclipse.packagedrone.web.controller;version="1.0.0",
+ org.slf4j;version="1.7.2"
+Service-Component: OSGI-INF/controller.xml,
+ OSGI-INF/factory.xml
+Require-Bundle: org.jboss.spec.javax.servlet.jstl.jboss-jstl-api_1.2_spec;bundle-version="1.1.2",
+ org.eclipse.packagedrone.web;bundle-version="1.0.0",
+ org.eclipse.packagedrone.web.forms;bundle-version="1.0.0"
+Export-Package: org.eclipse.packagedrone.repo.trigger.cleanup;version="1.0.0";uses:="org.eclipse.packagedrone.repo.cleanup"

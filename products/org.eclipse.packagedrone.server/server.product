@@ -107,7 +107,9 @@
       <plugin id="org.eclipse.packagedrone.repo.signing.pgp.web" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.signing.web" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.trigger" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.trigger.cleanup" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.trigger.common" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.trigger.http" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.trigger.web" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.utils.osgi" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.web.analytics" autoStart="true" startLevel="0" />

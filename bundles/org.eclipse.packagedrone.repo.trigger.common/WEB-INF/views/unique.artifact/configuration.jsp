@@ -13,6 +13,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%@ taglib prefix="form" uri="http://eclipse.org/packagedrone/web/form" %>
+<%@ taglib prefix="json" uri="http://eclipse.org/packagedrone/web/json" %>
 
 <%@ taglib prefix="h" tagdir="/WEB-INF/tags/main" %>
 
@@ -22,50 +23,24 @@ pageContext.setAttribute ( "vetos", Arrays.asList ( VetoPolicy.values () ) );
 
 <h:main title="Unique artifact" subtitle="Configure">
 
-<script>
-function addTag ( value ) {
-	if ( value == "" )
-		return;
-	
-	var entry = $('<li class="drone-tag-list-item"><button type="button" class="close" data-dismiss="drone-tag" aria-label="Close"> <span aria-hidden="true">&times;</span></button></li>');
-	
-	var result = $('#keys').append (entry);
-	
-	entry.append ( document.createTextNode(value) );
-	var input = $('<input type="hidden">');
-	input.attr ("name", "keys");
-	input.val ( value );
-		
-	entry.append ( input );
-	
-	$('[data-dismiss="drone-tag"]', entry).click(function(){
-		droneTagDismissItem ( this );
-	});
-}
-</script>
-
 <div class="container">
   <div class="row">
     <form:form method="POST" cssClass="form-horizontal">
     
-      <h:formEntry label="Artifact Key" path="keys" command="command">
+      <h:formEntry label="Artifact Key" path="keys" command="command" id="keys-group">
       
-        <ul id="keys" class="drone-tag-list">
-          <form:inputList path="keys" var="key">
-            <li class="drone-tag-list-item">
-              <button type="button" class="close" data-dismiss="drone-tag" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              ${key }<form:inputListValue />
-            </li>
-          </form:inputList>
-        </ul>
-       
-        <div class="input-group">
-          <input type="text" class="form-control" id="add-key">  
-          <span class="input-group-btn">
-            <button class="btn btn-default" onclick="var ele = $('#add-key'); addTag(ele.val()); ele.val('');" type="button"><span class="glyphicon glyphicon-plus"></span></button>
-          </span>
+        <div class="drone-tag-list drone-tag-list-form" id="keys">
+          <ul class="drone-tag-list-content"></ul>
+          
+          <div class="input-group">
+            <input type="text" class="form-control" data-add="drone-tag">  
+            <span class="input-group-btn">
+              <button class="btn btn-default" data-add-trigger="drone-tag" type="button"><span class="glyphicon glyphicon-plus"></span></button>
+            </span>
+          </div>
         </div>
         
+        <span class="help-block" id="keys-validation"></span>
         
         <span class="help-block">
             The names of the attributes which will be used as key. One or more items in the form <code>namespace:key</code>.
@@ -94,5 +69,26 @@ function addTag ( value ) {
     
   </div>
 </div>
+
+<script type="text/javascript">
+
+var keys = JSON.parse('${json:array(command.keys)}');
+var metaKeyRE = /[a-zA-Z0-9]+\:[a-zA-Z0-9]+/;
+
+$('#keys').taglist ({
+	labelProvider: function ( entry, element ) { element.text(entry); },
+	entryProvider: function ( data ) {
+		return data.trim();
+	},
+	validator: function (newTag) {
+		var OK = metaKeyRE.exec ( newTag );
+		if ( !OK ) throw "Meta key format is 'namespace:key'";
+	},
+	validatorMessagesContainer: '#keys-validation',
+	validationStatusContainer: '#keys-group',
+	hiddenInputs: "keys",
+	data: keys
+});
+</script>
 
 </h:main>
