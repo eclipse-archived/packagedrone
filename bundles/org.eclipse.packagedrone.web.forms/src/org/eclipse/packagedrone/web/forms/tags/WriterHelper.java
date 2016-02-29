@@ -88,11 +88,16 @@ public class WriterHelper
         write ( sb.toString () );
     }
 
+    public void writeFlagAttribute ( final String name ) throws JspException
+    {
+        writeAttribute ( name, name );
+    }
+
     public void writeFlagAttribute ( final String name, final boolean state ) throws JspException
     {
         if ( state )
         {
-            writeAttribute ( name, name );
+            writeFlagAttribute ( name );
         }
     }
 }
