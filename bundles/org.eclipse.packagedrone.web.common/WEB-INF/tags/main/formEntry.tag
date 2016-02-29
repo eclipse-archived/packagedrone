@@ -15,7 +15,7 @@
     label="${label }" 
     path="${path }"
     id="${id }"
-    additionalCssClass="${ optional ? ' optional' : '' } ${' ' } ${ (empty path) ?  '' : form:validationState ( pageContext, ( ( empty command ) ? 'command' : command ), path, '', 'has-error')}">
+    additionalCssClass="${ optional ? ' optional' : '' }${' ' }${ (empty path) ?  '' : form:validationState ( pageContext, ( ( empty command ) ? 'command' : command ), path, '', 'has-error')}">
 
     <jsp:attribute name="body">
         <jsp:doBody/>
