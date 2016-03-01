@@ -16,9 +16,12 @@ public class TriggerProcessorState
 
     private String htmlState;
 
-    public TriggerProcessorState ( final String htmlState )
+    private Class<?>[] supportedContexts;
+
+    public TriggerProcessorState ( final String htmlState, final Class<?>[] supportedContexts )
     {
         this.htmlState = htmlState;
+        this.supportedContexts = supportedContexts;
     }
 
     public TriggerProcessorState ( final Throwable instantiationError )
@@ -39,5 +42,28 @@ public class TriggerProcessorState
     public Throwable getInstantiationError ()
     {
         return this.instantiationError;
+    }
+
+    public Class<?>[] getSupportedContexts ()
+    {
+        return this.supportedContexts;
+    }
+
+    public boolean supportsContext ( final Class<?> contextClass )
+    {
+        if ( contextClass == null )
+        {
+            return false;
+        }
+
+        for ( final Class<?> clazz : getSupportedContexts () )
+        {
+            if ( clazz.isAssignableFrom ( contextClass ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

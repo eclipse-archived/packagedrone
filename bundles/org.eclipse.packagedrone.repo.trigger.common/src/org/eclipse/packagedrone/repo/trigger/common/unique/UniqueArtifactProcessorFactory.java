@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 
 public class UniqueArtifactProcessorFactory implements ProcessorFactory
 {
+    static final Class<?>[] SUPPORTED_CONTEXTS = new Class<?>[] { AddingContext.class };
+
     private final static Logger logger = LoggerFactory.getLogger ( UniqueArtifactProcessorFactory.class );
 
     public static final String ID = "unique.artifact";
@@ -26,7 +28,7 @@ public class UniqueArtifactProcessorFactory implements ProcessorFactory
     @Override
     public Class<?>[] getSupportedContexts ()
     {
-        return new Class<?>[] { AddingContext.class };
+        return SUPPORTED_CONTEXTS;
     }
 
     @Override

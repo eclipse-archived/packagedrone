@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 public class CleanupProcessorFactory implements ProcessorFactory
 {
+    static final Class<?>[] SUPPORTED_CONTEXTS = new Class<?>[] { ModifiableChannel.class };
+
     private final static Logger logger = LoggerFactory.getLogger ( CleanupProcessorFactory.class );
 
     public static final String ID = "cleanup";
@@ -27,7 +29,7 @@ public class CleanupProcessorFactory implements ProcessorFactory
     @Override
     public Class<?>[] getSupportedContexts ()
     {
-        return new Class<?>[] { ModifiableChannel.class };
+        return SUPPORTED_CONTEXTS;
     }
 
     @Override

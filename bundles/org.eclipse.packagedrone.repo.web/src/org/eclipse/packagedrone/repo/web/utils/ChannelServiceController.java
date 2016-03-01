@@ -11,7 +11,9 @@
 package org.eclipse.packagedrone.repo.web.utils;
 
 import org.eclipse.packagedrone.repo.channel.ChannelService;
+import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperation;
+import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperationVoid;
 import org.eclipse.packagedrone.web.ModelAndView;
 
 public abstract class ChannelServiceController
@@ -31,5 +33,15 @@ public abstract class ChannelServiceController
         }
 
         return Channels.withChannel ( this.channelService, channelId, clazz, operation );
+    }
+
+    protected <T> void withChannelRun ( final String channelId, final Class<T> clazz, final ChannelOperationVoid<T> operation )
+    {
+        if ( this.channelService == null )
+        {
+            throw new IllegalStateException ( "ChannelService not set for controller. ChannelService has to be bound to 'setChannelService' in OSGi DS declaration." );
+        }
+
+        this.channelService.accessRun ( By.id ( channelId ), clazz, operation );
     }
 }

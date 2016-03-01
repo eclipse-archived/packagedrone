@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.channel.ChannelId;
@@ -176,6 +177,14 @@ public final class TriggeredChannelImpl implements TriggeredChannel
             {
                 return configuration;
             }
+
+            @Override
+            public TriggerHandle reorderProcessors ( final String processorId1, final String processorId2 ) throws IllegalArgumentException
+            {
+                TriggeredChannelImpl.this.reorderProcessors ( triggerId, processorId1, processorId2 );
+                return makeHandle ( triggerId ); // create a new handle
+            }
+
         };
     }
 
@@ -273,6 +282,69 @@ public final class TriggeredChannelImpl implements TriggeredChannel
         this.model.deleteProcessor ( triggerId, processorId );
 
         this.modified = true;
+    }
+
+    private void reorderProcessors ( final String triggerId, final String processorId1, final String processorId2 )
+    {
+        this.model.reorderProcessors ( triggerId, processorId1, processorId2 );
+
+        this.modified = true;
+    }
+
+    @Override
+    public void reorder ( final String triggerId1, final String processorId1, final String triggerId2, final String processorId2 )
+    {
+        Objects.requireNonNull ( triggerId1 );
+        Objects.requireNonNull ( triggerId2 );
+        Objects.requireNonNull ( processorId1 );
+
+        if ( triggerId1.equals ( triggerId2 ) )
+        {
+            reorderProcessors ( triggerId1, processorId1, processorId2 );
+        }
+        else
+        {
+            final Optional<TriggerHandle> t1 = getTrigger ( triggerId1 );
+            final Optional<TriggerHandle> t2 = getTrigger ( triggerId2 );
+
+            if ( !t1.isPresent () )
+            {
+                throw new IllegalArgumentException ( String.format ( "Unable to find trigger '%s'", triggerId1 ) );
+            }
+            if ( !t2.isPresent () )
+            {
+                throw new IllegalArgumentException ( String.format ( "Unable to find trigger '%s'", triggerId2 ) );
+            }
+
+            if ( !isCompatible ( t2.get (), t1.get ().getProcessor ( processorId1 ).orElseThrow ( unknownProcessor ( triggerId1, processorId1 ) ) ) )
+            {
+                throw new IllegalArgumentException ( String.format ( "Processor '%s' is not compatible with trigger '%s'", processorId1, triggerId2 ) );
+            }
+
+            this.model.moveProcessor ( triggerId1, processorId1, triggerId2, processorId2 );
+            this.modified = true;
+        }
+    }
+
+    private Supplier<? extends IllegalArgumentException> unknownProcessor ( final String triggerId, final String processorId )
+    {
+        return () -> new IllegalArgumentException ( String.format ( "Unable to find processor %s of trigger %s", processorId, triggerId ) );
+    }
+
+    private boolean isCompatible ( final TriggerHandle triggerHandle, final TriggerProcessor triggerProcessor )
+    {
+        final TriggerDescriptor desc = triggerHandle.getDescriptor ().orElseThrow ( () -> new IllegalStateException () );
+        final TriggerProcessorState state = triggerProcessor.getState ().orElseThrow ( () -> new IllegalStateException ( String.format ( "Processor '%s' of trigger '%s' is not realized", triggerProcessor.getId (), triggerHandle.getId () ) ) );
+
+        for ( final Class<?> clazz : desc.getSupportedContexts () )
+        {
+            if ( state.supportsContext ( clazz ) )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

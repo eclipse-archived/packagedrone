@@ -27,4 +27,6 @@ public interface TriggerHandle
     public Optional<TriggerDescriptor> getDescriptor ();
 
     public Optional<TriggerConfiguration> getConfiguration ();
+
+    public TriggerHandle reorderProcessors ( String processorId1, String processorId2 ) throws IllegalArgumentException;
 }

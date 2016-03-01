@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.impl.trigger;
 
+import static com.google.common.collect.Iterables.indexOf;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -177,6 +179,82 @@ public class TriggeredChannelModel
     public Optional<TriggerConfiguration> getTriggerConfiguration ( final String triggerId )
     {
         return Optional.ofNullable ( this.triggers.get ( triggerId ) );
+    }
+
+    public void reorderProcessors ( final String triggerId, final String processorId1, final String processorId2 )
+    {
+        Objects.requireNonNull ( triggerId );
+        Objects.requireNonNull ( processorId1 );
+
+        final List<TriggerProcessorConfiguration> list = this.processors.get ( triggerId );
+        if ( list == null )
+        {
+            throw new IllegalArgumentException ( String.format ( "Unknow trigger '%s'", triggerId ) );
+        }
+
+        final int p1 = indexOf ( list, e -> e.getId ().equals ( processorId1 ) );
+        final int p2 = processorId2 != null ? indexOf ( list, e -> e.getId ().equals ( processorId2 ) ) : 0;
+
+        if ( p1 < 0 )
+        {
+            throw new IllegalArgumentException ( String.format ( "Unknown processor '%s' for trigger '%s'", processorId1, triggerId ) );
+        }
+        if ( p2 < 0 )
+        {
+            throw new IllegalArgumentException ( String.format ( "Unknown processor '%s' for trigger '%s'", processorId2, triggerId ) );
+        }
+
+        final TriggerProcessorConfiguration t1 = list.remove ( p1 );
+        if ( processorId2 != null )
+        {
+            list.add ( p2, t1 );
+        }
+        else
+        {
+            list.add ( t1 );
+        }
+    }
+
+    public void moveProcessor ( final String triggerId1, final String processorId1, final String triggerId2, final String processorId2 )
+    {
+        Objects.requireNonNull ( triggerId1 );
+        Objects.requireNonNull ( triggerId2 );
+        Objects.requireNonNull ( processorId1 );
+
+        final List<TriggerProcessorConfiguration> list1 = this.processors.get ( triggerId1 );
+        if ( list1 == null )
+        {
+            throw new IllegalArgumentException ( String.format ( "Unknow trigger '%s'", triggerId1 ) );
+        }
+
+        final List<TriggerProcessorConfiguration> list2 = this.processors.get ( triggerId2 );
+        if ( list2 == null )
+        {
+            throw new IllegalArgumentException ( String.format ( "Unknow trigger '%s'", triggerId2 ) );
+        }
+
+        final int p1 = indexOf ( list1, e -> e.getId ().equals ( processorId1 ) );
+        final int p2 = processorId2 != null ? indexOf ( list2, e -> e.getId ().equals ( processorId2 ) ) : 0;
+
+        if ( p1 < 0 )
+        {
+            throw new IllegalArgumentException ( String.format ( "Unknown processor '%s' for trigger '%s'", processorId1, triggerId1 ) );
+        }
+        if ( p2 < 0 )
+        {
+            throw new IllegalArgumentException ( String.format ( "Unknown processor '%s' for trigger '%s'", processorId2, triggerId2 ) );
+        }
+
+        final TriggerProcessorConfiguration t1 = list1.remove ( p1 );
+
+        if ( processorId2 != null )
+        {
+            list2.add ( p2, t1 );
+        }
+        else
+        {
+            list2.add ( t1 );
+        }
     }
 
 }

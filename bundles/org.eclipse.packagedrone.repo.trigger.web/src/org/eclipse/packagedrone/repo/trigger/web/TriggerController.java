@@ -14,6 +14,7 @@ import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static java.util.stream.Collectors.toList;
 import static org.eclipse.packagedrone.web.ModelAndView.referer;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,6 +27,7 @@ import java.util.function.Function;
 
 import javax.servlet.annotation.HttpConstraint;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.web.breadcrumbs.Breadcrumbs;
@@ -52,6 +54,7 @@ import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 import org.eclipse.packagedrone.web.controller.ControllerInterceptor;
 import org.eclipse.packagedrone.web.controller.binding.PathVariable;
 import org.eclipse.packagedrone.web.controller.binding.RequestParameter;
+import org.eclipse.scada.utils.ExceptionHelper;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
@@ -134,6 +137,32 @@ public class TriggerController extends ChannelServiceController implements Inter
             channel.deleteConfiguredTrigger ( triggerId );
             return referer ( String.format ( "/channel/%s", urlPathSegmentEscaper ().escape ( channelId ) ) );
         } );
+    }
+
+    @RequestMapping ( value = "/channel/{channelId}/reorder", method = RequestMethod.POST )
+    public void reorder ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "triggerId1" ) final String triggerId1, @RequestParameter ( "processorId1" ) final String processorId1, @RequestParameter ( "triggerId2" ) final String triggerId2, @RequestParameter (
+            value = "processorId2",
+            required = false ) final String processorId2, final HttpServletResponse response) throws IOException
+    {
+        withChannelRun ( channelId, TriggeredChannel.class, channel -> {
+            handleFullReorder ( channel, response, triggerId1, processorId1, triggerId2, processorId2 );
+        } );
+    }
+
+    private void handleFullReorder ( final TriggeredChannel channel, final HttpServletResponse response, final String triggerId1, final String processorId1, final String triggerId2, final String processorId2 ) throws IOException
+    {
+        response.setContentType ( "text/plain" );
+
+        try
+        {
+            channel.reorder ( triggerId1, processorId1, triggerId2, processorId2 );
+            response.setStatus ( HttpServletResponse.SC_OK );
+            response.getWriter ().append ( "OK" );
+        }
+        catch ( IllegalArgumentException | IllegalStateException e )
+        {
+            response.sendError ( HttpServletResponse.SC_BAD_REQUEST, ExceptionHelper.getMessage ( e ) );
+        }
     }
 
     private List<TriggerEntry> makeEntries ( final Collection<TriggerHandle> triggers )

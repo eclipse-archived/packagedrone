@@ -44,7 +44,7 @@ public interface ProcessorFactory
             final Processor p = create ( configuration );
             final StringWriter sw = new StringWriter ();
             p.streamHtmlState ( new PrintWriter ( sw ) );
-            return new TriggerProcessorState ( sw.toString () );
+            return new TriggerProcessorState ( sw.toString (), getSupportedContexts () );
         }
         catch ( final Exception e )
         {

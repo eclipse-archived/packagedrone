@@ -260,7 +260,6 @@
 	
 	function Plugin(option, _relatedTarget) {
 		return this.each(function () {
-			
 			var that = $(this);
 			var data = that.data('drone.taglist');
 			var options = $.extend({}, Taglist.DEFAULTS, that.data(), typeof option == 'object' && option);
@@ -283,3 +282,79 @@
 	}
 	
 }(jQuery);
+
+/* Overlay */
+
+var Overlay = {};
+
+Overlay.show = function () {
+	if ( document.getElementById("drone-overlay") )
+		return;
+	
+	var overlay = $('<div id="drone-overlay" class="drone-overlay"></div><div id="drone-overlay-container" class="drone-overlay-content"><div id="drone-overlay-content" class="container"></div></div>');
+	$('body').append ( overlay );
+}
+
+Overlay.hide = function () {
+	$('#drone-overlay').detach();
+	$('#drone-overlay-container').detach();
+}
+
+Overlay.alert = function (type, title, content, buttons) {
+	Overlay.show();
+	var html = $('<div class="alert alert-' + type + '"></div>');
+	
+	var h4 = document.createElement("h4");
+	h4.appendChild(document.createTextNode(title));
+	html.append(h4);
+	
+	if ( typeof content == "string" ) {
+		var p = document.createElement("p");
+		p.appendChild(document.createTextNode(content));
+		html.append(p);
+	}
+	else {
+		html.append(content);
+	}
+	
+	$('#drone-overlay-content').append (html);
+	
+	if ( buttons ) {
+		
+		html.append("<br>");
+		
+		var bs = $("<p></p>");
+		html.append(bs);
+		
+		buttons.forEach (function(button){
+			var b = $('<button class="btn btn-' + button.type + '"></button>');
+			b.append (document.createTextNode(button.label));
+			b.click(button.onClick);
+			bs.append(b);
+		});
+	}
+}
+
+Overlay.failReload = function (header, error) {
+	Overlay.alert ( "danger", header, error, [
+	                                          {
+	                                        	  label: "Reload",
+	                                        	  type: "danger",
+	                                        	  onClick: function () {
+	                                        		  window.location.reload ();
+	                                        	  }
+	                                          }
+	                                          ] );
+}
+
+Overlay.successReload = function () {
+	Overlay.alert ( "success", "Success", "Operation successful", [
+	                                          {
+	                                        	  label: "Reload",
+	                                        	  type: "success",
+	                                        	  onClick: function () {
+	                                        		  window.location.reload ();
+	                                        	  }
+	                                          }
+	                                          ] );
+}

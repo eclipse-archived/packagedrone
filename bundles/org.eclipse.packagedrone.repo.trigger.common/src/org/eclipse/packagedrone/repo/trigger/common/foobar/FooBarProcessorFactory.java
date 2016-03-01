@@ -24,6 +24,8 @@ import com.google.common.html.HtmlEscapers;
 
 public class FooBarProcessorFactory implements ProcessorFactory
 {
+    private static final Class<?>[] SUPPORTED_CONTEXTS = new Class<?>[] { ModifiableChannel.class };
+
     private final static Logger logger = LoggerFactory.getLogger ( FooBarProcessorFactory.class );
 
     public static final String ID = "foobar";
@@ -31,7 +33,7 @@ public class FooBarProcessorFactory implements ProcessorFactory
     @Override
     public Class<?>[] getSupportedContexts ()
     {
-        return new Class<?>[] { ModifiableChannel.class };
+        return SUPPORTED_CONTEXTS;
     }
 
     @Override

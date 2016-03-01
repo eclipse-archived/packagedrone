@@ -20,6 +20,33 @@
 
 <jsp:body>
 
+  <style>
+<!--
+.dragging .processor-drag-handle {
+}
+
+.over {
+  background-color: #999999;
+}
+
+.processor-drag-handle {
+  cursor: move;
+  padding-left: 0.2em;
+  padding-right: 0.5em;
+  
+  color: #CCCCCC;
+  display: inline-block;
+  vertical-align: top;
+  
+  margin-top: 6px;
+  font-size: large;
+}
+.processor-content {
+  display: inline-block;
+}
+-->
+</style>
+
   <h:breadcrumbs/>
   
   <div class="container-fluid">
@@ -35,7 +62,7 @@
   
     <c:forEach var="trigger" items="${triggers }">
     
-      <tr class="${ empty trigger.descriptor ? 'danger' : ''}">
+      <tr class="trigger ${ empty trigger.descriptor ? 'danger' : ''}" data-trigger-id="${trigger.id }">
       
         <c:choose>
           <c:when test="${not empty trigger.configuration }">
@@ -141,12 +168,14 @@
       
         <c:set var="pi" value="${processorFactoryTracker.apply(processor.configuration.factoryId)}"/>
         
-        <tr>
+        <tr class="processor" data-trigger-id="${fn:escapeXml(trigger.id)}" data-processor-id="${ fn:escapeXml(processor.id) }">
           
-          <td style="padding-left: 3em;">
-            <c:if test="${ not empty pi }">
-              <h4>${fn:escapeXml(pi.label)} <small>${processor.configuration.factoryId }</small></h4>
-              <div>
+          <td>
+            <div class="processor-drag-handle" draggable="true"><i class="fa fa-bars"></i></div>
+            <div class="processor-content">
+              <c:if test="${ not empty pi }">
+                <h4>${fn:escapeXml(pi.label)} <small>${processor.configuration.factoryId }</small></h4>
+                
                 <c:choose>
                   <c:when test="${ processor.state.present and not empty processor.state.get().htmlState}">
                     <p>${processor.state.get().htmlState}</p><%-- don't escape html on purpose --%>
@@ -155,13 +184,12 @@
                     <p>${fn:escapeXml(pi.description) }</p>
                   </c:otherwise>
                 </c:choose>
-              </div>
-              
-              
-            </c:if>
-            <c:if test="${empty pi }">
-              <h4>${processor.configuration.factoryId } <span class="label label-danger" title="The factory implementing the functionality is missing or not active" data-toggle="tooltip">unbound</span></h4>
-            </c:if>
+                
+              </c:if>
+              <c:if test="${empty pi }">
+                <h4>${processor.configuration.factoryId } <span class="label label-danger" title="The factory implementing the functionality is missing or not active" data-toggle="tooltip">unbound</span></h4>
+              </c:if>
+            </div>
           </td>
           
           <td align="right">
@@ -192,12 +220,141 @@
     </div>
   </div>
 
-<%-- activate tooltips --%>
-  
 <script>
+
+<%-- activate tooltips --%>
 $(function () {
-	  $('[data-toggle="tooltip"]').tooltip();
+	$('[data-toggle="tooltip"]').tooltip();
 })
+
+var dragSource;
+
+$(function () {
+	$('.trigger').each ( function () {
+		var element = $(this);
+		
+		element.on("dragover", function(e) {
+			if ( e.preventDefault ) {
+				e.preventDefault();
+			}
+			
+			var parentRow = $(this).closest('.trigger');
+			
+			if ( parentRow == null )
+				return;
+			
+			e.originalEvent.dataTransfer.dropEffect = "move";
+			
+			parentRow.addClass ("over");
+			
+			return false;
+		});
+		element.on("dragenter", function(e) {
+			if ( e.preventDefault ) {
+				e.preventDefault();
+			}
+		});
+		element.on("dragleave", function(e) {
+			$(this).removeClass ("over");
+		});
+		element.on("drop", function(e) {
+			if ( e.stopPropagation) {
+				e.stopPropagation ();
+			}
+			
+			$('.processor, .trigger').removeClass("dragging over");
+			
+			reorder ( dragSource, $(this) );
+			
+			return false;
+		});
+	} );
+	
+	$('.processor-drag-handle').each ( function() {
+		var element = $(this);
+		var row = element.closest('.processor');
+		
+		if ( row == null && rowTrigger == null )
+			return;
+		
+		element.on("dragstart", function (e) {
+			row.addClass("dragging");
+			e.originalEvent.dataTransfer.effectAllowed = "move";
+			e.originalEvent.dataTransfer.setData("text/html", row.innerHTML);
+			e.originalEvent.dataTransfer.setDragImage(row.get(0), 0,0);
+			
+			dragSource = row;
+		});
+		row.on("dragover", function(e) {
+			if ( e.preventDefault ) {
+				e.preventDefault();
+			}
+			
+			var parentRow = $(this).closest('.processor');
+			
+			if ( parentRow == null )
+				return;
+			
+			e.originalEvent.dataTransfer.dropEffect = "move";
+			
+			parentRow.addClass ("over");
+			
+			return false;
+		});
+		row.on("dragenter", function(e) {
+			if ( e.preventDefault ) {
+				e.preventDefault();
+			}
+		});
+		row.on("dragleave", function(e) {
+			var parentRow = $(this).closest('.processor');
+			if ( parentRow == null )
+				return;
+			
+			parentRow.removeClass ("over");
+		});
+		row.on("drop", function(e) {
+			if ( e.stopPropagation) {
+				e.stopPropagation ();
+			}
+			
+			$('.processor, .trigger').removeClass("dragging over");
+			
+			var parentRow = $(this).closest('.processor');
+			if ( parentRow == null )
+				return;
+			
+			reorder ( dragSource, row );
+			
+			return false;
+		});
+		element.on("dragend", function(e) {
+			row.removeClass("dragging");
+			dragSource = null;
+		});
+	});	
+})
+
+function reorder ( ele1, ele2 ) {
+	var data = {
+		triggerId1: ele1.data("trigger-id"), 
+		processorId1: ele1.data("processor-id"),
+		triggerId2: ele2.data("trigger-id"), 
+		processorId2: ele2.data("processor-id")
+	};
+	
+	console.log ( "reorder: ", data );
+	
+	Overlay.show();
+	var req = $.post( "reorder", data );
+	
+	req.done ( Overlay.successReload );
+	
+	req.fail ( function (jqXHR, textStatus, e) {
+		// failure
+		Overlay.failReload("Failed to execute operation", "Cause: " + e);
+	});
+}
 </script>
 
 <div id="add-trigger-model" class="modal" tabindex="-1" role="dialog" aria-labelledby="add-trigger-model-label">
@@ -235,7 +392,6 @@ $(function () {
     </div>
   </div>
 </div>
-
   
 </jsp:body>
 

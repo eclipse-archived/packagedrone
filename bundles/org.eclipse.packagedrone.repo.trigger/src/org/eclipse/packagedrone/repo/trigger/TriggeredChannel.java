@@ -38,4 +38,15 @@ public interface TriggeredChannel
     public void modifyProcessor ( String triggerId, String processorId, String configuration );
 
     public void deleteProcessor ( String triggerId, String processorId );
+
+    // additional
+
+    /**
+     * Reorder two triggers
+     * <p>
+     * <strong>Note: </strong> {@link TriggerHandle}s aquired before this call
+     * will be invalid after this call
+     * </p>
+     */
+    public void reorder ( String triggerId1, String processorId1, String triggerId2, String processorId2 );
 }
