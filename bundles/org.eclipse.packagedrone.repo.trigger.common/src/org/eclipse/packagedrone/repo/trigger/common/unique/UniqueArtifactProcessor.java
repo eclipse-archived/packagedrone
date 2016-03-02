@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.trigger.common.unique;
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.and;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.equal;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.not;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.AddingContext;
+import org.eclipse.packagedrone.repo.channel.Veto;
 import org.eclipse.packagedrone.repo.channel.VetoPolicy;
 import org.eclipse.packagedrone.repo.channel.search.Predicate;
 import org.eclipse.packagedrone.repo.channel.search.SearchOptions;
@@ -102,8 +105,19 @@ public class UniqueArtifactProcessor implements Processor
 
         if ( ctx.getArtifactLocator ().process ( makePredicate ( target, newUniqueValue ), makeOptions (), stream -> stream.findAny () ).isPresent () )
         {
-            ctx.vetoAdd ( this.cfg.getVetoPolicy () );
+            ctx.vetoAdd ( makeVeto ( newUniqueValue ) );
         }
+    }
+
+    private Veto makeVeto ( final String newUniqueValue )
+    {
+        String reason = this.cfg.getReason ();
+        if ( reason == null )
+        {
+            final String fields = stream ( this.cfg.getKeys () ).map ( Object::toString ).collect ( joining ( ", " ) );
+            reason = String.format ( "There is a least one artifact with the same values of %s but a different value of '%s' than '%s'", fields, this.cfg.getUniqueAttribute (), newUniqueValue );
+        }
+        return new Veto ( this.cfg.getVetoPolicy (), reason );
     }
 
     private SearchOptions makeOptions ()

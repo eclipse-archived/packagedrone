@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 import org.eclipse.packagedrone.repo.channel.PreAddContext;
-import org.eclipse.packagedrone.repo.channel.VetoPolicy;
+import org.eclipse.packagedrone.repo.channel.Veto;
 import org.eclipse.packagedrone.repo.channel.search.ArtifactLocator;
 import org.eclipse.packagedrone.repo.channel.search.stream.StreamArtifactLocator;
 
@@ -26,7 +26,7 @@ public class PreAddContextImpl implements PreAddContext
 
     private final boolean external;
 
-    private VetoPolicy veto;
+    private Veto veto;
 
     private final AspectableContext context;
 
@@ -51,17 +51,23 @@ public class PreAddContextImpl implements PreAddContext
     }
 
     @Override
-    public void vetoAdd ( final VetoPolicy veto )
+    public void vetoAdd ( final Veto veto )
     {
         Objects.requireNonNull ( veto );
 
-        if ( this.veto == null || this.veto.ordinal () < veto.ordinal () )
+        if ( this.veto == null )
         {
+            // no current veto
+            this.veto = veto;
+        }
+        else if ( this.veto.getPolicy ().ordinal () < veto.getPolicy ().ordinal () )
+        {
+            // higher ranked veto
             this.veto = veto;
         }
     }
 
-    public VetoPolicy getVeto ()
+    public Veto getVeto ()
     {
         return this.veto;
     }

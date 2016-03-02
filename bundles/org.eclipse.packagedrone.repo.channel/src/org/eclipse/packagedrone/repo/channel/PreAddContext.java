@@ -25,7 +25,12 @@ public interface PreAddContext
         vetoAdd ( VetoPolicy.REJECT );
     }
 
-    public void vetoAdd ( VetoPolicy policy );
+    public default void vetoAdd ( final VetoPolicy policy )
+    {
+        vetoAdd ( new Veto ( policy ) );
+    }
+
+    public void vetoAdd ( Veto veto );
 
     /**
      * A flag if this is an external or internal add operation

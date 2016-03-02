@@ -67,6 +67,7 @@ import org.eclipse.packagedrone.repo.channel.DeployKeysChannelAdapter;
 import org.eclipse.packagedrone.repo.channel.DescriptorAdapter;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
+import org.eclipse.packagedrone.repo.channel.VetoArtifactException;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployAuthService;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployGroup;
 import org.eclipse.packagedrone.repo.channel.deploy.DeployKey;
@@ -176,7 +177,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @Secured ( false )
     @RequestMapping ( value = "/channel", method = RequestMethod.GET )
     @HttpConstraint ( PERMIT )
-    public ModelAndView list ( @RequestParameter ( value = "start", required = false ) final Integer startPage)
+    public ModelAndView list ( @RequestParameter ( value = "start", required = false ) final Integer startPage )
     {
         final ModelAndView result = new ModelAndView ( "channel/list" );
 
@@ -205,7 +206,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/createDetailed", method = RequestMethod.POST )
-    public ModelAndView createDetailedPost ( @Valid @FormData ( "command" ) final CreateChannel data, final BindingResult result)
+    public ModelAndView createDetailedPost ( @Valid @FormData ( "command" ) final CreateChannel data, final BindingResult result )
     {
         if ( !result.hasErrors () )
         {
@@ -254,7 +255,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @RequestMapping ( value = "/channel/createWithRecipe", method = RequestMethod.POST )
     public ModelAndView createWithRecipePost ( @Valid @FormData ( "command" ) final CreateChannel data, @RequestParameter (
             required = false,
-            value = "recipe" ) final String recipeId, final BindingResult result) throws UnsupportedEncodingException, RecipeNotFoundException
+            value = "recipe" ) final String recipeId, final BindingResult result ) throws UnsupportedEncodingException, RecipeNotFoundException
     {
         if ( !result.hasErrors () )
         {
@@ -322,7 +323,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @Secured ( false )
     @RequestMapping ( value = "/channel/{channelId}/view", method = RequestMethod.GET )
     @HttpConstraint ( PERMIT )
-    public ModelAndView view ( @PathVariable ( "channelId" ) final String channelId, final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException
+    public ModelAndView view ( @PathVariable ( "channelId" ) final String channelId, final HttpServletRequest request, final HttpServletResponse response ) throws ServletException, IOException
     {
         final Optional<ChannelInformation> channel = this.channelService.getState ( By.name ( channelId ) );
         if ( channel.isPresent () )
@@ -339,7 +340,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @Secured ( false )
     @RequestMapping ( value = "/channel/{channelId}/viewPlain", method = RequestMethod.GET )
     @HttpConstraint ( PERMIT )
-    public ModelAndView viewPlain ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView viewPlain ( @PathVariable ( "channelId" ) final String channelId )
     {
         try
         {
@@ -384,7 +385,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @Secured ( false )
     @RequestMapping ( value = "/channel/{channelId}/tree", method = RequestMethod.GET )
     @HttpConstraint ( PERMIT )
-    public ModelAndView tree ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView tree ( @PathVariable ( "channelId" ) final String channelId )
     {
         try
         {
@@ -444,7 +445,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @Secured ( false )
     @RequestMapping ( value = "/channel/{channelId}/validation", method = RequestMethod.GET )
     @HttpConstraint ( PERMIT )
-    public ModelAndView viewValidation ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView viewValidation ( @PathVariable ( "channelId" ) final String channelId )
     {
         try
         {
@@ -467,7 +468,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @Secured ( false )
     @RequestMapping ( value = "/channel/{channelId}/details", method = RequestMethod.GET )
     @HttpConstraint ( PERMIT )
-    public ModelAndView details ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView details ( @PathVariable ( "channelId" ) final String channelId )
     {
         final ModelAndView result = new ModelAndView ( "channel/details" );
 
@@ -486,7 +487,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/delete", method = RequestMethod.GET )
-    public ModelAndView delete ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView delete ( @PathVariable ( "channelId" ) final String channelId )
     {
         final ModelAndView result = new ModelAndView ( "redirect:/channel" );
 
@@ -503,7 +504,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/artifacts/{artifactId}/delete", method = RequestMethod.GET )
-    public ModelAndView deleteArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId)
+    public ModelAndView deleteArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId )
     {
         return withChannel ( channelId, ModifiableChannel.class, channel -> {
             channel.getContext ().deleteArtifact ( artifactId );
@@ -512,19 +513,19 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/artifacts/{artifactId}/get", method = RequestMethod.GET )
-    public void getArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId, final HttpServletResponse response) throws IOException
+    public void getArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId, final HttpServletResponse response ) throws IOException
     {
         DownloadHelper.streamArtifact ( response, this.channelService, channelId, artifactId, null, true );
     }
 
     @RequestMapping ( value = "/channel/{channelId}/artifacts/{artifactId}/dump", method = RequestMethod.GET )
-    public void dumpArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId, final HttpServletResponse response) throws IOException
+    public void dumpArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId, final HttpServletResponse response ) throws IOException
     {
         DownloadHelper.streamArtifact ( response, this.channelService, channelId, artifactId, null, false );
     }
 
     @RequestMapping ( value = "/channel/{channelId}/artifacts/{artifactId}/view", method = RequestMethod.GET )
-    public ModelAndView viewArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId)
+    public ModelAndView viewArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId )
     {
         return withChannel ( channelId, ReadableChannel.class, channel -> {
 
@@ -543,7 +544,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/add", method = RequestMethod.GET )
-    public ModelAndView add ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView add ( @PathVariable ( "channelId" ) final String channelId )
     {
         final ModelAndView mav = new ModelAndView ( "/channel/add" );
 
@@ -555,7 +556,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
     @RequestMapping ( value = "/channel/{channelId}/add", method = RequestMethod.POST )
     public ModelAndView addPost ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter (
-            required = false, value = "name" ) String name, final @RequestParameter ( "file" ) Part file)
+            required = false, value = "name" ) String name, final @RequestParameter ( "file" ) Part file )
     {
         try
         {
@@ -580,7 +581,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
     @RequestMapping ( value = "/channel/{channelId}/drop", method = RequestMethod.POST )
     public void drop ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( required = false,
-            value = "name" ) String name, final @RequestParameter ( "file" ) Part file, final HttpServletResponse response) throws IOException
+            value = "name" ) String name, final @RequestParameter ( "file" ) Part file, final HttpServletResponse response ) throws IOException
     {
         response.setContentType ( "text/plain" );
 
@@ -600,8 +601,19 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
         catch ( final Throwable e )
         {
             logger.warn ( "Failed to drop file", e );
-            response.setStatus ( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
-            response.getWriter ().write ( "Internal error: " + ExceptionHelper.getMessage ( e ) );
+
+            final Throwable cause = ExceptionHelper.getRootCause ( e );
+
+            if ( cause instanceof VetoArtifactException )
+            {
+                response.setStatus ( HttpServletResponse.SC_CONFLICT );
+                response.getWriter ().format ( "Artifact rejected! %s", ( (VetoArtifactException)cause ).getVetoMessage ().orElse ( "No details given" ) );
+            }
+            else
+            {
+                response.setStatus ( HttpServletResponse.SC_INTERNAL_SERVER_ERROR );
+                response.getWriter ().format ( "Internal error! %s", ExceptionHelper.getMessage ( cause ) );
+            }
             return;
         }
 
@@ -610,7 +622,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/clear", method = RequestMethod.GET )
-    public ModelAndView clear ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView clear ( @PathVariable ( "channelId" ) final String channelId )
     {
         return withChannel ( channelId, ModifiableChannel.class, channel -> {
             channel.getContext ().clear ();
@@ -624,7 +636,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/deployKeys" )
-    public ModelAndView deployKeys ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView deployKeys ( @PathVariable ( "channelId" ) final String channelId )
     {
         return withChannel ( channelId, DeployKeysChannelAdapter.class, deployChannel -> {
             return withChannel ( channelId, ReadableChannel.class, channel -> {
@@ -660,7 +672,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @RequestMapping ( "/channel/{channelId}/help/p2" )
     @Secured ( false )
     @HttpConstraint ( PERMIT )
-    public ModelAndView helpP2 ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView helpP2 ( @PathVariable ( "channelId" ) final String channelId )
     {
         return withChannel ( channelId, ReadableChannel.class, channel -> {
             final Map<String, Object> model = new HashMap<> ();
@@ -677,7 +689,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @RequestMapping ( "/channel/{channelId}/help/api" )
     @Secured ( false )
     @HttpConstraint ( PERMIT )
-    public ModelAndView helpApi ( @PathVariable ( "channelId" ) final String channelId, final HttpServletRequest request)
+    public ModelAndView helpApi ( @PathVariable ( "channelId" ) final String channelId, final HttpServletRequest request )
     {
         return withChannel ( channelId, ReadableChannel.class, channel -> {
             final Map<String, Object> model = new HashMap<> ();
@@ -722,13 +734,13 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/addDeployGroup", method = RequestMethod.POST )
-    public ModelAndView addDeployGroup ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "groupId" ) final String groupId)
+    public ModelAndView addDeployGroup ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "groupId" ) final String groupId )
     {
         return modifyDeployGroup ( channelId, groupId, DeployKeysChannelAdapter::assignDeployGroup );
     }
 
     @RequestMapping ( value = "/channel/{channelId}/removeDeployGroup", method = RequestMethod.POST )
-    public ModelAndView removeDeployGroup ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "groupId" ) final String groupId)
+    public ModelAndView removeDeployGroup ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "groupId" ) final String groupId )
     {
         return modifyDeployGroup ( channelId, groupId, DeployKeysChannelAdapter::unassignDeployGroup );
     }
@@ -745,7 +757,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @Secured ( false )
     @RequestMapping ( value = "/channel/{channelId}/aspects", method = RequestMethod.GET )
     @HttpConstraint ( PERMIT )
-    public ModelAndView aspects ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView aspects ( @PathVariable ( "channelId" ) final String channelId )
     {
         return withChannel ( channelId, ReadableChannel.class, channel -> {
 
@@ -782,7 +794,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/viewAspectVersions", method = RequestMethod.GET )
-    public ModelAndView viewAspectVersions ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView viewAspectVersions ( @PathVariable ( "channelId" ) final String channelId )
     {
         return withChannel ( channelId, ReadableChannel.class, channel -> {
             final Map<String, String> states = channel.getInformation ().getAspectStates ();
@@ -801,7 +813,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/lock", method = RequestMethod.GET )
-    public ModelAndView lock ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView lock ( @PathVariable ( "channelId" ) final String channelId )
     {
         try
         {
@@ -818,7 +830,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/unlock", method = RequestMethod.GET )
-    public ModelAndView unlock ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView unlock ( @PathVariable ( "channelId" ) final String channelId )
     {
         try
         {
@@ -835,7 +847,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/addAspect", method = RequestMethod.POST )
-    public ModelAndView addAspect ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "aspect" ) final String aspectFactoryId)
+    public ModelAndView addAspect ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "aspect" ) final String aspectFactoryId )
     {
         return withChannel ( channelId, AspectableChannel.class, channel -> {
             channel.addAspects ( false, aspectFactoryId );
@@ -844,7 +856,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/addAspectWithDependencies", method = RequestMethod.POST )
-    public ModelAndView addAspectWithDependencies ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "aspect" ) final String aspectFactoryId)
+    public ModelAndView addAspectWithDependencies ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "aspect" ) final String aspectFactoryId )
     {
         return withChannel ( channelId, AspectableChannel.class, channel -> {
             channel.addAspects ( true, aspectFactoryId );
@@ -853,7 +865,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/removeAspect", method = RequestMethod.POST )
-    public ModelAndView removeAspect ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "aspect" ) final String aspectFactoryId)
+    public ModelAndView removeAspect ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "aspect" ) final String aspectFactoryId )
     {
         return withChannel ( channelId, AspectableChannel.class, channel -> {
             channel.removeAspects ( aspectFactoryId );
@@ -862,7 +874,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/refreshAspect", method = RequestMethod.POST )
-    public ModelAndView refreshAspect ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "aspect" ) final String aspectFactoryId)
+    public ModelAndView refreshAspect ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "aspect" ) final String aspectFactoryId )
     {
         return withChannel ( channelId, AspectableChannel.class, channel -> {
             channel.refreshAspects ( aspectFactoryId );
@@ -871,7 +883,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/refreshAllAspects", method = RequestMethod.GET )
-    public ModelAndView refreshAllAspects ( @PathVariable ( "channelId" ) final String channelId, final HttpServletRequest request)
+    public ModelAndView refreshAllAspects ( @PathVariable ( "channelId" ) final String channelId, final HttpServletRequest request )
     {
         return withChannel ( channelId, AspectableChannel.class, channel -> {
             channel.refreshAspects ();
@@ -880,7 +892,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/edit", method = RequestMethod.GET )
-    public ModelAndView edit ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView edit ( @PathVariable ( "channelId" ) final String channelId )
     {
         final Map<String, Object> model = new HashMap<> ();
 
@@ -906,7 +918,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/edit", method = RequestMethod.POST )
-    public ModelAndView editPost ( @PathVariable ( "channelId" ) final String channelId, @Valid @FormData ( "command" ) final EditChannel data, final BindingResult result)
+    public ModelAndView editPost ( @PathVariable ( "channelId" ) final String channelId, @Valid @FormData ( "command" ) final EditChannel data, final BindingResult result )
     {
         if ( !result.hasErrors () )
         {
@@ -928,7 +940,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
     @RequestMapping ( value = "/channel/{channelId}/viewCache", method = RequestMethod.GET )
     @HttpConstraint ( rolesAllowed = { "MANAGER", "ADMIN" } )
-    public ModelAndView viewCache ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView viewCache ( @PathVariable ( "channelId" ) final String channelId )
     {
         return withChannel ( channelId, ReadableChannel.class, channel -> {
             final Map<String, Object> model = new HashMap<> ();
@@ -942,7 +954,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
     @RequestMapping ( value = "/channel/{channelId}/viewCacheEntry", method = RequestMethod.GET )
     @HttpConstraint ( rolesAllowed = { "MANAGER", "ADMIN" } )
-    public ModelAndView viewCacheEntry ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "namespace" ) final String namespace, @RequestParameter ( "key" ) final String key, final HttpServletResponse response)
+    public ModelAndView viewCacheEntry ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "namespace" ) final String namespace, @RequestParameter ( "key" ) final String key, final HttpServletResponse response )
     {
         return withChannel ( channelId, ReadableChannel.class, channel -> {
 
@@ -1151,7 +1163,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     }
 
     @RequestMapping ( value = "/channel/{channelId}/artifact/{artifactId}/attach", method = RequestMethod.GET )
-    public ModelAndView attachArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId)
+    public ModelAndView attachArtifact ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId )
     {
         return withChannel ( channelId, ReadableChannel.class, channel -> {
             final Optional<ChannelArtifactInformation> artifact = channel.getArtifact ( artifactId );
@@ -1166,7 +1178,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
     @RequestMapping ( value = "/channel/{channelId}/artifact/{artifactId}/attach", method = RequestMethod.POST )
     public ModelAndView attachArtifactPost ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId, @RequestParameter (
-            required = false, value = "name" ) final String name, final @RequestParameter ( "file" ) Part file)
+            required = false, value = "name" ) final String name, final @RequestParameter ( "file" ) Part file )
     {
         return withChannel ( channelId, ModifiableChannel.class, channel -> {
 

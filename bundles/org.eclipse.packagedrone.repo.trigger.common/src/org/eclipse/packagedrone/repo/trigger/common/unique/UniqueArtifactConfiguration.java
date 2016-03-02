@@ -32,6 +32,8 @@ public class UniqueArtifactConfiguration
 
     private VetoPolicy vetoPolicy = DEFAULT_VETO_POLICY;
 
+    private String reason;
+
     public void setKeys ( final MetaKey[] keys )
     {
         this.keys = keys;
@@ -60,6 +62,16 @@ public class UniqueArtifactConfiguration
     public VetoPolicy getVetoPolicy ()
     {
         return this.vetoPolicy;
+    }
+
+    public void setReason ( final String reason )
+    {
+        this.reason = reason;
+    }
+
+    public String getReason ()
+    {
+        return this.reason;
     }
 
     private static Gson createGson ()

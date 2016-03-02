@@ -44,7 +44,8 @@ import org.eclipse.packagedrone.repo.aspect.extract.Extractor;
 import org.eclipse.packagedrone.repo.aspect.listener.PostAddContext;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ValidationMessage;
-import org.eclipse.packagedrone.repo.channel.VetoPolicy;
+import org.eclipse.packagedrone.repo.channel.Veto;
+import org.eclipse.packagedrone.repo.channel.VetoArtifactException;
 import org.eclipse.packagedrone.repo.channel.apm.ChannelContextAccessor;
 import org.eclipse.packagedrone.repo.channel.apm.aspect.AspectableContext.ArtifactAddition;
 import org.eclipse.packagedrone.repo.channel.apm.internal.Activator;
@@ -524,14 +525,16 @@ public class AspectContextImpl
                     // check veto - pre add
 
                     {
-                        final VetoPolicy veto = checkVetoPreAdd ( name, tmp, type.isExternal () );
-                        if ( VetoPolicy.REJECT == veto )
+                        final Veto veto = checkVetoPreAdd ( name, tmp, type.isExternal () );
+                        if ( veto != null )
                         {
-                            return null;
-                        }
-                        else if ( VetoPolicy.FAIL == veto )
-                        {
-                            throw new RuntimeException ( String.format ( "Veto[FAIL] pre-add artifact - name: %s", name ) );
+                            switch ( veto.getPolicy () )
+                            {
+                                case REJECT:
+                                    return null;
+                                case FAIL:
+                                    failVeto ( name, "pre-add", veto );
+                            }
                         }
                     }
 
@@ -546,14 +549,17 @@ public class AspectContextImpl
                     // check veto - addition
 
                     {
-                        final VetoPolicy veto = checkVetoAdding ( name, tmp, type.isExternal (), providedMetaData, extraction.metadata, extraction.messages );
-                        if ( VetoPolicy.REJECT == veto )
+                        final Veto veto = checkVetoAdding ( name, tmp, type.isExternal (), providedMetaData, extraction.metadata, extraction.messages );
+
+                        if ( veto != null )
                         {
-                            return null;
-                        }
-                        else if ( VetoPolicy.FAIL == veto )
-                        {
-                            throw new RuntimeException ( String.format ( "Veto[FAIL] adding artifact - name: %s", name ) );
+                            switch ( veto.getPolicy () )
+                            {
+                                case REJECT:
+                                    return null;
+                                case FAIL:
+                                    failVeto ( name, "adding", veto );
+                            }
                         }
                     }
 
@@ -592,6 +598,11 @@ public class AspectContextImpl
             // -> aggregators run after with guard
 
         } );
+    }
+
+    private void failVeto ( final String artifactName, final String phase, final Veto veto )
+    {
+        throw new VetoArtifactException ( artifactName, phase, veto.getPolicy (), veto.getMessage () );
     }
 
     private ArtifactInformation internalCreateArtifact ( final String parentId, final InputStream stream, final String name, final Map<MetaKey, String> providedMetaData, final ArtifactType type, final String virtualizerAspectId ) throws IOException
@@ -690,7 +701,7 @@ public class AspectContextImpl
     }
 
     @SuppressWarnings ( "deprecation" )
-    private VetoPolicy checkVetoPreAdd ( final String name, final Path file, final boolean external )
+    private Veto checkVetoPreAdd ( final String name, final Path file, final boolean external )
     {
         final PreAddContextImpl ctx = new PreAddContextImpl ( name, file, external, this.context );
 
@@ -705,7 +716,7 @@ public class AspectContextImpl
         return ctx.getVeto ();
     }
 
-    private VetoPolicy checkVetoAdding ( final String name, final Path file, final boolean external, final Map<MetaKey, String> providedMetaData, final Map<MetaKey, String> extractMetaData, final List<ValidationMessage> validationMessages )
+    private Veto checkVetoAdding ( final String name, final Path file, final boolean external, final Map<MetaKey, String> providedMetaData, final Map<MetaKey, String> extractMetaData, final List<ValidationMessage> validationMessages )
     {
         final AddingContextImpl ctx = new AddingContextImpl ( name, file, external, providedMetaData, extractMetaData, validationMessages, this.context );
 
