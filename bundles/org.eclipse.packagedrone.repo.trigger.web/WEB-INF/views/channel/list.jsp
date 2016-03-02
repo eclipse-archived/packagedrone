@@ -348,7 +348,7 @@ function reorder ( ele1, ele2 ) {
 	Overlay.show();
 	var req = $.post( "reorder", data );
 	
-	req.done ( Overlay.successReload );
+	req.done ( function (){ window.location.reload(); } );
 	
 	req.fail ( function (jqXHR, textStatus, e) {
 		// failure
