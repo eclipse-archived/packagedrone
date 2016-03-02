@@ -117,6 +117,7 @@
 		<module>bundles/org.eclipse.packagedrone.repo.channel.impl</module>
 		<module>bundles/org.eclipse.packagedrone.repo.channel.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.channel.web.description</module>
+		<module>bundles/org.eclipse.packagedrone.repo.cleanup</module>
 		<module>bundles/org.eclipse.packagedrone.repo.generator</module>
 		<module>bundles/org.eclipse.packagedrone.repo.generator.p2</module>
 		<module>bundles/org.eclipse.packagedrone.repo.importer</module>
@@ -140,7 +141,9 @@
 		<module>bundles/org.eclipse.packagedrone.repo.tests</module>
 		
 		<module>bundles/org.eclipse.packagedrone.repo.trigger</module>
+		<module>bundles/org.eclipse.packagedrone.repo.trigger.cleanup</module>
 		<module>bundles/org.eclipse.packagedrone.repo.trigger.common</module>
+		<module>bundles/org.eclipse.packagedrone.repo.trigger.http</module>
 		<module>bundles/org.eclipse.packagedrone.repo.trigger.web</module>
 		
 		<module>bundles/org.eclipse.packagedrone.repo.utils.osgi</module>
