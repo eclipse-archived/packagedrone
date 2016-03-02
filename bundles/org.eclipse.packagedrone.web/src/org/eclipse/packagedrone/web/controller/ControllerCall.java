@@ -19,6 +19,7 @@ import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
 
 import org.eclipse.packagedrone.web.ModelAndView;
 import org.eclipse.packagedrone.web.RequestHandler;
@@ -162,6 +163,10 @@ public class ControllerCall
         else if ( result == null )
         {
             return new NoOpRequestHandler ();
+        }
+        else if ( result instanceof Response )
+        {
+            return new JaxRsResponseHandler ( (Response)result );
         }
         else
         {

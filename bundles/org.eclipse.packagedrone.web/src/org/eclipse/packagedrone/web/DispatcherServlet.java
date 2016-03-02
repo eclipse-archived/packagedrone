@@ -103,16 +103,17 @@ public class DispatcherServlet extends HttpServlet
 
             try
             {
-
-                final RequestHandler requestHandler = mapRequest ( request, response );
-                if ( requestHandler != null )
+                try ( final RequestHandler requestHandler = mapRequest ( request, response ) )
                 {
-                    runPostProcess ( interceptors, request, response, requestHandler );
-                    requestHandler.process ( request, response );
-                }
-                else
-                {
-                    Responses.notFound ( request, response );
+                    if ( requestHandler != null )
+                    {
+                        runPostProcess ( interceptors, request, response, requestHandler );
+                        requestHandler.process ( request, response );
+                    }
+                    else
+                    {
+                        Responses.notFound ( request, response );
+                    }
                 }
             }
             catch ( final ServletException e )
