@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -227,10 +228,19 @@ public class TriggeredChannelModel
             throw new IllegalArgumentException ( String.format ( "Unknow trigger '%s'", triggerId1 ) );
         }
 
-        final List<TriggerProcessorConfiguration> list2 = this.processors.get ( triggerId2 );
+        List<TriggerProcessorConfiguration> list2 = this.processors.get ( triggerId2 );
         if ( list2 == null )
         {
-            throw new IllegalArgumentException ( String.format ( "Unknow trigger '%s'", triggerId2 ) );
+            if ( processorId2 != null )
+            {
+                throw new IllegalArgumentException ( String.format ( "Unknow trigger '%s'", triggerId2 ) );
+            }
+            else
+            {
+                // we don't expect anything to be in this list, so it might be that it is not filled
+                list2 = new LinkedList<> ();
+                this.processors.put ( triggerId2, list2 );
+            }
         }
 
         final int p1 = indexOf ( list1, e -> e.getId ().equals ( processorId1 ) );
