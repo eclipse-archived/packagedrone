@@ -116,6 +116,7 @@
     	<attribute name="qualifier" />
     	<sequential>
     		<get src="http://download.eclipse.org/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}_@{version}.@{qualifier}.jar" dest="download/bundles" usetimestamp="true" />
+    		<get src="http://download.eclipse.org/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}.source_@{version}.@{qualifier}.jar" dest="download/sourcebundles" usetimestamp="true" ignoreerrors="true" />
     	</sequential>
     </macrodef>
 
@@ -129,6 +130,7 @@
         <mkdir dir="download" />
         <mkdir dir="download/bundles" />
     	<mkdir dir="download/sources" />
+    	<mkdir dir="download/sourcebundles" />
 
         <parallel threadcount="4">
         	<get src="http://eclipse.org/downloads/download.php?file=/jetty/${jetty.version}/dist/jetty-distribution-${jetty.version}.tar.gz&amp;r=1" dest="download/jetty-distribution.tar.gz" usetimestamp="true" />
@@ -236,6 +238,10 @@
         	<!-- for testing -->
         	
         	<orbitGet bundle="org.hamcrest.core" version="1.3.0" qualifier="v201303031735"/>
+        	
+        	<!-- jax rs -->
+        	
+        	<orbitGet bundle="javax.ws.rs" version="2.0.1" qualifier="v201504171603"/>
         	
         </parallel>
 
