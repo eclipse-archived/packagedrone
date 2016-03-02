@@ -35,14 +35,13 @@
   padding-right: 0.5em;
   
   color: #CCCCCC;
-  display: inline-block;
-  vertical-align: top;
   
-  margin-top: 6px;
-  font-size: large;
+  width: 30px;
 }
 .processor-content {
-  display: inline-block;
+}
+.actions {
+  white-space: nowrap;
 }
 -->
 </style>
@@ -71,7 +70,7 @@
           <c:otherwise><c:remove var="ti"/></c:otherwise>
         </c:choose>
       
-        <td id="row-trigger-${fn:escapeXml(trigger.id) }">
+        <td colspan="2" id="row-trigger-${fn:escapeXml(trigger.id) }">
         
           <h4>
             <c:choose>
@@ -101,7 +100,7 @@
           </p>
         </td>
         
-        <td align="right">
+        <td class="actions" align="right">
           
           <form method="POST" action="removeTrigger">
             <input type="hidden" name="triggerId" value="${fn:escapeXml(trigger.id) }">
@@ -170,29 +169,30 @@
         
         <tr class="processor" data-trigger-id="${fn:escapeXml(trigger.id)}" data-processor-id="${ fn:escapeXml(processor.id) }">
           
-          <td>
-            <div class="processor-drag-handle" draggable="true"><i class="fa fa-bars"></i></div>
-            <div class="processor-content">
-              <c:if test="${ not empty pi }">
-                <h4>${fn:escapeXml(pi.label)} <small>${processor.configuration.factoryId }</small></h4>
-                
-                <c:choose>
-                  <c:when test="${ processor.state.present and not empty processor.state.get().htmlState}">
-                    <p>${processor.state.get().htmlState}</p><%-- don't escape html on purpose --%>
-                  </c:when>
-                  <c:otherwise>
-                    <p>${fn:escapeXml(pi.description) }</p>
-                  </c:otherwise>
-                </c:choose>
-                
-              </c:if>
-              <c:if test="${empty pi }">
-                <h4>${processor.configuration.factoryId } <span class="label label-danger" title="The factory implementing the functionality is missing or not active" data-toggle="tooltip">unbound</span></h4>
-              </c:if>
-            </div>
+          <td class="processor-drag-handle" draggable="true">
+            <h4><i class="fa fa-bars"></i></h4>
           </td>
           
-          <td align="right">
+          <td class="processor-content">
+            <c:if test="${ not empty pi }">
+              <h4>${fn:escapeXml(pi.label)} <small>${processor.configuration.factoryId }</small></h4>
+              
+              <c:choose>
+                <c:when test="${ processor.state.present and not empty processor.state.get().htmlState}">
+                  <p>${processor.state.get().htmlState}</p><%-- don't escape html on purpose --%>
+                </c:when>
+                <c:otherwise>
+                  <p>${fn:escapeXml(pi.description) }</p>
+                </c:otherwise>
+              </c:choose>
+              
+            </c:if>
+            <c:if test="${empty pi }">
+              <h4>${processor.configuration.factoryId } <span class="label label-danger" title="The factory implementing the functionality is missing or not active" data-toggle="tooltip">unbound</span></h4>
+            </c:if>
+          </td>
+          
+          <td class="actions" align="right">
             <form method="POST" action="removeProcessor">
               <input type="hidden" name="triggerId" value="${fn:escapeXml(trigger.id) }">
               <input type="hidden" name="processorId" value="${processor.id }">
