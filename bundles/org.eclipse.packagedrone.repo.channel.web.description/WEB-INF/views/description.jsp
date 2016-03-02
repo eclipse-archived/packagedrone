@@ -39,7 +39,8 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
     	  $('#description').attr("contenteditable","true");
     	  CKEDITOR.inline( 'description', {
     		  'startupFocus': true,
-    		  'uiColor': '#EEEEEE'
+    		  'uiColor': '#EEEEEE',
+    		  'extraPlugins': 'sourcedialog'
     		  } );
     	  $('#noDescription').hide();
     	  $('#editDescription').hide();
