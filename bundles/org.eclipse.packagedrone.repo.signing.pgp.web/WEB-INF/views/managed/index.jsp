@@ -50,12 +50,43 @@ pageContext.setAttribute ( "TAG", ServiceController.ACTION_TAG_PGP );
             	</ul>
             </td>
             <td>
-                <a class="btn btn-danger" href="<c:url value="/pgp.sign.managed/${fn:escapeXml(entry.id) }/delete"/>"><span class="glyphicon glyphicon-trash"></span></a>
+                <a class="btn btn-danger" data-key-id="${fn:escapeXml(entry.id)}" data-toggle="modal" data-target="#confirmationDialog">
+                    <span class="glyphicon glyphicon-trash"></span>
+                </a>
             </td>
         </tr>
     </c:forEach>
     </tbody>
 </table>
+
+<!-- Confirmation dialog -->
+<div class="modal fade" id="confirmationDialog" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+              <div class="modal-header">
+                  <h4 class="modal-title">Are you sure?</h4>
+              </div>
+              <div class="modal-body">
+                  <p>You are about to delete this PGP Key. This action <strong>cannot be undone</strong>.</p>
+                  <p>Do you want to proceed?</p>
+              </div>
+              <div class="modal-footer">
+                  <a type="button" class="btn btn-default" data-dismiss="modal">Cancel</a>
+                  <a type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</a>
+              </div>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamically updates the delete button href to the correct Key -->
+<script type="text/javascript">
+$("#confirmationDialog").on("show.bs.modal", function(event) {
+    var button = $(event.relatedTarget);
+    var id = button.data("key-id");
+    var modal = $(this);
+    modal.find("#confirmDeleteBtn").attr('href', '/pgp.sign.managed/' + id + '/delete');
+})
+</script>
 
 </div>
 
