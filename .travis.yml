@@ -35,4 +35,5 @@ addons:
    apt:
       packages:
          - rpm
+         - liburi-perl
 
