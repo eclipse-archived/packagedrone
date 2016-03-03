@@ -21,6 +21,7 @@
   </setupTask>
   <setupTask
       xsi:type="setup:EclipseIniTask"
+      excludedTriggers="STARTUP MANUAL"
       option="-Xmx"
       value="1024m"
       vm="true">
