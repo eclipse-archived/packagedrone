@@ -11,9 +11,13 @@
 package org.eclipse.packagedrone.repo.web.ci;
 
 import static com.google.common.html.HtmlEscapers.htmlEscaper;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -48,6 +52,14 @@ public class BuildUrlExtender implements TableExtender
 
     private static final String SERVER_NAME_HUDSON = "Hudson";
 
+    private static final MetaKey KEY_TRAVIS_REPO = new MetaKey ( "travis", "repoSlug" );
+
+    private static final MetaKey KEY_TRAVIS_JOB_ID = new MetaKey ( "travis", "jobId" );
+
+    private static final MetaKey KEY_TRAVIS_JOB_NUMBER = new MetaKey ( "travis", "jobNumber" );
+
+    private static final String SERVER_NAME_TRAVIS = "Travis CI";
+
     @Override
     public void getColumns ( final HttpServletRequest request, final TableDescriptor descriptor, final Consumer<TableColumnProvider> columnReceiver )
     {
@@ -70,51 +82,73 @@ public class BuildUrlExtender implements TableExtender
 
         map.map ( BuildUrlExtender::fromHudson );
         map.map ( BuildUrlExtender::fromJenkins );
+        map.map ( BuildUrlExtender::fromTravis );
 
-        return map.get ();
+        return map.get ().orElse ( null );
     }
 
-    protected static String fromJenkins ( final ArtifactInformation art )
+    protected static Optional<String> fromJenkins ( final ArtifactInformation art )
     {
         return fromUrlAndNumber ( art, KEY_JENKINS_URL, KEY_JENKINS_NUMBER, KEY_JENKINS_JOB_NAME, SERVER_NAME_JENKINS );
     }
 
-    protected static String fromHudson ( final ArtifactInformation art )
+    protected static Optional<String> fromHudson ( final ArtifactInformation art )
     {
         return fromUrlAndNumber ( art, KEY_HUDSON_URL, KEY_HUDSON_NUMBER, KEY_HUDSON_JOB_NAME, SERVER_NAME_HUDSON );
     }
 
-    private static String fromUrlAndNumber ( final ArtifactInformation art, final MetaKey keyUrl, final MetaKey keyNumber, final MetaKey keyJobName, final String serverName )
+    private static Optional<String> makeUrl ( final String serverName, final Supplier<String> urlProvider, final Supplier<String> labelProvider, final Supplier<String> titleProvider )
     {
-        final String url = art.getMetaData ().get ( keyUrl );
-        final String number = art.getMetaData ().get ( keyNumber );
-        final String jobName = art.getMetaData ().get ( keyJobName ); // optional
-
-        if ( url == null || url.isEmpty () || number == null || number.isEmpty () )
-        {
-            return null;
-        }
+        final String url;
 
         try
         {
-            // test parse
+            url = urlProvider.get ();
+            if ( url == null || url.isEmpty () )
+            {
+                return empty ();
+            }
             new URI ( url );
-            Long.parseLong ( number );
+        }
+        catch ( final Exception e )
+        {
+            return empty ();
+        }
+
+        final String label;
+        try
+        {
+            label = labelProvider.get ();
+        }
+        catch ( final Exception e )
+        {
+            return empty ();
+        }
+
+        if ( label == null || label.isEmpty () )
+        {
+            return empty ();
+        }
+
+        String title = null;
+
+        try
+        {
+            title = titleProvider.get ();
         }
         catch ( final Exception e )
         {
             // ignore
-            return null;
         }
 
         final StringBuilder sb = new StringBuilder ();
 
         sb.append ( "<a target=\"_blank\" href=\"" ).append ( url ).append ( "\"" );
 
-        if ( jobName != null && !jobName.isEmpty () )
+        if ( title != null && !title.isEmpty () )
         {
             sb.append ( " title=\"" );
-            sb.append ( htmlEscaper ().escape ( String.format ( "Build #%s of job '%s' on %s", jobName, serverName ) ) );
+            sb.append ( htmlEscaper ().escape ( title ) );
             sb.append ( "\"" );
         }
         else
@@ -123,9 +157,37 @@ public class BuildUrlExtender implements TableExtender
         }
 
         sb.append ( ">" );
-        sb.append ( "#" ).append ( number );
+        sb.append ( htmlEscaper ().escape ( label ) );
         sb.append ( "</a>" );
 
-        return sb.toString ();
+        return of ( sb.toString () );
+    }
+
+    private static Optional<String> fromUrlAndNumber ( final ArtifactInformation art, final MetaKey keyUrl, final MetaKey keyNumber, final MetaKey keyJobName, final String serverName )
+    {
+        return makeUrl ( serverName, () -> art.getMetaData ().get ( keyUrl ), () -> {
+            return String.format ( "#%d", Long.parseLong ( art.getMetaData ().get ( keyNumber ) ) );
+        }, () -> {
+            final Optional<String> jobName = Optional.ofNullable ( art.getMetaData ().get ( keyJobName ) );
+            return jobName.map ( name -> String.format ( "Build #%s of job '%s' on %s", name, serverName ) ).orElse ( null );
+        } );
+    }
+
+    private static Optional<String> fromTravis ( final ArtifactInformation art )
+    {
+        return makeUrl ( SERVER_NAME_TRAVIS, () -> {
+            final String repo = art.getMetaData ().get ( KEY_TRAVIS_REPO );
+            if ( repo == null || repo.isEmpty () )
+            {
+                return null;
+            }
+            return String.format ( "https://travis-ci.org/%s/jobs/%s", repo, art.getMetaData ().get ( KEY_TRAVIS_JOB_ID ) );
+        }, () -> {
+            final Optional<String> jobNumber = Optional.ofNullable ( art.getMetaData ().get ( KEY_TRAVIS_JOB_NUMBER ) );
+            return jobNumber.map ( name -> "#" + name ).orElse ( null );
+        }, () -> {
+            final Optional<String> jobName = Optional.ofNullable ( art.getMetaData ().get ( KEY_TRAVIS_JOB_NUMBER ) );
+            return jobName.map ( name -> String.format ( "%s job #%s of repository %s", SERVER_NAME_TRAVIS, name, art.getMetaData ().get ( KEY_TRAVIS_REPO ) ) ).orElse ( null );
+        } );
     }
 }
