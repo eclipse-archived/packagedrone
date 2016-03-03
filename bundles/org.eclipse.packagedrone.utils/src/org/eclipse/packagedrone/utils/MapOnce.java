@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -29,16 +30,16 @@ public class MapOnce<T, R>
 {
     private final T value;
 
-    private R result;
+    private Optional<R> result = Optional.empty ();
 
     public MapOnce ( final T value )
     {
         this.value = value;
     }
 
-    public void map ( final Function<T, R> func )
+    public void map ( final Function<T, Optional<R>> func )
     {
-        if ( this.result == null )
+        if ( !this.result.isPresent () )
         {
             this.result = func.apply ( this.value );
         }
@@ -47,9 +48,10 @@ public class MapOnce<T, R>
     /**
      * Get the mapping result
      *
-     * @return the mapping result, may be {@code null}
+     * @return the mapping result, may be {@link Optional#empty()} but is never
+     *         {@code null}
      */
-    public R get ()
+    public Optional<R> get ()
     {
         return this.result;
     }
