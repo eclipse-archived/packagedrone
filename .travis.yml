@@ -26,7 +26,7 @@ install:
 script: mvn package -B
 
 after_success:
- - for i in `ls products/org.eclipse.packagedrone.server/target/*.{zip,deb}`; do curl -X PUT --data-binary @$i "https://deploy:$DKEY@packagedrone.eclipse.org/api/v2/upload/channel/packagagedrone-ci/$(basename $i)?travis:buildNumber=$TRAVIS_BUILD_NUMBER&travis:jobNumber=$TRAVIS_JOB_NUMBER&travis:repoSlug=$(perl -MURI::Escape -e 'print uri_escape($ARGV[0])' "$TRAVIS_REPO_SLUG")"; done
+ - for i in `ls products/org.eclipse.packagedrone.server/target/*.{zip,deb}`; do curl -X PUT --data-binary @$i "http://deploy:$DKEY@packagedrone.eclipse.org/api/v2/upload/channel/packagagedrone-ci/$(basename $i)?travis:buildNumber=$TRAVIS_BUILD_NUMBER&travis:jobNumber=$TRAVIS_JOB_NUMBER&travis:repoSlug=$(perl -MURI::Escape -e 'print uri_escape($ARGV[0])' "$TRAVIS_REPO_SLUG")"; done
 
 jdk:
   - oraclejdk8
