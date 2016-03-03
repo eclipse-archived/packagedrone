@@ -17,7 +17,6 @@ import static org.eclipse.packagedrone.utils.Locks.lock;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -375,7 +374,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
         {
             return this.manager.modifyCall ( KEY_STORAGE, ChannelServiceModify.class, model -> {
 
-                final DeployKeysChannelAdapterImpl adapter = new DeployKeysChannelAdapterImpl ( channel.getChannelId (), model) {
+                final DeployKeysChannelAdapterImpl adapter = new DeployKeysChannelAdapterImpl ( channel.getChannelId (), model ) {
 
                     @Override
                     public void assignDeployGroup ( final String groupId )
@@ -425,7 +424,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
                 return Optional.empty ();
             }
 
-            return Optional.ofNullable ( this.deployKeysMap.get ( channel.get ().getChannelId () ) ).map ( Collections::unmodifiableCollection );
+            return Optional.ofNullable ( this.deployKeysMap.get ( channel.get ().getChannelId () ) ).map ( ArrayList<DeployGroup>::new );
         }
     }
 
