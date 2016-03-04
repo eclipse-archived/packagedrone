@@ -53,8 +53,8 @@ The more code you want to contribute the better for the project. But only if the
 "right direction". Since that might be a very subjective definition, it is best to get into contact with
 the project first and code later.
 
-Of course it is possible to use GitHub issues for new features and issues with the software. For any other
+Of course it is possible to use [GitHub issues](https://github.com/eclipse/packagedrone/issues) for new features and issues with the software. For any other
 way of contact see the [main contact page](https://projects.eclipse.org/projects/technology.package-drone/contact) or:
 
 * [The forum](http://eclipse.org/forums/eclipse.package-drone)
-* [The mailing list](mailto:package-drone-dev@eclipse.org) – [About page](https://dev.eclipse.org/mailman/listinfo/package-drone-dev)
+* [The mailing list](mailto:package-drone-dev@eclipse.org) – [mailing list page](https://dev.eclipse.org/mailman/listinfo/package-drone-dev)
