@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.repo.channel.web.channel;
 
 import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 import static java.util.Collections.emptyList;
+import static java.util.Comparator.comparing;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
@@ -37,6 +38,7 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HttpConstraint;
@@ -122,6 +124,7 @@ import com.google.gson.GsonBuilder;
 @ControllerInterceptor ( ProfilerControllerInterceptor.class )
 public class ChannelController implements InterfaceExtender, SitemapExtender
 {
+    private static final Comparator<ChannelListEntry> CHANNEL_LIST_ENTRY_COMPARATOR = comparing ( ChannelListEntry::getKey, comparing ( ChannelListEntryKey::getModifier ).thenComparing ( comparing ( ChannelListEntryKey::getId, String.CASE_INSENSITIVE_ORDER ) ) );
 
     private static final int DEFAULT_MAX_WEB_SIZE = 10_000;
 
@@ -131,7 +134,7 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
     private final static Logger logger = LoggerFactory.getLogger ( ChannelController.class );
 
-    private final static List<MenuEntry> menuEntries = Collections.singletonList ( new MenuEntry ( "Channels", 100, new LinkTarget ( "/channel" ), Modifier.DEFAULT, null ) );
+    private final static List<MenuEntry> MENU_ENTRIES = Collections.singletonList ( new MenuEntry ( "Channels", 100, new LinkTarget ( "/channel" ), Modifier.DEFAULT, null ) );
 
     private static final Comparator<ArtifactInformation> TREE_ARTIFACTS_COMPARATOR = Comparator.comparing ( ArtifactInformation::getName ).thenComparing ( ArtifactInformation::getCreationInstant );
 
@@ -171,7 +174,53 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     @Override
     public List<MenuEntry> getMainMenuEntries ( final HttpServletRequest request )
     {
-        return menuEntries;
+        return MENU_ENTRIES;
+    }
+
+    public static class ChannelListEntryKey
+    {
+        private final Modifier modifier;
+
+        private final String id;
+
+        public ChannelListEntryKey ( final Modifier modifier, final String id )
+        {
+            this.modifier = modifier;
+            this.id = id;
+        }
+
+        public Modifier getModifier ()
+        {
+            return this.modifier;
+        }
+
+        public String getId ()
+        {
+            return this.id;
+        }
+    }
+
+    public static class ChannelListEntry
+    {
+        private final ChannelListEntryKey key;
+
+        private final ChannelInformation channel;
+
+        public ChannelListEntry ( final ChannelListEntryKey key, final ChannelInformation channel )
+        {
+            this.key = key;
+            this.channel = channel;
+        }
+
+        public ChannelListEntryKey getKey ()
+        {
+            return this.key;
+        }
+
+        public ChannelInformation getChannel ()
+        {
+            return this.channel;
+        }
     }
 
     @Secured ( false )
@@ -181,12 +230,24 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
     {
         final ModelAndView result = new ModelAndView ( "channel/list" );
 
-        final List<ChannelInformation> channels = new ArrayList<> ( this.channelService.list () );
-        channels.sort ( Comparator.comparing ( ChannelInformation::getId ) );
+        final List<ChannelListEntry> channels = this.channelService.list ().stream ().flatMap ( ChannelController::toEntry ).collect ( Collectors.toList () );
+        channels.sort ( CHANNEL_LIST_ENTRY_COMPARATOR );
 
         result.put ( "channels", Pagination.paginate ( startPage, 10, channels ) );
 
         return result;
+    }
+
+    private static Stream<ChannelListEntry> toEntry ( final ChannelInformation info )
+    {
+        final Stream<ChannelListEntry> idStream = Stream.of ( fromChannel ( info, Modifier.PRIMARY, info.getId () ) );
+        final Stream<ChannelListEntry> nameStream = info.getNames ().stream ().map ( name -> fromChannel ( info, Modifier.DEFAULT, name ) );
+        return Stream.concat ( idStream, nameStream );
+    }
+
+    private static ChannelListEntry fromChannel ( final ChannelInformation info, final Modifier mod, final String key )
+    {
+        return new ChannelListEntry ( new ChannelListEntryKey ( mod, key ), info );
     }
 
     @RequestMapping ( value = "/channel/create", method = RequestMethod.GET )
