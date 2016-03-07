@@ -53,6 +53,18 @@ public final class Pagination
         return new PaginationResult<> ( data, start > 0, hasNext, startPage, pageSize );
     }
 
+    /**
+     * Paginate from a full data set
+     *
+     * @param startPage
+     *            the start page
+     * @param pageSize
+     *            the size of a single page
+     * @param fullDataSet
+     *            the full data set
+     * @return a subset of the full data set, containing the items which match
+     *         the page window
+     */
     public static <T> PaginationResult<T> paginate ( final Integer startPage, final int pageSize, final List<T> fullDataSet )
     {
         return paginate ( startPage, pageSize, ( start, length ) -> {
