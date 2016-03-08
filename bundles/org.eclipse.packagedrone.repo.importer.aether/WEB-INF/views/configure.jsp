@@ -77,11 +77,13 @@ function doAction(action) {
                 <h4 class="panel-title"><span class="glyphicon glyphicon-info-sign"></span> Import from Maven repository</h4>
             </div>
             <div class="panel-body">
+            <p>
             This importer downloads the artifact content directly from an existing Maven 2 compatible repository.
-            </div>
-            <div class="panel-body">
+            </p>
+            <p>
             For this to work, the Package Drone server instance must have network access
             to this target resource.
+            </p>
             </div>
         </div>
     </div>
