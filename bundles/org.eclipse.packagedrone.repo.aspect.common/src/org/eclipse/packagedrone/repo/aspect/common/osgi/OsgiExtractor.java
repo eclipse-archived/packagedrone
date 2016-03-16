@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformationParser;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformationParser;
+import org.eclipse.scada.utils.ExceptionHelper;
 import org.osgi.framework.Constants;
 
 import com.google.common.io.ByteStreams;
@@ -102,7 +103,6 @@ public class OsgiExtractor implements Extractor
         final BundleInformation bi;
         try ( ZipFile zipFile = new ZipFile ( context.getPath ().toFile () ) )
         {
-
             final ZipEntry m = zipFile.getEntry ( JarFile.MANIFEST_NAME );
             if ( m == null )
             {
@@ -125,7 +125,15 @@ public class OsgiExtractor implements Extractor
                 manifest = new Manifest ( is );
             }
 
-            bi = new BundleInformationParser ( zipFile, manifest ).parse ();
+            try
+            {
+                bi = new BundleInformationParser ( zipFile, manifest ).parse ();
+            }
+            catch ( final Exception e )
+            {
+                context.validationError ( ExceptionHelper.getMessage ( e ) );
+                return;
+            }
             if ( bi == null )
             {
                 return;
