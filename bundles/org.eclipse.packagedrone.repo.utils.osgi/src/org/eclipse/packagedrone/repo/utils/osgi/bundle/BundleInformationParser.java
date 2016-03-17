@@ -79,7 +79,15 @@ public class BundleInformationParser
 
         result.setId ( id.getValue () );
         result.setSingleton ( Boolean.parseBoolean ( id.getAttributes ().get ( "singleton" ) ) );
-        result.setVersion ( new Version ( version.getValue () ) );
+
+        try
+        {
+            result.setVersion ( new Version ( version.getValue () ) );
+        }
+        catch ( final Exception e )
+        {
+            throw new IllegalArgumentException ( String.format ( "Illegal OSGi version: %s", version.getValue () ) );
+        }
 
         result.setName ( ma.getValue ( Constants.BUNDLE_NAME ) );
         result.setVendor ( ma.getValue ( Constants.BUNDLE_VENDOR ) );
