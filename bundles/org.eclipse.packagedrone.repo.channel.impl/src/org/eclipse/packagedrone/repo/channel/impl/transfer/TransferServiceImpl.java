@@ -49,8 +49,6 @@ import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelDetails;
 import org.eclipse.packagedrone.repo.channel.ChannelId;
-import org.eclipse.packagedrone.repo.channel.ChannelInformation;
-import org.eclipse.packagedrone.repo.channel.ChannelNotFoundException;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.DescriptorAdapter;
@@ -345,9 +343,9 @@ public class TransferServiceImpl implements TransferService
         {
             // wrap the input stream since we don't want the XML parser to close the stream while parsing
 
-            final Document doc = this.xmlToolsFactory.newDocumentBuilder ().parse ( new FilterInputStream ( stream) {
+            final Document doc = this.xmlToolsFactory.newDocumentBuilder ().parse ( new FilterInputStream ( stream ) {
                 @Override
-                public void close ( )
+                public void close ()
                 {
                     // do nothing
                 }
@@ -418,7 +416,7 @@ public class TransferServiceImpl implements TransferService
         for ( final ChannelId channelId : ids )
         {
             zos.putNextEntry ( new ZipEntry ( String.format ( "%s.zip", channelId.getId () ) ) );
-            exportChannel ( channelId, zos );
+            exportChannel ( By.id ( channelId.getId () ), zos );
             zos.closeEntry ();
         }
         zos.finish ();
@@ -427,33 +425,34 @@ public class TransferServiceImpl implements TransferService
     /**
      * Export the content of a channel
      *
-     * @param channelId
+     * @param by
      *            the channel to export
      * @param stream
      *            the stream to write the export file to
      * @throws IOException
      *             if the export cannot be performed
      */
-    private void exportChannel ( final ChannelId channelId, final OutputStream stream ) throws IOException
+    private void exportChannel ( final By by, final OutputStream stream ) throws IOException
     {
-        this.channelService.accessRun ( By.id ( channelId.getId () ), ReadableChannel.class, channel -> {
-            final ZipOutputStream zos = new ZipOutputStream ( stream );
+        final ZipOutputStream zos = new ZipOutputStream ( stream );
 
-            initExportFile ( zos );
+        initExportFile ( zos );
 
-            putDataEntry ( zos, "names", makeNames ( channelId ) );
-            putDataEntry ( zos, "description", channelId.getDescription () );
+        this.channelService.accessRun ( by, ReadableChannel.class, channel -> {
+
+            putDataEntry ( zos, "names", makeNames ( channel.getId () ) );
+            putDataEntry ( zos, "description", channel.getId ().getDescription () );
             putDirEntry ( zos, "artifacts" );
             putProperties ( zos, "properties.xml", channel.getContext ().getProvidedMetaData () );
             putAspects ( zos, channel.getContext ().getAspectStates ().keySet () );
 
-            // the first run receives all artifacts and filters for the root elemenets
+            // the first run receives all artifacts and filters for the root elements
 
             putArtifacts ( zos, "artifacts/", channel, channel.getArtifacts (), true );
 
-            zos.finish ();
         } );
 
+        zos.finish (); // don't close stream, since there might be other channels following
     }
 
     private Set<String> parseNames ( final String data )
@@ -485,13 +484,7 @@ public class TransferServiceImpl implements TransferService
     @Override
     public void exportChannel ( final String channelId, final OutputStream stream ) throws IOException
     {
-        final Optional<ChannelInformation> state = this.channelService.getState ( By.id ( channelId ) );
-        if ( !state.isPresent () )
-        {
-            throw new ChannelNotFoundException ( channelId );
-        }
-
-        exportChannel ( state.get (), stream );
+        exportChannel ( By.id ( channelId ), stream );
     }
 
     private void putArtifacts ( final ZipOutputStream zos, final String baseName, final ReadableChannel channel, final Collection<? extends ArtifactInformation> inputArtifacts, final boolean onlyRoot ) throws IOException
