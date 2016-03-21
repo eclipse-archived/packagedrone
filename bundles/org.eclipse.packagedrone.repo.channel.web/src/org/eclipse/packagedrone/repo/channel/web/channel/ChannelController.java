@@ -183,10 +183,13 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
         private final String id;
 
-        public ChannelListEntryKey ( final Modifier modifier, final String id )
+        private final String by;
+
+        public ChannelListEntryKey ( final Modifier modifier, final String id, final String by )
         {
             this.modifier = modifier;
             this.id = id;
+            this.by = by;
         }
 
         public Modifier getModifier ()
@@ -197,6 +200,11 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
         public String getId ()
         {
             return this.id;
+        }
+
+        public String getBy ()
+        {
+            return this.by;
         }
     }
 
@@ -240,14 +248,14 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
 
     private static Stream<ChannelListEntry> toEntry ( final ChannelInformation info )
     {
-        final Stream<ChannelListEntry> idStream = Stream.of ( fromChannel ( info, Modifier.PRIMARY, info.getId () ) );
-        final Stream<ChannelListEntry> nameStream = info.getNames ().stream ().map ( name -> fromChannel ( info, Modifier.DEFAULT, name ) );
+        final Stream<ChannelListEntry> idStream = Stream.of ( fromChannel ( info, Modifier.PRIMARY, info.getId (), "id" ) );
+        final Stream<ChannelListEntry> nameStream = info.getNames ().stream ().map ( name -> fromChannel ( info, Modifier.DEFAULT, name, "name" ) );
         return Stream.concat ( idStream, nameStream );
     }
 
-    private static ChannelListEntry fromChannel ( final ChannelInformation info, final Modifier mod, final String key )
+    private static ChannelListEntry fromChannel ( final ChannelInformation info, final Modifier mod, final String key, final String by )
     {
-        return new ChannelListEntry ( new ChannelListEntryKey ( mod, key ), info );
+        return new ChannelListEntry ( new ChannelListEntryKey ( mod, key, by ), info );
     }
 
     @RequestMapping ( value = "/channel/create", method = RequestMethod.GET )

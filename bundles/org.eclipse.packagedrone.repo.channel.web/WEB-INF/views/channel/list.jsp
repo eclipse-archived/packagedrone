@@ -32,7 +32,7 @@ pageContext.setAttribute ( "TAG", Tags.ACTION_TAG_CHANNELS );
       <thead>
       	<tr>
           	<th>ID</th>
-          	<%--<th>Names</th> --%>
+          	<th></th>
           	<th>Description</th>
           	<th>#</th>
           	<th>Size</th>
@@ -46,17 +46,10 @@ pageContext.setAttribute ( "TAG", Tags.ACTION_TAG_CHANNELS );
           
           <%-- the next call to "get" is required since jasper seems to have issues with Java 8 default methods --%>
           <tr class="${storage:severityWithDefault(channel.state.getOverallValidationState(), '') }">
-          <%--
-          	<td class="channel-id"><a href="<c:url value="/channel/${channel.id }/view"/>">${channel.id }</a></td>
-          	<td class="channel-names">
-          		<c:forEach var="name" items="${channel.names }">
-          			<span class="label label-default">${fn:escapeXml(name) }</span>
-          		</c:forEach>
-          	</td>
-             --%>
             <td class="channel-entry-key">
               <a href="<c:url value="/channel/${channel.id }/view"/>">${fn:escapeXml(entry.key.id) }</a>
             </td>
+            <td><span class="label label-default">${entry.key.by }</span></td>
             <td class="channel-description">${fn:escapeXml(channel.description) }</td>
             <td class="channel-count">${channel.state.numberOfArtifacts }</td>
             <td class="channel-size"><web:bytes amount="${channel.state.numberOfBytes }"/></td>
