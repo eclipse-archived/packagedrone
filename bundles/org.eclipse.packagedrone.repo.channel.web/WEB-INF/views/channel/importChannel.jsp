@@ -1,5 +1,9 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page
+  language="java"
+  contentType="text/html; charset=UTF-8"
+  pageEncoding="UTF-8"
+  trimDirectiveWhitespaces="true"
+  %>
     
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -26,6 +30,12 @@
                     <span class="help-block">
                     This will set the name of the channel (the alias) to the name of the exported channel in the archive.
                     If this channel name is already in use in the current system, then the import process will fail!
+                    </span>
+                </h:formCheckbox>
+                
+                <h:formCheckbox label="Import triggers" path="importTriggers" command="command">
+                    <span class="help-block">
+                    Enabling this option will also import the trigger configuration
                     </span>
                 </h:formCheckbox>
 			    			    

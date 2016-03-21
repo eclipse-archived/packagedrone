@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,7 +54,9 @@ import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.DescriptorAdapter;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
+import org.eclipse.packagedrone.repo.channel.transfer.ImportOptions;
 import org.eclipse.packagedrone.repo.channel.transfer.TransferService;
+import org.eclipse.packagedrone.repo.trigger.TriggeredChannel;
 import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -157,7 +159,7 @@ public class TransferServiceImpl implements TransferService
     }
 
     @Override
-    public void importAll ( final InputStream inputStream, final boolean useChannelNames, final boolean wipe ) throws IOException
+    public void importAll ( final InputStream inputStream, final ImportOptions options, final boolean wipe ) throws IOException
     {
         ZipEntry ze;
 
@@ -180,12 +182,12 @@ public class TransferServiceImpl implements TransferService
                 continue;
             }
 
-            importChannel ( zis, useChannelNames );
+            importChannel ( zis, options );
         }
     }
 
     @Override
-    public ChannelId importChannel ( final InputStream inputStream, final boolean useChannelName ) throws IOException
+    public ChannelId importChannel ( final InputStream inputStream, final ImportOptions options ) throws IOException
     {
         final Path tmp = Files.createTempFile ( "imp", null );
         try
@@ -195,7 +197,7 @@ public class TransferServiceImpl implements TransferService
                 ByteStreams.copy ( inputStream, tmpStream );
             }
 
-            return processImport ( tmp, useChannelName );
+            return processImport ( tmp, options );
         }
         finally
         {
@@ -203,7 +205,7 @@ public class TransferServiceImpl implements TransferService
         }
     }
 
-    private ChannelId processImport ( final Path tmp, final boolean useChannelName ) throws IOException
+    private ChannelId processImport ( final Path tmp, final ImportOptions options ) throws IOException
     {
         try ( final ZipFile zip = new ZipFile ( tmp.toFile () ) )
         {
@@ -234,16 +236,18 @@ public class TransferServiceImpl implements TransferService
             details.setDescription ( description );
             final ChannelId channelId = this.channelService.create ( "apm", details, Collections.emptyMap () );
 
+            final By by = By.id ( channelId.getId () );
+
             // apply the name if required and present
 
-            if ( useChannelName && !names.isEmpty () )
+            if ( options.isUseNames () && !names.isEmpty () )
             {
-                this.channelService.accessRun ( By.id ( channelId.getId () ), DescriptorAdapter.class, channel -> {
+                this.channelService.accessRun ( by, DescriptorAdapter.class, channel -> {
                     channel.setNames ( names );
                 } );
             }
 
-            this.channelService.accessRun ( By.id ( channelId.getId () ), ModifiableChannel.class, channel -> {
+            this.channelService.accessRun ( by, ModifiableChannel.class, channel -> {
 
                 // set provided meta data
 
@@ -264,6 +268,15 @@ public class TransferServiceImpl implements TransferService
                 }
 
             } );
+
+            final String triggers = getData ( zip, "triggers.json" );
+            if ( triggers != null && options.isProcessTriggers () )
+            {
+                final TriggerExport triggerExport = TriggerExport.fromJson ( triggers );
+                this.channelService.accessRun ( by, TriggeredChannel.class, channel -> {
+                    importTriggers ( triggerExport, channel );
+                } );
+            }
 
             return channelId;
         }
@@ -449,7 +462,10 @@ public class TransferServiceImpl implements TransferService
             // the first run receives all artifacts and filters for the root elements
 
             putArtifacts ( zos, "artifacts/", channel, channel.getArtifacts (), true );
+        } );
 
+        this.channelService.accessRun ( by, TriggeredChannel.class, channel -> {
+            putTriggers ( zos, channel );
         } );
 
         zos.finish (); // don't close stream, since there might be other channels following
@@ -571,6 +587,17 @@ public class TransferServiceImpl implements TransferService
         }
 
         putDataEntry ( zos, "aspects", sb.toString () );
+    }
+
+    private void importTriggers ( final TriggerExport triggerExport, final TriggeredChannel channel )
+    {
+        triggerExport.apply ( channel );
+    }
+
+    private void putTriggers ( final ZipOutputStream zos, final TriggeredChannel channel ) throws IOException
+    {
+        final TriggerExport export = TriggerExport.buildFrom ( channel );
+        putDataEntry ( zos, "triggers.json", export.toJson () );
     }
 
     private void putProperties ( final ZipOutputStream zos, final String name, final Map<MetaKey, String> providedMetaData ) throws IOException

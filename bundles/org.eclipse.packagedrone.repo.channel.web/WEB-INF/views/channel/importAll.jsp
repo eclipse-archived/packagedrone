@@ -47,14 +47,20 @@
 	                    this will only work, if neither of the imported channel names exists.
 	                    </span>
 	                </h:formCheckbox>
+                  
+                    <h:formCheckbox label="Import triggers" path="importTriggers" command="command">
+                        <span class="help-block">
+                        Enabling this option will also import the trigger configuration
+                        </span>
+                    </h:formCheckbox>
 	                
 	                <div class="text-danger">
-	                <h:formCheckbox label="Wipe storage before import" path="wipe" command="command">
-	                    <span class="help-block">
-	                    This will <em>delete all channels</em> before importing. All channels <em>will be lost</em> unless you do have
-	                    a separate backup! 
-	                    </span>
-	                </h:formCheckbox>
+    	                <h:formCheckbox label="Wipe storage before import" path="wipe" command="command">
+    	                    <span class="help-block">
+    	                    This will <em>delete all channels</em> before importing. All channels <em>will be lost</em> unless you do have
+    	                    a separate backup! 
+    	                    </span>
+    	                </h:formCheckbox>
 	                </div>
                 
                 </fieldset>

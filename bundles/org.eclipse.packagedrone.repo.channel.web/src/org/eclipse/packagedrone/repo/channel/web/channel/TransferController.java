@@ -1,4 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBH SYSTEMS GmbH - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.web.channel;
+
+import static com.google.common.net.UrlEscapers.urlPathSegmentEscaper;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -26,6 +38,7 @@ import javax.servlet.http.Part;
 import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.ChannelInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
+import org.eclipse.packagedrone.repo.channel.transfer.ImportOptions;
 import org.eclipse.packagedrone.repo.channel.transfer.TransferService;
 import org.eclipse.packagedrone.repo.channel.web.Tags;
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
@@ -50,7 +63,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
-import com.google.common.net.UrlEscapers;
 
 @Secured
 @Controller
@@ -119,7 +131,7 @@ public class TransferController implements InterfaceExtender
 
     @RequestMapping ( value = "/channel/{channelId}/export", method = RequestMethod.GET )
     @HttpConstraint ( value = EmptyRoleSemantic.PERMIT )
-    public ModelAndView exportChannel ( @PathVariable ( "channelId" ) final String channelId, final HttpServletResponse response)
+    public ModelAndView exportChannel ( @PathVariable ( "channelId" ) final String channelId, final HttpServletResponse response )
     {
         return performExport ( response, makeExportFileName ( channelId ), ( stream ) -> this.transferService.exportChannel ( channelId, stream ) );
     }
@@ -139,12 +151,17 @@ public class TransferController implements InterfaceExtender
 
     @RequestMapping ( value = "/channel/import", method = RequestMethod.POST )
     public ModelAndView importChannelPost ( @RequestParameter ( "file" ) final Part part, @RequestParameter (
-            value = "useName", required = false ) final boolean useName)
+            value = "useName", required = false ) final boolean useName, @RequestParameter ( value = "importTriggers",
+                    required = false ) final boolean importTriggers )
     {
         try
         {
-            final ChannelId channelId = this.transferService.importChannel ( part.getInputStream (), useName );
-            return new ModelAndView ( "redirect:/channel/" + UrlEscapers.urlPathSegmentEscaper ().escape ( channelId.getId () ) + "/view" );
+            final ImportOptions options = new ImportOptions ();
+            options.setUseNames ( useName );
+            options.setProcessTriggers ( importTriggers );
+
+            final ChannelId channelId = this.transferService.importChannel ( part.getInputStream (), options );
+            return new ModelAndView ( "redirect:/channel/" + urlPathSegmentEscaper ().escape ( channelId.getId () ) + "/view" );
         }
         catch ( final Exception e )
         {
@@ -161,22 +178,27 @@ public class TransferController implements InterfaceExtender
 
     @RequestMapping ( value = "/channel/importAll", method = RequestMethod.POST )
     public ModelAndView importAllPost ( @RequestParameter ( value = "useNames",
-            required = false ) final boolean useNames, @RequestParameter ( value = "wipe",
-                    required = false ) final boolean wipe, @RequestParameter ( "file" ) final Part part, @RequestParameter (
-                            value = "location", required = false ) final String location)
+            required = false ) final boolean useNames, @RequestParameter ( value = "importTriggers",
+                    required = false ) final boolean importTriggers, @RequestParameter ( value = "wipe",
+                            required = false ) final boolean wipe, @RequestParameter ( "file" ) final Part part, @RequestParameter (
+                                    value = "location", required = false ) final String location )
     {
+        final ImportOptions options = new ImportOptions ();
+        options.setUseNames ( useNames );
+        options.setProcessTriggers ( importTriggers );
+
         try
         {
             if ( location != null && !location.isEmpty () )
             {
                 try ( BufferedInputStream stream = new BufferedInputStream ( new FileInputStream ( new File ( location ) ) ) )
                 {
-                    this.transferService.importAll ( stream, useNames, wipe );
+                    this.transferService.importAll ( stream, options, wipe );
                 }
             }
             else
             {
-                this.transferService.importAll ( part.getInputStream (), useNames, wipe );
+                this.transferService.importAll ( part.getInputStream (), options, wipe );
             }
             return new ModelAndView ( "redirect:/channel" );
         }
