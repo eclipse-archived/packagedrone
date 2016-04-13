@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,9 +8,10 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.rpm;
+package org.eclipse.packagedrone.utils.rpm.deps;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 public enum RpmDependencyFlags
 {
@@ -27,6 +28,16 @@ public enum RpmDependencyFlags
     private RpmDependencyFlags ( final int bit )
     {
         this.value = 1 << bit;
+    }
+
+    public static int encode ( final Set<RpmDependencyFlags> flags )
+    {
+        int value = 0;
+        for ( final RpmDependencyFlags flag : flags )
+        {
+            value |= flag.value;
+        }
+        return value;
     }
 
     public static EnumSet<RpmDependencyFlags> parse ( final Long flags )

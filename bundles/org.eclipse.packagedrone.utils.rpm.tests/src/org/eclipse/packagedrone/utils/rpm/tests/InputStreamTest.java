@@ -14,14 +14,17 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream;
 import org.eclipse.packagedrone.utils.rpm.RpmBaseTag;
-import org.eclipse.packagedrone.utils.rpm.RpmDependencyFlags;
+import org.eclipse.packagedrone.utils.rpm.RpmEntry;
 import org.eclipse.packagedrone.utils.rpm.RpmHeader;
 import org.eclipse.packagedrone.utils.rpm.RpmInputStream;
 import org.eclipse.packagedrone.utils.rpm.RpmLead;
@@ -29,22 +32,22 @@ import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTagValue;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
+import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class InputStreamTest
 {
-    private void dumpAll ( final RpmInputStream in ) throws IOException
+    public static void dumpAll ( final RpmInputStream in ) throws IOException
     {
         final RpmLead lead = in.getLead ();
         System.out.format ( "Version: %s.%s%n", lead.getMajor (), lead.getMinor () );
         System.out.format ( "Name: %s%n", lead.getName () );
         System.out.format ( "Signature Version: %s%n", lead.getSignatureVersion () );
 
-        dumpHeader ( "Signature", in.getSignatureHeader (), tag -> RpmSignatureTag.find ( tag ) );
-        dumpHeader ( "Payload", in.getPayloadHeader (), tag -> RpmTag.find ( tag ) );
+        dumpHeader ( "Signature", in.getSignatureHeader (), tag -> RpmSignatureTag.find ( tag ), false );
+        dumpHeader ( "Payload", in.getPayloadHeader (), tag -> RpmTag.find ( tag ), false );
 
-        @SuppressWarnings ( "resource" )
         final CpioArchiveInputStream cpio = in.getCpioStream ();
 
         CpioArchiveEntry entry;
@@ -56,25 +59,25 @@ public class InputStreamTest
         {
             final String[] names = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.REQUIRE_NAME ) ).asStringArray ().orElse ( null );
             final String[] versions = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.REQUIRE_VERSION ) ).asStringArray ().orElse ( null );
-            final Long[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.REQUIRE_FLAGS ) ).asLongArray ().orElse ( null );
+            final Integer[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.REQUIRE_FLAGS ) ).asIntegerArray ().orElse ( null );
             dumpDeps ( "Require", names, versions, flags );
         }
         {
             final String[] names = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.PROVIDE_NAME ) ).asStringArray ().orElse ( null );
             final String[] versions = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.PROVIDE_VERSION ) ).asStringArray ().orElse ( null );
-            final Long[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.PROVIDE_FLAGS ) ).asLongArray ().orElse ( null );
+            final Integer[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.PROVIDE_FLAGS ) ).asIntegerArray ().orElse ( null );
             dumpDeps ( "Provide", names, versions, flags );
         }
         {
             final String[] names = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.CONFLICT_NAME ) ).asStringArray ().orElse ( null );
             final String[] versions = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.CONFLICT_VERSION ) ).asStringArray ().orElse ( null );
-            final Long[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.CONFLICT_FLAGS ) ).asLongArray ().orElse ( null );
+            final Integer[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.CONFLICT_FLAGS ) ).asIntegerArray ().orElse ( null );
             dumpDeps ( "Conflict", names, versions, flags );
         }
         {
             final String[] names = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.OBSOLETE_NAME ) ).asStringArray ().orElse ( null );
             final String[] versions = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.OBSOLETE_VERSION ) ).asStringArray ().orElse ( null );
-            final Long[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.OBSOLETE_FLAGS ) ).asLongArray ().orElse ( null );
+            final Integer[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.OBSOLETE_FLAGS ) ).asIntegerArray ().orElse ( null );
             dumpDeps ( "Obsolete", names, versions, flags );
         }
     }
@@ -121,11 +124,19 @@ public class InputStreamTest
         try ( final RpmInputStream in = new RpmInputStream ( new BufferedInputStream ( new FileInputStream ( new File ( "data/org.eclipse.scada-centos6-0.2.1-1.noarch.rpm" ) ) ) ) )
         {
             dumpAll ( in );
-
         }
     }
 
-    private void dumpDeps ( final String string, final String[] names, final String[] versions, final Long[] flags )
+    @Test
+    public void test3 () throws IOException
+    {
+        try ( final RpmInputStream in = new RpmInputStream ( new BufferedInputStream ( new FileInputStream ( new File ( "/home/jens/rpmbuild/RPMS/noarch/test1-0.0.1-1.noarch.rpm" ) ) ) ) )
+        {
+            dumpAll ( in );
+        }
+    }
+
+    private static void dumpDeps ( final String string, final String[] names, final String[] versions, final Integer[] flags )
     {
         if ( names == null )
         {
@@ -138,26 +149,43 @@ public class InputStreamTest
         }
     }
 
-    private void dumpHeader ( final String string, final RpmHeader<? extends RpmBaseTag> header, final Function<Integer, Object> func )
+    private static void dumpHeader ( final String string, final RpmHeader<? extends RpmBaseTag> header, final Function<Integer, Object> func, final boolean sorted )
     {
         System.out.println ( string );
         System.out.println ( "=================================" );
 
-        for ( final Map.Entry<Integer, Object> entry : new TreeMap<> ( header.getRawTags () ).entrySet () )
+        Set<Entry<Integer, RpmEntry>> data;
+        if ( sorted )
+        {
+            data = new TreeMap<> ( header.getRawTags () ).entrySet ();
+        }
+        else
+        {
+            data = header.getRawTags ().entrySet ();
+        }
+
+        for ( final Map.Entry<Integer, RpmEntry> entry : data )
         {
             Object tag = func.apply ( entry.getKey () );
             if ( tag == null )
             {
                 tag = entry.getKey ();
             }
+
             System.out.format ( "%20s - %s%n", tag, Rpms.dumpValue ( entry.getValue () ) );
+
+            if ( entry.getKey () == 62 || entry.getKey () == 63 )
+            {
+                final ByteBuffer buf = ByteBuffer.wrap ( (byte[])entry.getValue ().getValue () );
+                System.out.format ( "Immutable - tag: %s, type: %s, position: %s, count: %s%n", buf.getInt (), buf.getInt (), buf.getInt (), buf.getInt () );
+            }
         }
     }
 
-    private void dumpEntry ( final CpioArchiveEntry entry )
+    private static void dumpEntry ( final CpioArchiveEntry entry )
     {
         System.out.format ( "-----------------------------------%n" );
         System.out.format ( " %s%n", entry.getName () );
-        System.out.format ( " Size: %s%n", entry.getSize () );
+        System.out.format ( " Size: %s, Chksum: %016x, Align: %s, Inode: %016x, Mode: %08o, NoL: %s, Device: %s.%s%n", entry.getSize (), entry.getChksum (), entry.getAlignmentBoundary (), entry.getInode (), entry.getMode (), entry.getNumberOfLinks (), entry.getDeviceMaj (), entry.getDeviceMin () );
     }
 }

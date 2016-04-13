@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,7 +94,7 @@ public class RpmExtractor implements Extractor
             result.setBuildTimestamp ( asLong ( header.getTag ( RpmTag.BUILDTIME ) ) );
             result.setSourcePackage ( asString ( header.getTag ( RpmTag.SOURCE_PACKAGE ) ) );
 
-            result.setInstalledSize ( asLong ( header.getTag ( RpmTag.INSTALLED_SIZE ) ) );
+            result.setInstalledSize ( asLong ( header.getTag ( RpmTag.SIZE ) ) );
             result.setArchiveSize ( asLong ( header.getTag ( RpmTag.ARCHIVE_SIZE ) ) );
             if ( result.getArchiveSize () == null )
             {

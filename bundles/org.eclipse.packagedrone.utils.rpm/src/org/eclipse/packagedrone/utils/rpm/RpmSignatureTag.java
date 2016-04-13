@@ -15,11 +15,13 @@ import java.util.Map;
 
 public enum RpmSignatureTag implements RpmBaseTag
 {
-    SHA1 ( 269 ),
+    SHA1HEADER ( 269 ),
+    LONGARCHIVESIZE ( 271 ),
 
     SIZE ( 1000 ),
     MD5 ( 1004 ),
-    PAYLOAD_SIZE ( 1007 );
+    PAYLOAD_SIZE ( 1007 ),
+    LONGSIZE ( 5009 );
 
     private Integer value;
 

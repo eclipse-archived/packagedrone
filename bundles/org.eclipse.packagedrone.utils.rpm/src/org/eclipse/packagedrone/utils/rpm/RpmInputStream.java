@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,10 +30,6 @@ import com.google.common.io.CountingInputStream;
 public class RpmInputStream extends InputStream
 {
     private final static Logger logger = LoggerFactory.getLogger ( RpmInputStream.class );
-
-    private static final byte[] LEAD_MAGIC = new byte[] { (byte)0xED, (byte)0xAB, (byte)0xEE, (byte)0xDB };
-
-    private static final byte[] HEADER_MAGIC = new byte[] { (byte)0x8E, (byte)0xAD, (byte)0xE8 };
 
     private static final byte[] DUMMY = new byte[128];
 
@@ -97,8 +93,8 @@ public class RpmInputStream extends InputStream
 
     private InputStream setupPayloadStream () throws IOException
     {
-        final Object payloadFormatValue = this.payloadHeader.getRawTags ().get ( RpmTag.PAYLOAD_FORMAT.getValue () );
-        final Object payloadCodingValue = this.payloadHeader.getRawTags ().get ( RpmTag.PAYLOAD_CODING.getValue () );
+        final Object payloadFormatValue = this.payloadHeader.getTag ( RpmTag.PAYLOAD_FORMAT );
+        final Object payloadCodingValue = this.payloadHeader.getTag ( RpmTag.PAYLOAD_CODING );
 
         if ( payloadFormatValue != null && ! ( payloadFormatValue instanceof String ) )
         {
@@ -172,9 +168,9 @@ public class RpmInputStream extends InputStream
     {
         final byte[] magic = readComplete ( 4 );
 
-        if ( !Arrays.equals ( magic, LEAD_MAGIC ) )
+        if ( !Arrays.equals ( magic, Rpms.LEAD_MAGIC ) )
         {
-            throw new IOException ( String.format ( "File corrupt: Expected magic %s, read: %s", Arrays.toString ( LEAD_MAGIC ), Arrays.toString ( magic ) ) );
+            throw new IOException ( String.format ( "File corrupt: Expected magic %s, read: %s", Arrays.toString ( Rpms.LEAD_MAGIC ), Arrays.toString ( magic ) ) );
         }
 
         final byte[] version = readComplete ( 2 );
@@ -200,9 +196,9 @@ public class RpmInputStream extends InputStream
 
         final byte[] magic = readComplete ( 3 );
 
-        if ( !Arrays.equals ( magic, HEADER_MAGIC ) )
+        if ( !Arrays.equals ( magic, Rpms.HEADER_MAGIC ) )
         {
-            throw new IOException ( String.format ( "File corrupt: Expected entry magic %s, read: %s", Arrays.toString ( HEADER_MAGIC ), Arrays.toString ( magic ) ) );
+            throw new IOException ( String.format ( "File corrupt: Expected entry magic %s, read: %s", Arrays.toString ( Rpms.HEADER_MAGIC ), Arrays.toString ( magic ) ) );
         }
 
         final byte version = this.in.readByte ();
@@ -214,7 +210,9 @@ public class RpmInputStream extends InputStream
         skipFully ( 4 ); // RESERVED
 
         final int indexCount = this.in.readInt ();
-        final long storeSize = this.in.readInt () & 0xFFFFFFFF;
+        final int storeSize = this.in.readInt ();
+
+        System.out.format ( "header - %s - %s%n", indexCount, storeSize );
 
         final RpmEntry[] entries = new RpmEntry[indexCount];
 
@@ -223,7 +221,7 @@ public class RpmInputStream extends InputStream
             entries[i] = readEntry ();
         }
 
-        final ByteBuffer store = ByteBuffer.wrap ( readComplete ( (int)storeSize ) ); // FIXME: bad casting ...
+        final ByteBuffer store = ByteBuffer.wrap ( readComplete ( storeSize ) );
 
         for ( int i = 0; i < indexCount; i++ )
         {
@@ -254,6 +252,8 @@ public class RpmInputStream extends InputStream
         final int type = this.in.readInt ();
         final int offset = this.in.readInt ();
         final int count = this.in.readInt ();
+
+        System.out.format ( "%s - %s - %s - %s%n", tag, type, offset, count );
 
         return new RpmEntry ( tag, type, offset, count );
     }

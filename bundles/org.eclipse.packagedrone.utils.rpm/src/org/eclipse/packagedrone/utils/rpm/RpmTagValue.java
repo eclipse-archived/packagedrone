@@ -73,6 +73,53 @@ public class RpmTagValue
         return Optional.empty ();
     }
 
+    public Optional<Integer[]> asIntegerArray ()
+    {
+        if ( this.value == null )
+        {
+            return Optional.empty ();
+        }
+
+        if ( this.value instanceof Integer )
+        {
+            return Optional.of ( new Integer[] { (Integer)this.value } );
+        }
+        if ( this.value instanceof Integer[] )
+        {
+            return Optional.of ( (Integer[])this.value );
+        }
+
+        return Optional.empty ();
+    }
+
+    public Optional<Integer> asInteger ()
+    {
+        if ( this.value == null )
+        {
+            return Optional.empty ();
+        }
+
+        if ( this.value instanceof Integer )
+        {
+            return Optional.of ( (Integer)this.value );
+        }
+
+        if ( this.value instanceof Integer[] )
+        {
+            final Integer[] arr = (Integer[])this.value;
+            if ( arr.length > 0 )
+            {
+                return Optional.of ( arr[0] );
+            }
+            else
+            {
+                return Optional.empty ();
+            }
+        }
+
+        return Optional.empty ();
+    }
+
     public Optional<Long[]> asLongArray ()
     {
         if ( this.value == null )
@@ -99,9 +146,9 @@ public class RpmTagValue
             return Optional.empty ();
         }
 
-        if ( this.value instanceof Number )
+        if ( this.value instanceof Long )
         {
-            return Optional.of ( ( (Number)this.value ).longValue () );
+            return Optional.of ( ( (Long)this.value ).longValue () );
         }
 
         if ( this.value instanceof Long[] )

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,6 +56,21 @@ public class RpmEntry
         return this.value;
     }
 
+    public int getType ()
+    {
+        return this.type;
+    }
+
+    public int getCount ()
+    {
+        return this.count;
+    }
+
+    public int getIndex ()
+    {
+        return this.index;
+    }
+
     void fillFromStore ( final ByteBuffer storeData ) throws IOException
     {
         switch ( this.type )
@@ -63,19 +78,19 @@ public class RpmEntry
             case 0: // null value
                 break;
             case 1: // character
-                this.value = getFromStore ( storeData, buf -> (char)storeData.get (), size -> new Character[size] );
+                this.value = getFromStore ( storeData, true, buf -> (char)storeData.get (), size -> new Character[size] );
                 break;
             case 2: // byte
-                this.value = getFromStore ( storeData, buf -> buf.get (), size -> new Byte[size] );
+                this.value = getFromStore ( storeData, true, buf -> buf.get (), size -> new Byte[size] );
                 break;
-            case 3: // unsigned 16bit integer
-                this.value = getFromStore ( storeData, buf -> buf.getShort () & 0xFFFF, size -> new Integer[size] );
+            case 3: // 16bit integer
+                this.value = getFromStore ( storeData, true, buf -> buf.getShort (), size -> new Short[size] );
                 break;
-            case 4: // unsigned 32bit integer
-                this.value = getFromStore ( storeData, buf -> (long) ( buf.getInt () & 0xFFFFFFFFL ), size -> new Long[size] );
+            case 4: // 32bit integer
+                this.value = getFromStore ( storeData, true, buf -> buf.getInt (), size -> new Integer[size] );
                 break;
-            case 5: // unsigned 64bit integer
-                this.value = getFromStore ( storeData, buf -> buf.getLong (), size -> new Long[size] );
+            case 5: // 64bit integer
+                this.value = getFromStore ( storeData, true, buf -> buf.getLong (), size -> new Long[size] );
                 break;
             case 6: // one string
             {
@@ -87,15 +102,16 @@ public class RpmEntry
             case 7: // blob
             {
                 final byte[] data = new byte[this.count];
+                storeData.position ( this.index );
                 storeData.get ( data );
                 this.value = data;
             }
                 break;
             case 8: // string array
-                this.value = getFromStore ( storeData, buf -> makeString ( buf ), size -> new String[size] );
+                this.value = getFromStore ( storeData, false, buf -> makeString ( buf ), size -> new String[size] );
                 break;
             case 9: // i18n string array
-                this.value = getFromStore ( storeData, buf -> makeString ( buf ), size -> new String[size] );
+                this.value = getFromStore ( storeData, false, buf -> makeString ( buf ), size -> new String[size] );
                 break;
             default:
                 this.value = UNKNOWN;
@@ -109,10 +125,10 @@ public class RpmEntry
         public R apply ( T t ) throws IOException;
     }
 
-    private <R> Object getFromStore ( final ByteBuffer data, final IOFunction<ByteBuffer, R> func, final Function<Integer, R[]> creator ) throws IOException
+    private <R> Object getFromStore ( final ByteBuffer data, final boolean collapse, final IOFunction<ByteBuffer, R> func, final Function<Integer, R[]> creator ) throws IOException
     {
         data.position ( this.index );
-        if ( this.count == 1 )
+        if ( this.count == 1 && collapse )
         {
             return func.apply ( data );
         }
@@ -152,15 +168,17 @@ public class RpmEntry
 
         Rpms.dumpValue ( sb, this.value );
 
+        sb.append ( " - " ).append ( this.type ).append ( " = " );
+
         if ( this.value != null )
         {
             if ( this.value != UNKNOWN )
             {
-                sb.append ( " - " ).append ( this.value.getClass ().getName () );
+                sb.append ( this.value.getClass ().getName () );
             }
             else
             {
-                sb.append ( " - " ).append ( this.type );
+                sb.append ( this.type );
             }
         }
         else
@@ -168,11 +186,10 @@ public class RpmEntry
             sb.append ( "NULL" );
         }
 
-        sb.append ( " | " );
+        sb.append ( " # " );
         sb.append ( this.count );
         sb.append ( ']' );
 
         return sb.toString ();
     }
-
 }
