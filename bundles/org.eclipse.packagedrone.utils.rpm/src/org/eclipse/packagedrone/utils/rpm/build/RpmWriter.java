@@ -30,6 +30,8 @@ import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
 import org.eclipse.packagedrone.utils.rpm.header.Header;
 import org.eclipse.packagedrone.utils.rpm.header.Headers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 
@@ -45,6 +47,8 @@ import com.google.common.io.ByteStreams;
  */
 public class RpmWriter implements AutoCloseable
 {
+    private final static Logger logger = LoggerFactory.getLogger ( RpmWriter.class );
+
     private final FileChannel file;
 
     private final RpmLead lead;
@@ -92,7 +96,7 @@ public class RpmWriter implements AutoCloseable
 
     private void debug ( final String fmt, final Object... args )
     {
-        System.out.format ( fmt, args );
+        logger.debug ( String.format ( fmt, args ) );
     }
 
     private void writeLead () throws IOException

@@ -212,8 +212,6 @@ public class RpmInputStream extends InputStream
         final int indexCount = this.in.readInt ();
         final int storeSize = this.in.readInt ();
 
-        System.out.format ( "header - %s - %s%n", indexCount, storeSize );
-
         final RpmEntry[] entries = new RpmEntry[indexCount];
 
         for ( int i = 0; i < indexCount; i++ )
@@ -252,8 +250,6 @@ public class RpmInputStream extends InputStream
         final int type = this.in.readInt ();
         final int offset = this.in.readInt ();
         final int count = this.in.readInt ();
-
-        System.out.format ( "%s - %s - %s - %s%n", tag, type, offset, count );
 
         return new RpmEntry ( tag, type, offset, count );
     }
