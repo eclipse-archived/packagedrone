@@ -298,7 +298,6 @@
 		
 									<requires>
 										<require>systemd</require>
-										<require>firewalld</require>
 		
 										<require>jre-headless &gt;= 1.8.0</require>
 									</requires>
@@ -403,9 +402,7 @@
 										<script><![CDATA[
 		if [ $1 -eq 1 ] ; then
 		    systemctl preset "${drone.app.name}.service" >/dev/null 2>&1 || :
-		    /usr/bin/firewall-cmd --reload >/dev/null || :
-		    /usr/bin/firewall-cmd --permanent --add-service="${drone.app.name}" >/dev/null || :
-		    /usr/bin/firewall-cmd --reload >/dev/null || :
+		    test -x /usr/bin/firewall-cmd && /usr/bin/firewall-cmd --reload >/dev/null || :
 		else
 		    systemctl try-restart "${drone.app.name}" >/dev/null || :
 		fi
@@ -432,8 +429,10 @@
 		    # delete group if it still exists
 		    getent group "${drone.group}">/dev/null && groupdel "${drone.group}" > /dev/null || :
 		    
-		    /usr/bin/firewall-cmd --permanent --remove-service="${drone.app.name}" > /dev/null || :
-		    /usr/bin/firewall-cmd --reload > /dev/null || :
+			if [ -x /usr/bin/firewall-cmd ]; then
+		    	/usr/bin/firewall-cmd --permanent --remove-service="${drone.app.name}" > /dev/null || :
+		    	/usr/bin/firewall-cmd --reload > /dev/null || :
+	    	fi
 		fi
 		
 		systemctl daemon-reload >/dev/null 2>&1 || :
