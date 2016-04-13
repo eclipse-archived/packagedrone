@@ -860,4 +860,43 @@ public class RpmBuilder implements AutoCloseable
             }
         };
     }
+
+    public void setPreInstallationScript ( final String interpreter, final String script )
+    {
+        setScript ( RpmTag.PREINSTALL_SCRIPT_PROG, RpmTag.PREINSTALL_SCRIPT, interpreter, script );
+    }
+
+    public void setPostInstallationScript ( final String interpreter, final String script )
+    {
+        setScript ( RpmTag.POSTINSTALL_SCRIPT_PROG, RpmTag.POSTINSTALL_SCRIPT, interpreter, script );
+    }
+
+    public void setPreRemoveScript ( final String interpreter, final String script )
+    {
+        setScript ( RpmTag.PREREMOVE_SCRIPT_PROG, RpmTag.PREREMOVE_SCRIPT, interpreter, script );
+    }
+
+    public void setPostRemoveScript ( final String interpreter, final String script )
+    {
+        setScript ( RpmTag.POSTREMOVE_SCRIPT_PROG, RpmTag.POSTREMOVE_SCRIPT, interpreter, script );
+    }
+
+    public void setVerifyScript ( final String interpreter, final String script )
+    {
+        setScript ( RpmTag.VERIFY_SCRIPT_PROG, RpmTag.VERIFY_SCRIPT, interpreter, script );
+    }
+
+    private void setScript ( final RpmTag interpreterTag, final RpmTag scriptTag, final String interpreter, final String script )
+    {
+        if ( interpreter == null || script == null )
+        {
+            this.header.remove ( interpreterTag );
+            this.header.remove ( scriptTag );
+        }
+        else
+        {
+            this.header.putString ( interpreterTag, interpreter );
+            this.header.putString ( scriptTag, script );
+        }
+    }
 }

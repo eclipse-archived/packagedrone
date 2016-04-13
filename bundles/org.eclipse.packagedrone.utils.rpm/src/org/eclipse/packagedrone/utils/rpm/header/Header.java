@@ -25,6 +25,7 @@ import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
 import org.eclipse.packagedrone.utils.rpm.RpmBaseTag;
+import org.eclipse.packagedrone.utils.rpm.RpmTag;
 
 public class Header<T extends RpmBaseTag>
 {
@@ -259,6 +260,16 @@ public class Header<T extends RpmBaseTag>
         {
             putInt ( intTag, (int)value );
         }
+    }
+
+    public void remove ( final int tag )
+    {
+        this.entries.remove ( tag );
+    }
+
+    public void remove ( final RpmTag tag )
+    {
+        this.entries.remove ( tag.getValue () );
     }
 
     /**
