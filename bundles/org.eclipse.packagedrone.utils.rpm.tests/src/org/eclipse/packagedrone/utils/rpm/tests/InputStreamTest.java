@@ -127,15 +127,6 @@ public class InputStreamTest
         }
     }
 
-    @Test
-    public void test3 () throws IOException
-    {
-        try ( final RpmInputStream in = new RpmInputStream ( new BufferedInputStream ( new FileInputStream ( new File ( "/home/jens/rpmbuild/RPMS/noarch/test1-0.0.1-1.noarch.rpm" ) ) ) ) )
-        {
-            dumpAll ( in );
-        }
-    }
-
     private static void dumpDeps ( final String string, final String[] names, final String[] versions, final Integer[] flags )
     {
         if ( names == null )
