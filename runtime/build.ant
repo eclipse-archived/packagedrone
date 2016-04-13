@@ -197,8 +197,8 @@
         	<!-- for jdeb -->
         	
         	<orbitGet bundle="org.apache.ant" version="1.9.2" qualifier="v201404171502"/>
-        	<get src="http://www.bouncycastle.org/download/bcprov-jdk15on-151.jar" dest="download/bundles" usetimestamp="true"/>
-        	<get src="http://www.bouncycastle.org/download/bcpg-jdk15on-151.jar" dest="download/bundles" usetimestamp="true"/>
+        	<mavenGet group="org/bouncycastle" artifact="bcprov-jdk15on" version="1.51"/>
+        	<mavenGet group="org/bouncycastle" artifact="bcpg-jdk15on" version="1.51"/>
         	
         	<!-- aether -->
         	
