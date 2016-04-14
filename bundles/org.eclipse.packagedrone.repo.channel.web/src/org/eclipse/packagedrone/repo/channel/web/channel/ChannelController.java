@@ -17,6 +17,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic.PERMIT;
+import static org.eclipse.packagedrone.repo.web.CommonCategories.EDIT;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -1076,13 +1077,13 @@ public class ChannelController implements InterfaceExtender, SitemapExtender
                     }
                 }
 
-                result.add ( new MenuEntry ( "Edit", 150, "Edit Channel", 200, LinkTarget.createFromController ( ChannelController.class, "edit" ).expand ( model ), Modifier.DEFAULT, null ) );
+                result.add ( new MenuEntry ( "Edit", EDIT.getPriority (), "Edit Channel", 200, LinkTarget.createFromController ( ChannelController.class, "edit" ).expand ( model ), Modifier.DEFAULT, null ) );
                 result.add ( new MenuEntry ( "Maintenance", 160, "Refresh aspects", 100, LinkTarget.createFromController ( ChannelController.class, "refreshAllAspects" ).expand ( model ), Modifier.SUCCESS, "refresh" ) );
             }
 
             if ( request.getRemoteUser () != null )
             {
-                result.add ( new MenuEntry ( "Edit", 150, "Configure Aspects", 300, LinkTarget.createFromController ( ChannelController.class, "aspects" ).expand ( model ), Modifier.DEFAULT, null ) );
+                result.add ( new MenuEntry ( "Edit", EDIT.getPriority (), "Configure Aspects", 300, LinkTarget.createFromController ( ChannelController.class, "aspects" ).expand ( model ), Modifier.DEFAULT, null ) );
             }
 
             return result;
