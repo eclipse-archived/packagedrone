@@ -20,21 +20,36 @@ import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathExpression;
+
+import org.apache.commons.io.input.CloseShieldInputStream;
 import org.eclipse.packagedrone.repo.MetaKey;
+import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.aspect.common.p2.P2UnzipAspectFactory;
 import org.eclipse.packagedrone.repo.aspect.virtual.Virtualizer;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.google.common.io.ByteStreams;
 
 public class P2Unzipper implements Virtualizer
 {
-
     private final static Logger logger = LoggerFactory.getLogger ( P2Unzipper.class );
 
     private static final MetaKey KEY_REUSE_METADATA = new MetaKey ( "p2.unzip", "reuse-metadata" );
+
+    private final XmlToolsFactory xml;
+
+    public P2Unzipper ( final XmlToolsFactory xml )
+    {
+        this.xml = xml;
+    }
 
     @Override
     public void virtualize ( final Context context )
@@ -68,11 +83,27 @@ public class P2Unzipper implements Virtualizer
                 }
                 else if ( reuseMetadata && entry.getName ().equals ( "artifacts.jar" ) )
                 {
-                    processZippedMetaData ( context, zis, "articacts.xml" );
+                    try
+                    {
+                        processZippedMetaData ( context, zis, "artifacts.xml", "/repository/artifacts" );
+                    }
+                    catch ( final Exception e )
+                    {
+                        // simply don't write this file
+                        logger.warn ( "Failed to extract artifacts meta data", e );
+                    }
                 }
                 else if ( reuseMetadata && entry.getName ().equals ( "content.jar" ) )
                 {
-                    processZippedMetaData ( context, zis, "content.xml" );
+                    try
+                    {
+                        processZippedMetaData ( context, zis, "content.xml", "/repository/units" );
+                    }
+                    catch ( final Exception e )
+                    {
+                        // simply don't write this file
+                        logger.warn ( "Failed to extract content meta data", e );
+                    }
                 }
             }
         }
@@ -84,7 +115,7 @@ public class P2Unzipper implements Virtualizer
         }
     }
 
-    private void processZippedMetaData ( final Context context, final ZipInputStream zis, final String filename ) throws IOException
+    private void processZippedMetaData ( final Context context, final ZipInputStream zis, final String filename, final String xpath ) throws Exception
     {
         final JarInputStream jin = new JarInputStream ( zis, false );
         ZipEntry entry;
@@ -92,7 +123,30 @@ public class P2Unzipper implements Virtualizer
         {
             if ( entry.getName ().equals ( filename ) )
             {
-                processEntry ( context, entry, jin );
+                // parse input
+                final Document doc = this.xml.newDocumentBuilder ().parse ( new CloseShieldInputStream ( jin ) );
+                final XPathExpression path = this.xml.newXPathFactory ().newXPath ().compile ( xpath );
+
+                // filter
+                final NodeList result = XmlHelper.executePath ( doc, path );
+
+                // write filtered output
+                final Document fragmentDoc = this.xml.newDocumentBuilder ().newDocument ();
+                Node node = result.item ( 0 );
+                node = fragmentDoc.adoptNode ( node );
+                fragmentDoc.appendChild ( node );
+
+                // create artifact
+                context.createVirtualArtifact ( filename, out -> {
+                    try
+                    {
+                        XmlHelper.write ( this.xml.newTransformerFactory (), fragmentDoc, new StreamResult ( out ) );
+                    }
+                    catch ( final Exception e )
+                    {
+                        throw new IOException ( e );
+                    }
+                }, null );
             }
         }
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,12 +15,20 @@ import org.eclipse.packagedrone.repo.aspect.ChannelAspect;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectFactory;
 import org.eclipse.packagedrone.repo.aspect.common.p2.internal.P2Unzipper;
 import org.eclipse.packagedrone.repo.aspect.virtual.Virtualizer;
+import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 
 public class P2UnzipAspectFactory implements ChannelAspectFactory
 {
     public static final String ID = "p2.unzip";
 
     public static final MetaKey MK_FULL_NAME = new MetaKey ( ID, "fullName" );
+
+    private XmlToolsFactory xml;
+
+    public void setXml ( final XmlToolsFactory xml )
+    {
+        this.xml = xml;
+    }
 
     @Override
     public ChannelAspect createAspect ()
@@ -36,7 +44,7 @@ public class P2UnzipAspectFactory implements ChannelAspectFactory
             @Override
             public Virtualizer getArtifactVirtualizer ()
             {
-                return new P2Unzipper ();
+                return new P2Unzipper ( P2UnzipAspectFactory.this.xml );
             }
         };
     }
