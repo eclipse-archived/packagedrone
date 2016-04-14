@@ -10,6 +10,7 @@ Export-Package: org.eclipse.packagedrone.utils.rpm;version="0.13.0";uses:="org.a
  org.eclipse.packagedrone.utils.rpm.deps;version="0.13.0";uses:="org.eclipse.packagedrone.utils.rpm.header",
  org.eclipse.packagedrone.utils.rpm.header;version="0.13.0"
 Import-Package: com.google.common.io;version="18.0.0",
+ org.apache.commons.compress.archivers;version="1.9.0",
  org.apache.commons.compress.archivers.cpio;version="1.9.0",
  org.apache.commons.compress.compressors.bzip2;version="1.9.0",
  org.apache.commons.compress.compressors.gzip;version="1.9.0",
