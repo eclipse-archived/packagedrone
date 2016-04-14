@@ -30,7 +30,7 @@
 	</developers>
 
 	<prerequisites>
-		<maven>3.2</maven>
+		<maven>3.3</maven>
 	</prerequisites>
 
 	<scm>
@@ -108,6 +108,7 @@
 		<module>bundles/org.eclipse.packagedrone.repo.aspect.cleanup.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.aspect.common</module>
 		<module>bundles/org.eclipse.packagedrone.repo.aspect.common.tests</module>
+		<module>bundles/org.eclipse.packagedrone.repo.aspect.common.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.aspect.mvnosgi</module>
 		<module>bundles/org.eclipse.packagedrone.repo.aspect.mvnosgi.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.aspect.upgrade</module>

@@ -78,6 +78,7 @@
       <plugin id="org.eclipse.packagedrone.repo.aspect.cleanup" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.aspect.cleanup.web" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.aspect.common" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.aspect.common.web" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.aspect.mvnosgi" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.aspect.mvnosgi.web" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.aspect.upgrade" autoStart="true" startLevel="0" />

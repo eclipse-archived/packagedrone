@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,10 @@ package org.eclipse.packagedrone.repo.aspect.common.p2.internal;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -32,6 +34,8 @@ public class P2Unzipper implements Virtualizer
 
     private final static Logger logger = LoggerFactory.getLogger ( P2Unzipper.class );
 
+    private static final MetaKey KEY_REUSE_METADATA = new MetaKey ( "p2.unzip", "reuse-metadata" );
+
     @Override
     public void virtualize ( final Context context )
     {
@@ -41,6 +45,8 @@ public class P2Unzipper implements Virtualizer
         {
             return;
         }
+
+        final boolean reuseMetadata = Boolean.parseBoolean ( context.getProvidedChannelMetaData ().get ( KEY_REUSE_METADATA ) );
 
         try ( ZipInputStream zis = new ZipInputStream ( new BufferedInputStream ( new FileInputStream ( context.getFile ().toFile () ) ) ) )
         {
@@ -60,12 +66,34 @@ public class P2Unzipper implements Virtualizer
                 {
                     processEntry ( context, entry, zis );
                 }
+                else if ( reuseMetadata && entry.getName ().equals ( "artifacts.jar" ) )
+                {
+                    processZippedMetaData ( context, zis, "articacts.xml" );
+                }
+                else if ( reuseMetadata && entry.getName ().equals ( "content.jar" ) )
+                {
+                    processZippedMetaData ( context, zis, "content.xml" );
+                }
             }
         }
         catch ( final IOException e )
         {
             logger.debug ( "Failed to unzip", e );
-            // we don't do anything
+            // we need to throw, since we might have already created virtual artifacts
+            throw new RuntimeException ( "Failed to unzip", e );
+        }
+    }
+
+    private void processZippedMetaData ( final Context context, final ZipInputStream zis, final String filename ) throws IOException
+    {
+        final JarInputStream jin = new JarInputStream ( zis, false );
+        ZipEntry entry;
+        while ( ( entry = jin.getNextEntry () ) != null )
+        {
+            if ( entry.getName ().equals ( filename ) )
+            {
+                processEntry ( context, entry, jin );
+            }
         }
     }
 
@@ -79,7 +107,7 @@ public class P2Unzipper implements Virtualizer
         return false;
     }
 
-    private void processEntry ( final Context context, final ZipEntry entry, final ZipInputStream zis )
+    private void processEntry ( final Context context, final ZipEntry entry, final InputStream in )
     {
         final String segs[] = entry.getName ().split ( "\\/" );
         final String name = segs[segs.length - 1];
@@ -87,7 +115,7 @@ public class P2Unzipper implements Virtualizer
         final Map<MetaKey, String> metaData = new HashMap<> ( 1 );
         metaData.put ( P2UnzipAspectFactory.MK_FULL_NAME, entry.getName () );
 
-        context.createVirtualArtifact ( name, out -> ByteStreams.copy ( zis, out ), metaData );
+        context.createVirtualArtifact ( name, out -> ByteStreams.copy ( in, out ), metaData );
     }
 
 }
