@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: IBH SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit
-Import-Package: org.apache.commons.compress.archivers.cpio;version="1.9.0",
+Import-Package: org.apache.commons.compress.archivers;version="1.9.0",
+ org.apache.commons.compress.archivers.cpio;version="1.9.0",
  org.eclipse.packagedrone.utils.rpm,
  org.eclipse.packagedrone.utils.rpm.build;version="0.13.0",
  org.eclipse.packagedrone.utils.rpm.deps;version="0.13.0",
