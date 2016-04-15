@@ -87,6 +87,7 @@
       <plugin id="org.eclipse.packagedrone.repo.channel.impl" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.channel.web" autoStart="false" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.channel.web.description" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.cleanup" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.generator" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.generator.p2" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.importer" autoStart="true" startLevel="0" />
