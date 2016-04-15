@@ -168,7 +168,11 @@ public class WriterTest
             final BuilderContext ctx = builder.newContext ();
             // ctx.setDefaultInformationProvider ( BuilderContext.defaultProvider () );
 
-            ctx.addDirectory ( "/etc/test3", null );
+            ctx.addDirectory ( "/etc/test3" );
+
+            ctx.addDirectory ( "/etc/test3", finfo -> {
+            } );
+
             ctx.addFile ( "/etc/test3/file1", IN_BASE.resolve ( "file1" ), BuilderContext.pathProvider ().customize ( finfo -> {
                 finfo.setConfiguration ( true );
             } ) );

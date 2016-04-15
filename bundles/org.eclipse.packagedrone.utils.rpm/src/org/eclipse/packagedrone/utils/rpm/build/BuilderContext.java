@@ -143,11 +143,21 @@ public interface BuilderContext
 
     public FileInformationProvider<Object> getDefaultInformationProvider ();
 
+    public default void addFile ( final String targetName, final Path source ) throws IOException
+    {
+        addFile ( targetName, source, getDefaultInformationProvider () );
+    }
+
     public void addFile ( String targetName, Path source, FileInformationProvider<? super Path> provider ) throws IOException;
 
     public default void addFile ( final String targetName, final Path source, final SimpleFileInformationCustomizer customizer ) throws IOException
     {
         addFile ( targetName, source, getDefaultInformationProvider ().customize ( customizer ) );
+    }
+
+    public default void addFile ( final String targetName, final InputStream source ) throws IOException
+    {
+        addFile ( targetName, source, getDefaultInformationProvider () );
     }
 
     public void addFile ( String targetName, InputStream source, FileInformationProvider<Object> provider ) throws IOException;
@@ -157,11 +167,21 @@ public interface BuilderContext
         addFile ( targetName, source, getDefaultInformationProvider ().customize ( customizer ) );
     }
 
+    public default void addFile ( final String targetName, final ByteBuffer source ) throws IOException
+    {
+        addFile ( targetName, source, getDefaultInformationProvider () );
+    }
+
     public void addFile ( String targetName, ByteBuffer source, FileInformationProvider<Object> provider ) throws IOException;
 
     public default void addFile ( final String targetName, final ByteBuffer source, final SimpleFileInformationCustomizer customizer ) throws IOException
     {
         addFile ( targetName, source, getDefaultInformationProvider ().customize ( customizer ) );
+    }
+
+    public default void addFile ( final String targetName, final byte[] source ) throws IOException
+    {
+        addFile ( targetName, source, getDefaultInformationProvider () );
     }
 
     public default void addFile ( final String targetName, final byte[] source, final FileInformationProvider<Object> provider ) throws IOException
@@ -174,5 +194,15 @@ public interface BuilderContext
         addFile ( targetName, source, getDefaultInformationProvider ().customize ( customizer ) );
     }
 
-    public void addDirectory ( String targetName, final FileInformationProvider<Directory> provider ) throws IOException;
+    public default void addDirectory ( final String targetName ) throws IOException
+    {
+        addDirectory ( targetName, getDefaultInformationProvider () );
+    }
+
+    public void addDirectory ( String targetName, final FileInformationProvider<? super Directory> provider ) throws IOException;
+
+    public default void addDirectory ( final String targetName, final SimpleFileInformationCustomizer customizer ) throws IOException
+    {
+        addDirectory ( targetName, getDefaultInformationProvider ().customize ( customizer ) );
+    }
 }

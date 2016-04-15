@@ -855,7 +855,7 @@ public class RpmBuilder implements AutoCloseable
             }
 
             @Override
-            public void addDirectory ( final String targetName, final FileInformationProvider<Directory> provider ) throws IOException
+            public void addDirectory ( final String targetName, final FileInformationProvider<? super Directory> provider ) throws IOException
             {
                 final FileInformation info = makeInformation ( BuilderContext.DIRECTORY, provider );
                 RpmBuilder.this.addDirectory ( targetName, info.getMode (), info.getTimestamp (), entry -> customizeDirectory ( entry, info ) );
