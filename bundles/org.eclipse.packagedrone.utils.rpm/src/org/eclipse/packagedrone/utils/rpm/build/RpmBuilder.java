@@ -452,6 +452,8 @@ public class RpmBuilder implements AutoCloseable
         }
     }
 
+    private static final String DEFAULT_INTERPRETER = "/bin/sh";
+
     protected final Header<RpmTag> header = new Header<> ();
 
     private final String name;
@@ -866,9 +868,19 @@ public class RpmBuilder implements AutoCloseable
         setScript ( RpmTag.PREINSTALL_SCRIPT_PROG, RpmTag.PREINSTALL_SCRIPT, interpreter, script );
     }
 
+    public void setPreInstallationScript ( final String script )
+    {
+        setPreInstallationScript ( DEFAULT_INTERPRETER, script );
+    }
+
     public void setPostInstallationScript ( final String interpreter, final String script )
     {
         setScript ( RpmTag.POSTINSTALL_SCRIPT_PROG, RpmTag.POSTINSTALL_SCRIPT, interpreter, script );
+    }
+
+    public void setPostInstallationScript ( final String script )
+    {
+        setPostInstallationScript ( DEFAULT_INTERPRETER, script );
     }
 
     public void setPreRemoveScript ( final String interpreter, final String script )
@@ -876,14 +888,29 @@ public class RpmBuilder implements AutoCloseable
         setScript ( RpmTag.PREREMOVE_SCRIPT_PROG, RpmTag.PREREMOVE_SCRIPT, interpreter, script );
     }
 
+    public void setPreRemoveScript ( final String script )
+    {
+        setPreRemoveScript ( DEFAULT_INTERPRETER, script );
+    }
+
     public void setPostRemoveScript ( final String interpreter, final String script )
     {
         setScript ( RpmTag.POSTREMOVE_SCRIPT_PROG, RpmTag.POSTREMOVE_SCRIPT, interpreter, script );
     }
 
+    public void setPostRemoveScript ( final String script )
+    {
+        setPostRemoveScript ( DEFAULT_INTERPRETER, script );
+    }
+
     public void setVerifyScript ( final String interpreter, final String script )
     {
         setScript ( RpmTag.VERIFY_SCRIPT_PROG, RpmTag.VERIFY_SCRIPT, interpreter, script );
+    }
+
+    public void setVerifyScript ( final String script )
+    {
+        setVerifyScript ( DEFAULT_INTERPRETER, script );
     }
 
     private void setScript ( final RpmTag interpreterTag, final RpmTag scriptTag, final String interpreter, final String script )

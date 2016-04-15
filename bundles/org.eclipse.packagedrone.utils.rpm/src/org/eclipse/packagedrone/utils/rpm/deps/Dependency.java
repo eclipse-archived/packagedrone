@@ -26,7 +26,14 @@ public class Dependency
     {
         this.name = name;
         this.version = version;
-        this.flags = EnumSet.copyOf ( Arrays.asList ( flags ) );
+        if ( flags == null || flags.length == 0 )
+        {
+            this.flags = EnumSet.noneOf ( RpmDependencyFlags.class );
+        }
+        else
+        {
+            this.flags = EnumSet.copyOf ( Arrays.asList ( flags ) );
+        }
     }
 
     public String getName ()
