@@ -67,6 +67,13 @@ public class P2UnzipConfigController extends ChannelServiceController implements
             return null;
         }
 
+        final ChannelInformation channel = (ChannelInformation)object;
+
+        if ( !channel.hasAspect ( "p2.unzip" ) )
+        {
+            return null;
+        }
+
         final List<MenuEntry> result = new LinkedList<> ();
 
         final Map<String, Object> model = Collections.singletonMap ( "channelId", ( (ChannelInformation)object ).getId () );
