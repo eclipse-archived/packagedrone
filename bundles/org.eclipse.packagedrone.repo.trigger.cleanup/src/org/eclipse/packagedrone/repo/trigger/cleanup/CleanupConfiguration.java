@@ -113,6 +113,7 @@ public class CleanupConfiguration
         cleaner.setAggregator ( this.aggregator );
         cleaner.setSorter ( this.sorter );
         cleaner.setNumberOfEntries ( this.numberOfEntries );
-        cleaner.setRootOnly ( true );
+        cleaner.setRootOnly ( this.rootOnly );
+        cleaner.setRequireAll ( !this.ignoreWhenMissingFields );
     }
 }
