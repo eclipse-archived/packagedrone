@@ -6,4 +6,5 @@
    </service>
    <reference bind="setAdmin" cardinality="1..1" interface="org.osgi.service.cm.ConfigurationAdmin" name="ConfigurationAdmin" policy="static"/>
    <reference bind="setMailService" cardinality="0..1" interface="org.eclipse.packagedrone.mail.java.DefaultMailService" name="DefaultMailService" policy="dynamic" unbind="unsetMailService"/>
+   <reference bind="setSitePrefixService" cardinality="1..1" interface="org.eclipse.packagedrone.repo.manage.system.SitePrefixService" name="SitePrefixService" policy="static"/>
 </scr:component>

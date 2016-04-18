@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.eclipse.packagedrone.mail.java.DefaultMailService;
+import org.eclipse.packagedrone.repo.manage.system.SitePrefixService;
 import org.eclipse.packagedrone.sec.DatabaseDetails;
 import org.eclipse.packagedrone.sec.UserInformation;
 import org.eclipse.packagedrone.sec.UserInformationPrincipal;
@@ -65,6 +66,8 @@ public class ConfigController implements InterfaceExtender
 
     private volatile DefaultMailService mailService;
 
+    private SitePrefixService sitePrefix;
+
     private static final ControllerMethod METHOD_INDEX = LinkTarget.getControllerMethod ( ConfigController.class, "index" );
 
     public void setMailService ( final DefaultMailService mailService )
@@ -80,6 +83,11 @@ public class ConfigController implements InterfaceExtender
     public void setAdmin ( final ConfigurationAdmin admin )
     {
         this.admin = admin;
+    }
+
+    public void setSitePrefixService ( final SitePrefixService sitePrefix )
+    {
+        this.sitePrefix = sitePrefix;
     }
 
     @RequestMapping
@@ -100,7 +108,7 @@ public class ConfigController implements InterfaceExtender
     }
 
     @RequestMapping ( method = RequestMethod.POST )
-    public ModelAndView update ( @Valid @FormData ( "command" ) final MailSettings settings, final BindingResult bindingResult)
+    public ModelAndView update ( @Valid @FormData ( "command" ) final MailSettings settings, final BindingResult bindingResult )
     {
         final Map<String, Object> model = new HashMap<> ();
 
@@ -251,7 +259,7 @@ public class ConfigController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/sendTest", method = RequestMethod.POST )
-    public ModelAndView sendTest ( @RequestParameter ( "testEmailReceiver" ) final String email, final Principal principal)
+    public ModelAndView sendTest ( @RequestParameter ( "testEmailReceiver" ) final String email, final Principal principal )
     {
         final Map<String, Object> model = new HashMap<> ();
 
@@ -274,6 +282,7 @@ public class ConfigController implements InterfaceExtender
             final StringBuilder html = new StringBuilder ();
             html.append ( "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>Package Drone | Account verification</title></head><body>" );
             html.append ( "<p>" ).append ( message ).append ( "</p>" );
+            html.append ( "<p><a href='" + this.sitePrefix.getSitePrefix () + "' target='_blank'>Link</a> to you Package Drone installation.</p>" );
             html.append ( "</body></html>" );
 
             this.mailService.sendMessage ( email, "Test Mail", message, html.toString () );
