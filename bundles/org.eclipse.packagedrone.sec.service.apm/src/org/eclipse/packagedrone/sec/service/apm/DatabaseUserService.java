@@ -600,6 +600,9 @@ public class DatabaseUserService implements UserService, UserStorage, ScheduledT
         return null;
     }
 
+    /**
+     * Clean up timed out user registrations
+     */
     @Override
     public void run () throws Exception
     {
@@ -612,7 +615,7 @@ public class DatabaseUserService implements UserService, UserStorage, ScheduledT
 
             for ( final UserEntity user : users.asCollection () )
             {
-                if ( user.getEmailTokenDate () == null || user.getEmailTokenDate ().before ( timeout ) )
+                if ( user.getEmailTokenDate () == null || user.getEmailTokenDate ().after ( timeout ) )
                 {
                     continue;
                 }
