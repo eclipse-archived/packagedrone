@@ -560,7 +560,7 @@ public class RpmBuilder implements AutoCloseable
                 if ( currentDirName == null || !currentDirName.equals ( dirname ) )
                 {
                     currentDirName = dirname;
-                    dirnames.add ( "/" + dirname );
+                    dirnames.add ( "/" + dirname + "/" );
                     pos++;
                 }
                 dirIndexes[i] = pos;
