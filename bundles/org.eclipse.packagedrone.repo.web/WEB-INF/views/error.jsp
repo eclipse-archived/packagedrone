@@ -17,16 +17,7 @@ pageContext.setAttribute ( "showStackTrace", Boolean.getBoolean ( "drone.showSta
 
 <c:choose>
 
-    <c:when test="${showStackTrace and not empty result}">
-    
-	    <h:error title="${fn:escapeXml(result) }" icon="flash">
-	       <p>${fn:escapeXml(message) }</p>
-		      <pre>${fn:escapeXml(stacktrace) }</pre>
-	    </h:error>
-    
-    </c:when>
-    
-    <c:when test="${showStackTrace and empty result }">
+    <c:when test="${showStackTrace }">
         <h:error title="${fn:escapeXml(message) }" icon="flash">
               <pre>${fn:escapeXml(stacktrace) }</pre>
         </h:error>
