@@ -114,6 +114,7 @@
       <plugin id="org.eclipse.packagedrone.repo.trigger.http" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.trigger.web" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.utils.osgi" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.repo.web" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.web.analytics" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.web.ci" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.repo.web.googlebot" autoStart="true" startLevel="0" />
