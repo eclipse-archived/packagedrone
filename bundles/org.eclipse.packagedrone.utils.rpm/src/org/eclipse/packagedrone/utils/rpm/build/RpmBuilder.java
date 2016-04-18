@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
+import static java.util.Comparator.comparing;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -18,7 +20,9 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Instant;
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -98,9 +102,7 @@ public class RpmBuilder implements AutoCloseable
 
         private int inode;
 
-        private String basename;
-
-        private int dirIndex;
+        private PathName targetName;
 
         private long targetSize;
 
@@ -234,24 +236,14 @@ public class RpmBuilder implements AutoCloseable
             return this.inode;
         }
 
-        public void setBasename ( final String basename )
+        public void setTargetName ( final PathName targetName )
         {
-            this.basename = basename;
+            this.targetName = targetName;
         }
 
-        public String getBasename ()
+        public PathName getTargetName ()
         {
-            return this.basename;
-        }
-
-        public void setDirIndex ( final int dirIndex )
-        {
-            this.dirIndex = dirIndex;
-        }
-
-        public int getDirIndex ()
-        {
-            return this.dirIndex;
+            return this.targetName;
         }
 
         public void setTargetSize ( final long targetSize )
@@ -262,29 +254,6 @@ public class RpmBuilder implements AutoCloseable
         public long getTargetSize ()
         {
             return this.targetSize;
-        }
-    }
-
-    private static class DirIndexEntry
-    {
-        private final String name;
-
-        private final int position;
-
-        public DirIndexEntry ( final String name, final int position )
-        {
-            this.name = name;
-            this.position = position;
-        }
-
-        public String getName ()
-        {
-            return this.name;
-        }
-
-        public int getPosition ()
-        {
-            return this.position;
         }
     }
 
@@ -478,15 +447,13 @@ public class RpmBuilder implements AutoCloseable
 
     private final List<Dependency> obsoletes = new LinkedList<> ();
 
-    private final Map<String, FileEntry> files = new LinkedHashMap<> ();
+    private final Map<String, FileEntry> files = new HashMap<> ();
 
     private PackageInformation information = new PackageInformation ();
 
     private boolean hasBuilt;
 
     private int currentInode = 1;
-
-    private final LinkedHashMap<String, DirIndexEntry> dirs = new LinkedHashMap<> ();
 
     public RpmBuilder ( final String name, final String version, final String release, final Path target ) throws IOException
     {
@@ -555,28 +522,53 @@ public class RpmBuilder implements AutoCloseable
         Dependencies.putConflicts ( this.header, this.conflicts );
         Dependencies.putObsoletes ( this.header, this.obsoletes );
 
-        final long installedSize = this.files.values ().stream ().mapToLong ( FileEntry::getTargetSize ).sum ();
+        final FileEntry[] files = this.files.values ().toArray ( new FileEntry[this.files.size ()] );
+        Arrays.sort ( files, comparing ( FileEntry::getTargetName ) );
+
+        final long installedSize = Arrays.stream ( files ).mapToLong ( FileEntry::getTargetSize ).sum ();
         this.header.putSize ( installedSize, RpmTag.SIZE, RpmTag.LONGSIZE );
 
         // TODO: implement LONG file sizes
-        Header.putIntFields ( this.header, this.files.values (), RpmTag.FILE_SIZES, entry -> (int)entry.getSize () );
-        Header.putShortFields ( this.header, this.files.values (), RpmTag.FILE_MODES, FileEntry::getMode );
-        Header.putShortFields ( this.header, this.files.values (), RpmTag.FILE_RDEVS, FileEntry::getRdevs );
-        Header.putIntFields ( this.header, this.files.values (), RpmTag.FILE_MTIMES, FileEntry::getModificationTime );
-        Header.putFields ( this.header, this.files.values (), RpmTag.FILE_DIGESTS, String[]::new, FileEntry::getDigest, Header::putStringArray );
-        Header.putFields ( this.header, this.files.values (), RpmTag.FILE_LINKTO, String[]::new, FileEntry::getLinkTo, Header::putStringArray );
-        Header.putIntFields ( this.header, this.files.values (), RpmTag.FILE_FLAGS, FileEntry::getFlags );
-        Header.putFields ( this.header, this.files.values (), RpmTag.FILE_USERNAME, String[]::new, FileEntry::getUser, Header::putStringArray );
-        Header.putFields ( this.header, this.files.values (), RpmTag.FILE_GROUPNAME, String[]::new, FileEntry::getGroup, Header::putStringArray );
+        Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_SIZES, entry -> (int)entry.getSize () );
+        Header.putShortFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_MODES, FileEntry::getMode );
+        Header.putShortFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_RDEVS, FileEntry::getRdevs );
+        Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_MTIMES, FileEntry::getModificationTime );
+        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_DIGESTS, String[]::new, FileEntry::getDigest, Header::putStringArray );
+        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_LINKTO, String[]::new, FileEntry::getLinkTo, Header::putStringArray );
+        Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_FLAGS, FileEntry::getFlags );
+        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_USERNAME, String[]::new, FileEntry::getUser, Header::putStringArray );
+        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_GROUPNAME, String[]::new, FileEntry::getGroup, Header::putStringArray );
 
-        Header.putIntFields ( this.header, this.files.values (), RpmTag.FILE_VERIFYFLAGS, FileEntry::getVerifyFlags );
-        Header.putLongFields ( this.header, this.files.values (), RpmTag.FILE_DEVICES, FileEntry::getDevice );
-        Header.putLongFields ( this.header, this.files.values (), RpmTag.FILE_INODES, FileEntry::getInode );
-        Header.putFields ( this.header, this.files.values (), RpmTag.FILE_LANGS, String[]::new, FileEntry::getLang, Header::putStringArray );
+        Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_VERIFYFLAGS, FileEntry::getVerifyFlags );
+        Header.putLongFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_DEVICES, FileEntry::getDevice );
+        Header.putLongFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_INODES, FileEntry::getInode );
+        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_LANGS, String[]::new, FileEntry::getLang, Header::putStringArray );
 
-        Header.putIntFields ( this.header, this.files.values (), RpmTag.DIR_INDEXES, FileEntry::getDirIndex );
-        Header.putFields ( this.header, this.files.values (), RpmTag.BASENAMES, String[]::new, FileEntry::getBasename, Header::putStringArray );
-        Header.putFields ( this.header, this.dirs.values (), RpmTag.DIRNAMES, String[]::new, DirIndexEntry::getName, Header::putStringArray );
+        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.BASENAMES, String[]::new, fe -> fe.getTargetName ().getBasename (), Header::putStringArray );
+
+        {
+            // compress file names
+
+            String currentDirName = null;
+            final List<String> dirnames = new ArrayList<> ();
+            final int[] dirIndexes = new int[files.length];
+            int pos = -1;
+            int i = 0;
+            for ( final FileEntry f : files )
+            {
+                final String dirname = f.getTargetName ().getDirname ();
+                if ( currentDirName == null || !currentDirName.equals ( dirname ) )
+                {
+                    currentDirName = dirname;
+                    dirnames.add ( dirname );
+                    pos++;
+                }
+                dirIndexes[i] = pos;
+                i++;
+            }
+            this.header.putInt ( RpmTag.DIR_INDEXES, dirIndexes );
+            this.header.putStringArray ( RpmTag.DIRNAMES, dirnames.toArray ( new String[dirnames.size ()] ) );
+        }
     }
 
     private Path makeTargetFile ( final Path target )
@@ -799,19 +791,7 @@ public class RpmBuilder implements AutoCloseable
         entry.setSize ( result.getSize () );
         entry.setTargetSize ( result.getSize () );
         entry.setDigest ( result.getSha1 () != null ? Rpms.toHex ( result.getSha1 () ).toLowerCase () : "" );
-        entry.setBasename ( targetName.getBasename () );
-
-        // record dir index entry
-
-        final String dirname = "/" + targetName.getDirname () + "/";
-        DirIndexEntry idx = this.dirs.get ( dirname );
-        if ( idx == null )
-        {
-            idx = new DirIndexEntry ( dirname, this.dirs.size () );
-            this.dirs.put ( dirname, idx );
-        }
-
-        entry.setDirIndex ( idx.getPosition () );
+        entry.setTargetName ( targetName );
 
         // run customizer
 

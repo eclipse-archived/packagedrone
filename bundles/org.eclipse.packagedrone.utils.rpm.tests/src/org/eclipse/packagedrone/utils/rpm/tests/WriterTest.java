@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.eclipse.packagedrone.utils.rpm.RpmInputStream;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
+import org.eclipse.packagedrone.utils.rpm.app.Dumper;
 import org.eclipse.packagedrone.utils.rpm.build.BuilderContext;
 import org.eclipse.packagedrone.utils.rpm.build.PayloadRecorder;
 import org.eclipse.packagedrone.utils.rpm.build.RpmBuilder;
@@ -92,7 +93,7 @@ public class WriterTest
 
         try ( final RpmInputStream in = new RpmInputStream ( new BufferedInputStream ( Files.newInputStream ( rpm1 ) ) ) )
         {
-            InputStreamTest.dumpAll ( in );
+            Dumper.dumpAll ( in );
         }
     }
 
@@ -146,7 +147,7 @@ public class WriterTest
 
         try ( final RpmInputStream in = new RpmInputStream ( new BufferedInputStream ( Files.newInputStream ( outFile ) ) ) )
         {
-            InputStreamTest.dumpAll ( in );
+            Dumper.dumpAll ( in );
         }
     }
 
@@ -170,7 +171,7 @@ public class WriterTest
 
             ctx.addDirectory ( "/etc/test3" );
 
-            ctx.addDirectory ( "/etc/test3", finfo -> {
+            ctx.addDirectory ( "/var/lib/test3", finfo -> {
             } );
 
             ctx.addFile ( "/etc/test3/file1", IN_BASE.resolve ( "file1" ), BuilderContext.pathProvider ().customize ( finfo -> {
@@ -191,7 +192,7 @@ public class WriterTest
 
         try ( final RpmInputStream in = new RpmInputStream ( new BufferedInputStream ( Files.newInputStream ( outFile ) ) ) )
         {
-            InputStreamTest.dumpAll ( in );
+            Dumper.dumpAll ( in );
         }
     }
 }
