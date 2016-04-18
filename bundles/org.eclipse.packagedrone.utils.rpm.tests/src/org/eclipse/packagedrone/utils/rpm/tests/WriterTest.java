@@ -172,6 +172,7 @@ public class WriterTest
             ctx.addDirectory ( "/etc/test3" );
 
             ctx.addDirectory ( "/var/lib/test3", finfo -> {
+                finfo.setUser ( "" );
             } );
 
             ctx.addFile ( "/etc/test3/file1", IN_BASE.resolve ( "file1" ), BuilderContext.pathProvider ().customize ( finfo -> {

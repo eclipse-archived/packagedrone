@@ -399,10 +399,19 @@ public class RpmBuilder implements AutoCloseable
             throw new IllegalStateException ( "There was neither a default provider nor a specfic provider set" );
         }
 
+        private static String getNotEmptyOrDefault ( final String value, final String defaultValue )
+        {
+            if ( value == null || value.isEmpty () )
+            {
+                return defaultValue;
+            }
+            return value;
+        }
+
         protected void customizeCommon ( final FileEntry entry, final FileInformation information )
         {
-            entry.setUser ( information.getUser () );
-            entry.setGroup ( information.getGroup () );
+            entry.setUser ( getNotEmptyOrDefault ( information.getUser (), BuilderContext.DEFAULT_USER ) );
+            entry.setGroup ( getNotEmptyOrDefault ( information.getGroup (), BuilderContext.DEFAULT_GROUP ) );
             // modes are set in specific add methods
         }
 
