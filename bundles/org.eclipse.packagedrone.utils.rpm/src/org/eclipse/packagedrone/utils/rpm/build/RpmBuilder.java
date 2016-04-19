@@ -861,7 +861,8 @@ public class RpmBuilder implements AutoCloseable
 
     public void setPreInstallationScript ( final String interpreter, final String script )
     {
-        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_PRE );
+        addRequirement ( interpreter, null, RpmDependencyFlags.INTERPRETER );
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_PRE, RpmDependencyFlags.INTERPRETER );
         setScript ( RpmTag.PREINSTALL_SCRIPT_PROG, RpmTag.PREINSTALL_SCRIPT, interpreter, script );
     }
 
@@ -872,7 +873,8 @@ public class RpmBuilder implements AutoCloseable
 
     public void setPostInstallationScript ( final String interpreter, final String script )
     {
-        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_POST );
+        addRequirement ( interpreter, null, RpmDependencyFlags.INTERPRETER );
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_POST, RpmDependencyFlags.INTERPRETER );
         setScript ( RpmTag.POSTINSTALL_SCRIPT_PROG, RpmTag.POSTINSTALL_SCRIPT, interpreter, script );
     }
 
@@ -883,7 +885,8 @@ public class RpmBuilder implements AutoCloseable
 
     public void setPreRemoveScript ( final String interpreter, final String script )
     {
-        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_PREUN );
+        addRequirement ( interpreter, null, RpmDependencyFlags.INTERPRETER );
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_PREUN, RpmDependencyFlags.INTERPRETER );
         setScript ( RpmTag.PREREMOVE_SCRIPT_PROG, RpmTag.PREREMOVE_SCRIPT, interpreter, script );
     }
 
@@ -894,7 +897,8 @@ public class RpmBuilder implements AutoCloseable
 
     public void setPostRemoveScript ( final String interpreter, final String script )
     {
-        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_POSTUN );
+        addRequirement ( interpreter, null, RpmDependencyFlags.INTERPRETER );
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_POSTUN, RpmDependencyFlags.INTERPRETER );
         setScript ( RpmTag.POSTREMOVE_SCRIPT_PROG, RpmTag.POSTREMOVE_SCRIPT, interpreter, script );
     }
 
@@ -905,7 +909,8 @@ public class RpmBuilder implements AutoCloseable
 
     public void setVerifyScript ( final String interpreter, final String script )
     {
-        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_VERIFY );
+        addRequirement ( interpreter, null, RpmDependencyFlags.INTERPRETER );
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_VERIFY, RpmDependencyFlags.INTERPRETER );
         setScript ( RpmTag.VERIFY_SCRIPT_PROG, RpmTag.VERIFY_SCRIPT, interpreter, script );
     }
 

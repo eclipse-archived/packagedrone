@@ -185,6 +185,8 @@ public class WriterTest
                 finfo.setConfiguration ( true );
             } );
 
+            builder.setPreInstallationScript ( "true # test call" );
+
             outFile = builder.getTargetFile ();
 
             builder.build ();

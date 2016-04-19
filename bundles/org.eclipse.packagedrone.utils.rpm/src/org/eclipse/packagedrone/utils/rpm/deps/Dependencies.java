@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.deps;
 
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsFirst;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
@@ -55,7 +58,7 @@ public final class Dependencies
         // first sort
 
         final List<Dependency> deps = new ArrayList<> ( dependencies );
-        Collections.sort ( deps, Comparator.comparing ( Dependency::getName ).thenComparing ( Dependency::getVersion ) );
+        Collections.sort ( deps, comparing ( Dependency::getName ).thenComparing ( comparing ( Dependency::getVersion, nullsFirst ( naturalOrder () ) ) ) );
 
         // then set
 
