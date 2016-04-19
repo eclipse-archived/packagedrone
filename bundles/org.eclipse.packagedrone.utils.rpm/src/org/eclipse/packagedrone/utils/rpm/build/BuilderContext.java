@@ -130,7 +130,9 @@ public interface BuilderContext
      * will use the default user ({@code root}) and group ({@code root}) and use
      * the current time as file timestamp.
      * </p>
-     *
+     * 
+     * @param <T>
+     *            the object type to use as information source
      * @return the default information provider
      */
     @SuppressWarnings ( "unchecked" )
