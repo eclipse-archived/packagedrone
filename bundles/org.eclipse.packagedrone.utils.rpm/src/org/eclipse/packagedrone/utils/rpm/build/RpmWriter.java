@@ -157,7 +157,7 @@ public class RpmWriter implements AutoCloseable
 
         // header
 
-        debug ( "start header - offset: %s, len: %s%n", this.file.position (), payloadSize );
+        debug ( "start header - offset: %s, len: %s", this.file.position (), payloadSize );
         safeWrite ( buffer );
 
         // padding
@@ -167,7 +167,7 @@ public class RpmWriter implements AutoCloseable
         if ( padding > 0 )
         {
             safeWrite ( ByteBuffer.wrap ( Rpms.EMPTY_128, 0, padding ) );
-            debug ( "write - padding - %s%n", padding );
+            debug ( "write - padding - %s", padding );
         }
     }
 
@@ -200,7 +200,7 @@ public class RpmWriter implements AutoCloseable
 
         final int headerSize = this.header.remaining ();
         final long payloadSize = this.payloadProvider.getPayloadSize ();
-        debug ( "data - %s - %s%n", headerSize, payloadSize );
+        debug ( "data - %s - %s", headerSize, payloadSize );
 
         // set signature data
 
@@ -223,10 +223,10 @@ public class RpmWriter implements AutoCloseable
 
         // write the header
 
-        debug ( "package - offset: %s%n", this.file.position () );
+        debug ( "package - offset: %s", this.file.position () );
         safeWrite ( this.header.slice () ); // write sliced to keep the original position
 
-        debug ( "payload - offset: %s%n", this.file.position () );
+        debug ( "payload - offset: %s", this.file.position () );
 
         // now append payload data
 
@@ -235,16 +235,16 @@ public class RpmWriter implements AutoCloseable
             if ( payloadChannel instanceof FileChannel )
             {
                 final long count = ( (FileChannel)payloadChannel ).transferTo ( 0, Long.MAX_VALUE, this.file );
-                debug ( "transfered - %s%n", count );
+                debug ( "transfered - %s", count );
             }
             else
             {
                 final long count = ByteStreams.copy ( payloadChannel, this.file );
-                debug ( "copyied - %s%n", count );
+                debug ( "copyied - %s", count );
             }
         }
 
-        debug ( "end - offset: %s%n", this.file.position () );
+        debug ( "end - offset: %s", this.file.position () );
     }
 
     private byte[] makeMd5Checksum () throws IOException
