@@ -89,7 +89,7 @@ public class RpmLead
 
         if ( version.getRelease ().isPresent () )
         {
-            builder.append ( '-' ).append ( version.getRelease () );
+            builder.append ( '-' ).append ( version.getRelease ().get () );
         }
 
         return builder.toString ();
