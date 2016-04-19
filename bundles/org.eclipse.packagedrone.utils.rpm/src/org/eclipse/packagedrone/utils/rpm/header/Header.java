@@ -272,6 +272,16 @@ public class Header<T extends RpmBaseTag>
         this.entries.remove ( tag.getValue () );
     }
 
+    public Object get ( final int tag )
+    {
+        return this.entries.get ( tag );
+    }
+
+    public Object get ( final RpmTag tag )
+    {
+        return this.entries.get ( tag.getValue () );
+    }
+
     /**
      * Make an array of header entries
      * <p>

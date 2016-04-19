@@ -23,16 +23,19 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 import org.eclipse.packagedrone.utils.rpm.FileFlags;
 import org.eclipse.packagedrone.utils.rpm.PathName;
+import org.eclipse.packagedrone.utils.rpm.RpmLead;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
+import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
 import org.eclipse.packagedrone.utils.rpm.build.PayloadRecorder.Result;
 import org.eclipse.packagedrone.utils.rpm.deps.Dependencies;
@@ -436,9 +439,7 @@ public class RpmBuilder implements AutoCloseable
 
     private final String name;
 
-    private final String version;
-
-    private final String release;
+    private final RpmVersion version;
 
     private final String architecture;
 
@@ -448,13 +449,13 @@ public class RpmBuilder implements AutoCloseable
 
     private final OpenOption[] openOptions;
 
-    private final List<Dependency> provides = new LinkedList<> ();
+    private final Set<Dependency> provides = new HashSet<> ();
 
-    private final List<Dependency> requirements = new LinkedList<> ();
+    private final Set<Dependency> requirements = new HashSet<> ();
 
-    private final List<Dependency> conflicts = new LinkedList<> ();
+    private final Set<Dependency> conflicts = new HashSet<> ();
 
-    private final List<Dependency> obsoletes = new LinkedList<> ();
+    private final Set<Dependency> obsoletes = new HashSet<> ();
 
     private final Map<String, FileEntry> files = new HashMap<> ();
 
@@ -469,14 +470,13 @@ public class RpmBuilder implements AutoCloseable
         this ( name, version, release, "noarch", target );
     }
 
-    public RpmBuilder ( final String name, final String version, final String release, final String architecture, final Path target, final OpenOption... openOptions ) throws IOException
+    public RpmBuilder ( final String name, final RpmVersion version, final String architecture, final Path targetFile, final OpenOption... openOptions ) throws IOException
     {
         this.name = name;
         this.version = version;
-        this.release = release;
         this.architecture = architecture;
 
-        this.targetFile = makeTargetFile ( target );
+        this.targetFile = makeTargetFile ( targetFile );
         if ( openOptions == null || openOptions.length == 0 )
         {
             this.openOptions = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING };
@@ -489,6 +489,11 @@ public class RpmBuilder implements AutoCloseable
         this.recorder = new PayloadRecorder ( true );
     }
 
+    public RpmBuilder ( final String name, final String version, final String release, final String architecture, final Path target, final OpenOption... openOptions ) throws IOException
+    {
+        this ( name, new RpmVersion ( null, version, release ), architecture, target, openOptions );
+    }
+
     private void fillRequirements ()
     {
         this.requirements.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
@@ -497,7 +502,7 @@ public class RpmBuilder implements AutoCloseable
 
     private void fillProvides ()
     {
-        this.provides.add ( new Dependency ( this.name, this.version, RpmDependencyFlags.EQUAL ) );
+        this.provides.add ( new Dependency ( this.name, this.version.toString (), RpmDependencyFlags.EQUAL ) );
     }
 
     private void fillHeader ()
@@ -508,8 +513,15 @@ public class RpmBuilder implements AutoCloseable
         this.header.putStringArray ( 100, "C" );
 
         this.header.putString ( RpmTag.NAME, this.name );
-        this.header.putString ( RpmTag.VERSION, this.version );
-        this.header.putString ( RpmTag.RELEASE, this.release );
+        this.header.putString ( RpmTag.VERSION, this.version.getVersion () );
+        if ( this.version.getRelease ().isPresent () )
+        {
+            this.header.putString ( RpmTag.RELEASE, this.version.getRelease ().get () );
+        }
+        if ( this.version.getEpoch ().isPresent () )
+        {
+            this.header.putInt ( RpmTag.EPOCH, this.version.getEpoch ().get () );
+        }
 
         this.header.putString ( RpmTag.LICENSE, this.information.getLicense () );
         this.header.putStringOptional ( RpmTag.DISTRIBUTION, this.information.getDistribution () );
@@ -594,12 +606,9 @@ public class RpmBuilder implements AutoCloseable
 
     private String makeDefaultFileName ()
     {
-        return String.format ( "%s-%s-%s.%s.rpm", this.name, this.version, this.release, this.architecture );
-    }
-
-    private String makeLeadName ()
-    {
-        return String.format ( "%s-%s-%s", this.name, this.version, this.release );
+        final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( this.name, this.version ) );
+        sb.append ( '-' ).append ( this.architecture ).append ( ".rpm" );
+        return sb.toString ();
     }
 
     /**
@@ -635,7 +644,7 @@ public class RpmBuilder implements AutoCloseable
         return this.architecture;
     }
 
-    public String getVersion ()
+    public RpmVersion getVersion ()
     {
         return this.version;
     }
@@ -643,11 +652,6 @@ public class RpmBuilder implements AutoCloseable
     public String getName ()
     {
         return this.name;
-    }
-
-    public String getRelease ()
-    {
-        return this.release;
     }
 
     /**
@@ -673,7 +677,10 @@ public class RpmBuilder implements AutoCloseable
 
         fillHeader ();
 
-        try ( RpmWriter writer = new RpmWriter ( this.targetFile, makeLeadName (), this.header, this.openOptions ) )
+        final LeadBuilder leadBuilder = new LeadBuilder ( this.name, this.version );
+        leadBuilder.fillFlagsFromHeader ( this.header );
+
+        try ( RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.openOptions ) )
         {
             writer.setPayload ( this.recorder );
         }
@@ -854,6 +861,7 @@ public class RpmBuilder implements AutoCloseable
 
     public void setPreInstallationScript ( final String interpreter, final String script )
     {
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_PRE );
         setScript ( RpmTag.PREINSTALL_SCRIPT_PROG, RpmTag.PREINSTALL_SCRIPT, interpreter, script );
     }
 
@@ -864,6 +872,7 @@ public class RpmBuilder implements AutoCloseable
 
     public void setPostInstallationScript ( final String interpreter, final String script )
     {
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_POST );
         setScript ( RpmTag.POSTINSTALL_SCRIPT_PROG, RpmTag.POSTINSTALL_SCRIPT, interpreter, script );
     }
 
@@ -874,6 +883,7 @@ public class RpmBuilder implements AutoCloseable
 
     public void setPreRemoveScript ( final String interpreter, final String script )
     {
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_PREUN );
         setScript ( RpmTag.PREREMOVE_SCRIPT_PROG, RpmTag.PREREMOVE_SCRIPT, interpreter, script );
     }
 
@@ -884,6 +894,7 @@ public class RpmBuilder implements AutoCloseable
 
     public void setPostRemoveScript ( final String interpreter, final String script )
     {
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_POSTUN );
         setScript ( RpmTag.POSTREMOVE_SCRIPT_PROG, RpmTag.POSTREMOVE_SCRIPT, interpreter, script );
     }
 
@@ -894,6 +905,7 @@ public class RpmBuilder implements AutoCloseable
 
     public void setVerifyScript ( final String interpreter, final String script )
     {
+        addRequirement ( interpreter, null, RpmDependencyFlags.SCRIPT_VERIFY );
         setScript ( RpmTag.VERIFY_SCRIPT_PROG, RpmTag.VERIFY_SCRIPT, interpreter, script );
     }
 

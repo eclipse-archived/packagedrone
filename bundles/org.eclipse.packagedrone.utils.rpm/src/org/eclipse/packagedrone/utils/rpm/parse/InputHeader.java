@@ -8,25 +8,27 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.rpm;
+package org.eclipse.packagedrone.utils.rpm.parse;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class RpmHeader<T extends RpmBaseTag>
+import org.eclipse.packagedrone.utils.rpm.RpmBaseTag;
+
+public class InputHeader<T extends RpmBaseTag>
 {
-    private final Map<Integer, RpmEntry> entries;
+    private final Map<Integer, HeaderValue> entries;
 
     private final long start;
 
     private final long length;
 
-    public RpmHeader ( final RpmEntry[] entries, final long start, final long length )
+    public InputHeader ( final HeaderValue[] entries, final long start, final long length )
     {
-        final Map<Integer, RpmEntry> tags = new LinkedHashMap<> ( entries.length );
-        for ( final RpmEntry entry : entries )
+        final Map<Integer, HeaderValue> tags = new LinkedHashMap<> ( entries.length );
+        for ( final HeaderValue entry : entries )
         {
             tags.put ( entry.getTag (), entry );
         }
@@ -69,20 +71,20 @@ public class RpmHeader<T extends RpmBaseTag>
 
     public Optional<Object> getOptionalTag ( final T tag )
     {
-        return getEntry ( tag ).map ( RpmEntry::getValue );
+        return getEntry ( tag ).map ( HeaderValue::getValue );
     }
 
     public Optional<Object> getOptionalTag ( final int tag )
     {
-        return getEntry ( tag ).map ( RpmEntry::getValue );
+        return getEntry ( tag ).map ( HeaderValue::getValue );
     }
 
-    public Optional<RpmEntry> getEntry ( final T tag )
+    public Optional<HeaderValue> getEntry ( final T tag )
     {
         return Optional.ofNullable ( this.entries.get ( tag.getValue () ) );
     }
 
-    public Optional<RpmEntry> getEntry ( final int tag )
+    public Optional<HeaderValue> getEntry ( final int tag )
     {
         return Optional.ofNullable ( this.entries.get ( tag ) );
     }
@@ -97,7 +99,7 @@ public class RpmHeader<T extends RpmBaseTag>
         return getOptionalTag ( tag ).orElse ( defaultValue );
     }
 
-    public Map<Integer, RpmEntry> getRawTags ()
+    public Map<Integer, HeaderValue> getRawTags ()
     {
         return this.entries;
     }

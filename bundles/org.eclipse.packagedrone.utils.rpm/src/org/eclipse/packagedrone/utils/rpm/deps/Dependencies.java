@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.deps;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.header.Header;
@@ -48,8 +52,15 @@ public final class Dependencies
             return;
         }
 
-        Header.putFields ( header, dependencies, namesTag, String[]::new, Dependency::getName, Header::putStringArray );
-        Header.putFields ( header, dependencies, versionsTag, String[]::new, Dependency::getVersion, Header::putStringArray );
-        Header.putIntFields ( header, dependencies, flagsTag, dep -> RpmDependencyFlags.encode ( dep.getFlags () ) );
+        // first sort
+
+        final List<Dependency> deps = new ArrayList<> ( dependencies );
+        Collections.sort ( deps, Comparator.comparing ( Dependency::getName ).thenComparing ( Dependency::getVersion ) );
+
+        // then set
+
+        Header.putFields ( header, deps, namesTag, String[]::new, Dependency::getName, Header::putStringArray );
+        Header.putFields ( header, deps, versionsTag, String[]::new, Dependency::getVersion, Header::putStringArray );
+        Header.putIntFields ( header, deps, flagsTag, dep -> RpmDependencyFlags.encode ( dep.getFlags () ) );
     }
 }

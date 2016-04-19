@@ -8,7 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.rpm;
+package org.eclipse.packagedrone.utils.rpm.parse;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -20,6 +20,11 @@ import java.util.Arrays;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.eclipse.packagedrone.utils.rpm.RpmBaseTag;
+import org.eclipse.packagedrone.utils.rpm.RpmLead;
+import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
+import org.eclipse.packagedrone.utils.rpm.RpmTag;
+import org.eclipse.packagedrone.utils.rpm.Rpms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tukaani.xz.LZMAInputStream;
@@ -39,9 +44,9 @@ public class RpmInputStream extends InputStream
 
     private RpmLead lead;
 
-    private RpmHeader<RpmSignatureTag> signatureHeader;
+    private InputHeader<RpmSignatureTag> signatureHeader;
 
-    private RpmHeader<RpmTag> payloadHeader;
+    private InputHeader<RpmTag> payloadHeader;
 
     private InputStream payloadStream;
 
@@ -152,13 +157,13 @@ public class RpmInputStream extends InputStream
         return this.lead;
     }
 
-    public RpmHeader<RpmSignatureTag> getSignatureHeader () throws IOException
+    public InputHeader<RpmSignatureTag> getSignatureHeader () throws IOException
     {
         ensureInit ();
         return this.signatureHeader;
     }
 
-    public RpmHeader<RpmTag> getPayloadHeader () throws IOException
+    public InputHeader<RpmTag> getPayloadHeader () throws IOException
     {
         ensureInit ();
         return this.payloadHeader;
@@ -175,22 +180,23 @@ public class RpmInputStream extends InputStream
 
         final byte[] version = readComplete ( 2 );
 
-        skipFully ( 4 ); // TYPE + ARCH
+        final short type = this.in.readShort ();
+        final short arch = this.in.readShort ();
 
         final byte[] nameData = readComplete ( 66 ); // NAME
 
         final String name = StandardCharsets.UTF_8.decode ( ByteBuffer.wrap ( nameData ) ).toString ();
 
-        skipFully ( 2 ); // OS
+        final short os = this.in.readShort ();
 
         final int sigType = this.in.readUnsignedShort ();
 
         skipFully ( 16 ); // RESERVED
 
-        return new RpmLead ( version[0], version[1], name, sigType );
+        return new RpmLead ( version[0], version[1], name, sigType, type, arch, os );
     }
 
-    protected <T extends RpmBaseTag> RpmHeader<T> readHeader ( final boolean withPadding ) throws IOException
+    protected <T extends RpmBaseTag> InputHeader<T> readHeader ( final boolean withPadding ) throws IOException
     {
         final long start = this.count.getCount ();
 
@@ -212,7 +218,7 @@ public class RpmInputStream extends InputStream
         final int indexCount = this.in.readInt ();
         final int storeSize = this.in.readInt ();
 
-        final RpmEntry[] entries = new RpmEntry[indexCount];
+        final HeaderValue[] entries = new HeaderValue[indexCount];
 
         for ( int i = 0; i < indexCount; i++ )
         {
@@ -241,17 +247,17 @@ public class RpmInputStream extends InputStream
 
         final long end = this.count.getCount ();
 
-        return new RpmHeader<T> ( entries, start, end - start );
+        return new InputHeader<T> ( entries, start, end - start );
     }
 
-    private RpmEntry readEntry () throws IOException
+    private HeaderValue readEntry () throws IOException
     {
         final int tag = this.in.readInt ();
         final int type = this.in.readInt ();
         final int offset = this.in.readInt ();
         final int count = this.in.readInt ();
 
-        return new RpmEntry ( tag, type, offset, count );
+        return new HeaderValue ( tag, type, offset, count );
     }
 
     private byte[] readComplete ( final int size ) throws IOException

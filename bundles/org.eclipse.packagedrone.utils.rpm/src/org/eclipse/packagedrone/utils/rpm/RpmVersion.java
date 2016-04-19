@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class RpmVersion
@@ -20,11 +21,28 @@ public class RpmVersion
 
     private final Optional<String> release;
 
+    public RpmVersion ( final String version )
+    {
+        this ( version, null );
+    }
+
+    public RpmVersion ( final String version, final String release )
+    {
+        this ( null, version, release );
+    }
+
     public RpmVersion ( final Integer epoch, final String version, final String release )
     {
         this.epoch = Optional.ofNullable ( epoch );
-        this.version = version;
+        this.version = Objects.requireNonNull ( version );
         this.release = Optional.ofNullable ( release );
+    }
+
+    public RpmVersion ( final Optional<Integer> epoch, final String version, final Optional<String> release )
+    {
+        this.epoch = Objects.requireNonNull ( epoch );
+        this.version = Objects.requireNonNull ( version );
+        this.release = Objects.requireNonNull ( release );
     }
 
     public Optional<Integer> getEpoch ()
@@ -53,7 +71,7 @@ public class RpmVersion
 
         if ( this.release.isPresent () && !this.release.get ().isEmpty () )
         {
-            sb.append ( '-' ).append ( this.release );
+            sb.append ( '-' ).append ( this.release.get () );
         }
 
         return sb.toString ();

@@ -19,9 +19,23 @@ public enum RpmDependencyFlags
     GREATER ( 2 ),
     EQUAL ( 3 ),
     PREREQ ( 6 ),
+    PRETRANS ( 7 ),
+    INTERPRETER ( 8 ),
     SCRIPT_PRE ( 9 ),
     SCRIPT_POST ( 10 ),
-    RPMLIB ( 24 );
+    SCRIPT_PREUN ( 11 ),
+    SCRIPT_POSTUN ( 12 ),
+    SCRIPT_VERIFY ( 13 ),
+    FIND_REQUIRES ( 14 ),
+    FIND_PROVIDES ( 15 ),
+    TRIGGER_IN ( 16 ),
+    TRIGGER_UN ( 17 ),
+    TRIGGER_POSTUN ( 18 ),
+    MISSINGOK ( 19 ),
+    RPMLIB ( 24 ),
+    TRIGGER_PREIN ( 25 ),
+    KEYRING ( 26 ),
+    CONFIG ( 28 );
 
     private int value;
 

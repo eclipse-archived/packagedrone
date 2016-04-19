@@ -28,10 +28,10 @@ import org.eclipse.packagedrone.repo.adapter.rpm.Constants;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation.Dependency;
 import org.eclipse.packagedrone.repo.aspect.extract.Extractor;
-import org.eclipse.packagedrone.utils.rpm.RpmHeader;
-import org.eclipse.packagedrone.utils.rpm.RpmInputStream;
 import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
+import org.eclipse.packagedrone.utils.rpm.parse.InputHeader;
+import org.eclipse.packagedrone.utils.rpm.parse.RpmInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,8 +70,8 @@ public class RpmExtractor implements Extractor
 
     private RpmInformation makeInformation ( final RpmInputStream in ) throws IOException
     {
-        final RpmHeader<RpmTag> header = in.getPayloadHeader ();
-        final RpmHeader<RpmSignatureTag> signature = in.getSignatureHeader ();
+        final InputHeader<RpmTag> header = in.getPayloadHeader ();
+        final InputHeader<RpmSignatureTag> signature = in.getSignatureHeader ();
 
         try
         {
@@ -162,7 +162,7 @@ public class RpmExtractor implements Extractor
         }
     }
 
-    private List<Dependency> makeDependencies ( final RpmHeader<RpmTag> header, final RpmTag namesTag, final RpmTag versionsTag, final RpmTag flagsTag )
+    private List<Dependency> makeDependencies ( final InputHeader<RpmTag> header, final RpmTag namesTag, final RpmTag versionsTag, final RpmTag flagsTag )
     {
         Object namesVal = header.getTag ( namesTag );
         Object versionsVal = header.getTag ( versionsTag );

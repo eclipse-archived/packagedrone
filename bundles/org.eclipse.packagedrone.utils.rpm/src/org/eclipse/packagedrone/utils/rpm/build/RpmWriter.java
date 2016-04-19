@@ -47,6 +47,8 @@ import com.google.common.io.ByteStreams;
  */
 public class RpmWriter implements AutoCloseable
 {
+    private static final OpenOption[] DEFAULT_OPEN_OPTIONS = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING };
+
     private final static Logger logger = LoggerFactory.getLogger ( RpmWriter.class );
 
     private final FileChannel file;
@@ -59,20 +61,10 @@ public class RpmWriter implements AutoCloseable
 
     private PayloadProvider payloadProvider;
 
-    public RpmWriter ( final Path path, final String name, final Header<RpmTag> header ) throws IOException
+    public RpmWriter ( final Path path, final LeadBuilder leadBuilder, final Header<RpmTag> header, final OpenOption... options ) throws IOException
     {
-        this ( path, name, header, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE );
-    }
-
-    public RpmWriter ( final Path path, final String name, final Header<RpmTag> header, final OpenOption... options ) throws IOException
-    {
-        this ( path, new RpmLead ( (byte)3, (byte)0, name, 5 ), header, options );
-    }
-
-    RpmWriter ( final Path path, final RpmLead lead, final Header<RpmTag> header, final OpenOption... options ) throws IOException
-    {
-        this.file = FileChannel.open ( path, options );
-        this.lead = lead;
+        this.file = FileChannel.open ( path, options != null && options.length > 0 ? options : DEFAULT_OPEN_OPTIONS );
+        this.lead = leadBuilder.build ();
 
         this.header = Headers.render ( header.makeEntries (), true, Rpms.IMMUTABLE_TAG_HEADER );
     }
@@ -109,9 +101,9 @@ public class RpmWriter implements AutoCloseable
         lead.put ( this.lead.getMajor () );
         lead.put ( this.lead.getMinor () );
 
-        // TODO: 4 bytes OS + ARCH
-
-        lead.putInt ( 0 );
+        lead.putShort ( this.lead.getType () );
+        // TODO: 2 bytes ARCH
+        lead.putShort ( (short)0 );
 
         // write package name
 

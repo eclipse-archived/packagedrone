@@ -8,14 +8,16 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.rpm;
+package org.eclipse.packagedrone.utils.rpm.parse;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
-public class RpmEntry
+import org.eclipse.packagedrone.utils.rpm.Rpms;
+
+public class HeaderValue
 {
     private static final class Unknown
     {
@@ -38,7 +40,7 @@ public class RpmEntry
 
     private final int count;
 
-    public RpmEntry ( final int tag, final int type, final int index, final int count )
+    public HeaderValue ( final int tag, final int type, final int index, final int count )
     {
         this.tag = tag;
         this.type = type;

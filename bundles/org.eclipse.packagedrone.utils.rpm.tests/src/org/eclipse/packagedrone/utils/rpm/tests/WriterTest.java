@@ -22,10 +22,11 @@ import java.time.ZoneOffset;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.packagedrone.utils.rpm.RpmInputStream;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
+import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.eclipse.packagedrone.utils.rpm.app.Dumper;
 import org.eclipse.packagedrone.utils.rpm.build.BuilderContext;
+import org.eclipse.packagedrone.utils.rpm.build.LeadBuilder;
 import org.eclipse.packagedrone.utils.rpm.build.PayloadRecorder;
 import org.eclipse.packagedrone.utils.rpm.build.RpmBuilder;
 import org.eclipse.packagedrone.utils.rpm.build.RpmBuilder.PackageInformation;
@@ -34,6 +35,7 @@ import org.eclipse.packagedrone.utils.rpm.deps.Dependencies;
 import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 import org.eclipse.packagedrone.utils.rpm.header.Header;
+import org.eclipse.packagedrone.utils.rpm.parse.RpmInputStream;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -85,7 +87,7 @@ public class WriterTest
 
         try ( PayloadRecorder recorder = new PayloadRecorder () )
         {
-            try ( RpmWriter writer = new RpmWriter ( rpm1, "test1-1.0.0", header ) )
+            try ( RpmWriter writer = new RpmWriter ( rpm1, new LeadBuilder ( "test1", new RpmVersion ( "1.0.0" ) ), header ) )
             {
                 writer.setPayload ( recorder );
             }
@@ -139,7 +141,7 @@ public class WriterTest
 
             header.putInt ( RpmTag.SIZE, installedSize );
 
-            try ( RpmWriter writer = new RpmWriter ( outFile, "test2", header ) )
+            try ( RpmWriter writer = new RpmWriter ( outFile, new LeadBuilder ( "test3", new RpmVersion ( "1.0.0", "1" ) ), header ) )
             {
                 writer.setPayload ( payload );
             }
@@ -167,7 +169,6 @@ public class WriterTest
             pinfo.setDistribution ( "Eclipse Package Drone" );
 
             final BuilderContext ctx = builder.newContext ();
-            // ctx.setDefaultInformationProvider ( BuilderContext.defaultProvider () );
 
             ctx.addDirectory ( "/etc/test3" );
 
@@ -183,8 +184,6 @@ public class WriterTest
                 finfo.setTimestamp ( LocalDateTime.of ( 2014, 1, 1, 0, 0 ).toInstant ( ZoneOffset.UTC ) );
                 finfo.setConfiguration ( true );
             } );
-
-            // builder.addRequirement ( "foo", "1.0", RpmDependencyFlags.EQUAL, RpmDependencyFlags.GREATER );
 
             outFile = builder.getTargetFile ();
 

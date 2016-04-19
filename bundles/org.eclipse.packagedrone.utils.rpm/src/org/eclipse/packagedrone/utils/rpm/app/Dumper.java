@@ -18,31 +18,50 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream;
+import org.eclipse.packagedrone.utils.rpm.Architecture;
+import org.eclipse.packagedrone.utils.rpm.OperatingSystem;
 import org.eclipse.packagedrone.utils.rpm.RpmBaseTag;
-import org.eclipse.packagedrone.utils.rpm.RpmEntry;
-import org.eclipse.packagedrone.utils.rpm.RpmHeader;
-import org.eclipse.packagedrone.utils.rpm.RpmInputStream;
 import org.eclipse.packagedrone.utils.rpm.RpmLead;
 import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTagValue;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
+import org.eclipse.packagedrone.utils.rpm.Type;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
+import org.eclipse.packagedrone.utils.rpm.parse.HeaderValue;
+import org.eclipse.packagedrone.utils.rpm.parse.InputHeader;
+import org.eclipse.packagedrone.utils.rpm.parse.RpmInputStream;
 
 public class Dumper
 {
+    public static String dumpFlag ( final int value, final IntFunction<Optional<?>> func )
+    {
+        final Optional<?> flag = func.apply ( value );
+        if ( flag.isPresent () )
+        {
+            return String.format ( "%s (%s)", flag.get (), value );
+        }
+        else
+        {
+            return String.format ( "%s", value );
+        }
+    }
+
     public static void dumpAll ( final RpmInputStream in ) throws IOException
     {
         final RpmLead lead = in.getLead ();
         System.out.format ( "Version: %s.%s%n", lead.getMajor (), lead.getMinor () );
         System.out.format ( "Name: %s%n", lead.getName () );
         System.out.format ( "Signature Version: %s%n", lead.getSignatureVersion () );
+        System.out.format ( "Type: %s, Arch: %s, OS: %s%n", dumpFlag ( lead.getType (), Type::fromValue ), dumpFlag ( lead.getArchitecture (), Architecture::fromValue ), dumpFlag ( lead.getOperatingSystem (), OperatingSystem::fromValue ) );
 
         dumpHeader ( "Signature", in.getSignatureHeader (), tag -> RpmSignatureTag.find ( tag ), false );
         dumpHeader ( "Payload", in.getPayloadHeader (), tag -> RpmTag.find ( tag ), false );
@@ -94,12 +113,12 @@ public class Dumper
         }
     }
 
-    private static void dumpHeader ( final String string, final RpmHeader<? extends RpmBaseTag> header, final Function<Integer, Object> func, final boolean sorted )
+    private static void dumpHeader ( final String string, final InputHeader<? extends RpmBaseTag> header, final Function<Integer, Object> func, final boolean sorted )
     {
         System.out.println ( string );
         System.out.println ( "=================================" );
 
-        Set<Entry<Integer, RpmEntry>> data;
+        Set<Entry<Integer, HeaderValue>> data;
         if ( sorted )
         {
             data = new TreeMap<> ( header.getRawTags () ).entrySet ();
@@ -109,7 +128,7 @@ public class Dumper
             data = header.getRawTags ().entrySet ();
         }
 
-        for ( final Map.Entry<Integer, RpmEntry> entry : data )
+        for ( final Map.Entry<Integer, HeaderValue> entry : data )
         {
             Object tag = func.apply ( entry.getKey () );
             if ( tag == null )

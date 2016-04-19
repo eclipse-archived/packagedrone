@@ -15,9 +15,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
-import org.eclipse.packagedrone.utils.rpm.RpmInputStream;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.app.Dumper;
+import org.eclipse.packagedrone.utils.rpm.parse.RpmInputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
