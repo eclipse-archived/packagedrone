@@ -40,6 +40,18 @@ import com.google.common.io.ByteStreams;
 
 public class P2Unzipper implements Virtualizer
 {
+    private static final String FILENAME_CONTENT_JAR = "content.jar";
+
+    private static final String FILENAME_ARTIFACTS_JAR = "artifacts.jar";
+
+    private static final String FILENAME_CONTENT_XML = "content.xml";
+
+    private static final String FILENAME_ARTIFACTS_XML = "artifacts.xml";
+
+    private static final String XPATH_EXTRACT_CONTENT = "/repository/units";
+
+    private static final String XPATH_EXTRACT_ARTIFACTS = "/repository/artifacts";
+
     private final static Logger logger = LoggerFactory.getLogger ( P2Unzipper.class );
 
     private static final MetaKey KEY_REUSE_METADATA = new MetaKey ( "p2.unzip", "reuse-metadata" );
@@ -81,11 +93,11 @@ public class P2Unzipper implements Virtualizer
                 {
                     processEntry ( context, entry, zis );
                 }
-                else if ( reuseMetadata && entry.getName ().equals ( "artifacts.jar" ) )
+                else if ( reuseMetadata && entry.getName ().equals ( FILENAME_ARTIFACTS_XML ) )
                 {
                     try
                     {
-                        processZippedMetaData ( context, zis, "artifacts.xml", "/repository/artifacts" );
+                        processMetaData ( context, zis, FILENAME_ARTIFACTS_XML, XPATH_EXTRACT_ARTIFACTS );
                     }
                     catch ( final Exception e )
                     {
@@ -93,11 +105,35 @@ public class P2Unzipper implements Virtualizer
                         logger.warn ( "Failed to extract artifacts meta data", e );
                     }
                 }
-                else if ( reuseMetadata && entry.getName ().equals ( "content.jar" ) )
+                else if ( reuseMetadata && entry.getName ().equals ( FILENAME_CONTENT_XML ) )
                 {
                     try
                     {
-                        processZippedMetaData ( context, zis, "content.xml", "/repository/units" );
+                        processMetaData ( context, zis, FILENAME_CONTENT_XML, XPATH_EXTRACT_CONTENT );
+                    }
+                    catch ( final Exception e )
+                    {
+                        // simply don't write this file
+                        logger.warn ( "Failed to extract content meta data", e );
+                    }
+                }
+                else if ( reuseMetadata && entry.getName ().equals ( FILENAME_ARTIFACTS_JAR ) )
+                {
+                    try
+                    {
+                        processZippedMetaData ( context, zis, FILENAME_ARTIFACTS_XML, XPATH_EXTRACT_ARTIFACTS );
+                    }
+                    catch ( final Exception e )
+                    {
+                        // simply don't write this file
+                        logger.warn ( "Failed to extract artifacts meta data", e );
+                    }
+                }
+                else if ( reuseMetadata && entry.getName ().equals ( FILENAME_CONTENT_JAR ) )
+                {
+                    try
+                    {
+                        processZippedMetaData ( context, zis, FILENAME_CONTENT_XML, XPATH_EXTRACT_CONTENT );
                     }
                     catch ( final Exception e )
                     {
@@ -123,32 +159,37 @@ public class P2Unzipper implements Virtualizer
         {
             if ( entry.getName ().equals ( filename ) )
             {
-                // parse input
-                final Document doc = this.xml.newDocumentBuilder ().parse ( new CloseShieldInputStream ( jin ) );
-                final XPathExpression path = this.xml.newXPathFactory ().newXPath ().compile ( xpath );
-
-                // filter
-                final NodeList result = XmlHelper.executePath ( doc, path );
-
-                // write filtered output
-                final Document fragmentDoc = this.xml.newDocumentBuilder ().newDocument ();
-                Node node = result.item ( 0 );
-                node = fragmentDoc.adoptNode ( node );
-                fragmentDoc.appendChild ( node );
-
-                // create artifact
-                context.createVirtualArtifact ( filename, out -> {
-                    try
-                    {
-                        XmlHelper.write ( this.xml.newTransformerFactory (), fragmentDoc, new StreamResult ( out ) );
-                    }
-                    catch ( final Exception e )
-                    {
-                        throw new IOException ( e );
-                    }
-                }, null );
+                processMetaData ( context, jin, filename, xpath );
             }
         }
+    }
+
+    private void processMetaData ( final Context context, final InputStream in, final String filename, final String xpath ) throws Exception
+    {
+        // parse input
+        final Document doc = this.xml.newDocumentBuilder ().parse ( new CloseShieldInputStream ( in ) );
+        final XPathExpression path = this.xml.newXPathFactory ().newXPath ().compile ( xpath );
+
+        // filter
+        final NodeList result = XmlHelper.executePath ( doc, path );
+
+        // write filtered output
+        final Document fragmentDoc = this.xml.newDocumentBuilder ().newDocument ();
+        Node node = result.item ( 0 );
+        node = fragmentDoc.adoptNode ( node );
+        fragmentDoc.appendChild ( node );
+
+        // create artifact
+        context.createVirtualArtifact ( filename, out -> {
+            try
+            {
+                XmlHelper.write ( this.xml.newTransformerFactory (), fragmentDoc, new StreamResult ( out ) );
+            }
+            catch ( final Exception e )
+            {
+                throw new IOException ( e );
+            }
+        }, null );
     }
 
     private boolean isZip ( final ArtifactInformation ai )
