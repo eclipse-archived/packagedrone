@@ -40,6 +40,8 @@ import com.google.common.io.ByteStreams;
 
 public class P2Unzipper implements Virtualizer
 {
+    private final static Logger logger = LoggerFactory.getLogger ( P2Unzipper.class );
+
     private static final String FILENAME_CONTENT_JAR = "content.jar";
 
     private static final String FILENAME_ARTIFACTS_JAR = "artifacts.jar";
@@ -51,8 +53,6 @@ public class P2Unzipper implements Virtualizer
     private static final String XPATH_EXTRACT_CONTENT = "/repository/units";
 
     private static final String XPATH_EXTRACT_ARTIFACTS = "/repository/artifacts";
-
-    private final static Logger logger = LoggerFactory.getLogger ( P2Unzipper.class );
 
     private static final MetaKey KEY_REUSE_METADATA = new MetaKey ( "p2.unzip", "reuse-metadata" );
 
