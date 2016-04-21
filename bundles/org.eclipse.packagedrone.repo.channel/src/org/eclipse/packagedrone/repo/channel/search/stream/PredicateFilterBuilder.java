@@ -15,11 +15,13 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.search.And;
 import org.eclipse.packagedrone.repo.channel.search.Equal;
 import org.eclipse.packagedrone.repo.channel.search.IsNull;
+import org.eclipse.packagedrone.repo.channel.search.Like;
 import org.eclipse.packagedrone.repo.channel.search.Literal;
 import org.eclipse.packagedrone.repo.channel.search.MetaKeyValue;
 import org.eclipse.packagedrone.repo.channel.search.Not;
@@ -112,7 +114,89 @@ public class PredicateFilterBuilder
 
             return v1.equals ( v2 );
         }
+    }
 
+    private final static class LikePredicate<T, V> implements java.util.function.Predicate<T>
+    {
+        private final Function<T, V> valueFunction;
+
+        private final Pattern pattern;
+
+        public LikePredicate ( final Function<T, V> valueFunction, final String pattern, final boolean caseSensitive )
+        {
+            this.valueFunction = valueFunction;
+            this.pattern = makePattern ( pattern, caseSensitive );
+        }
+
+        @Override
+        public boolean test ( final T t )
+        {
+            final V v1 = this.valueFunction.apply ( t );
+
+            if ( v1 == null )
+            {
+                return false;
+            }
+
+            final String sv1 = v1.toString ();
+
+            return this.pattern.matcher ( sv1 ).matches ();
+        }
+
+        private static Pattern makePattern ( final String pattern, final boolean caseSensitive )
+        {
+            final StringBuilder patternBuilder = new StringBuilder ( pattern.length () );
+
+            boolean escaped = false;
+            final StringBuilder sb = new StringBuilder ( pattern.length () );
+            for ( int i = 0; i < pattern.length (); i++ )
+            {
+                final char c = pattern.charAt ( i );
+                if ( escaped )
+                {
+                    sb.append ( c );
+                    escaped = false;
+                }
+                else
+                {
+                    switch ( c )
+                    {
+                        case '%':
+                            if ( sb.length () > 0 )
+                            {
+                                patternBuilder.append ( Pattern.quote ( sb.toString () ) );
+                                sb.setLength ( 0 ); // clear
+                            }
+                            patternBuilder.append ( ".*" );
+                            break;
+
+                        case '_':
+                            if ( sb.length () > 0 )
+                            {
+                                patternBuilder.append ( Pattern.quote ( sb.toString () ) );
+                                sb.setLength ( 0 ); // clear
+                            }
+                            patternBuilder.append ( "." );
+                            break;
+
+                        case '\\':
+                            escaped = true;
+                            break;
+
+                        default:
+                            sb.append ( c );
+                            break;
+                    }
+                }
+            }
+
+            if ( sb.length () > 0 )
+            {
+                patternBuilder.append ( Pattern.quote ( sb.toString () ) );
+            }
+
+            return Pattern.compile ( patternBuilder.toString (), caseSensitive ? 0 : Pattern.CASE_INSENSITIVE );
+        }
     }
 
     private final Predicate predicate;
@@ -157,6 +241,10 @@ public class PredicateFilterBuilder
         {
             return buildEqual ( (Equal)current );
         }
+        else if ( current instanceof Like )
+        {
+            return buildLike ( (Like)current );
+        }
         else if ( current instanceof Not )
         {
             return buildNot ( (Not)current );
@@ -183,12 +271,12 @@ public class PredicateFilterBuilder
         throw new IllegalArgumentException ( String.format ( "Value type '%s' (%s) is unknown", current.getClass ().getSimpleName (), current.getClass ().getName () ) );
     }
 
-    private Function<ArtifactInformation, String> buildLiteral ( final Literal current )
+    protected Function<ArtifactInformation, String> buildLiteral ( final Literal current )
     {
         return t -> current.getValue ();
     }
 
-    private Function<ArtifactInformation, String> buildMetaKeyValue ( final MetaKeyValue current )
+    protected Function<ArtifactInformation, String> buildMetaKeyValue ( final MetaKeyValue current )
     {
         return t -> t.getMetaData ().get ( current.getMetaKey () );
     }
@@ -208,6 +296,11 @@ public class PredicateFilterBuilder
         return new EqualPredicate<> ( buildFrom ( current.getValue1 () ), buildFrom ( current.getValue2 () ) );
     }
 
+    protected java.util.function.Predicate<ArtifactInformation> buildLike ( final Like current )
+    {
+        return new LikePredicate<> ( buildFrom ( current.getValue () ), current.getPattern ().getValue (), current.isCaseSensitive () );
+    }
+
     protected java.util.function.Predicate<ArtifactInformation> buildNot ( final Not current )
     {
         // create the predicate first
@@ -220,7 +313,7 @@ public class PredicateFilterBuilder
         return t -> !p.test ( t );
     }
 
-    private java.util.function.Predicate<ArtifactInformation> buildIsNull ( final IsNull current )
+    protected java.util.function.Predicate<ArtifactInformation> buildIsNull ( final IsNull current )
     {
         // create the value first
 

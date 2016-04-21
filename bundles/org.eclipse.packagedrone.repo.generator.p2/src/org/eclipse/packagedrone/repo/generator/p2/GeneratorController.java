@@ -69,7 +69,7 @@ public class GeneratorController
 
     @RequestMapping ( value = "/generators/p2.feature/channel/{channelId}/artifact/{artifactId}/editFeature",
             method = RequestMethod.GET )
-    public ModelAndView editFeature ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId) throws Exception
+    public ModelAndView editFeature ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId ) throws Exception
     {
         return Channels.withArtifact ( this.service, channelId, artifactId, ReadableChannel.class, ( channel, artifact ) -> {
 
@@ -89,7 +89,7 @@ public class GeneratorController
 
     @RequestMapping ( value = "/generators/p2.feature/channel/{channelId}/artifact/{artifactId}/editFeature",
             method = RequestMethod.POST )
-    public ModelAndView editFeaturePost ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId, @Valid @FormData ( "command" ) final FeatureData data, final BindingResult result) throws Exception
+    public ModelAndView editFeaturePost ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId, @Valid @FormData ( "command" ) final FeatureData data, final BindingResult result ) throws Exception
     {
         if ( result.hasErrors () )
         {
@@ -108,7 +108,7 @@ public class GeneratorController
     }
 
     @RequestMapping ( value = "/generators/p2.feature/channel/{channelId}/createFeature", method = RequestMethod.GET )
-    public ModelAndView createFeature ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView createFeature ( @PathVariable ( "channelId" ) final String channelId )
     {
         final ModelAndView mav = new ModelAndView ( "create" );
 
@@ -120,7 +120,7 @@ public class GeneratorController
     }
 
     @RequestMapping ( value = "/generators/p2.feature/channel/{channelId}/createFeature", method = RequestMethod.POST )
-    public ModelAndView createFeaturePost ( @PathVariable ( "channelId" ) final String channelId, @Valid @FormData ( "command" ) final FeatureData data, final BindingResult result)
+    public ModelAndView createFeaturePost ( @PathVariable ( "channelId" ) final String channelId, @Valid @FormData ( "command" ) final FeatureData data, final BindingResult result ) throws Exception
     {
         if ( result.hasErrors () )
         {
@@ -130,12 +130,7 @@ public class GeneratorController
             return mav;
         }
 
-        final Map<MetaKey, String> providedMetaData = new HashMap<> ();
-        providedMetaData.put ( new MetaKey ( FeatureGenerator.ID, "id" ), data.getId () );
-        providedMetaData.put ( new MetaKey ( FeatureGenerator.ID, "version" ), data.getVersion () );
-        providedMetaData.put ( new MetaKey ( FeatureGenerator.ID, "description" ), data.getDescription () );
-        providedMetaData.put ( new MetaKey ( FeatureGenerator.ID, "provider" ), data.getProvider () );
-        providedMetaData.put ( new MetaKey ( FeatureGenerator.ID, "label" ), data.getLabel () );
+        final Map<MetaKey, String> providedMetaData = MetaKeys.unbind ( data );
 
         final String name = String.format ( "%s-%s.feature", data.getId (), data.getVersion () );
 
@@ -150,7 +145,7 @@ public class GeneratorController
 
     @RequestMapping ( value = "/generators/p2.category/channel/{channelId}/artifact/{artifactId}/editCategory",
             method = RequestMethod.GET )
-    public ModelAndView editCategory ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId) throws Exception
+    public ModelAndView editCategory ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId ) throws Exception
     {
         return Channels.withArtifact ( this.service, channelId, artifactId, ReadableChannel.class, ( channel, artifact ) -> {
 
@@ -170,7 +165,7 @@ public class GeneratorController
 
     @RequestMapping ( value = "/generators/p2.category/channel/{channelId}/artifact/{artifactId}/editCategory",
             method = RequestMethod.POST )
-    public ModelAndView editCategoryPost ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId, @Valid @FormData ( "command" ) final CategoryData data, final BindingResult result) throws Exception
+    public ModelAndView editCategoryPost ( @PathVariable ( "channelId" ) final String channelId, @PathVariable ( "artifactId" ) final String artifactId, @Valid @FormData ( "command" ) final CategoryData data, final BindingResult result ) throws Exception
     {
         if ( result.hasErrors () )
         {
@@ -189,7 +184,7 @@ public class GeneratorController
     }
 
     @RequestMapping ( value = "/generators/p2.category/channel/{channelId}/createCategory", method = RequestMethod.GET )
-    public ModelAndView createCategory ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView createCategory ( @PathVariable ( "channelId" ) final String channelId )
     {
         final ModelAndView mav = new ModelAndView ( "createCategory" );
 
@@ -202,7 +197,7 @@ public class GeneratorController
 
     @RequestMapping ( value = "/generators/p2.category/channel/{channelId}/createCategory",
             method = RequestMethod.POST )
-    public ModelAndView createCategoryPost ( @PathVariable ( "channelId" ) final String channelId, @Valid @FormData ( "command" ) final CategoryData data, final BindingResult result) throws Exception
+    public ModelAndView createCategoryPost ( @PathVariable ( "channelId" ) final String channelId, @Valid @FormData ( "command" ) final CategoryData data, final BindingResult result ) throws Exception
     {
         if ( result.hasErrors () )
         {
@@ -225,7 +220,7 @@ public class GeneratorController
 
     @RequestMapping ( value = "/generators/p2.category/channel/{channelId}/createCategoryXml",
             method = RequestMethod.GET )
-    public ModelAndView createCategoryXml ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView createCategoryXml ( @PathVariable ( "channelId" ) final String channelId )
     {
         final ModelAndView mav = new ModelAndView ( "createCategoryXml" );
 
@@ -237,7 +232,7 @@ public class GeneratorController
 
     @RequestMapping ( value = "/generators/p2.category/channel/{channelId}/createCategoryXml",
             method = RequestMethod.POST )
-    public ModelAndView createCategoryXmlPost ( @PathVariable ( "channelId" ) final String channelId, final @RequestParameter ( "file" ) Part file, final BindingResult result) throws Exception
+    public ModelAndView createCategoryXmlPost ( @PathVariable ( "channelId" ) final String channelId, final @RequestParameter ( "file" ) Part file, final BindingResult result ) throws Exception
     {
         if ( result.hasErrors () )
         {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.aspect.common.osgi.OsgiExtractor;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelArtifactInformation;
+import org.eclipse.packagedrone.repo.channel.search.Predicates;
 import org.eclipse.packagedrone.repo.generator.ArtifactGenerator;
 import org.eclipse.packagedrone.repo.generator.GenerationContext;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
@@ -86,9 +87,8 @@ public class FeatureGenerator implements ArtifactGenerator
                 final ZipEntry ze = new ZipEntry ( "feature.xml" );
                 jar.putNextEntry ( ze );
                 createFeatureXml ( jar, context.getArtifactInformation ().getMetaData (), context );
-
             }
-        } , null );
+        }, null );
     }
 
     private void createFeatureXml ( final OutputStream out, final Map<MetaKey, String> map, final GenerationContext context ) throws IOException
@@ -107,6 +107,8 @@ public class FeatureGenerator implements ArtifactGenerator
 
         final String provider = getString ( map, ID, "provider" );
 
+        final String bsnPattern = getString ( map, ID, "artifactFilter" );
+
         final Document doc = this.xml.create ();
         final Element root = doc.createElement ( "feature" );
         doc.appendChild ( root );
@@ -124,9 +126,19 @@ public class FeatureGenerator implements ArtifactGenerator
         createLegalEntry ( root, "copyright", copyright, copyrightUrl );
         createLegalEntry ( root, "license", license, licenseUrl );
 
-        for ( final ArtifactInformation a : context.getChannelArtifacts () )
+        if ( bsnPattern == null || bsnPattern.isEmpty () )
         {
-            processPlugin ( root, a );
+            for ( final ArtifactInformation a : context.getChannelArtifacts () )
+            {
+                processPlugin ( root, a );
+            }
+        }
+        else
+        {
+            for ( final ArtifactInformation a : context.getArtifactLocator ().search ( Predicates.like ( OsgiExtractor.KEY_NAME, bsnPattern ) ) )
+            {
+                processPlugin ( root, a );
+            }
         }
 
         try
@@ -150,6 +162,11 @@ public class FeatureGenerator implements ArtifactGenerator
             return;
         }
 
+        if ( text != null && text.isEmpty () && url.isEmpty () )
+        {
+            return;
+        }
+
         final Element ele = XmlHelper.addElement ( root, type );
         if ( text != null )
         {
@@ -159,7 +176,8 @@ public class FeatureGenerator implements ArtifactGenerator
         {
             ele.setTextContent ( "" );
         }
-        if ( url != null )
+
+        if ( url != null && !url.isEmpty () )
         {
             ele.setAttribute ( "url", url );
         }

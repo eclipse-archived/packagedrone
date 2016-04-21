@@ -19,6 +19,16 @@ import org.eclipse.packagedrone.repo.MetaKey;
  */
 public final class Predicates
 {
+    /**
+     * Matches zero or more of any character in a like pattern
+     */
+    public static final String LIKE_WILDCARD_MANY = "%";
+
+    /**
+     * Matches any single one character in a like pattern
+     */
+    public static final String LIKE_WILDCARD_SINGLE = "_";
+
     private Predicates ()
     {
     }
@@ -53,7 +63,7 @@ public final class Predicates
         return not ( isNull ( value ) );
     }
 
-    public static Value literal ( final String value )
+    public static Literal literal ( final String value )
     {
         return new Literal ( value );
     }
@@ -71,6 +81,26 @@ public final class Predicates
     public static Predicate equal ( final MetaKey key, final String literal )
     {
         return new Equal ( attribute ( key ), literal ( literal ) );
+    }
+
+    public static Predicate like ( final Value value, final Literal pattern )
+    {
+        return new Like ( value, pattern, true );
+    }
+
+    public static Predicate like ( final MetaKey key, final String literal )
+    {
+        return new Like ( attribute ( key ), literal ( literal ), true );
+    }
+
+    public static Predicate like ( final Value value, final Literal pattern, final boolean caseSensitive )
+    {
+        return new Like ( value, pattern, caseSensitive );
+    }
+
+    public static Predicate like ( final MetaKey key, final String literal, final boolean caseSensitive )
+    {
+        return new Like ( attribute ( key ), literal ( literal ), caseSensitive );
     }
 
 }

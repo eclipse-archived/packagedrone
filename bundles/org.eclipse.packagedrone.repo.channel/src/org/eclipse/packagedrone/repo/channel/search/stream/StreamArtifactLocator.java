@@ -48,8 +48,7 @@ public class StreamArtifactLocator implements ArtifactLocator
 
         if ( predicate != null )
         {
-            final PredicateFilterBuilder fb = new PredicateFilterBuilder ( predicate );
-            stream = stream.filter ( fb.build () );
+            stream = stream.filter ( compilePredicate ( predicate ) );
         }
 
         // apply options
@@ -59,6 +58,12 @@ public class StreamArtifactLocator implements ArtifactLocator
         // return
 
         return stream;
+    }
+
+    public static java.util.function.Predicate<ArtifactInformation> compilePredicate ( final Predicate predicate )
+    {
+        Objects.requireNonNull ( predicate );
+        return new PredicateFilterBuilder ( predicate ).build ();
     }
 
     private static <T extends ArtifactInformation> Stream<T> applyOptions ( Stream<T> stream, final SearchOptions options )

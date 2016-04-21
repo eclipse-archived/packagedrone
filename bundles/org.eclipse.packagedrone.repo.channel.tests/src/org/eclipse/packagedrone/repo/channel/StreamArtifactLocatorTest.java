@@ -11,8 +11,8 @@
 package org.eclipse.packagedrone.repo.channel;
 
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.and;
-import static org.eclipse.packagedrone.repo.channel.search.Predicates.equal;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.attribute;
+import static org.eclipse.packagedrone.repo.channel.search.Predicates.equal;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.isNotNull;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.isNull;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.not;
