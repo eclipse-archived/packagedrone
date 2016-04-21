@@ -191,7 +191,7 @@
         	
         	<!-- common -->
         	
-        	<orbitGet bundle="org.apache.commons.io" version="2.4.0" qualifier="v201405211200"/>
+        	<mavenGet group="commons-io" artifact="commons-io" version="2.4" />
         	<mavenGet group="org/apache/commons" artifact="commons-compress" version="1.9"/>
         	
         	<!-- for jdeb -->
