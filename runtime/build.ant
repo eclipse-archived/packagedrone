@@ -149,8 +149,8 @@
             <orbitGet bundle="javax.transaction" version="1.1.1" qualifier="v201105210645"/>
             <orbitGet bundle="javax.annotation" version="1.2.0" qualifier="v201401042248"/>
         	
-            <get src="http://central.maven.org/maven2/org/apache/aries/spifly/org.apache.aries.spifly.dynamic.bundle/1.0.1/org.apache.aries.spifly.dynamic.bundle-1.0.1.jar" dest="download/bundles" usetimestamp="true" />
-            <get src="http://central.maven.org/maven2/org/apache/aries/org.apache.aries.util/1.1.0/org.apache.aries.util-1.1.0.jar" dest="download/bundles" usetimestamp="true" />
+        	<mavenGet group="org/apache/aries" artifact="org.apache.aries.util" version="1.0.0" />
+        	<mavenGet group="org/apache/aries/spifly" artifact="org.apache.aries.spifly.dynamic.bundle" version="1.0.2" />
         	
         	<orbitGet bundle="org.objectweb.asm" version="5.0.1" qualifier="v201404251740" />
         	<orbitGet bundle="org.objectweb.asm.commons" version="5.0.1" qualifier="v201404251740" />
@@ -242,6 +242,10 @@
         	<!-- jax rs -->
         	
         	<orbitGet bundle="javax.ws.rs" version="2.0.1" qualifier="v201504171603"/>
+        	
+        	<!-- mail -->
+        	
+        	<get src="https://maven.java.net/content/repositories/releases/com/sun/mail/javax.mail/1.5.4/javax.mail-1.5.4.jar" dest="download/bundles" usetimestamp="true" />
         	
         </parallel>
 
