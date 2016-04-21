@@ -48,7 +48,7 @@
 	    
 	    <td class="text-right"><web:bytes amount="${artifact.size }"/></td>
 	    
-	    <td style="white-space: nowrap;"><fmt:formatDate value="${artifact.creationTimestamp }" type="both" /> </td>
+	    <td style="white-space: nowrap;"><time datetime="<fmt:formatDate value="${artifact.creationTimestamp}" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" timeZone="UTC" />"><fmt:formatDate value="${artifact.creationTimestamp }" type="both" /></time> </td>
 	    
 	    <%-- extension columns - before 0 --%>
 	    

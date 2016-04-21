@@ -53,7 +53,7 @@ pageContext.setAttribute ( "TAG", Tags.ACTION_TAG_CHANNELS );
             <td class="channel-description">${fn:escapeXml(channel.description) }</td>
             <td class="channel-count">${channel.state.numberOfArtifacts }</td>
             <td class="channel-size"><web:bytes amount="${channel.state.numberOfBytes }"/></td>
-            <td class="channel-modified"><fmt:formatDate value="${ web:toDate(channel.state.modificationTimestamp) }" type="both" /></td>
+            <td class="channel-modified"><time datetime="<fmt:formatDate value="${ web:toDate(channel.state.modificationTimestamp) }" pattern="yyyy-MM-dd'T'HH:mm:ss'Z'" timeZone="UTC" />"><fmt:formatDate value="${ web:toDate(channel.state.modificationTimestamp) }" type="both" /></time></td>
           </tr>
       	</c:forEach>
       </tbody>
