@@ -191,14 +191,14 @@
         	
         	<!-- common -->
         	
-        	<orbitGet bundle="org.apache.commons.io" version="2.2.0" qualifier="v201405211200"/>
+        	<orbitGet bundle="org.apache.commons.io" version="2.4.0" qualifier="v201405211200"/>
         	<mavenGet group="org/apache/commons" artifact="commons-compress" version="1.9"/>
         	
         	<!-- for jdeb -->
         	
         	<orbitGet bundle="org.apache.ant" version="1.9.2" qualifier="v201404171502"/>
-        	<mavenGet group="org/bouncycastle" artifact="bcprov-jdk15on" version="1.51"/>
-        	<mavenGet group="org/bouncycastle" artifact="bcpg-jdk15on" version="1.51"/>
+        	<mavenGet group="org/bouncycastle" artifact="bcprov-jdk15on" version="1.52"/>
+        	<mavenGet group="org/bouncycastle" artifact="bcpg-jdk15on" version="1.52"/>
         	
         	<!-- aether -->
         	
