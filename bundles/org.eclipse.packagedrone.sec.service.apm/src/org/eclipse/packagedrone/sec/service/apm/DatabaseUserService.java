@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,10 @@ import static org.eclipse.packagedrone.repo.utils.Tokens.createToken;
 import static org.eclipse.packagedrone.sec.service.common.Users.hashIt;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -24,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.sec.CreateUser;
+import org.eclipse.packagedrone.sec.DatabaseDetails;
 import org.eclipse.packagedrone.sec.DatabaseUserInformation;
 import org.eclipse.packagedrone.sec.UserDetails;
 import org.eclipse.packagedrone.sec.UserInformation;
@@ -50,6 +54,15 @@ public class DatabaseUserService implements UserService, UserStorage, ScheduledT
     private final static Logger logger = LoggerFactory.getLogger ( DatabaseUserService.class );
 
     private static final long MIN_EMAIL_DELAY = TimeUnit.MINUTES.toMillis ( 5 );
+
+    private static final Comparator<DatabaseUserInformation> USER_COMPARATOR;
+
+    static
+    {
+        Comparator<DatabaseUserInformation> result = Comparator.comparing ( DatabaseUserInformation::getDetails, Comparator.nullsFirst ( Comparator.comparing ( DatabaseDetails::getEmail ) ) );
+        result = result.thenComparing ( Comparator.comparing ( DatabaseUserInformation::getId ) );
+        USER_COMPARATOR = result;
+    }
 
     private PasswordChecker passwordChecker;
 
@@ -92,10 +105,10 @@ public class DatabaseUserService implements UserService, UserStorage, ScheduledT
     public List<DatabaseUserInformation> list ( final int position, final int size )
     {
         return this.storageManager.accessCall ( MODEL_KEY, UserModel.class, users -> {
-
-            final List<DatabaseUserInformation> list = users.listAll ();
+            final List<DatabaseUserInformation> list = new ArrayList<> ( users.listAll () );
+            Collections.sort ( list, USER_COMPARATOR );
             final int end = Math.min ( position + size, list.size () );
-            return users.listAll ().subList ( position, end );
+            return list.subList ( position, end );
         } );
     }
 
