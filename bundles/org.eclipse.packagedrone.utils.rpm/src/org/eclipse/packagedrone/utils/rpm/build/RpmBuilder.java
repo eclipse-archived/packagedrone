@@ -543,52 +543,55 @@ public class RpmBuilder implements AutoCloseable
         Dependencies.putConflicts ( this.header, this.conflicts );
         Dependencies.putObsoletes ( this.header, this.obsoletes );
 
-        final FileEntry[] files = this.files.values ().toArray ( new FileEntry[this.files.size ()] );
-        Arrays.sort ( files, comparing ( FileEntry::getTargetName ) );
-
-        final long installedSize = Arrays.stream ( files ).mapToLong ( FileEntry::getTargetSize ).sum ();
-        this.header.putSize ( installedSize, RpmTag.SIZE, RpmTag.LONGSIZE );
-
-        // TODO: implement LONG file sizes
-        Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_SIZES, entry -> (int)entry.getSize () );
-        Header.putShortFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_MODES, FileEntry::getMode );
-        Header.putShortFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_RDEVS, FileEntry::getRdevs );
-        Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_MTIMES, FileEntry::getModificationTime );
-        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_DIGESTS, String[]::new, FileEntry::getDigest, Header::putStringArray );
-        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_LINKTO, String[]::new, FileEntry::getLinkTo, Header::putStringArray );
-        Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_FLAGS, FileEntry::getFlags );
-        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_USERNAME, String[]::new, FileEntry::getUser, Header::putStringArray );
-        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_GROUPNAME, String[]::new, FileEntry::getGroup, Header::putStringArray );
-
-        Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_VERIFYFLAGS, FileEntry::getVerifyFlags );
-        Header.putLongFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_DEVICES, FileEntry::getDevice );
-        Header.putLongFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_INODES, FileEntry::getInode );
-        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_LANGS, String[]::new, FileEntry::getLang, Header::putStringArray );
-
-        Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.BASENAMES, String[]::new, fe -> fe.getTargetName ().getBasename (), Header::putStringArray );
-
+        if ( !this.files.isEmpty () )
         {
-            // compress file names
+            final FileEntry[] files = this.files.values ().toArray ( new FileEntry[this.files.size ()] );
+            Arrays.sort ( files, comparing ( FileEntry::getTargetName ) );
 
-            String currentDirName = null;
-            final List<String> dirnames = new ArrayList<> ();
-            final int[] dirIndexes = new int[files.length];
-            int pos = -1;
-            int i = 0;
-            for ( final FileEntry f : files )
+            final long installedSize = Arrays.stream ( files ).mapToLong ( FileEntry::getTargetSize ).sum ();
+            this.header.putSize ( installedSize, RpmTag.SIZE, RpmTag.LONGSIZE );
+
+            // TODO: implement LONG file sizes
+            Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_SIZES, entry -> (int)entry.getSize () );
+            Header.putShortFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_MODES, FileEntry::getMode );
+            Header.putShortFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_RDEVS, FileEntry::getRdevs );
+            Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_MTIMES, FileEntry::getModificationTime );
+            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_DIGESTS, String[]::new, FileEntry::getDigest, Header::putStringArray );
+            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_LINKTO, String[]::new, FileEntry::getLinkTo, Header::putStringArray );
+            Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_FLAGS, FileEntry::getFlags );
+            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_USERNAME, String[]::new, FileEntry::getUser, Header::putStringArray );
+            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_GROUPNAME, String[]::new, FileEntry::getGroup, Header::putStringArray );
+
+            Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_VERIFYFLAGS, FileEntry::getVerifyFlags );
+            Header.putLongFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_DEVICES, FileEntry::getDevice );
+            Header.putLongFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_INODES, FileEntry::getInode );
+            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_LANGS, String[]::new, FileEntry::getLang, Header::putStringArray );
+
+            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.BASENAMES, String[]::new, fe -> fe.getTargetName ().getBasename (), Header::putStringArray );
+
             {
-                final String dirname = f.getTargetName ().getDirname ();
-                if ( currentDirName == null || !currentDirName.equals ( dirname ) )
+                // compress file names
+
+                String currentDirName = null;
+                final List<String> dirnames = new ArrayList<> ();
+                final int[] dirIndexes = new int[files.length];
+                int pos = -1;
+                int i = 0;
+                for ( final FileEntry f : files )
                 {
-                    currentDirName = dirname;
-                    dirnames.add ( "/" + dirname + "/" );
-                    pos++;
+                    final String dirname = f.getTargetName ().getDirname ();
+                    if ( currentDirName == null || !currentDirName.equals ( dirname ) )
+                    {
+                        currentDirName = dirname;
+                        dirnames.add ( "/" + dirname + "/" );
+                        pos++;
+                    }
+                    dirIndexes[i] = pos;
+                    i++;
                 }
-                dirIndexes[i] = pos;
-                i++;
+                this.header.putInt ( RpmTag.DIR_INDEXES, dirIndexes );
+                this.header.putStringArray ( RpmTag.DIRNAMES, dirnames.toArray ( new String[dirnames.size ()] ) );
             }
-            this.header.putInt ( RpmTag.DIR_INDEXES, dirIndexes );
-            this.header.putStringArray ( RpmTag.DIRNAMES, dirnames.toArray ( new String[dirnames.size ()] ) );
         }
     }
 
