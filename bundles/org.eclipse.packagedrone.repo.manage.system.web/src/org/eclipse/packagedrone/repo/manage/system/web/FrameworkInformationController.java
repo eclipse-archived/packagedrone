@@ -13,6 +13,9 @@ package org.eclipse.packagedrone.repo.manage.system.web;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,6 +25,7 @@ import java.util.Map;
 
 import javax.servlet.annotation.HttpConstraint;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.packagedrone.sec.web.controller.HttpContraintControllerInterceptor;
 import org.eclipse.packagedrone.sec.web.controller.Secured;
@@ -42,6 +46,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
+
+import com.google.common.io.ByteStreams;
 
 @Controller
 @ViewResolver ( "/WEB-INF/views/info/framework/%s.jsp" )
@@ -85,7 +91,7 @@ public class FrameworkInformationController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/bundles/{id}/start", method = RequestMethod.POST )
-    public ModelAndView startBundle ( @PathVariable ( "id" ) final long bundleId) throws BundleException
+    public ModelAndView startBundle ( @PathVariable ( "id" ) final long bundleId ) throws BundleException
     {
         final Bundle bundle = this.context.getBundle ( bundleId );
         if ( bundle != null )
@@ -96,7 +102,7 @@ public class FrameworkInformationController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/bundles/{id}/stop", method = RequestMethod.POST )
-    public ModelAndView stopBundle ( @PathVariable ( "id" ) final long bundleId) throws BundleException
+    public ModelAndView stopBundle ( @PathVariable ( "id" ) final long bundleId ) throws BundleException
     {
         final Bundle bundle = this.context.getBundle ( bundleId );
         if ( bundle != null )
@@ -104,6 +110,48 @@ public class FrameworkInformationController implements InterfaceExtender
             bundle.stop ();
         }
         return new ModelAndView ( "redirect:/system/info/framework/bundles" );
+    }
+
+    @RequestMapping ( value = "/bundles/{id}/about.html", method = RequestMethod.GET )
+    public void showAbout ( @PathVariable ( "id" ) final long bundleId, final HttpServletResponse response ) throws IOException
+    {
+        showBundleFile ( bundleId, response, "about.html", "text/html" );
+    }
+
+    @RequestMapping ( value = "/bundles/{id}/LICENSE.txt", method = RequestMethod.GET )
+    public void showLicenseTxt ( @PathVariable ( "id" ) final long bundleId, final HttpServletResponse response ) throws IOException
+    {
+        showBundleFile ( bundleId, response, "META-INF/LICENSE.txt", "text/plain" );
+    }
+
+    @RequestMapping ( value = "/bundles/{id}/NOTICE.txt", method = RequestMethod.GET )
+    public void showNoticeTxt ( @PathVariable ( "id" ) final long bundleId, final HttpServletResponse response ) throws IOException
+    {
+        showBundleFile ( bundleId, response, "META-INF/NOTICE.txt", "text/plain" );
+    }
+
+    private void showBundleFile ( final long bundleId, final HttpServletResponse response, final String file, final String mimeType ) throws IOException
+    {
+        final Bundle bundle = this.context.getBundle ( bundleId );
+        if ( bundle == null )
+        {
+            response.sendError ( HttpServletResponse.SC_NOT_FOUND, "Bundle not found" );
+            return;
+        }
+
+        final URL about = bundle.getEntry ( file );
+        if ( about == null )
+        {
+            response.sendError ( HttpServletResponse.SC_NOT_FOUND, String.format ( "'%s' not found", file ) );
+            return;
+        }
+
+        response.setContentType ( mimeType );
+
+        try ( InputStream in = about.openStream () )
+        {
+            ByteStreams.copy ( in, response.getOutputStream () );
+        }
     }
 
     @Override

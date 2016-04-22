@@ -1,5 +1,9 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ page
+  language="java"
+  contentType="text/html; charset=UTF-8"
+  pageEncoding="UTF-8"
+  trimDirectiveWhitespaces="true"
+  %>
     
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 
@@ -19,9 +23,11 @@
     <c:when test="${bundle.state == 8 }">STARTING</c:when>
     <c:when test="${bundle.state == 16 }">STOPPING</c:when>
     <c:when test="${bundle.state == 32 }">ACTIVE</c:when>
-    <c:otherwise>unkown</c:otherwise>
+    <c:otherwise>unknown</c:otherwise>
 </c:choose>
 </web:define>
+
+<div class="container-fluid">
 
 <div class="table-responsive">
 
@@ -32,6 +38,7 @@
             <th>Name</th>
             <th>Version</th>
             <th>State</th>
+            <th>Legal</th>
             <th>ID</th>
             <th></th>
         </tr>
@@ -49,6 +56,27 @@
                 <td>${fn:escapeXml(bundle.name) }</td>
                 <td>${fn:escapeXml(bundle.version) }</td>
                 <td><web:call name="state" bundle="${bundle }"/></td>
+                <td>
+                  <ul class="link-list">
+                    <c:forEach items="${bundle.licenses }" var="license">
+                      <li>
+                      <c:choose>
+                        <c:when test="${not empty license.url }"><a href="${license.url }" target="_blank">${fn:escapeXml(license.license) }</a></c:when>
+                        <c:otherwise>${fn:escapeXml(license.license) }</c:otherwise>
+                      </c:choose>
+                      </li>
+                    </c:forEach>
+                    <c:if test="${not empty bundle.aboutHtml }">
+                      <li><a href="#" data-about="<c:url value="/system/info/framework/bundles/${bundle.bundleId }/about.html"/>" data-toggle="modal" data-target="#aboutModal">about.html</a></li>
+                    </c:if>
+                    <c:if test="${not empty bundle.licenseTxt }">
+                      <li><a href="#" data-about="<c:url value="/system/info/framework/bundles/${bundle.bundleId }/LICENSE.txt"/>" data-toggle="modal" data-target="#aboutModal">LICENSE.txt</a></li>
+                    </c:if>
+                    <c:if test="${not empty bundle.noticeTxt }">
+                      <li><a href="#" data-about="<c:url value="/system/info/framework/bundles/${bundle.bundleId }/NOTICE.txt"/>" data-toggle="modal" data-target="#aboutModal">NOTICE.txt</a></li>
+                    </c:if>
+                  </ul>
+                </td>
                 <td>${fn:escapeXml(bundle.bundleId) }</td>
                 <td>
                     <c:if test="${!bundle.fragment }">
@@ -67,5 +95,42 @@
 </table>
     
 </div>
+
+</div>
+
+<%-- about modal --%>
+
+<div class="modal" id="aboutModal" tabindex="-1" role="dialog" aria-labelledby="aboutModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="aboutModalLabel">About Bundle</h4>
+      </div>
+      <div class="modal-body" style="height: 60vh;">
+        <iframe id="aboutFrame" src="" width="100%" height="100%" title="About Text"></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+$('#aboutModal').on('show.bs.modal', function(event) {
+  var source = $(event.relatedTarget);
+  var about = source.data('about');
+  
+  var frame = $('#aboutFrame');
+  frame.attr("src",about);
+  $('#aboutModalLabel').text("Bundle: " + source.text());
+});
+$('#aboutModal').on('hide.bs.modal', function(event) {
+  var frame = $('#aboutFrame');
+  frame.attr("src","");
+});
+</script>
+
 
 </h:main>
