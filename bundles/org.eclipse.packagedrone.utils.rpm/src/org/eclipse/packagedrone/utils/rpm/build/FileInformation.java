@@ -31,7 +31,7 @@ public class FileInformation
 
     public Instant getTimestamp ()
     {
-        return timestamp;
+        return this.timestamp;
     }
 
     public void setConfiguration ( final boolean configuration )
@@ -41,7 +41,7 @@ public class FileInformation
 
     public boolean isConfiguration ()
     {
-        return configuration;
+        return this.configuration;
     }
 
     public void setUser ( final String user )
@@ -51,7 +51,7 @@ public class FileInformation
 
     public String getUser ()
     {
-        return user;
+        return this.user;
     }
 
     public void setGroup ( final String group )
@@ -61,7 +61,7 @@ public class FileInformation
 
     public String getGroup ()
     {
-        return group;
+        return this.group;
     }
 
     public void setMode ( final short mode )
@@ -71,6 +71,12 @@ public class FileInformation
 
     public short getMode ()
     {
-        return mode;
+        return this.mode;
+    }
+
+    @Override
+    public String toString ()
+    {
+        return String.format ( "[FileInformation - user: %s, group: %s, mode: 0%04o, cfg: %s]", this.user, this.group, this.mode, this.configuration );
     }
 }
