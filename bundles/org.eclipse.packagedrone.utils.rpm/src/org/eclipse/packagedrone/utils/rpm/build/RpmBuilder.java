@@ -280,6 +280,8 @@ public class RpmBuilder implements AutoCloseable
 
         private String operatingSystem = "linux";
 
+        private String url;
+
         public void setDistribution ( final String distribution )
         {
             this.distribution = distribution;
@@ -370,6 +372,15 @@ public class RpmBuilder implements AutoCloseable
             return this.operatingSystem;
         }
 
+        public void setUrl ( final String url )
+        {
+            this.url = url;
+        }
+
+        public String getUrl ()
+        {
+            return this.url;
+        }
     }
 
     private static abstract class BuilderContextImpl implements BuilderContext
@@ -527,6 +538,7 @@ public class RpmBuilder implements AutoCloseable
         this.header.putStringOptional ( RpmTag.DISTRIBUTION, this.information.getDistribution () );
         this.header.putStringOptional ( RpmTag.PACKAGER, this.information.getPackager () );
         this.header.putStringOptional ( RpmTag.VENDOR, this.information.getVendor () );
+        this.header.putStringOptional ( RpmTag.URL, this.information.getUrl () );
 
         this.header.putInt ( RpmTag.BUILDTIME, (int) ( System.currentTimeMillis () / 1000 ) );
         this.header.putString ( RpmTag.BUILDHOST, this.information.getBuildHost () );
@@ -583,7 +595,14 @@ public class RpmBuilder implements AutoCloseable
                     if ( currentDirName == null || !currentDirName.equals ( dirname ) )
                     {
                         currentDirName = dirname;
-                        dirnames.add ( "/" + dirname + "/" );
+                        if ( !dirname.isEmpty () )
+                        {
+                            dirnames.add ( "/" + dirname + "/" );
+                        }
+                        else
+                        {
+                            dirnames.add ( "/" );
+                        }
                         pos++;
                     }
                     dirIndexes[i] = pos;

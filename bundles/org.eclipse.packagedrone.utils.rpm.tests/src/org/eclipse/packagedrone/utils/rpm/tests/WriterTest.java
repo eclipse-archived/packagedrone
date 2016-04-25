@@ -171,6 +171,9 @@ public class WriterTest
             final BuilderContext ctx = builder.newContext ();
 
             ctx.addDirectory ( "/etc/test3" );
+            ctx.addDirectory ( "etc/test3/a" );
+            ctx.addDirectory ( "//etc/test3/b" );
+            ctx.addDirectory ( "/etc/" );
 
             ctx.addDirectory ( "/var/lib/test3", finfo -> {
                 finfo.setUser ( "" );
