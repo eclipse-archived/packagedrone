@@ -15,7 +15,7 @@ import java.io.IOException;
 @FunctionalInterface
 public interface FileInformationProvider<T>
 {
-    public FileInformation provide ( T object ) throws IOException;
+    public FileInformation provide ( T object, PayloadEntryType type ) throws IOException;
 
     public default FileInformationProvider<T> customize ( final FileInformationCustomizer<T> customizer )
     {
@@ -24,8 +24,8 @@ public interface FileInformationProvider<T>
             return this;
         }
 
-        return ( object ) -> {
-            final FileInformation information = provide ( object );
+        return ( object, type ) -> {
+            final FileInformation information = provide ( object, type );
             customizer.perform ( object, information );
             return information;
         };
@@ -38,8 +38,8 @@ public interface FileInformationProvider<T>
             return this;
         }
 
-        return ( object ) -> {
-            final FileInformation information = provide ( object );
+        return ( object, type ) -> {
+            final FileInformation information = provide ( object, type );
             customizer.perform ( information );
             return information;
         };

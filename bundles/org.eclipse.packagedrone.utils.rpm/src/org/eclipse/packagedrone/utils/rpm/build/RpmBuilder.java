@@ -399,15 +399,15 @@ public class RpmBuilder implements AutoCloseable
             return this.defaultProvider;
         }
 
-        protected <T> FileInformation makeInformation ( final T source, final FileInformationProvider<T> provider ) throws IOException
+        protected <T> FileInformation makeInformation ( final T source, final PayloadEntryType type, final FileInformationProvider<T> provider ) throws IOException
         {
             if ( provider != null )
             {
-                return provider.provide ( source );
+                return provider.provide ( source, type );
             }
             if ( this.defaultProvider != null )
             {
-                return this.defaultProvider.provide ( source );
+                return this.defaultProvider.provide ( source, type );
             }
 
             throw new IllegalStateException ( "There was neither a default provider nor a specfic provider set" );
@@ -854,28 +854,28 @@ public class RpmBuilder implements AutoCloseable
                 {
                     throw new IllegalArgumentException ( String.format ( "'%s' is not a regular file", source ) );
                 }
-                final FileInformation info = makeInformation ( source, provider );
+                final FileInformation info = makeInformation ( source, PayloadEntryType.FILE, provider );
                 RpmBuilder.this.addFile ( targetName, source, info.getMode (), info.getTimestamp (), entry -> customizeFile ( entry, info ) );
             }
 
             @Override
             public void addFile ( final String targetName, final InputStream source, final FileInformationProvider<Object> provider ) throws IOException
             {
-                final FileInformation info = makeInformation ( source, provider );
+                final FileInformation info = makeInformation ( source, PayloadEntryType.FILE, provider );
                 RpmBuilder.this.addFile ( targetName, source, info.getMode (), info.getTimestamp (), entry -> customizeFile ( entry, info ) );
             }
 
             @Override
             public void addFile ( final String targetName, final ByteBuffer source, final FileInformationProvider<Object> provider ) throws IOException
             {
-                final FileInformation info = makeInformation ( source, provider );
+                final FileInformation info = makeInformation ( source, PayloadEntryType.FILE, provider );
                 RpmBuilder.this.addFile ( targetName, source, info.getMode (), info.getTimestamp (), entry -> customizeFile ( entry, info ) );
             }
 
             @Override
             public void addDirectory ( final String targetName, final FileInformationProvider<? super Directory> provider ) throws IOException
             {
-                final FileInformation info = makeInformation ( BuilderContext.DIRECTORY, provider );
+                final FileInformation info = makeInformation ( BuilderContext.DIRECTORY, PayloadEntryType.DIRECTORY, provider );
                 RpmBuilder.this.addDirectory ( targetName, info.getMode (), info.getTimestamp (), entry -> customizeDirectory ( entry, info ) );
             }
         };

@@ -33,7 +33,7 @@ final class Defaults
     static final FileInformationProvider<Path> PATH_PROVIDER = new FileInformationProvider<Path> () {
 
         @Override
-        public FileInformation provide ( final Path path ) throws IOException
+        public FileInformation provide ( final Path path, final PayloadEntryType type ) throws IOException
         {
             return new FileInformation ();
         }

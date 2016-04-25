@@ -25,13 +25,13 @@ public class ProviderRule<T>
         this.provider = provider;
     }
 
-    public FileInformation run ( final Object object ) throws IOException
+    public FileInformation run ( final Object object, final PayloadEntryType type ) throws IOException
     {
         Objects.requireNonNull ( object );
 
-        if ( clazz.isAssignableFrom ( object.getClass () ) )
+        if ( this.clazz.isAssignableFrom ( object.getClass () ) )
         {
-            return provider.provide ( clazz.cast ( object ) );
+            return this.provider.provide ( this.clazz.cast ( object ), type );
         }
         return null;
     }

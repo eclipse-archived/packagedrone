@@ -73,7 +73,7 @@ public interface BuilderContext
         return new FileInformationProvider<T> () {
 
             @Override
-            public FileInformation provide ( final T object ) throws IOException
+            public FileInformation provide ( final T object, final PayloadEntryType type ) throws IOException
             {
                 return new FileInformation ();
             }
@@ -107,17 +107,17 @@ public interface BuilderContext
         return new FileInformationProvider<T> () {
 
             @Override
-            public FileInformation provide ( final Object object ) throws IOException
+            public FileInformation provide ( final Object object, final PayloadEntryType type ) throws IOException
             {
                 for ( final ProviderRule<?> rule : rules )
                 {
-                    final FileInformation result = rule.run ( object );
+                    final FileInformation result = rule.run ( object, type );
                     if ( result != null )
                     {
                         return result;
                     }
                 }
-                return defaultProvider.provide ( object );
+                return defaultProvider.provide ( object, type );
             }
         };
     }
@@ -130,7 +130,7 @@ public interface BuilderContext
      * will use the default user ({@code root}) and group ({@code root}) and use
      * the current time as file timestamp.
      * </p>
-     * 
+     *
      * @param <T>
      *            the object type to use as information source
      * @return the default information provider
