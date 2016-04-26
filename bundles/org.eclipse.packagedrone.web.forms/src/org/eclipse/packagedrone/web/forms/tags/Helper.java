@@ -12,8 +12,6 @@ package org.eclipse.packagedrone.web.forms.tags;
 
 import java.lang.reflect.InvocationTargetException;
 
-import javax.servlet.jsp.JspException;
-
 import org.apache.commons.beanutils.BeanUtils;
 
 final class Helper
@@ -22,7 +20,7 @@ final class Helper
     {
     }
 
-    public static String makeString ( final Object o, final String path ) throws JspException
+    public static String makeString ( final Object o, final String path, final String defaultValue )
     {
         if ( path != null && !path.isEmpty () )
         {
@@ -32,13 +30,13 @@ final class Helper
             }
             catch ( IllegalAccessException | InvocationTargetException | NoSuchMethodException e )
             {
-                throw new JspException ( e );
+                throw new RuntimeException ( e );
             }
         }
 
         if ( o == null )
         {
-            return "";
+            return defaultValue;
         }
 
         return o.toString ();

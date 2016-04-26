@@ -29,7 +29,7 @@
                     <h:formEntry label="Service" path="signingServiceId">
                        <form:select path="signingServiceId" cssClass="form-control">
                            <form:option value="" label="Don't sign"/>
-                           <form:optionList items="${signingServices }" itemValue="id"/>
+                           <form:optionList items="${signingServices }" itemValue="id" itemLabel="label"/>
                        </form:select>
                    </h:formEntry>
                </fieldset>

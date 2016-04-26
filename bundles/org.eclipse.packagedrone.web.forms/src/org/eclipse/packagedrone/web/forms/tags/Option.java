@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,7 @@ public class Option extends OptionTagSupport
 {
     private static final long serialVersionUID = 1L;
 
-    private Object value;
+    private String value;
 
     private String label;
 
@@ -27,7 +27,7 @@ public class Option extends OptionTagSupport
 
         writer.write ( "<option" );
         writer.writeAttribute ( "value", this.value );
-        writer.writeFlagAttribute ( "selected", isSelected ( this.value ) );
+        writer.writeFlagAttribute ( "selected", isSelected ( this.value, Object::toString ) );
         writer.write ( " >" );
 
         writer.writeEscaped ( this.label != null ? this.label : this.value );
@@ -37,7 +37,7 @@ public class Option extends OptionTagSupport
         return SKIP_BODY;
     }
 
-    public void setValue ( final Object value )
+    public void setValue ( final String value )
     {
         this.value = value;
     }

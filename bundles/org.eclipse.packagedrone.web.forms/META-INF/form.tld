@@ -240,11 +240,12 @@
 			<name>value</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
-			
+			<type>java.lang.String</type>
 		</attribute>
 		<attribute>
 			<name>label</name>
 			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
 		</attribute>
 	</tag>
 
@@ -261,6 +262,12 @@
 		<attribute>
 			<name>itemValue</name>
 			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
+		</attribute>
+		<attribute>
+			<name>itemLabel</name>
+			<rtexprvalue>true</rtexprvalue>
+			<type>java.lang.String</type>
 		</attribute>
 	</tag>
 

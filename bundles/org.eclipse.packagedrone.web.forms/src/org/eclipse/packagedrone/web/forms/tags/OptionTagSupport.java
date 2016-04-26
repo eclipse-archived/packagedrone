@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,13 +11,13 @@
 package org.eclipse.packagedrone.web.forms.tags;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.tagext.TagSupport;
 
 public class OptionTagSupport extends TagSupport
 {
-
     private static final long serialVersionUID = 1L;
 
     protected Object getSelectedValue ()
@@ -33,22 +33,34 @@ public class OptionTagSupport extends TagSupport
         }
     }
 
-    protected boolean isSelected ( final Object value )
+    protected boolean isSelected ( final String value, final Function<Object, String> toStringFunction )
     {
         final Object selectedValue = getSelectedValue ();
         if ( selectedValue == value )
         {
             return true;
         }
-        if ( selectedValue instanceof Collection<?> )
-        {
-            return ( (Collection<?>)selectedValue ).contains ( value );
-        }
         if ( selectedValue == null )
         {
             return false;
         }
-        return selectedValue.equals ( value );
+        if ( selectedValue instanceof Collection<?> )
+        {
+            return ( (Collection<?>)selectedValue ).stream ().map ( v -> mapIfNonString ( v, toStringFunction ) ).anyMatch ( v -> v.equals ( value ) );
+        }
+        else
+        {
+            return mapIfNonString ( selectedValue, toStringFunction ).equals ( value );
+        }
+    }
+
+    private static String mapIfNonString ( final Object object, final Function<Object, String> toStringFunction )
+    {
+        if ( object instanceof String )
+        {
+            return (String)object;
+        }
+        return toStringFunction.apply ( object );
     }
 
 }

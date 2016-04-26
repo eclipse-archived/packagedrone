@@ -28,6 +28,11 @@ public class OptionList extends OptionTagSupport
      */
     private String itemValue;
 
+    /**
+     * Path to the item label
+     */
+    private String itemLabel;
+
     @Override
     public int doStartTag () throws JspException
     {
@@ -46,14 +51,16 @@ public class OptionList extends OptionTagSupport
 
     protected void renderOption ( final WriterHelper writer, final Object o ) throws JspException
     {
-        renderOption ( writer, makeString ( o, this.itemValue ), o, false );
+        final String value = makeString ( o, this.itemValue, "" );
+        final String label = this.itemLabel == null || this.itemLabel.isEmpty () ? value : makeString ( o, this.itemLabel, value );
+        renderOption ( writer, value, label, isSelected ( value, v -> makeString ( v, this.itemValue, "" ) ) );
     }
 
-    protected void renderOption ( final WriterHelper writer, final Object value, final Object label, final boolean selected ) throws JspException
+    protected void renderOption ( final WriterHelper writer, final String value, final String label, final boolean selected ) throws JspException
     {
         writer.write ( "<option" );
         writer.writeAttribute ( "value", value );
-        writer.writeFlagAttribute ( "selected", isSelected ( value ) );
+        writer.writeFlagAttribute ( "selected", selected );
         writer.write ( " >" );
 
         writer.writeEscaped ( label != null ? "" + label : "" + value );
@@ -69,5 +76,10 @@ public class OptionList extends OptionTagSupport
     public void setItemValue ( final String itemValue )
     {
         this.itemValue = itemValue;
+    }
+
+    public void setItemLabel ( final String itemLabel )
+    {
+        this.itemLabel = itemLabel;
     }
 }
