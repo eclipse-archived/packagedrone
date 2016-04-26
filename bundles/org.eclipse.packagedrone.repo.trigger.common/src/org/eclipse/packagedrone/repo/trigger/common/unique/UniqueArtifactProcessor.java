@@ -11,6 +11,7 @@
 package org.eclipse.packagedrone.repo.trigger.common.unique;
 
 import static java.util.Arrays.stream;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.and;
 import static org.eclipse.packagedrone.repo.channel.search.Predicates.equal;
@@ -50,7 +51,11 @@ public class UniqueArtifactProcessor implements Processor
     @Override
     public void streamHtmlState ( final PrintWriter writer )
     {
-        writer.format ( "Ensure that all artifacts with the keys %s have the same value in <code>%s</code> by: %s", format ( this.cfg.getKeys () ), format ( this.cfg.getUniqueAttribute () ), format ( this.cfg.getVetoPolicy () ) );
+        writer.format ( "Ensure that all artifacts with the key%s %s have the same value in <code>%s</code> by: %s.", this.cfg.getKeys ().length > 1 ? "s" : "", format ( this.cfg.getKeys () ), format ( this.cfg.getUniqueAttribute () ), format ( this.cfg.getVetoPolicy () ) );
+        if ( this.cfg.isSkipMissingAttributes () )
+        {
+            writer.format ( " Artifacts with missing <q>artifac keys</q> will not be checked." );
+        }
     }
 
     private Object format ( final VetoPolicy vetoPolicy )
@@ -89,9 +94,10 @@ public class UniqueArtifactProcessor implements Processor
         for ( final MetaKey key : this.cfg.getKeys () )
         {
             final String keyValue = ctx.getMetaData ().get ( key );
-            if ( keyValue == null )
+            if ( keyValue == null && this.cfg.isSkipMissingAttributes () )
             {
-                // ignore artifact
+                // pass
+                return;
             }
             target.put ( key, keyValue );
         }
@@ -100,6 +106,7 @@ public class UniqueArtifactProcessor implements Processor
 
         if ( newUniqueValue == null )
         {
+            // pass
             return;
         }
 
@@ -135,7 +142,7 @@ public class UniqueArtifactProcessor implements Processor
 
         for ( final Map.Entry<MetaKey, String> entry : target.entrySet () )
         {
-            ands.add ( equal ( entry.getKey (), entry.getValue () ) );
+            ands.add ( equal ( entry.getKey (), ofNullable ( entry.getValue () ) ) );
         }
 
         ands.add ( not ( equal ( this.cfg.getUniqueAttribute (), uniqueValue ) ) );

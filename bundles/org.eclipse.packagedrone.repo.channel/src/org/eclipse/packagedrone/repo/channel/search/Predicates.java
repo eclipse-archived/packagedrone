@@ -11,6 +11,7 @@
 package org.eclipse.packagedrone.repo.channel.search;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 
@@ -81,6 +82,18 @@ public final class Predicates
     public static Predicate equal ( final MetaKey key, final String literal )
     {
         return new Equal ( attribute ( key ), literal ( literal ) );
+    }
+
+    public static Predicate equal ( final MetaKey key, final Optional<String> literal )
+    {
+        if ( literal.isPresent () )
+        {
+            return equal ( attribute ( key ), literal ( literal.get () ) );
+        }
+        else
+        {
+            return isNull ( attribute ( key ) );
+        }
     }
 
     public static Predicate like ( final Value value, final Literal pattern )

@@ -281,7 +281,7 @@ public class ConverterManager
     }
 
     @SuppressWarnings ( "unchecked" )
-    private <T> T getDefault ( final Class<T> clazz )
+    public <T> T getDefault ( final Class<T> clazz )
     {
         for ( final DefaultProvider provider : this.defaults )
         {

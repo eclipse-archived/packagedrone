@@ -82,7 +82,7 @@ public class BindingManager
                 return binding;
             }
         }
-        return null;
+        return Binding.simpleBinding ( converter.getDefault ( target.getType () ) );
     }
 
     private BindTarget createParameterTarget ( final Parameter parameter, final Object[] args, final int argumentIndex, final TypeResolver typeResolver )

@@ -58,6 +58,30 @@ public class ConverterTest
         testDefault ( Long.class, 1L, "1" );
     }
 
+    @Test
+    public void testBoolean1 ()
+    {
+        testDefault ( boolean.class, true, "on" );
+    }
+
+    @Test
+    public void testBoolean2 ()
+    {
+        testDefault ( boolean.class, true, "true" );
+    }
+
+    @Test
+    public void testBoolean3 ()
+    {
+        testDefault ( boolean.class, false, "false" );
+    }
+
+    @Test
+    public void testBoolean4 ()
+    {
+        testDefault ( boolean.class, false, null );
+    }
+
     private void testDefault ( final Class<?> clazz, final Object expected, final Object value )
     {
         final Object result = this.manager.convertTo ( value, clazz );

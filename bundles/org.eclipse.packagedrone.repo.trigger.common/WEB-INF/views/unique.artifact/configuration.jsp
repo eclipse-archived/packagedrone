@@ -60,6 +60,12 @@ pageContext.setAttribute ( "vetos", Arrays.asList ( VetoPolicy.values () ) );
         </form:select>
       </h:formEntry>
       
+      <h:formCheckbox label="Ignore artifacts with missing values" path="skipMissingAttributes" command="command">
+        <span class="help-block">
+          If this box is checked, then all artifacts which are missing missing any of the <q>artifact keys</q> are permitted to be uploaded.
+        </span>
+      </h:formCheckbox>
+      
       <h:formButtons>
         <button type="submit" class="btn btn-primary">Apply</button>
         <button type="reset" class="btn btn-default">Reset</button>

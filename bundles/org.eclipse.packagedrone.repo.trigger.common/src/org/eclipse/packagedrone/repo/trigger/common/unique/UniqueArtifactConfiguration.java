@@ -34,6 +34,8 @@ public class UniqueArtifactConfiguration
 
     private String reason;
 
+    private boolean skipMissingAttributes = true;
+
     public void setKeys ( final MetaKey[] keys )
     {
         this.keys = keys;
@@ -72,6 +74,16 @@ public class UniqueArtifactConfiguration
     public String getReason ()
     {
         return this.reason;
+    }
+
+    public void setSkipMissingAttributes ( final boolean skipMissingAttributes )
+    {
+        this.skipMissingAttributes = skipMissingAttributes;
+    }
+
+    public boolean isSkipMissingAttributes ()
+    {
+        return this.skipMissingAttributes;
     }
 
     private static Gson createGson ()
