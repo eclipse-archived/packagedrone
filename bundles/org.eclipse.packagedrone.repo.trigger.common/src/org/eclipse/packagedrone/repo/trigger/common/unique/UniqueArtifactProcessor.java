@@ -54,7 +54,7 @@ public class UniqueArtifactProcessor implements Processor
         writer.format ( "Ensure that all artifacts with the key%s %s have the same value in <code>%s</code> by: %s.", this.cfg.getKeys ().length > 1 ? "s" : "", format ( this.cfg.getKeys () ), format ( this.cfg.getUniqueAttribute () ), format ( this.cfg.getVetoPolicy () ) );
         if ( this.cfg.isSkipMissingAttributes () )
         {
-            writer.format ( " Artifacts with missing <q>artifac keys</q> will not be checked." );
+            writer.format ( " Artifacts with missing <q>artifact keys</q> will not be checked." );
         }
     }
 
