@@ -23,6 +23,9 @@ public class OptionList extends OptionTagSupport
 
     private Collection<?> items = Collections.emptyList ();
 
+    /**
+     * Path to the item value
+     */
     private String itemValue;
 
     @Override

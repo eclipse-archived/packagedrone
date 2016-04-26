@@ -16,7 +16,7 @@ public class Option extends OptionTagSupport
 {
     private static final long serialVersionUID = 1L;
 
-    private String value;
+    private Object value;
 
     private String label;
 
@@ -37,7 +37,7 @@ public class Option extends OptionTagSupport
         return SKIP_BODY;
     }
 
-    public void setValue ( final String value )
+    public void setValue ( final Object value )
     {
         this.value = value;
     }
