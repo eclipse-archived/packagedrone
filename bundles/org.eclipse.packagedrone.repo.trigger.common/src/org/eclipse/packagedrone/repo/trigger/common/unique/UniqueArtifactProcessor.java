@@ -66,7 +66,7 @@ public class UniqueArtifactProcessor implements Processor
                 return "failing the operation";
             case REJECT: //$FALL-THROUGH$
             default:
-                return "skipping the artifact";
+                return "not adding the artifact";
         }
     }
 
@@ -121,7 +121,7 @@ public class UniqueArtifactProcessor implements Processor
         String reason = this.cfg.getReason ();
         if ( reason == null )
         {
-            final String fields = stream ( this.cfg.getKeys () ).map ( Object::toString ).collect ( joining ( ", " ) );
+            final String fields = stream ( this.cfg.getKeys () ).map ( o -> "'" + o + "'" ).collect ( joining ( ", " ) );
             reason = String.format ( "There is a least one artifact with the same values of %s but a different value of '%s' than '%s'", fields, this.cfg.getUniqueAttribute (), newUniqueValue );
         }
         return new Veto ( this.cfg.getVetoPolicy (), reason );
