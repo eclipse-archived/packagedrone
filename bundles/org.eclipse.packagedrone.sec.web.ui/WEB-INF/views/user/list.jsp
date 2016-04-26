@@ -33,20 +33,24 @@ pageContext.setAttribute ( "TAG", UserStorage.ACTION_TAG_USERS );
 	    <tr
 	    <c:if test="${ user.id eq pageContext.request.remoteUser }">class="info"</c:if>
 	    >
-          <td>${fn:escapeXml(user.details.email) }</td>
-	        <td>${fn:escapeXml(user.details.name) } <c:if test="${ user.id eq pageContext.request.remoteUser }">&nbsp;<small>(you)</small></c:if></td>
-	        <td>
-	        <c:if test="${not empty user.details.email }">
-	            <c:if test="${user.details.emailVerified }">&nbsp;<span class="label label-success">Verified</span></c:if>
-	            <c:if test="${not user.details.emailVerified }">&nbsp;<span class="label label-warning">Not Verified</span></c:if>
-	        </c:if>
-	        <c:if test="${user.details.locked }">
-	            &nbsp;<span class="label label-warning">Locked</span>
-	        </c:if>
-	        <c:if test="${user.details.deleted }">
-	            &nbsp;<span class="label label-danger">Deleted</span>
-	        </c:if>
-	        </td>
+          <td>
+            <a href="<c:url value="/user/${fn:escapeXml(user.id) }/view"/>">${fn:escapeXml(user.details.email) }</a>
+            <c:if test="${ user.id eq pageContext.request.remoteUser }">&nbsp;<small>(you)</small></c:if>
+          </td>
+	      <td>
+              ${fn:escapeXml(user.details.name) }</td>
+	      <td>
+	      <c:if test="${not empty user.details.email }">
+	          <c:if test="${user.details.emailVerified }">&nbsp;<span class="label label-success">Verified</span></c:if>
+	          <c:if test="${not user.details.emailVerified }">&nbsp;<span class="label label-warning">Not Verified</span></c:if>
+	      </c:if>
+	      <c:if test="${user.details.locked }">
+	          &nbsp;<span class="label label-warning">Locked</span>
+	      </c:if>
+	      <c:if test="${user.details.deleted }">
+	          &nbsp;<span class="label label-danger">Deleted</span>
+	      </c:if>
+	      </td>
 	    </tr>
 	    </c:forEach>    
 	</tbody>
