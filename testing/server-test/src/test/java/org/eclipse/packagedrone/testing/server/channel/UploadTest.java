@@ -13,8 +13,11 @@ package org.eclipse.packagedrone.testing.server.channel;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.packagedrone.testing.server.AbstractServerTest;
 import org.junit.Assert;
@@ -31,15 +34,19 @@ public class UploadTest extends AbstractServerTest
     {
         driver.get ( resolve ( "/channel" ) );
 
+        System.out.println ( "Before" );
+
         Assert.assertTrue ( getChannels ().isEmpty () );
 
         driver.get ( resolve ( "/channel/create" ) );
 
-        final List<String> channels = getChannels ();
+        final Collection<String> channels = getChannels ();
         Assert.assertEquals ( 1, channels.size () );
 
-        withChannel ( channels.get ( 0 ) );
-        basicWithChannel ( channels.get ( 0 ) );
+        final String channel = channels.iterator ().next ();
+
+        withChannel ( channel );
+        basicWithChannel ( channel );
     }
 
     private void basicWithChannel ( final String channelId ) throws Exception
@@ -95,13 +102,16 @@ public class UploadTest extends AbstractServerTest
         Assert.assertEquals ( 1, arts.size () );
     }
 
-    protected List<String> getChannels ()
+    protected Set<String> getChannels ()
     {
-        final List<String> result = new LinkedList<> ();
+        final Set<String> result = new HashSet<> ();
 
-        for ( final WebElement ele : driver.findElementsByCssSelector ( ".channel-id > a" ) )
+        for ( final WebElement ele : driver.findElementsByCssSelector ( "#channels tr" ) )
         {
-            result.add ( ele.getText () );
+            if ( ele.getAttribute ( "data-channel-id" ) != null )
+            {
+                result.add ( ele.getAttribute ( "data-channel-id" ) );
+            }
         }
 
         return result;

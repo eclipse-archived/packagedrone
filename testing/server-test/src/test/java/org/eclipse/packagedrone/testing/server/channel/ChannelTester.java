@@ -92,9 +92,12 @@ public class ChannelTester
 
         final Set<String> result = new HashSet<> ();
 
-        for ( final WebElement ele : context.findElements ( By.cssSelector ( ".channel-id > a" ) ) )
+        for ( final WebElement ele : context.findElements ( By.cssSelector ( "#channels tr" ) ) )
         {
-            result.add ( ele.getText () );
+            if ( ele.getAttribute ( "data-channel-id" ) != null )
+            {
+                result.add ( ele.getAttribute ( "data-channel-id" ) );
+            }
         }
 
         return result;
