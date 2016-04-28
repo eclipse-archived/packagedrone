@@ -419,5 +419,5 @@
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"
       href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']"/>
-  <description>A development setup for Eclipse Package Drone, the OSGi first software artifact repository.</description>
+  <description>A development setup for Eclipse Package Drone™, the OSGi™ first software artifact repository.</description>
 </setup:Project>
