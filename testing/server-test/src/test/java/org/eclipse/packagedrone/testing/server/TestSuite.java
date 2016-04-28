@@ -56,9 +56,9 @@ public class TestSuite
 
     private final static ServerRunner server = new ServerRunner ( TEST_PORT );
 
-    private static final String SAUCE_USER_NAME = System.getProperty ( "sauce.username" );
+    private static final String SAUCE_USER_NAME = System.getenv ( "SAUCE_USERNAME" );
 
-    private static final String SAUCE_ACCESS_KEY = System.getProperty ( "sauce.accessKey" );
+    private static final String SAUCE_ACCESS_KEY = System.getenv ( "SAUCE_ACCESS_KEY" );
 
     private static final String SAUCE_PLATFORM = System.getProperty ( "sauce.platform", "win8.1" );
 
@@ -111,7 +111,7 @@ public class TestSuite
             capabilities.setCapability ( CapabilityType.VERSION, version );
         }
         capabilities.setCapability ( CapabilityType.PLATFORM, os );
-        capabilities.setCapability ( "name", "Package Drone Main Test" );
+        capabilities.setCapability ( "name", "Eclipse Package Drone Main Test" );
 
         final RemoteWebDriver driver = new RemoteWebDriver ( new URL ( String.format ( "http://%s:%s@ondemand.saucelabs.com:80/wd/hub", SAUCE_USER_NAME, SAUCE_ACCESS_KEY ) ), capabilities );
 
