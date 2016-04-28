@@ -45,7 +45,7 @@ pageContext.setAttribute ( "TAG", Tags.ACTION_TAG_CHANNELS );
           <c:set var="channel" value="${entry.channel }" />
           
           <%-- the next call to "get" is required since jasper seems to have issues with Java 8 default methods --%>
-          <tr class="${storage:severityWithDefault(channel.state.getOverallValidationState(), '') }">
+          <tr class="${storage:severityWithDefault(channel.state.getOverallValidationState(), '') }" data-channel-id="${fn:escapeXml(channel.id) }">
             <td class="channel-entry-key">
               <a href="<c:url value="/channel/${channel.id }/view"/>">${fn:escapeXml(entry.key.id) }</a>
             </td>
