@@ -115,7 +115,7 @@ public class TestSuite
         capabilities.setCapability ( CapabilityType.PLATFORM, os );
         capabilities.setCapability ( "name", "Eclipse Package Drone Main Test" );
 
-        final RemoteWebDriver driver = new RemoteWebDriver ( new URL ( String.format ( "http://%s:%s@%s:80/wd/hub", SAUCE_USER_NAME, SAUCE_ACCESS_KEY, SAUCE_URL ) ), capabilities );
+        final RemoteWebDriver driver = new RemoteWebDriver ( new URL ( String.format ( "http://%s:%s@%s/wd/hub", SAUCE_USER_NAME, SAUCE_ACCESS_KEY, SAUCE_URL ) ), capabilities );
 
         driver.setFileDetector ( new LocalFileDetector () );
 
