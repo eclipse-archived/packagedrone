@@ -89,6 +89,7 @@ public class SimplePageTest extends AbstractServerTest
         Assert.assertEquals ( full, driver.getCurrentUrl () );
 
         final String title = driver.getTitle ();
+        System.out.println ( "Page title: " + title );
         Assert.assertTrue ( "Page title suffix", title.contains ( "| Eclipse Package Drone" ) );
     }
 }
