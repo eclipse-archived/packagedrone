@@ -32,6 +32,7 @@ import java.util.SortedMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.eclipse.packagedrone.repo.ChannelAspectInformation;
@@ -459,6 +460,11 @@ public class AspectContextImpl
                     throw new IllegalStateException ( String.format ( "Unable to find artifact '%s'", artifactId ) );
                 }
 
+                if ( !artifact.is ( "generator" ) )
+                {
+                    throw new IllegalStateException ( String.format ( "Artifact '%s' is not a generator", artifactId ) );
+                }
+
                 deleteGenerated ( artifact );
                 generate ( artifact );
 
@@ -472,6 +478,11 @@ public class AspectContextImpl
 
     private void deleteGenerated ( final ArtifactInformation generator )
     {
+        deleteChildren ( generator, child -> child.is ( "generated" ) );
+    }
+
+    private void deleteChildren ( final ArtifactInformation generator, final Predicate<ArtifactInformation> predicate )
+    {
         final Set<String> deletions = new HashSet<> ( 1 );
 
         for ( final String childId : generator.getChildIds () )
@@ -482,7 +493,7 @@ public class AspectContextImpl
                 continue;
             }
 
-            if ( !child.is ( "generated" ) )
+            if ( !predicate.test ( child ) )
             {
                 continue;
             }

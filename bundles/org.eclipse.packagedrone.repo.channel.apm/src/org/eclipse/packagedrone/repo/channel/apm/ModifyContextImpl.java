@@ -28,6 +28,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
@@ -304,9 +305,13 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
         markModified ();
 
-        // re-aggregate
+        // re-create all virtualized artifacts of the modified namespaces
 
-        this.aspectContext.aggregate ();
+        final Set<String> namespaces = changes.keySet ().stream ().map ( MetaKey::getNamespace ).collect ( Collectors.toSet () );
+
+        // refresh and re-aggregate
+
+        this.aspectContext.refreshAspects ( namespaces );
     }
 
     @Override
