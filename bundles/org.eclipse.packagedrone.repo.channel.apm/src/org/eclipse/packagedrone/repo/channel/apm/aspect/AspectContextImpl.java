@@ -501,7 +501,7 @@ public class AspectContextImpl
             final String generatorId = artifact.getVirtualizerAspectId ();
             final VirtualizerContextImpl ctx = new VirtualizerContextImpl ( generatorId, file, artifact, this.context, this::internalCreateArtifact, ArtifactType.GENERATED );
 
-            Exceptions.wrapException ( () -> Activator.getGeneratorProcessor ().process ( artifact.getVirtualizerAspectId (), ctx ) );
+            Exceptions.wrapException ( () -> Activator.getGeneratorProcessor ().process ( generatorId, ctx ) );
         } );
     }
 
