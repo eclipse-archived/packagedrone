@@ -40,4 +40,7 @@ addons:
       packages:
          - rpm
          - liburi-perl
-
+   sauce_connect:
+     username: ctron
+     access_key:
+       secure: "guzUYenRXvNlxdtFmAdPZRTZ5zvhEe6jJXyhYzQLSMz8Ce6mkIft+UOHh6Z9zCD+MU8IJRvqDOFGwcJhPcd8ZGkWBrkkCdeTG5GlnzCwxei0PRZrvJQWPJY/eSzqMta/Tid9zoAj/erndi+Fu+6JY2U5BYS40zlZCF/6u9w/iH2OQ6s2PqOs9VbR6z3KF0J8eBlEljU6UACaclLp4UJKRklzC9XODKd3CNZfXesV19qFn1a1ZgAeHMmhhtb72zQ/dmF6aR24aT8FWattfyiiZsWFGNA/ZOQr6wzHQYFtWtJIUQok1aBdpZ3p3o6TeCTqfHDFTZ//5SoyvNuQlIpKbR4pl6H7v2bfd3/fiitFfk7t6Py1eSkeTIzZbbotz3T7Ho/5xX3OBbP2L1KwBlqj6wzrXizlk84wmoaYBIqqpiwKU8547Xy+slEoyZrX4NOTI6jbLFiDCnPovxxpi9Owo9jwpskUUcLWhH9dTmHDlLhqRz6WoFESzCAjMtlub0PYwp8VoHIE2Ga/uVHinxNWC371b20KqXTFlWyK7cCHWyFuFH1uFl2MGjstJOiyXadUwIOkwkJf2X4KBZ4SRszw/su0VaQnOzeepCnjW7JVCHkNwcmgKoROB1j2uvfSjIcYoEXTtU7nE9bY3UZrFso5KWSnVPV3FYoM7u8lKIPSOGU="
