@@ -60,6 +60,8 @@ public class TestSuite
 
     private static final String SAUCE_ACCESS_KEY = System.getenv ( "SAUCE_ACCESS_KEY" );
 
+    private static final String SAUCE_URL = System.getenv ().getOrDefault ( "SAUCE_URL", "localhost:4445" );
+
     private static final String SAUCE_PLATFORM = System.getProperty ( "sauce.platform", "win8.1" );
 
     private static final String SAUCE_BROWSER = System.getProperty ( "sauce.browser", "chrome" );
@@ -113,7 +115,7 @@ public class TestSuite
         capabilities.setCapability ( CapabilityType.PLATFORM, os );
         capabilities.setCapability ( "name", "Eclipse Package Drone Main Test" );
 
-        final RemoteWebDriver driver = new RemoteWebDriver ( new URL ( String.format ( "http://%s:%s@ondemand.saucelabs.com:80/wd/hub", SAUCE_USER_NAME, SAUCE_ACCESS_KEY ) ), capabilities );
+        final RemoteWebDriver driver = new RemoteWebDriver ( new URL ( String.format ( "http://%s:%s@%s:80/wd/hub", SAUCE_USER_NAME, SAUCE_ACCESS_KEY, SAUCE_URL ) ), capabilities );
 
         driver.setFileDetector ( new LocalFileDetector () );
 
