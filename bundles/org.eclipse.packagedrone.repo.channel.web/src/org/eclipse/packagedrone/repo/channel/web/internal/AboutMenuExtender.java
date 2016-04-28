@@ -10,7 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.web.internal;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,12 +22,16 @@ import org.eclipse.packagedrone.web.common.menu.MenuEntry;
 
 public class AboutMenuExtender implements InterfaceExtender
 {
-    private final List<MenuEntry> entries = new LinkedList<> ();
+    private final List<MenuEntry> entries;
 
     public AboutMenuExtender ()
     {
-        this.entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "Wiki", 1_000, new LinkTarget ( "https://wiki.eclipse.org/PackageDrone" ), null, null, true, 0 ) );
-        this.entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "About", Integer.MAX_VALUE, new LinkTarget ( "http://packagedrone.org" ), null, null, true, 0 ) );
+        final List<MenuEntry> entries = new ArrayList<> ( 4 );
+        entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "About", Integer.MAX_VALUE, new LinkTarget ( "http://packagedrone.org" ), null, null, true, 0 ) );
+        entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "Blog", 1_000, new LinkTarget ( "https://packagedrone.org" ), null, null, true, 0 ) );
+        entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "Project", 2_000, new LinkTarget ( "https://eclipse.org/package-drone" ), null, null, true, 0 ) );
+        entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "Wiki", 3_000, new LinkTarget ( "https://wiki.eclipse.org/PackageDrone" ), null, null, true, 0 ) );
+        this.entries = Collections.unmodifiableList ( entries );
     }
 
     @Override
