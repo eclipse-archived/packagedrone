@@ -115,6 +115,11 @@ public class TestSuite
         capabilities.setCapability ( CapabilityType.PLATFORM, os );
         capabilities.setCapability ( "name", "Eclipse Package Drone Main Test" );
 
+        if ( System.getenv ( "TRAVIS_JOB_NUMBER" ) != null )
+        {
+            capabilities.setCapability ( "tunnel-identifier", System.getenv ( "TRAVIS_JOB_NUMBER" ) );
+        }
+
         final RemoteWebDriver driver = new RemoteWebDriver ( new URL ( String.format ( "http://%s:%s@%s/wd/hub", SAUCE_USER_NAME, SAUCE_ACCESS_KEY, SAUCE_URL ) ), capabilities );
 
         driver.setFileDetector ( new LocalFileDetector () );
