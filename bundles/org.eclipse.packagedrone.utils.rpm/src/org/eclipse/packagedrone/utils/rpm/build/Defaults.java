@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 
 import org.eclipse.packagedrone.utils.rpm.build.BuilderContext.Directory;
+import org.eclipse.packagedrone.utils.rpm.build.BuilderContext.SymbolicLink;
 
 final class Defaults
 {
@@ -26,8 +27,11 @@ final class Defaults
 
     static final FileInformationProvider<Directory> SIMPLE_DIRECTORY_PROVIDER = BuilderContext.simpleProvider ( 0755 );
 
+    static final FileInformationProvider<SymbolicLink> SIMPLE_SYMBOLIC_LINK = BuilderContext.simpleProvider ( 0644 );
+
     static final FileInformationProvider<Object> DEFAULT_MULTI_PROVIDER = BuilderContext.multiProvider ( SIMPLE_FILE_PROVIDER, new ProviderRule<?>[] { //
-            new ProviderRule<Directory> ( Directory.class, SIMPLE_DIRECTORY_PROVIDER ) //
+            new ProviderRule<Directory> ( Directory.class, SIMPLE_DIRECTORY_PROVIDER ), //
+            new ProviderRule<SymbolicLink> ( SymbolicLink.class, SIMPLE_SYMBOLIC_LINK ) //
     } );
 
     static final FileInformationProvider<Path> PATH_PROVIDER = new FileInformationProvider<Path> () {
