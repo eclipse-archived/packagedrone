@@ -101,9 +101,13 @@ public class RpmWriter implements AutoCloseable
         lead.put ( this.lead.getMajor () );
         lead.put ( this.lead.getMinor () );
 
+        // 2 bytes type
+
         lead.putShort ( this.lead.getType () );
-        // TODO: 2 bytes ARCH
-        lead.putShort ( (short)0 );
+
+        // 2 bytes arch
+
+        lead.putShort ( this.lead.getArchitecture () );
 
         // write package name
 
@@ -123,9 +127,9 @@ public class RpmWriter implements AutoCloseable
             }
         }
 
-        // TODO: 2 bytes OS
+        // 2 bytes OS
 
-        lead.putShort ( (short)0 );
+        lead.putShort ( this.lead.getOperatingSystem () );
 
         // 2 bytes signature
 
