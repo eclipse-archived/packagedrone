@@ -32,7 +32,16 @@ public interface BuilderContext
         }
     }
 
+    public static final class SymbolicLink
+    {
+        private SymbolicLink ()
+        {
+        }
+    }
+
     public static final Directory DIRECTORY = new Directory ();
+
+    public static final SymbolicLink SYMBOLIC_LINK = new SymbolicLink ();
 
     public static FileInformationCustomizer<Path> pathCustomizer ()
     {
@@ -206,5 +215,17 @@ public interface BuilderContext
     public default void addDirectory ( final String targetName, final SimpleFileInformationCustomizer customizer ) throws IOException
     {
         addDirectory ( targetName, getDefaultInformationProvider ().customize ( customizer ) );
+    }
+
+    public void addSymbolicLink ( String targetName, String linkTo, final FileInformationProvider<? super SymbolicLink> provider ) throws IOException;
+
+    public default void addSymbolicLink ( final String targetName, final String linkTo ) throws IOException
+    {
+        addSymbolicLink ( targetName, linkTo, getDefaultInformationProvider () );
+    }
+
+    public default void addSymbolicLink ( final String targetName, final String linkTo, final SimpleFileInformationCustomizer customizer ) throws IOException
+    {
+        addSymbolicLink ( targetName, linkTo, getDefaultInformationProvider ().customize ( customizer ) );
     }
 }

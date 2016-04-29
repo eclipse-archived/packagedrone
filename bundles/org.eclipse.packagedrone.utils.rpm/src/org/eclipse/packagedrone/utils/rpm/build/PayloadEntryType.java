@@ -13,5 +13,6 @@ package org.eclipse.packagedrone.utils.rpm.build;
 public enum PayloadEntryType
 {
     FILE,
-    DIRECTORY;
+    DIRECTORY,
+    SYMBOLIC_LINK;
 }

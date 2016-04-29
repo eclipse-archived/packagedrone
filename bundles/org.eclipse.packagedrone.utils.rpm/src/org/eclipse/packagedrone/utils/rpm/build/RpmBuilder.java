@@ -442,6 +442,11 @@ public class RpmBuilder implements AutoCloseable
                 entry.setFlags ( entry.getFlags () | FileFlags.CONFIGURATION.getValue () );
             }
         }
+
+        protected void customizeSymbolicLink ( final FileEntry entry, final FileInformation information )
+        {
+            customizeCommon ( entry, information );
+        }
     }
 
     private static final String DEFAULT_INTERPRETER = "/bin/sh";
@@ -793,6 +798,35 @@ public class RpmBuilder implements AutoCloseable
         addResult ( pathName, result, c );
     }
 
+    private void addSymbolicLink ( final String targetName, final String linkTo, final int mode, final Instant modInstant, final Consumer<FileEntry> customizer ) throws IOException
+    {
+        final PathName pathName = PathName.parse ( targetName );
+
+        final long mtime = modInstant.getEpochSecond ();
+        final int inode = this.currentInode++;
+
+        final short smode = (short) ( mode | CpioConstants.C_ISLNK );
+
+        final Result result = this.recorder.addSymbolicLink ( "./" + pathName.toString (), linkTo, cpioCustomizer ( mtime, inode, smode ) );
+
+        Consumer<FileEntry> c = this::initEntry;
+        c = c.andThen ( entry -> {
+            entry.setModificationTime ( (int)mtime );
+            entry.setInode ( inode );
+            entry.setMode ( smode );
+            entry.setSize ( result.getSize () );
+            entry.setTargetSize ( result.getSize () );
+            entry.setLinkTo ( linkTo );
+        } );
+
+        if ( customizer != null )
+        {
+            c = c.andThen ( customizer );
+        }
+
+        addResult ( pathName, result, c );
+    }
+
     private void addFile ( final String targetName, final InputStream stream, final int mode, final Instant modInstant, final Consumer<FileEntry> customizer ) throws IOException
     {
         addFile ( targetName, stream, customizer, mode, modInstant, PayloadRecorder::addFile );
@@ -877,6 +911,13 @@ public class RpmBuilder implements AutoCloseable
             {
                 final FileInformation info = makeInformation ( BuilderContext.DIRECTORY, PayloadEntryType.DIRECTORY, provider );
                 RpmBuilder.this.addDirectory ( targetName, info.getMode (), info.getTimestamp (), entry -> customizeDirectory ( entry, info ) );
+            }
+
+            @Override
+            public void addSymbolicLink ( final String targetName, final String linkTo, final FileInformationProvider<? super SymbolicLink> provider ) throws IOException
+            {
+                final FileInformation info = makeInformation ( BuilderContext.SYMBOLIC_LINK, PayloadEntryType.SYMBOLIC_LINK, provider );
+                RpmBuilder.this.addSymbolicLink ( targetName, linkTo, info.getMode (), info.getTimestamp (), entry -> customizeSymbolicLink ( entry, info ) );
             }
         };
     }

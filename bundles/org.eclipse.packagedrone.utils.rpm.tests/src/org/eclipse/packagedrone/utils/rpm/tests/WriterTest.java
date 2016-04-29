@@ -188,6 +188,8 @@ public class WriterTest
                 finfo.setConfiguration ( true );
             } );
 
+            ctx.addSymbolicLink ( "/etc/test3/file3", "/etc/test3/file1" );
+
             builder.setPreInstallationScript ( "true # test call" );
 
             outFile = builder.getTargetFile ();

@@ -19,6 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -234,6 +235,25 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
         this.archiveStream.closeArchiveEntry ();
 
         return new Result ( 4096, null );
+    }
+
+    public Result addSymbolicLink ( final String targetPath, final String linkTo, final Consumer<CpioArchiveEntry> customizer ) throws IOException
+    {
+        final byte[] bytes = linkTo.getBytes ( StandardCharsets.UTF_8 );
+
+        final CpioArchiveEntry entry = new CpioArchiveEntry ( targetPath );
+        entry.setSize ( bytes.length );
+
+        if ( customizer != null )
+        {
+            customizer.accept ( entry );
+        }
+
+        this.archiveStream.putArchiveEntry ( entry );
+        this.archiveStream.write ( bytes );
+        this.archiveStream.closeArchiveEntry ();
+
+        return new Result ( bytes.length, null );
     }
 
     /**
