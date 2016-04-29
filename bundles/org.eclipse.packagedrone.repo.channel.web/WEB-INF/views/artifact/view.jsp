@@ -1,11 +1,17 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page
+  language="java"
+  contentType="text/html; charset=UTF-8"
+  pageEncoding="UTF-8"
+  trimDirectiveWhitespaces="true"
+  %>
     
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
-<%@ taglib tagdir="/WEB-INF/tags/storage" prefix="s" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/web/common" prefix="pm" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
+<%@ taglib prefix="pm" uri="http://eclipse.org/packagedrone/web/common" %>
+
+<%@ taglib prefix="h" tagdir="/WEB-INF/tags/main"  %>
+<%@ taglib prefix="s" tagdir="/WEB-INF/tags/storage" %>
 
 <h:main title="Artifact" subtitle="${fn:escapeXml(artifact.name) } (${fn:escapeXml(artifact.id) })">
 
@@ -70,14 +76,14 @@
 <dl class="dl-horizontal">
 
 <c:if test="${not empty artifact.parentId }">
-<dt>Parent<dt><dd><a href="<c:url value="/artifact/${artifact.parentId }/view"/>">${ artifact.parentId }</a></dd>
+<dt>Parent<dt><dd><a href="<c:url value="/channel/${artifact.channelId.id }/artifacts/${artifact.parentId }/view"/>">${ artifact.parentId }</a></dd>
 </c:if>
 
 <c:if test="${not empty artifact.childIds }">
 <dt>Children<dt><dd>
     <ul>
         <c:forEach var="child" items="${artifact.childIds }">
-          <li><a href="<c:url value="/artifact/${child }/view"/>">${ child }</a></li>
+          <li><a href="<c:url value="/channel/${artifact.channelId.id }/artifacts/${child }/view"/>">${ child }</a></li>
         </c:forEach>
     </ul>
 </dd>
