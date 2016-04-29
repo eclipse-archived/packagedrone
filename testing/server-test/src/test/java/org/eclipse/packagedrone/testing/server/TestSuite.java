@@ -62,7 +62,7 @@ public class TestSuite
 
     private static final String SAUCE_URL = System.getenv ().getOrDefault ( "SAUCE_URL", "localhost:4445" );
 
-    private static final String SAUCE_PLATFORM = System.getProperty ( "sauce.platform", "win8.1" );
+    private static final String SAUCE_PLATFORM = System.getProperty ( "sauce.platform", "win10" );
 
     private static final String SAUCE_BROWSER = System.getProperty ( "sauce.browser", "chrome" );
 
@@ -109,17 +109,20 @@ public class TestSuite
     protected static RemoteWebDriver createSauce ( final Platform os, final String browser, final String version ) throws MalformedURLException
     {
         final DesiredCapabilities capabilities = new DesiredCapabilities ();
-        capabilities.setCapability ( CapabilityType.BROWSER_NAME, browser );
+        capabilities.setBrowserName ( browser );
         if ( version != null )
         {
-            capabilities.setCapability ( CapabilityType.VERSION, version );
+            capabilities.setVersion ( version );
         }
         capabilities.setCapability ( CapabilityType.PLATFORM, os );
+        capabilities.setCapability ( CapabilityType.SUPPORTS_FINDING_BY_CSS, true );
         capabilities.setCapability ( "name", "Eclipse Package Drone Main Test" );
 
         if ( System.getenv ( "TRAVIS_JOB_NUMBER" ) != null )
         {
             capabilities.setCapability ( "tunnel-identifier", System.getenv ( "TRAVIS_JOB_NUMBER" ) );
+            capabilities.setCapability ( "build", System.getenv ( "TRAVIS_BUILD_NUMBER" ) );
+            capabilities.setCapability ( "tags", new String[] { "CI" } );
         }
 
         final RemoteWebDriver driver = new RemoteWebDriver ( new URL ( String.format ( "http://%s:%s@%s/wd/hub", SAUCE_USER_NAME, SAUCE_ACCESS_KEY, SAUCE_URL ) ), capabilities );
