@@ -101,7 +101,9 @@ public class TestSuite
     @AfterClass
     public static void stopBrowser ()
     {
-        driver.close ();
+        System.out.print ( "Shutting down browser..." );
+        driver.quit ();
+        System.out.println ( "done!" );
     }
 
     protected static RemoteWebDriver createSauce ( final Platform os, final String browser, final String version ) throws MalformedURLException
