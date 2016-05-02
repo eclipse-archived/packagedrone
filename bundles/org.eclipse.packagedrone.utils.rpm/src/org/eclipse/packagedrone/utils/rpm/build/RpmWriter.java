@@ -221,17 +221,9 @@ public class RpmWriter implements AutoCloseable
 
         final Header<RpmSignatureTag> signature = new Header<RpmSignatureTag> ();
 
-        // the order is important
+        // process signatures
 
-        // signature.putSize ( headerSize + payloadSize, RpmSignatureTag.SIZE, RpmSignatureTag.LONGSIZE );
-        // signature.putBlob ( RpmSignatureTag.MD5, makeMd5Checksum () );
-        // signature.putString ( RpmSignatureTag.SHA1HEADER, makeSha1HeaderChecksum () );
-        // signature.putSize ( this.payloadProvider.getArchiveSize (), RpmSignatureTag.PAYLOAD_SIZE, RpmSignatureTag.LONGARCHIVESIZE );
-
-        for ( final SignatureProcessor processor : this.signatureProcessors )
-        {
-            processor.sign ( this.header.slice (), this.payloadProvider, signature );
-        }
+        processSignatures ( signature );
 
         // write lead
 
@@ -265,6 +257,47 @@ public class RpmWriter implements AutoCloseable
         }
 
         debug ( "end - offset: %s", this.file.position () );
+    }
+
+    private void processSignatures ( final Header<RpmSignatureTag> signature ) throws IOException
+    {
+        // init
+
+        for ( final SignatureProcessor processor : this.signatureProcessors )
+        {
+            processor.init ( this.payloadProvider.getArchiveSize () );
+        }
+
+        // feed the header
+
+        for ( final SignatureProcessor processor : this.signatureProcessors )
+        {
+            processor.feedHeader ( this.header.slice () );
+        }
+
+        // feed payload data
+
+        try ( ReadableByteChannel channel = this.payloadProvider.openChannel () )
+        {
+            final ByteBuffer buf = ByteBuffer.wrap ( new byte[4096] );
+
+            while ( channel.read ( buf ) >= 0 )
+            {
+                buf.flip ();
+                for ( final SignatureProcessor processor : this.signatureProcessors )
+                {
+                    processor.feedPayloadData ( buf.slice () );
+                }
+                buf.clear ();
+            }
+        }
+
+        // finish up
+
+        for ( final SignatureProcessor processor : this.signatureProcessors )
+        {
+            processor.finish ( signature );
+        }
     }
 
 }
