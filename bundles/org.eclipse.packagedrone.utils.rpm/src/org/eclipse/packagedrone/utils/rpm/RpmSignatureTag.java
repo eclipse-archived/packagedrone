@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,10 +15,13 @@ import java.util.Map;
 
 public enum RpmSignatureTag implements RpmBaseTag
 {
+    PUBKEYS ( 266 ),
+    RSAHEADER ( 268 ),
     SHA1HEADER ( 269 ),
     LONGARCHIVESIZE ( 271 ),
 
     SIZE ( 1000 ),
+    PGP ( 1002 ),
     MD5 ( 1004 ),
     PAYLOAD_SIZE ( 1007 ),
     LONGSIZE ( 5009 );
