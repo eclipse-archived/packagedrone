@@ -19,6 +19,7 @@ import org.eclipse.packagedrone.utils.rpm.header.Header;
  * Process data for creating a signature
  * <p>
  * The call flow is like this:
+ * </p>
  * <ul>
  * <li>one call to {@link #init(long)}</li>
  * <li>one call to {@link #feedHeader(ByteBuffer)}</li>
@@ -26,7 +27,6 @@ import org.eclipse.packagedrone.utils.rpm.header.Header;
  * full, compressed, payload stream</li>
  * <li>one call to {@link #finish(Header)}</li>
  * </ul>
- * </p>
  */
 public interface SignatureProcessor
 {
