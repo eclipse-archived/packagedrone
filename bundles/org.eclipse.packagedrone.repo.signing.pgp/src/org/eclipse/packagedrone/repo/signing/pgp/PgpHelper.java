@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,10 +23,13 @@ import java.util.stream.StreamSupport;
 
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyRing;
+import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.bouncycastle.openpgp.PGPSecretKeyRing;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.bc.BcPGPSecretKeyRingCollection;
+import org.bouncycastle.openpgp.operator.bc.BcPBESecretKeyDecryptorBuilder;
+import org.bouncycastle.openpgp.operator.bc.BcPGPDigestCalculatorProvider;
 
 public final class PgpHelper
 {
@@ -93,6 +96,22 @@ public final class PgpHelper
                 return true;
             }
         };
+    }
+
+    public static PGPPrivateKey loadPrivateKey ( final InputStream input, final String keyId, final String passPhrase ) throws IOException, PGPException
+    {
+        return loadPrivateKey ( input, keyId, passPhrase.toCharArray () );
+    }
+
+    public static PGPPrivateKey loadPrivateKey ( final InputStream input, final String keyId, final char[] passPhrase ) throws IOException, PGPException
+    {
+        final PGPSecretKey secretKey = loadSecretKey ( input, keyId );
+        if ( secretKey == null )
+        {
+            return null;
+        }
+
+        return secretKey.extractPrivateKey ( new BcPBESecretKeyDecryptorBuilder ( new BcPGPDigestCalculatorProvider () ).build ( passPhrase ) );
     }
 
     public static PGPSecretKey loadSecretKey ( final InputStream input, final String keyId ) throws IOException, PGPException
