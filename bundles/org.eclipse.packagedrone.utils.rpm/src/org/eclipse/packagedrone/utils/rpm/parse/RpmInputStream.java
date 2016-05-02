@@ -236,10 +236,9 @@ public class RpmInputStream extends InputStream
         {
             // pad remaining bytes - to 8
 
-            final long rem = storeSize % 8;
-            if ( rem > 0 )
+            final int skip = Rpms.padding ( storeSize );
+            if ( skip > 0 )
             {
-                final int skip = (int) ( 8 - rem );
                 logger.debug ( "Skipping {} pad bytes", skip );
                 skipFully ( skip );
             }
@@ -269,7 +268,10 @@ public class RpmInputStream extends InputStream
 
     private void skipFully ( final int count ) throws IOException
     {
-        this.in.readFully ( DUMMY, 0, count );
+        if ( count > 0 )
+        {
+            this.in.readFully ( DUMMY, 0, count );
+        }
     }
 
     // forward methods

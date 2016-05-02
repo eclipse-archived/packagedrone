@@ -177,7 +177,7 @@ public class RpmWriter implements AutoCloseable
 
         // padding
 
-        final int padding = payloadSize % 8;
+        final int padding = Rpms.padding ( payloadSize );
 
         if ( padding > 0 )
         {

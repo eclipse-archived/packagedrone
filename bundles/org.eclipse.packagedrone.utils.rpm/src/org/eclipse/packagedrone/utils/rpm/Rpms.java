@@ -108,4 +108,17 @@ public class Rpms
         }
     }
 
+    public static int padding ( final int offset )
+    {
+        final int rem = offset % 8;
+        if ( rem > 0 )
+        {
+            return 8 - rem;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 }

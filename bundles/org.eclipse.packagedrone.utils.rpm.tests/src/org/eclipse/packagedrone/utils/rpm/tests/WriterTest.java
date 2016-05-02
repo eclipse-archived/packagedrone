@@ -13,6 +13,7 @@ package org.eclipse.packagedrone.utils.rpm.tests;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +23,8 @@ import java.time.ZoneOffset;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.bouncycastle.openpgp.PGPException;
+import org.eclipse.packagedrone.repo.signing.pgp.PgpHelper;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.eclipse.packagedrone.utils.rpm.app.Dumper;
@@ -36,6 +39,7 @@ import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 import org.eclipse.packagedrone.utils.rpm.header.Header;
 import org.eclipse.packagedrone.utils.rpm.parse.RpmInputStream;
+import org.eclipse.packagedrone.utils.rpm.signature.RsaHeaderSignatureProcessor;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -154,7 +158,7 @@ public class WriterTest
     }
 
     @Test
-    public void test3 () throws IOException
+    public void test3 () throws IOException, PGPException
     {
         Path outFile;
 
@@ -191,6 +195,18 @@ public class WriterTest
             ctx.addSymbolicLink ( "/etc/test3/file3", "/etc/test3/file1" );
 
             builder.setPreInstallationScript ( "true # test call" );
+
+            final String keyId = System.getProperty ( "writerTest.keyId" );
+            final String keyChain = System.getProperty ( "writerTest.keyChain" );
+            final String keyPassphrase = System.getProperty ( "writerTest.keyPassphrase" );
+
+            if ( keyId != null && keyChain != null )
+            {
+                try ( InputStream stream = Files.newInputStream ( Paths.get ( keyChain ) ) )
+                {
+                    builder.addSignatureProcessor ( new RsaHeaderSignatureProcessor ( PgpHelper.loadPrivateKey ( stream, keyId, keyPassphrase ) ) );
+                }
+            }
 
             outFile = builder.getTargetFile ();
 

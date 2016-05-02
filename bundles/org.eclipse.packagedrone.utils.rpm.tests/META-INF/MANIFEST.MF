@@ -6,7 +6,8 @@ Fragment-Host: org.eclipse.packagedrone.utils.rpm
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: IBH SYSTEMS GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.junit
+Require-Bundle: org.junit,
+ org.eclipse.packagedrone.repo.signing.pgp;bundle-version="1.0.0"
 Import-Package: org.apache.commons.compress.archivers.cpio;version="1.9.0",
  org.eclipse.packagedrone.utils.rpm,
  org.eclipse.packagedrone.utils.rpm.build;version="0.13.0",
