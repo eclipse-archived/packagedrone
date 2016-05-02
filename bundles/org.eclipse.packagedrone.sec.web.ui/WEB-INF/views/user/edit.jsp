@@ -1,6 +1,11 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
+<%@ page
+  language="java"
+  contentType="text/html; charset=UTF-8"
+  pageEncoding="UTF-8"
+  trimDirectiveWhitespaces="true"
+  %>
 
-<%@page import="org.eclipse.packagedrone.sec.UserStorage"%>
+<%@ page import="org.eclipse.packagedrone.sec.UserStorage"%>
 
 <%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -55,9 +60,9 @@ fieldset {
                     
                     <h:formEntry>
                         <div class="input-group">
-                            <input class="form-control" type="text" id="newRole" placeholder="Add new role"/>
+                            <input class="form-control" type="text" id="newRole" placeholder="Add new role" oninput="validateForm();"/>
                             <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" id="btnNewRole" onclick="addRole();"><span class="glyphicon glyphicon-plus"></span></button>
+                                <button class="btn btn-default" type="button" id="btnNewRole" onclick="addRole();" disabled="disabled"><span class="glyphicon glyphicon-plus"></span></button>
                             </span>
                         </div>
                     </h:formEntry>
@@ -77,6 +82,22 @@ fieldset {
 </div>
 
 <script type="text/javascript">
+
+function validateForm() {
+	$('#btnNewRole').prop("disabled", !shouldEnable());
+}
+
+function shouldEnable () {
+	var val = $('#newRole').val ();
+	if ( val == "" ) {
+		return false;	
+	}
+	
+	return true;
+}
+
+validateForm ();
+
 function addRole() {
     var val = $('#newRole').val ();
     
@@ -109,6 +130,7 @@ function addRole() {
     
     //clear entry box
     $('#newRole').val ( "" );
+    validateForm ();
 }
 </script>
 
