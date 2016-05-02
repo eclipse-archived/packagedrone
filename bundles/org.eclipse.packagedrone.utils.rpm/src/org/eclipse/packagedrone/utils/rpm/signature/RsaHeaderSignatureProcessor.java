@@ -27,14 +27,70 @@ public class RsaHeaderSignatureProcessor implements SignatureProcessor
 {
     private final static Logger logger = LoggerFactory.getLogger ( RsaHeaderSignatureProcessor.class );
 
+    public static enum HashAlgorithm
+    {
+        SHA1 ( HashAlgorithmTags.SHA1 ),
+        SHA512 ( HashAlgorithmTags.SHA512 );
+
+        private int value;
+
+        private HashAlgorithm ( final int value )
+        {
+            this.value = value;
+        }
+
+        public int getValue ()
+        {
+            return this.value;
+        }
+
+        /**
+         * Get a hash algorithm from a string
+         * <p>
+         * This method will return the hash algorithm as specified by the
+         * parameter "name". If this parameter is {@code null} or an empty
+         * string, then the default algorithm {@link #SHA1} will be returned. If
+         * algorithm is an invalid name, then an exception is thrown.
+         * </p>
+         *
+         * @param name
+         *            the name of hash algorithm, or {@code null}
+         * @return a hash algorithm
+         * @throws IllegalArgumentException
+         *             if the name was provided, but is invalid
+         */
+        public static HashAlgorithm from ( final String name )
+        {
+            if ( name == null || name.isEmpty () )
+            {
+                return SHA1;
+            }
+
+            return HashAlgorithm.valueOf ( name );
+        }
+    }
+
     private final PGPPrivateKey privateKey;
+
+    private final int hashAlgorithm;
 
     private byte[] value;
 
-    public RsaHeaderSignatureProcessor ( final PGPPrivateKey privateKey )
+    protected RsaHeaderSignatureProcessor ( final PGPPrivateKey privateKey, final int hashAlgorithm )
     {
         Objects.requireNonNull ( privateKey );
         this.privateKey = privateKey;
+        this.hashAlgorithm = hashAlgorithm;
+    }
+
+    public RsaHeaderSignatureProcessor ( final PGPPrivateKey privateKey, final HashAlgorithm hashAlgorithm )
+    {
+        this ( privateKey, Objects.requireNonNull ( hashAlgorithm ).getValue () );
+    }
+
+    public RsaHeaderSignatureProcessor ( final PGPPrivateKey privateKey )
+    {
+        this ( privateKey, HashAlgorithmTags.SHA1 );
     }
 
     @Override
@@ -42,7 +98,7 @@ public class RsaHeaderSignatureProcessor implements SignatureProcessor
     {
         try
         {
-            final BcPGPContentSignerBuilder contentSignerBuilder = new BcPGPContentSignerBuilder ( this.privateKey.getPublicKeyPacket ().getAlgorithm (), HashAlgorithmTags.SHA1 );
+            final BcPGPContentSignerBuilder contentSignerBuilder = new BcPGPContentSignerBuilder ( this.privateKey.getPublicKeyPacket ().getAlgorithm (), this.hashAlgorithm );
             final PGPSignatureGenerator signatureGenerator = new PGPSignatureGenerator ( contentSignerBuilder );
 
             signatureGenerator.init ( PGPSignature.BINARY_DOCUMENT, this.privateKey );

@@ -40,6 +40,7 @@ import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 import org.eclipse.packagedrone.utils.rpm.header.Header;
 import org.eclipse.packagedrone.utils.rpm.parse.RpmInputStream;
 import org.eclipse.packagedrone.utils.rpm.signature.RsaHeaderSignatureProcessor;
+import org.eclipse.packagedrone.utils.rpm.signature.RsaHeaderSignatureProcessor.HashAlgorithm;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -204,7 +205,7 @@ public class WriterTest
             {
                 try ( InputStream stream = Files.newInputStream ( Paths.get ( keyChain ) ) )
                 {
-                    builder.addSignatureProcessor ( new RsaHeaderSignatureProcessor ( PgpHelper.loadPrivateKey ( stream, keyId, keyPassphrase ) ) );
+                    builder.addSignatureProcessor ( new RsaHeaderSignatureProcessor ( PgpHelper.loadPrivateKey ( stream, keyId, keyPassphrase ), HashAlgorithm.from ( System.getProperty ( "writerTest.hashAlgo" ) ) ) );
                 }
             }
 
