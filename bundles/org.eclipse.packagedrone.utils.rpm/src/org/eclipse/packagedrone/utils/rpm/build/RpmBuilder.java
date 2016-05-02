@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,8 @@ import org.eclipse.packagedrone.utils.rpm.deps.Dependencies;
 import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 import org.eclipse.packagedrone.utils.rpm.header.Header;
+import org.eclipse.packagedrone.utils.rpm.signature.SignatureProcessor;
+import org.eclipse.packagedrone.utils.rpm.signature.SignatureProcessors;
 
 /**
  * Build RPM files
@@ -65,6 +68,13 @@ import org.eclipse.packagedrone.utils.rpm.header.Header;
  * The implementation of this class uses the {@link PayloadRecorder} to create
  * the payload archive, {@link Header} class for the signature and package
  * header and the {@link RpmWriter} to finally write the RPM file.
+ * </p>
+ * <h2>Signature processors</h2>
+ * <p>
+ * The RPM builder uses a default set of {@link SignatureProcessor}s. In order
+ * to add additional ones use the {@link #addDefaultSignatureProcessors()}. It
+ * is possible to remove all already registered processors (including the
+ * default ones) using {@link #removeAllSignatureProcessors()}.
  * </p>
  *
  * @author Jens Reimann
@@ -481,6 +491,8 @@ public class RpmBuilder implements AutoCloseable
 
     private int currentInode = 1;
 
+    private final List<SignatureProcessor> signatureProcessors = new LinkedList<> ();
+
     public RpmBuilder ( final String name, final String version, final String release, final Path target ) throws IOException
     {
         this ( name, version, release, "noarch", target );
@@ -503,11 +515,31 @@ public class RpmBuilder implements AutoCloseable
         }
 
         this.recorder = new PayloadRecorder ( true );
+
+        addDefaultSignatureProcessors ();
     }
 
     public RpmBuilder ( final String name, final String version, final String release, final String architecture, final Path target, final OpenOption... openOptions ) throws IOException
     {
         this ( name, new RpmVersion ( null, version, release ), architecture, target, openOptions );
+    }
+
+    public void addSignatureProcessor ( final SignatureProcessor processor )
+    {
+        this.signatureProcessors.add ( processor );
+    }
+
+    public void removeAllSignatureProcessors ()
+    {
+        this.signatureProcessors.clear ();
+    }
+
+    public void addDefaultSignatureProcessors ()
+    {
+        addSignatureProcessor ( SignatureProcessors.size () );
+        addSignatureProcessor ( SignatureProcessors.md5 () );
+        addSignatureProcessor ( SignatureProcessors.sha1Header () );
+        addSignatureProcessor ( SignatureProcessors.payloadSize () );
     }
 
     private void fillRequirements ()
@@ -709,6 +741,7 @@ public class RpmBuilder implements AutoCloseable
 
         try ( RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.openOptions ) )
         {
+            writer.addAllSignatureProcessors ( this.signatureProcessors );
             writer.setPayload ( this.recorder );
         }
     }

@@ -12,16 +12,14 @@ package org.eclipse.packagedrone.utils.rpm.build;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.packagedrone.utils.rpm.RpmLead;
@@ -30,6 +28,7 @@ import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
 import org.eclipse.packagedrone.utils.rpm.header.Header;
 import org.eclipse.packagedrone.utils.rpm.header.Headers;
+import org.eclipse.packagedrone.utils.rpm.signature.SignatureProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,12 +60,24 @@ public class RpmWriter implements AutoCloseable
 
     private PayloadProvider payloadProvider;
 
+    private final List<SignatureProcessor> signatureProcessors = new LinkedList<> ();
+
     public RpmWriter ( final Path path, final LeadBuilder leadBuilder, final Header<RpmTag> header, final OpenOption... options ) throws IOException
     {
         this.file = FileChannel.open ( path, options != null && options.length > 0 ? options : DEFAULT_OPEN_OPTIONS );
         this.lead = leadBuilder.build ();
 
         this.header = Headers.render ( header.makeEntries (), true, Rpms.IMMUTABLE_TAG_HEADER );
+    }
+
+    public void addSignatureProcessor ( final SignatureProcessor processor )
+    {
+        this.signatureProcessors.add ( processor );
+    }
+
+    public void addAllSignatureProcessors ( final List<SignatureProcessor> signatureProcessors )
+    {
+        this.signatureProcessors.addAll ( signatureProcessors );
     }
 
     public void setPayload ( final PayloadProvider payloadProvider ) throws IOException
@@ -212,10 +223,15 @@ public class RpmWriter implements AutoCloseable
 
         // the order is important
 
-        signature.putSize ( headerSize + payloadSize, RpmSignatureTag.SIZE, RpmSignatureTag.LONGSIZE );
-        signature.putBlob ( RpmSignatureTag.MD5, makeMd5Checksum () );
-        signature.putString ( RpmSignatureTag.SHA1HEADER, makeSha1HeaderChecksum () );
-        signature.putSize ( this.payloadProvider.getArchiveSize (), RpmSignatureTag.PAYLOAD_SIZE, RpmSignatureTag.LONGARCHIVESIZE );
+        // signature.putSize ( headerSize + payloadSize, RpmSignatureTag.SIZE, RpmSignatureTag.LONGSIZE );
+        // signature.putBlob ( RpmSignatureTag.MD5, makeMd5Checksum () );
+        // signature.putString ( RpmSignatureTag.SHA1HEADER, makeSha1HeaderChecksum () );
+        // signature.putSize ( this.payloadProvider.getArchiveSize (), RpmSignatureTag.PAYLOAD_SIZE, RpmSignatureTag.LONGARCHIVESIZE );
+
+        for ( final SignatureProcessor processor : this.signatureProcessors )
+        {
+            processor.sign ( this.header.slice (), this.payloadProvider, signature );
+        }
 
         // write lead
 
@@ -249,52 +265,6 @@ public class RpmWriter implements AutoCloseable
         }
 
         debug ( "end - offset: %s", this.file.position () );
-    }
-
-    private byte[] makeMd5Checksum () throws IOException
-    {
-        try
-        {
-            final MessageDigest md = MessageDigest.getInstance ( "MD5" );
-
-            // feed header
-
-            feedHeader ( md );
-
-            // feed payload file
-
-            try ( ReadableByteChannel payloadChannel = this.payloadProvider.openChannel () )
-            {
-                ByteStreams.copy ( new DigestInputStream ( Channels.newInputStream ( payloadChannel ), md ), ByteStreams.nullOutputStream () );
-            }
-
-            // digest
-
-            return md.digest ();
-        }
-        catch ( final NoSuchAlgorithmException e )
-        {
-            throw new RuntimeException ( e );
-        }
-    }
-
-    private String makeSha1HeaderChecksum ()
-    {
-        try
-        {
-            final MessageDigest md = MessageDigest.getInstance ( "SHA1" );
-            feedHeader ( md );
-            return Rpms.toHex ( md.digest () ).toLowerCase ();
-        }
-        catch ( final NoSuchAlgorithmException e )
-        {
-            throw new RuntimeException ( e );
-        }
-    }
-
-    private void feedHeader ( final MessageDigest digest )
-    {
-        digest.update ( this.header.slice () );
     }
 
 }
