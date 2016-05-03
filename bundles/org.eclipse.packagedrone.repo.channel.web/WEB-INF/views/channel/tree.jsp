@@ -1,17 +1,21 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-    
-<%@ taglib tagdir="/WEB-INF/tags/main" prefix="h" %>
-<%@ taglib tagdir="/WEB-INF/tags/storage" prefix="s" %>
+<%@ page
+  language="java"
+  contentType="text/html; charset=UTF-8"
+  pageEncoding="UTF-8"
+  trimDirectiveWhitespaces="true"
+  %>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="storage" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/web/common" prefix="pm" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="storage" uri="http://eclipse.org/packagedrone/repo/channel" %>
+<%@ taglib prefix="pm" uri="http://eclipse.org/packagedrone/web/common" %>
+<%@ taglib prefix="web" uri="http://eclipse.org/packagedrone/web" %>
 
 <%@ taglib prefix="table" uri="http://eclipse.org/packagedrone/web/common/table"  %>
+
+<%@ taglib prefix="h" tagdir="/WEB-INF/tags/main" %>
+<%@ taglib prefix="s" tagdir="/WEB-INF/tags/storage" %>
 
 <%
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
@@ -98,6 +102,51 @@ $('tr[data-level=0]').show ();
 </script>
 
 <s:dz_init/>
+
+<div class="modal" tabindex="-1" role="dialog" id="deleteArtifactModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Delete artifact?</h4>
+      </div>
+      <div class="modal-body">
+        <p>
+        Are you sure that you want to delete the artifact <code><span class="artifact-name"></span></code> (<code><span class="artifact-id"></span></code>)?
+        </p>
+        <p>
+        This operation cannot be undone.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="performDelete();" id="deleteArtifactModalButton"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+      </div>
+    </div><%-- /.modal-content --%>
+  </div><%-- /.modal-dialog --%>
+</div><%-- /.modal --%>
+
+<script type="text/javascript">
+$('#deleteArtifactModal').on('show.bs.modal', function (event) {
+	var source = $(event.relatedTarget);
+	var artifactId = source.data('artifact-id');
+	var artifactName = source.data('artifact-name');
+	
+	var modal = $(this);
+	modal.find('.artifact-id').text(artifactId);
+	modal.find('.artifact-name').text(artifactName);
+});
+
+function performDelete () {
+	$('#deleteArtifactModal button').prop('disabled', true);
+	
+	var modal = $('#deleteArtifactModal');
+	var artifactId = modal.find('.artifact-id').text();
+	var artifactName = modal.find('.artifact-name').text();
+	
+	window.location = '<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/"/>' + encodeURIComponent ( artifactId ) + '/delete';
+}
+</script>
 
 </jsp:attribute>
 
