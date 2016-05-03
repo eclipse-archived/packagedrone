@@ -93,6 +93,21 @@
       name="Preferences">
     <setupTask
         xsi:type="setup:CompoundTask"
+        name="Basics">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/instance/org.eclipse.ui/SHOW_MEMORY_MONITOR"
+          value="true">
+        <description>Enable heap monitor</description>
+      </setupTask>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          filter=""
+          key="/instance/org.eclipse.debug.ui/UseContextualLaunch"
+          value="false"/>
+    </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
         name="Code style">
       <setupTask
           xsi:type="setup:PreferenceTask"
