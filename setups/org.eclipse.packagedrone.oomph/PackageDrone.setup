@@ -416,6 +416,10 @@
   <stream name="master">
     <description></description>
   </stream>
+  <stream name="0.12.x-release"
+      label="0.12.x Release Branch">
+    <description>This branch contains all 0.12.x releases</description>
+  </stream>
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"
       href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']"/>
