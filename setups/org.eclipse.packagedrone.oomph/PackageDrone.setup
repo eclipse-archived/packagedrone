@@ -12,7 +12,7 @@
     xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
     xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/jdt/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/JDT.ecore http://www.eclipse.org/oomph/setup/launching/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Launching.ecore http://www.eclipse.org/oomph/setup/pde/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/PDE.ecore http://www.eclipse.org/oomph/setup/projects/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Projects.ecore"
     name="packagedrone"
-    label="Package Drone">
+    label="Eclipse Package Drone™">
   <setupTask
       xsi:type="jdt:JRETask"
       version="JavaSE-1.8"
@@ -410,7 +410,7 @@
   <setupTask
       xsi:type="pde:TargetPlatformTask"
       id="org.eclipse.packagedrone.targetplatform"
-      name="Package Drone Runtime">
+      name="Eclipse Package Drone Runtime">
     <description>The Package Drone target platform will be created during the initial startup of the workspace.</description>
   </setupTask>
   <stream name="master">
