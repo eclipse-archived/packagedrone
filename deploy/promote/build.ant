@@ -16,6 +16,8 @@
 	
 	<property name="dryRun" value="-n"/>
 	
+	<property name="rsync.mirror" value="${eclipse.committer}@build.eclipse.org:/home/data/httpd/download.eclipse.org/package-drone/" />
+	
 	<condition property="hasEclipseCommitter">
 		<isset property="eclipse.committer" />
 	</condition>
@@ -58,7 +60,7 @@
     		<arg file="excludes.txt"/>
     		<arg value="--delete" />
     		<arg value="--delete-excluded" />
-    		<arg value="${eclipse.committer}@build.eclipse.org:/home/data/httpd/download.eclipse.org/package-drone/"/>
+    		<arg value="${rsync.mirror}"/>
     		<arg value="."/>
     	</exec>
     	
