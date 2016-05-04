@@ -90,5 +90,14 @@ Export-Package: org.eclipse.packagedrone.repo.channel.web;version="1.0.0";
    org.eclipse.packagedrone.web,
    org.eclipse.packagedrone.web.common,
    org.eclipse.packagedrone.web.controller.binding"
-Service-Component: OSGI-INF/aboutMenu.xml,OSGI-INF/artifact.xml,OSGI-INF/commonInterceptor.xml,OSGI-INF/channel.xml,OSGI-INF/deployAuth.xml,OSGI-INF/storage.xml,OSGI-INF/imp.xml,OSGI-INF/transfer.xml,OSGI-INF/welcome.xml,
+Service-Component: OSGI-INF/about.xml, 
+ OSGI-INF/aboutMenu.xml,
+ OSGI-INF/artifact.xml,
+ OSGI-INF/commonInterceptor.xml,
+ OSGI-INF/channel.xml,
+ OSGI-INF/deployAuth.xml,
+ OSGI-INF/storage.xml,
+ OSGI-INF/imp.xml,
+ OSGI-INF/transfer.xml,
+ OSGI-INF/welcome.xml,
  OSGI-INF/channelSitemap.xml

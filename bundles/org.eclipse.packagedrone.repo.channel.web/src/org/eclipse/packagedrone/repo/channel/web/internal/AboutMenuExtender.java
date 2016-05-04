@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.web.internal;
 
+import static org.eclipse.packagedrone.web.LinkTarget.createFromController;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +29,7 @@ public class AboutMenuExtender implements InterfaceExtender
     public AboutMenuExtender ()
     {
         final List<MenuEntry> entries = new ArrayList<> ( 4 );
-        entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "About", Integer.MAX_VALUE, new LinkTarget ( "http://packagedrone.org" ), null, null, true, 0 ) );
+        entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "About", Integer.MAX_VALUE, createFromController ( AboutController.class, "about" ), null, null, true, 0 ) );
         entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "Blog", 1_000, new LinkTarget ( "https://packagedrone.org" ), null, null, true, 0 ) );
         entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "Project", 2_000, new LinkTarget ( "https://eclipse.org/package-drone" ), null, null, true, 0 ) );
         entries.add ( new MenuEntry ( "Help", Integer.MAX_VALUE, "Wiki", 3_000, new LinkTarget ( "https://wiki.eclipse.org/PackageDrone" ), null, null, true, 0 ) );
