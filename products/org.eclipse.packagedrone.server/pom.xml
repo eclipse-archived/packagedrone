@@ -26,7 +26,7 @@
 		<drone.group>pdrone</drone.group>
 		<drone.app.name>package-drone-server</drone.app.name>
 		
-		<drone.user.description>Package Drone daemon user</drone.user.description>
+		<drone.user.description>Eclipse Package Drone daemon user</drone.user.description>
 	</properties>
 
 	<build>
