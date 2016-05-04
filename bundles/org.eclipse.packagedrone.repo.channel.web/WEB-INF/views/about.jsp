@@ -51,16 +51,25 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
           <p>
           This product includes software developed by other open source projects including the Apache Software Foundation, <a href="https://www.apache.org/" target="_blank">https://www.apache.org/</a>.
           </p>
-        
+          
         </div>
       
       </div>
+      
+	  <h3 style="padding-top: .5em;">More information</h3>
+          
+      <ul>
+        <li><a href="https://packagedrone.org/" target="_blank">Blog</a></li>
+        <li><a href="https://eclipse.org/package-drone" target="_blank">Project page</a></li>
+        <li><a href="https://wiki.eclipse.org/PackageDrone" target="_blank">Wiki</a></li>
+      </ul>
 
     </div>
     <div class="col-sm-6">
       <img class="center-block img-responsive" src="<c:url value="/resources/images/logo.png"/>"/>
     </div>
   </div>
+
 </div>
 
 </h:main>
