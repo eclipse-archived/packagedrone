@@ -14,7 +14,7 @@
     </description>
     
     <property name="eclipse.orbit.release" value="R20150519210750"/>
-	<property name="jetty.version" value="9.2.15.v20160210"/>
+	<property name="jetty.version" value="9.2.16.v20160414"/>
 	<property name="pax-web.version" value="4.2.5"/>
 
     <!-- ================================= 
