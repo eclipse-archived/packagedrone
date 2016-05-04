@@ -30,10 +30,10 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
           <dl class="dl-horizontal">
             
             <dt>Version</dt>
-            <dd>${version }</dd>
+            <dd class="about-version">${version }</dd>
             
             <dt>Build ID</dt>
-            <dd>${buildId }</dd>
+            <dd class="about-build-id">${buildIdHtml }</dd>
             
           </dl>
           

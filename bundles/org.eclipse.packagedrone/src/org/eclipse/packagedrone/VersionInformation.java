@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,11 @@
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
 package org.eclipse.packagedrone;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Optional;
+import java.util.Properties;
 
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.Version;
@@ -54,6 +59,11 @@ public final class VersionInformation
      */
     public static final String USER_AGENT;
 
+    /**
+     * A string identifying the build
+     */
+    public static final Optional<String> BUILD_ID;
+
     private VersionInformation ()
     {
     }
@@ -67,5 +77,38 @@ public final class VersionInformation
         VERSIONED_PRODUCT = PRODUCT + " " + VERSION;
 
         USER_AGENT = String.format ( "PackageDrone/%s (+http://packagedrone.org)", VersionInformation.VERSION_UNQUALIFIED );
+
+        BUILD_ID = Optional.ofNullable ( loadBuildId () );
+    }
+
+    private static String loadBuildId ()
+    {
+        try
+        {
+            final URL versionProps = FrameworkUtil.getBundle ( VersionInformation.class ).getEntry ( "version.properties" );
+
+            if ( versionProps != null )
+            {
+                final Properties p = new Properties ();
+                try ( InputStream input = versionProps.openStream () )
+                {
+                    p.load ( input );
+                    final String value = p.getProperty ( "buildId" );
+                    if ( value == null || value.isEmpty () )
+                    {
+                        return null;
+                    }
+
+                    return value;
+                }
+            }
+            return null;
+        }
+        catch ( final Throwable e )
+        {
+            // failure is not an option
+            return null;
+        }
+
     }
 }

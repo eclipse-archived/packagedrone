@@ -23,6 +23,12 @@ public class SimplePageTest extends AbstractServerTest
     }
 
     @Test
+    public void testAbout ()
+    {
+        simpleTest ( "/about" );
+    }
+
+    @Test
     public void testChannels ()
     {
         simpleTest ( "/channel" );

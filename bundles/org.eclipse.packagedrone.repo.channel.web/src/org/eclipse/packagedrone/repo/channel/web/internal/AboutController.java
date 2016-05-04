@@ -36,6 +36,7 @@ public class AboutController implements SitemapExtender
         final Map<String, Object> model = new HashMap<> ();
 
         model.put ( "version", VersionInformation.VERSION );
+        model.put ( "buildIdHtml", VersionInformation.BUILD_ID.orElse ( "<em>unknown</em>" ) );
 
         return new ModelAndView ( "about", model );
     }
