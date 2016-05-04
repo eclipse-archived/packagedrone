@@ -155,7 +155,7 @@ if ( p instanceof UserInformationPrincipal )
 
 <footer id="footer">
   <div class="container-fluid">
-    <div class="pull-right"><a href="http://packagedrone.org" target="_blank">Eclipse Package Drone&trade; ${droneVersion }</a></div>
+    <div class="pull-right"><a href="<c:url value="/about"/>">Eclipse Package Drone&trade; ${droneVersion }</a></div>
   </div>
 </footer>
 
