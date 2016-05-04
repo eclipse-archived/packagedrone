@@ -17,7 +17,31 @@ import java.util.Set;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
 
+/**
+ * A direct access to the channel
+ * <p>
+ * This is a more direct access to the channel than using the
+ * {@link ModifiableChannel} interface. It may allow more operations, but the
+ * API is considered less stable. If possible it is preferred to use the
+ * {@link ModifiableChannel} interface.
+ * </p>
+ * <h2>Artifact creation</h2>
+ * <p>
+ * Artifacts can be manually created using the {@code createArtifact} methods.
+ * This will result in creating a plain "stored" artifact. Some aspects do
+ * create artifacts automatically, based on the channel state, those artifacts
+ * are "generated" or "virtual" artifacts, which cannot be deleted or be a
+ * parent of other "stored" artifacts.
+ * </p>
+ * <p>
+ * "generator" artifacts can be created using the
+ * {@link #createGeneratorArtifact(String, InputStream, String, Map)} method.
+ * Those artifacts are primarily used for creating other "generated" artifacts
+ * based on the channel state or their artifact payload. A "generator" artifact
+ * does not need to have any content though and may be created without.
+ */
 public interface ModifyContext extends AccessContext
 {
     public void applyMetaData ( Map<MetaKey, String> changes );
@@ -28,10 +52,75 @@ public interface ModifyContext extends AccessContext
 
     public void unlock ();
 
-    public ArtifactInformation createArtifact ( InputStream source, String name, Map<MetaKey, String> providedMetaData );
+    /**
+     * Create a new root level artifact
+     * <p>
+     * Performs a call to
+     * {@link #createArtifact(String, InputStream, String, Map)} with a parent
+     * id of {@code null}
+     * </p>
+     * <p>
+     * <strong>Note:</strong> the caller is responsible for closing the provided
+     * input source.
+     * </p>
+     *
+     * @param source
+     *            the source of input data, must not be {@code null}
+     * @param name
+     *            the name of the artifact
+     * @param providedMetaData
+     *            the initial provided meta data
+     * @return the artifact information of the newly created artifact, or
+     *         {@code null} if the artifact was not created
+     * @throws RuntimeException
+     *             if the creation of the artifact failed
+     */
+    public default ArtifactInformation createArtifact ( final InputStream source, final String name, final Map<MetaKey, String> providedMetaData )
+    {
+        return createArtifact ( null, source, name, providedMetaData );
+    }
 
-    public ArtifactInformation createArtifact ( String parentId, InputStream source, String name, Map<MetaKey, String> providedMetaData );
+    /**
+     * Create a new root level artifact
+     * <p>
+     * <strong>Note:</strong> the caller is responsible for closing the provided
+     * input source.
+     * </p>
+     *
+     * @param parentId
+     *            optionally the id of the parent artifact, if specified the
+     *            parent artifact must be a "stored" artifact, created by a
+     *            previous call to
+     *            {@link #createArtifact(String, InputStream, String, Map)}.
+     * @param source
+     *            the source of input data, must not be {@code null}
+     * @param name
+     *            the name of the artifact
+     * @param providedMetaData
+     *            the initial provided meta data
+     * @return the artifact information of the newly created artifact, or
+     *         {@code null} if the artifact was not created
+     * @throws RuntimeException
+     *             if the creation of the artifact failed
+     */
+    public ArtifactInformation createArtifact ( final String parentId, final InputStream source, final String name, final Map<MetaKey, String> providedMetaData );
 
+    /**
+     * Create a new generator artifact
+     *
+     * @param generatorId
+     *            the ID of the generator implementation
+     * @param source
+     *            the source of the input data, may be {@code null}
+     * @param name
+     *            the name of the artifact
+     * @param providedMetaData
+     *            the initial provided meta data
+     * @return the artifact information of the newly created artifact, or
+     *         {@code null} if the artifact was not created
+     * @throws RuntimeException
+     *             if the creation of the artifact failed
+     */
     public ArtifactInformation createGeneratorArtifact ( String generatorId, InputStream source, String name, Map<MetaKey, String> providedMetaData );
 
     /**
@@ -46,6 +135,13 @@ public interface ModifyContext extends AccessContext
         return deleteArtifacts ( Collections.singleton ( artifactId ) ) == 1;
     }
 
+    /**
+     * Delete artifacts from a channel
+     *
+     * @param artifactIds
+     *            the artifacts to delete
+     * @return the number of artifacts deleted from the input set
+     */
     public int deleteArtifacts ( Set<String> artifactIds );
 
     /**
@@ -70,5 +166,11 @@ public interface ModifyContext extends AccessContext
      */
     public void refreshAspects ( Set<String> aspectIds );
 
+    /**
+     * Re-generate a generator artifact
+     *
+     * @param artifactId
+     *            the id of the generator artifact
+     */
     public void regenerate ( String artifactId );
 }

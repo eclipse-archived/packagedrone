@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.repo.channel.apm;
 
 import static java.util.stream.Collectors.toMap;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -419,12 +420,6 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     }
 
     @Override
-    public ArtifactInformation createArtifact ( final InputStream source, final String name, final Map<MetaKey, String> providedMetaData )
-    {
-        return createArtifact ( null, source, name, providedMetaData );
-    }
-
-    @Override
     public ArtifactInformation createArtifact ( final String parentId, final InputStream source, final String name, final Map<MetaKey, String> providedMetaData )
     {
         Objects.requireNonNull ( source );
@@ -453,14 +448,24 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     public ArtifactInformation createGeneratorArtifact ( final String generatorId, final InputStream source, final String name, final Map<MetaKey, String> providedMetaData )
     {
         Objects.requireNonNull ( name );
-        Objects.requireNonNull ( source );
         Objects.requireNonNull ( generatorId );
+
+        final InputStream finalSource;
+        if ( source != null )
+        {
+            finalSource = source;
+        }
+        else
+        {
+            // provide an empty input stream
+            finalSource = new ByteArrayInputStream ( new byte[0] );
+        }
 
         testLocked ();
 
         markModified ();
 
-        return Exceptions.wrapException ( () -> this.aspectContext.createGeneratorArtifact ( generatorId, source, name, providedMetaData ) );
+        return Exceptions.wrapException ( () -> this.aspectContext.createGeneratorArtifact ( generatorId, finalSource, name, providedMetaData ) );
     }
 
     private class ArtifactAdditionImpl implements ArtifactAddition
