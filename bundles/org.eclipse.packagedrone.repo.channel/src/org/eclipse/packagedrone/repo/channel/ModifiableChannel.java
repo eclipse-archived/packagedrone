@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,9 @@ import org.eclipse.packagedrone.repo.channel.provider.ModifyContext;
 
 public interface ModifiableChannel extends ReadableChannel, AspectableChannel
 {
+    /**
+     * Get access to more channel operations
+     */
     @Override
     public ModifyContext getContext ();
 
@@ -27,11 +30,20 @@ public interface ModifiableChannel extends ReadableChannel, AspectableChannel
         getContext ().applyMetaData ( changes );
     }
 
+    /**
+     * Lock the channel for further modifications
+     */
     public default void lock ()
     {
         getContext ().lock ();
     }
 
+    /**
+     * Unlock the channel
+     * <p>
+     * Reverses the effects of {@link #lock()}
+     * </p>
+     */
     public default void unlock ()
     {
         getContext ().unlock ();

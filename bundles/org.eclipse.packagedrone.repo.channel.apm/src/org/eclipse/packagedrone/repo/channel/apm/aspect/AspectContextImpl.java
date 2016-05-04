@@ -736,7 +736,7 @@ public class AspectContextImpl
         return ctx.getVeto ();
     }
 
-    public boolean deleteArtifacts ( final Set<String> artifactIds )
+    public int deleteArtifacts ( final Set<String> artifactIds )
     {
         return this.aggregation.guarded ( () -> {
 
@@ -752,7 +752,7 @@ public class AspectContextImpl
                     }
                 }
 
-                return count > 0;
+                return count;
 
                 // -> flush regeneration
 

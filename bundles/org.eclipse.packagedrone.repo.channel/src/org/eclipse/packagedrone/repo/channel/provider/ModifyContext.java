@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.packagedrone.repo.channel.provider;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,8 +34,23 @@ public interface ModifyContext extends AccessContext
 
     public ArtifactInformation createGeneratorArtifact ( String generatorId, InputStream source, String name, Map<MetaKey, String> providedMetaData );
 
-    public boolean deleteArtifact ( String artifactId );
+    /**
+     * Delete one artifact
+     *
+     * @param artifactId
+     *            the id of the artifact to delete
+     * @return <code>
+     */
+    public default boolean deleteArtifact ( final String artifactId )
+    {
+        return deleteArtifacts ( Collections.singleton ( artifactId ) ) == 1;
+    }
 
+    public int deleteArtifacts ( Set<String> artifactIds );
+
+    /**
+     * Remove all artifacts from the channel
+     */
     public void clear ();
 
     public void addAspects ( Set<String> aspectIds );

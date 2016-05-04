@@ -683,9 +683,15 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
     }
 
     @Override
-    public boolean deleteArtifact ( final String id )
+    public int deleteArtifacts ( final Set<String> ids )
     {
-        Objects.requireNonNull ( id );
+        Objects.requireNonNull ( ids );
+
+        if ( ids.isEmpty () )
+        {
+            // shortcut
+            return 0;
+        }
 
         testLocked ();
 
@@ -693,18 +699,25 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
         ensureTransaction ();
 
-        final ArtifactInformation artifact = this.modArtifacts.get ( id );
-        if ( artifact == null )
+        // check first
+
+        for ( final String id : ids )
         {
-            return false;
+            final ArtifactInformation artifact = this.modArtifacts.get ( id );
+            if ( artifact == null )
+            {
+                continue;
+            }
+
+            if ( !artifact.is ( "stored" ) )
+            {
+                throw new IllegalStateException ( String.format ( "Unable to delete artifact '%s'. It is not 'stored'.", id ) );
+            }
         }
 
-        if ( !artifact.is ( "stored" ) )
-        {
-            throw new IllegalStateException ( String.format ( "Unable to delete artifact '%s'. It is not 'stored'.", id ) );
-        }
+        // now delete
 
-        final boolean result = this.aspectContext.deleteArtifacts ( Collections.singleton ( id ) );
+        final int result = this.aspectContext.deleteArtifacts ( ids );
 
         // no need to refresh
 
