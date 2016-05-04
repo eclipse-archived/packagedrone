@@ -63,22 +63,27 @@
     		<arg value="${rsync.mirror}"/>
     		<arg value="."/>
     	</exec>
+    </target>
     	
-		<!-- copy with "cp" to preserve timestamps and links -->
-    	
+    <!-- ================================= 
+          target: copy              
+         ================================= -->
+    <target name="copy" depends="check">
+    	<!-- copy with "cp" to preserve timestamps and links -->
+    	    	
     	<delete dir="${output.dir}"/>
     	
     	<exec executable="cp" failifexecutionfails="true" failonerror="true">
     		<arg value="-a"/>
     		<arg file="${download.dir}"/>
 			<arg file="${output.dir}"/>
-    	</exec>    	
+    	</exec>        
     </target>
 
     <!-- ================================= 
           target: assemble
          ================================= -->
-    <target name="assemble" depends="check">
+    <target name="assemble" depends="check,copy">
     	<!--
     	We do this in a two step approach here. If the version does not match the first copy task will fail.
     	-->
