@@ -44,19 +44,69 @@ public class ChannelId
         this.description = description;
     }
 
+    /**
+     * Get the channel id
+     * <p>
+     * This is the internal, immutable ID of the channel
+     * </p>
+     *
+     * @return the channel ID, never {@code null}
+     */
     public String getId ()
     {
         return this.id;
     }
 
+    /**
+     * Get the alias names of the channel
+     * <p>
+     * Many operations do allows accessing the channel by using an alias,
+     * instead of the internal ID. However the alias list can be changed and
+     * aliases may be re-assigned to another channel. The result may be an empty
+     * set.
+     * </p>
+     *
+     * @return the set or alias names, never {@code null}
+     */
     public Set<String> getNames ()
     {
         return this.names;
     }
 
+    /**
+     * Get the optional description
+     *
+     * @return the description, or {@code null} if none is set
+     */
     public String getDescription ()
     {
         return this.description;
+    }
+
+    /**
+     * Get the optional short description
+     * <p>
+     * The short description is the first line of {@link #getDescription()}
+     * </p>
+     * 
+     * @return the short description, or {@code null} if none is set
+     */
+    public String getShortDescription ()
+    {
+        if ( this.description == null )
+        {
+            return null;
+        }
+
+        final String[] lines = this.description.split ( "\\R", 2 );
+        if ( lines.length > 0 )
+        {
+            return lines[0];
+        }
+        else
+        {
+            return "";
+        }
     }
 
     public String makeTitle ()

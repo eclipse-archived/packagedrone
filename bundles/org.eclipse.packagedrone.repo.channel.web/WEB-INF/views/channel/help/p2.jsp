@@ -49,7 +49,7 @@
 		            </p>
 		            
 		            <c:if test="${not empty channel.names }">
-		            	<p>The channel has the following alias URLs:</p>
+                        <p>Instead of the main repository URL, these alias URLs may be used in the following examples:</p> 
 		            	<ul>
 		            	<c:forEach var="name" items="${channel.names }">
 		            		<li><code>${ fn:escapeXml(sitePrefix.concat ( '/p2/' ).concat ( web:encode(name) )) }</code></li>
@@ -66,7 +66,7 @@
         <div class="row">
             <div class="col-sm-6">
                 <div class="panel panel-default">
-                    <div class="panel-heading"><h3 class="panel-title">Maven Tycho</h3></div>
+                    <div class="panel-heading"><h3 class="panel-title">Eclipse Tycho™</h3></div>
                     <div class="panel-body">
                     Add the following repository configuration to your setup:
                     </div>
@@ -76,8 +76,8 @@
 &lt;repositories&gt;
     …
     &lt;repository&gt;
-        &lt;id&gt;package.drone.runtime&lt;/id&gt;
-<c:if test="${not empty channel.name }">        &lt;name&gt;${fn:escapeXml(channel.name) }&lt;/name&gt;</c:if>
+        &lt;id&gt;package.drone.runtime&lt;/id&gt;<c:if test="${not empty channel.shortDescription }">
+        &lt;name&gt;${fn:escapeXml(channel.shortDescription) }&lt;/name&gt;</c:if>
         &lt;layout&gt;p2&lt;/layout&gt;
         &lt;url&gt;${idUrl }&lt;/url&gt;
     &lt;/repository&gt;
@@ -88,7 +88,7 @@
                     </div>
                     
                     <div class="panel-footer">
-                        For more information about the Maven Tycho see
+                        For more information about the Eclipse Tycho see
                         <a href="https://eclipse.org/tycho/" target="_blank">https://eclipse.org/tycho/</a> and
                         <a href="https://wiki.eclipse.org/Tycho/Reference_Card#Repository_providing_the_context_of_the_build" target="_blank">Repository providing the context of the build</a> in the wiki.
                     </div>
