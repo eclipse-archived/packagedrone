@@ -9,7 +9,7 @@ RUN rpm --import PD-GPG-KEY
 
 # add repo
 
-RUN zypper ar -f -n PackageDrone -g http://download.eclipse.org/package-drone/milestone/0.12/opensuse13 pdrone
+RUN zypper ar -f -n PackageDrone -g http://download.eclipse.org/package-drone/milestone/0.13/opensuse13 pdrone
 
 # install
 
