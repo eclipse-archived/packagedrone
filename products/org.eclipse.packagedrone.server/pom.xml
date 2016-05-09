@@ -191,6 +191,17 @@
 										<group>root</group>
 									</mapper>
 								</data>
+								
+								<data>
+									<src>src/systemd/${drone.app.name}.service</src>
+									<dst>usr/lib/systemd/system/${drone.app.name}.conf</dst>
+									<type>file</type>
+									<mapper>
+										<type>perm</type>
+										<user>root</user>
+										<group>root</group>
+									</mapper>
+								</data>
 
 								<data>
 									<type>template</type>
