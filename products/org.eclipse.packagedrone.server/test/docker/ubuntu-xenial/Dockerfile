@@ -1,4 +1,4 @@
-FROM ubuntu:15.10
+FROM ubuntu:16.04
 
 MAINTAINER Jens Reimann <ctron@dentrassi.de>
 
@@ -12,7 +12,7 @@ RUN apt-get update ; apt-get -y install software-properties-common dpkg gdebi-co
 
 # Enable universe and multiverse
 
-RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ wily universe multiverse" ; add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ wily-updates universe multiverse"
+RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ xenial universe multiverse" ; add-apt-repository "deb http://archive.ubuntu.com/ubuntu/ xenial-updates universe multiverse"
 
 # Install OpenJDK 8
 
