@@ -1,5 +1,5 @@
 [Unit]
-Description=Package Drone Server
+Description=Eclipse Package Drone Server
 After=network.target
 
 [Service]
