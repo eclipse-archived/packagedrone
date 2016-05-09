@@ -4,8 +4,8 @@ Section: misc
 Priority: optional
 Architecture: all
 Pre-Depends: adduser
-Depends: java8-jdk | java8-runtime-headless | java8-runtime
-Conflics: package-drone-server
+Depends: java8-runtime-headless | java8-jdk | java8-runtime
+Conflicts: package-drone-server
 Maintainer: Jens Reimann <jens.reimann@ibh-systems.com>
 Distribution: development
 Description: Package Drone software artifact repository
