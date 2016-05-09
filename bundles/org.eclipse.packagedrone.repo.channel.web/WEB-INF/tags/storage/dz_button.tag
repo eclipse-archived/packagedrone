@@ -1,4 +1,9 @@
-<%@ tag language="java" pageEncoding="UTF-8" body-content="empty"%>
+<%@ tag
+  language="java"
+  pageEncoding="UTF-8"
+  body-content="empty"
+  trimDirectiveWhitespaces="true"
+  %>
 
 <%@ taglib tagdir="/WEB-INF/tags/storage" prefix="s" %>
 

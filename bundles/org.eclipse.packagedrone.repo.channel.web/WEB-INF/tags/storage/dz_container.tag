@@ -1,4 +1,9 @@
-<%@ tag language="java" pageEncoding="UTF-8" body-content="empty"%>
+<%@ tag
+  language="java"
+  pageEncoding="UTF-8"
+  body-content="empty"
+  trimDirectiveWhitespaces="true"
+  %>
 
 <div class="container-fluid" id="upload-container" style="display:none;">
 <div class="row">
