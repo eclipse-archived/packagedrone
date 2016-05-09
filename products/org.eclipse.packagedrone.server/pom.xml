@@ -400,6 +400,7 @@
 		
 									<postinstallScriptlet>
 										<script><![CDATA[
+        systemctl daemon-reload >/dev/null 2>&1 || :
 		if [ $1 -eq 1 ] ; then
 		    systemctl preset "${drone.app.name}.service" >/dev/null 2>&1 || :
 		    test -x /usr/bin/firewall-cmd && /usr/bin/firewall-cmd --reload >/dev/null || :
@@ -574,6 +575,7 @@
 		
 		                            <postinstallScriptlet>
 		                                <script><![CDATA[
+        systemctl daemon-reload >/dev/null 2>&1 || :
 		if [ $1 -eq 1 ] ; then
 		    systemctl preset "${drone.app.name}.service" >/dev/null 2>&1 || :
 		else
