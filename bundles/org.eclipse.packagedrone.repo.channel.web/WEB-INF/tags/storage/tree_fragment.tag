@@ -60,8 +60,8 @@
 	    
 	    <td><a href="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${ fn:escapeXml(artifact.id) }/get"/>">Download</a></td>
         <td>
-          <c:if test='${artifact.is("stored") and manager}'>
-            <a href="#deleteArtifactModal" Xhref="<c:url value="/channel/${ fn:escapeXml(channel.id) }/artifacts/${artifact.id}/delete"/>" 
+          <c:if test='${artifact.is("stored") and manager and not channel.state.locked}'>
+            <a href="#deleteArtifactModal" 
                 data-toggle="modal"
                 data-artifact-id="${fn:escapeXml(artifact.id) }"
                 data-artifact-name="${fn:escapeXml(artifact.name) }"
