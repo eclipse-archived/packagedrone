@@ -194,7 +194,7 @@
 								
 								<data>
 									<src>src/systemd/${drone.app.name}.service</src>
-									<dst>lib/systemd/system/${drone.app.name}.conf</dst>
+									<dst>lib/systemd/system/${drone.app.name}.service</dst>
 									<type>file</type>
 									<mapper>
 										<type>perm</type>
