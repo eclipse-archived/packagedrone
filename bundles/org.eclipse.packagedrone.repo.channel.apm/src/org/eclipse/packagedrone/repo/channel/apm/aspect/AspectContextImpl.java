@@ -263,18 +263,29 @@ public class AspectContextImpl
                     }
                 }
 
-                // run extractors and virtualizers at the same time
+                /*
+                 * In the following two loops we do extract meta data and create the virtual artifacts.
+                 * This was one loop in the past, but since child artifacts could rely on the meta data
+                 * of their parents we would either need to build a tree and do a breadth-first approach
+                 * or we simply do it in two steps.
+                 */
+
+                // run added extractors
 
                 for ( final ArtifactInformation art : this.context.getArtifacts ().values ().toArray ( new ArtifactInformation[this.context.getArtifacts ().size ()] ) )
                 {
                     doStreamedRun ( art.getId (), path -> {
+                        extractFor ( aspectIds, art, path );
+                    } );
+                }
 
-                        // run added extractors
+                // re-create all virtual
 
-                        final ArtifactInformation updatedArt = extractFor ( aspectIds, art, path );
-
-                        // re-create all virtual
-                        virtualize ( updatedArt, path, this.aspectStates.keySet () );
+                final Set<String> allAspects = this.aspectStates.keySet ();
+                for ( final ArtifactInformation art : this.context.getArtifacts ().values ().toArray ( new ArtifactInformation[this.context.getArtifacts ().size ()] ) )
+                {
+                    doStreamedRun ( art.getId (), path -> {
+                        virtualize ( art, path, allAspects );
                     } );
                 }
 
