@@ -371,7 +371,7 @@
 						<artifactId>maven-resources-plugin</artifactId>
 						<executions>
 							<execution>
-								<id>process-about.mappings</id>
+								<id>process-version.properties</id>
 								<phase>prepare-package</phase>
 								<configuration>
 									<outputDirectory>${project.build.directory}</outputDirectory>
