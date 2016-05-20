@@ -159,11 +159,13 @@ public class FeatureGenerator implements ArtifactGenerator
     {
         if ( text == null && url == null )
         {
+            // if both a null, don't add
             return;
         }
 
-        if ( text != null && text.isEmpty () && url.isEmpty () )
+        if ( text != null && text.isEmpty () && url != null && url.isEmpty () )
         {
+            // if both are empty, don't add
             return;
         }
 
