@@ -1,6 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8" trimDirectiveWhitespaces="true"%>
 
+<%@page import="org.eclipse.packagedrone.repo.channel.ChannelInformation" %>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.Collections"%>
+<%@page import="java.util.List"%>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -13,6 +18,10 @@
 
 <%
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
+
+List<String> names = new ArrayList<> (((ChannelInformation)request.getAttribute("channel")).getNames());
+Collections.sort ( names );
+pageContext.setAttribute ( "names", names );
 %>
 
 <h:main title="Channel" subtitle="${pm:channel(channel) }">
@@ -136,20 +145,28 @@ Deploy keys are assigned to groups and groups get assigned to channels, for easi
     </div>
 </div>
 
-<c:if test="${not empty channel.name }">
-
+<c:if test="${not empty names }">
 <div class="panel panel-default">
     <div class="panel-heading">pom.xml <small>by Name</small></div>
     <div class="">
         <pre>…
 &lt;repositories&gt;
     &lt;repository&gt;
-        &lt;id&gt;pdrone.${fn:escapeXml(channel.name) }&lt;/id&gt;
-        &lt;url&gt;${sitePrefix }/maven/${web:encode(channel.name)}&lt;/url&gt;
+        &lt;id&gt;pdrone.${fn:escapeXml(names[0]) }&lt;/id&gt;
+        &lt;url&gt;${sitePrefix }/maven/${web:encode(names[0])}&lt;/url&gt;
     &lt;/repository&gt;
 &lt;/repositories&gt;
 …</pre>
     </div>
+    <c:if test="${channel.names.size() > 1 }">
+    <div class="panel-footer">Instead of <code>${fn:escapeXml(names[0]) }</code> the following alias names can be used in addition: 
+    <c:forEach var="n" items="${names}">
+    	<c:if test="${not ( n eq names[0] ) }">
+    		<code>${fn:escapeXml(n) }</code>
+    	</c:if>
+    </c:forEach>
+    </div>
+    </c:if>
 </div>
 
 </c:if>
