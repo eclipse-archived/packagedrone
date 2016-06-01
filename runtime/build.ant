@@ -115,8 +115,8 @@
     	<attribute name="version" />
     	<attribute name="qualifier" />
     	<sequential>
-    		<get src="http://eclipse.org/downloads/download.php?file=/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}_@{version}.@{qualifier}.jar&amp;r=1" dest="download/bundles" usetimestamp="true" />
-    		<get src="http://eclipse.org/downloads/download.php?file=/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}.source_@{version}.@{qualifier}.jar&amp;r=1" dest="download/sourcebundles" usetimestamp="true" ignoreerrors="true" />
+    		<get src="http://eclipse.org/downloads/download.php?file=/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}_@{version}.@{qualifier}.jar&amp;r=1" dest="download/bundles/@{bundle}_@{version}.@{qualifier}.jar" usetimestamp="true" />
+    		<get src="http://eclipse.org/downloads/download.php?file=/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}.source_@{version}.@{qualifier}.jar&amp;r=1" dest="download/sourcebundles/@{bundle}.source_@{version}.@{qualifier}.jar" usetimestamp="true" ignoreerrors="true" />
     	</sequential>
     </macrodef>
 
