@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Eclipse Package Drone Server" uid="org.eclipse.packagedrone.server" version="0.13.0" useFeatures="true" includeLaunchers="false">
+<product name="Eclipse Package Drone Server" uid="org.eclipse.packagedrone.server" version="0.14.0" useFeatures="true" includeLaunchers="false">
 
    <configIni use="default">
    </configIni>
