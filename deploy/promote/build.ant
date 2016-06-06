@@ -172,7 +172,7 @@
         	
         	<copy todir="${output.dir}/${buildType}/${baseVersion}/@{os}" flatten="true">
         		<fileset dir="${output.dir}/drops/${buildType}">
-        			<include name="**/*.@{tag}.*.rpm"/>
+        			<include name="${baseVersion}.*/*.@{tag}.*.rpm"/>
         		</fileset>
         	</copy>
         	
