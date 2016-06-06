@@ -8,7 +8,7 @@
 	<version>0.13.0</version>
 
 	<url>http://packagedrone.org</url>
-	<name>Eclipse Package Drone</name>
+	<name>Eclipse Package Drone - Java RPM Library</name>
 	<inceptionYear>2014</inceptionYear>
 
 	<developers>
