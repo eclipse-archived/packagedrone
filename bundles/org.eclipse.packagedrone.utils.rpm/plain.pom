@@ -9,6 +9,7 @@
 
 	<url>http://packagedrone.org</url>
 	<name>Eclipse Package Drone - Java RPM Library</name>
+	<description>A plain Java library for reading and writing RPM files</description>
 	<inceptionYear>2014</inceptionYear>
 
 	<developers>
