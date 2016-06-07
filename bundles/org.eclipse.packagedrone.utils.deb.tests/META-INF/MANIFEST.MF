@@ -7,4 +7,6 @@ Bundle-Vendor: Jens Reimann
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.junit
 Import-Package: com.google.common.io;version="18.0.0",
- org.eclipse.packagedrone.utils.deb
+ org.eclipse.packagedrone.utils.deb,
+ org.eclipse.packagedrone.utils.deb.build;version="1.0.0",
+ org.eclipse.packagedrone.utils.deb.control;version="1.0.0"

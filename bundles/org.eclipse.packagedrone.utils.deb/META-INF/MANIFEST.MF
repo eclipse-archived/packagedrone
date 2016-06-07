@@ -27,4 +27,6 @@ Import-Package: org.apache.commons.compress.archivers;version="1.9.0",
  org.bouncycastle.openpgp.operator.bc;version="1.51.0",
  org.bouncycastle.util.encoders;version="1.51.0",
  org.eclipse.packagedrone.utils;version="1.0.0"
-Export-Package: org.eclipse.packagedrone.utils.deb;version="1.0.0"
+Export-Package: org.eclipse.packagedrone.utils.deb;version="1.0.0",
+ org.eclipse.packagedrone.utils.deb.build;version="1.0.0";uses:="org.eclipse.packagedrone.utils.deb.control",
+ org.eclipse.packagedrone.utils.deb.control;version="1.0.0"

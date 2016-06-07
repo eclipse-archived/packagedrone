@@ -83,7 +83,7 @@ public final class Packages
         new ControlFileWriter ( writer, BinarySectionPackagesFile.FORMATTERS ).writeEntries ( values );
     }
 
-    private static MessageDigest MD5;
+    private static final MessageDigest MD5;
 
     static
     {
