@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.eclipse.packagedrone</groupId>
-	<artifactId>org.eclipe.packagedrone.utils.rpm</artifactId>
+	<artifactId>org.eclipse.packagedrone.utils.rpm</artifactId>
 	<version>0.13.0</version>
 
 	<url>http://packagedrone.org</url>
