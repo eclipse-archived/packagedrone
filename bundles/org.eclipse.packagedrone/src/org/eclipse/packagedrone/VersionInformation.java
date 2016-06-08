@@ -99,6 +99,12 @@ public final class VersionInformation
                         return null;
                     }
 
+                    if ( value.startsWith ( "${" ) )
+                    {
+                        // this is an unprocessed property
+                        return null;
+                    }
+
                     return value;
                 }
             }
