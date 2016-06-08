@@ -16,6 +16,8 @@
     <property name="eclipse.orbit.release" value="R20150519210750"/>
 	<property name="jetty.version" value="9.3.9.v20160517"/>
 	<property name="pax-web.version" value="4.2.5"/>
+	<property name="jersey.version" value="2.22.2"/>
+	<property name="hk2.version" value="2.4.0"/>
 
     <!-- ================================= 
           target: default
@@ -255,6 +257,45 @@
         	<!-- jax rs -->
         	
         	<orbitGet bundle="javax.ws.rs" version="2.0.1" qualifier="v201504171603"/>
+        	
+        	<mavenGet group="com/eclipsesource/jaxrs" artifact="publisher" version="5.3.1" /> <!-- CQ 11561 -->
+        	<mavenGet group="com/eclipsesource/jaxrs" artifact="provider-gson" version="2.3" /> <!-- CQ 11561 -->
+        	
+        	<!-- dependencies for osgi connector -->
+        	
+        	<!-- <mavenGet group="com/eclipsesource/jaxrs" artifact="swagger-all" version="1.5.7" /> --> <!-- we add swagger later -->
+        	
+        	<mavenGet group="org/glassfish/jersey/containers" artifact="jersey-container-servlet" version="${jersey.version}" /> <!-- CQ 11567 -->
+			<mavenGet group="org/glassfish/jersey/core" artifact="jersey-client" version="${jersey.version}" /> <!-- CQ 11568 -->
+        	<mavenGet group="org/glassfish/jersey/core" artifact="jersey-server" version="${jersey.version}" /> <!-- CQ 11569 -->
+    		<mavenGet group="org/glassfish/jersey/media" artifact="jersey-media-sse" version="${jersey.version}" /> <!-- CQ 11570 -->
+    		<mavenGet group="org/glassfish/jersey/media" artifact="jersey-media-multipart" version="${jersey.version}" /> <!-- CQ 11571 -->
+    		<mavenGet group="org/glassfish/jersey/ext" artifact="jersey-mvc" version="${jersey.version}" /> <!-- CQ 11572 -->
+        	
+        	<!--
+    		<mavenGet group="org/glassfish/jersey/security" artifact="oauth1-server" version="${jersey.version}" />
+        	<mavenGet group="org/glassfish/jersey/security" artifact="oauth1-client" version="${jersey.version}" />
+        	<mavenGet group="org/glassfish/jersey/security" artifact="oauth2-client" version="${jersey.version}" />
+        	-->
+        	
+        	<mavenGet group="org/glassfish/jersey/bundles/repackaged" artifact="jersey-guava" version="${jersey.version}"/> <!-- CQ 11575 -->
+        	        	
+        	<mavenGet group="org/glassfish/jersey/core" artifact="jersey-common" version="${jersey.version}" /> <!-- CQ 11573 -->
+        	<mavenGet group="org/glassfish/jersey/containers" artifact="jersey-container-servlet-core" version="${jersey.version}" /> <!-- CQ 11574 -->
+        	
+        	<orbitGet bundle="javax.inject" version="1.0.0" qualifier="v20091030"/> <!-- CQ 11557 -->
+        	<!-- <mavenGet group="org/glassfish/hk2/external" artifact="aopalliance-repackaged" version="${hk2.version}" /> -->
+        	<orbitGet bundle="org.aopalliance" version="1.0.0" qualifier="v201105210816" /> <!-- CQ 11566 --> 
+        	
+        	<mavenGet group="org/glassfish/hk2" artifact="hk2-api" version="${hk2.version}" /> <!-- CQ 11564 --> 
+        	<mavenGet group="org/glassfish/hk2" artifact="hk2-locator" version="${hk2.version}" /> <!-- CQ 11563 -->
+        	<mavenGet group="org/glassfish/hk2" artifact="hk2-utils" version="${hk2.version}" /> <!-- CQ 11562 -->
+        	<mavenGet group="org/glassfish/hk2" artifact="osgi-resource-locator" version="1.0.1" /> <!-- seems a bug in glassfish, 2.22.2 requires 1.0.1 --> <!-- CQ 11560 -->
+        	
+        	<!-- <mavenGet group="org/jvnet" artifact="tiger-types" version="1.4"/> -->
+        	<mavenGet group="org/jvnet/mimepull" artifact="mimepull" version="1.9.4" /> <!-- CQ 11559 --> 
+        	
+        	<mavenGet group="org/javassist" artifact="javassist" version="3.19.0-GA"/> <!-- CQ 11558 -->
         	
         	<!-- mail -->
         	
