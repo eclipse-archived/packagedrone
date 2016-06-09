@@ -8,5 +8,6 @@
    <property name="osgi.command.scope" type="String" value="drone"/>
    <property name="osgi.command.function" type="String">allConfigs
 listConfigs
+getConfig
    </property>
 </scr:component>
