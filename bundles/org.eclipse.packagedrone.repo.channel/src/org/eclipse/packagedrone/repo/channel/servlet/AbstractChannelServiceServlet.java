@@ -150,10 +150,7 @@ public abstract class AbstractChannelServiceServlet extends HttpServlet
             return false;
         }
 
-        if ( !authToks[0].equals ( "deploy" ) )
-        {
-            return false;
-        }
+        // we don't enforce the "deploy" user name anymore
 
         final String deployKey = authToks[1];
 
