@@ -746,7 +746,7 @@ class Validator {
                 if (ctxt.isTagFile()) {
                     String versionString =
                         ctxt.getTagInfo().getTagLibrary().getRequiredVersion();
-                    Double version = Double.valueOf(versionString).doubleValue();
+                    Double version = Double.parseDouble(versionString);
                     if (version < 2.1) {
                         return;
                     }

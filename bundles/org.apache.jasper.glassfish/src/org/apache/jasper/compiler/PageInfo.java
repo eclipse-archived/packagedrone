@@ -510,7 +510,7 @@ public class PageInfo {
                 else
 		    err.jspError(n, "jsp.error.page.invalid.buffer");
 	    try {
-		Integer k = new Integer(value.substring(0, value.length()-2));
+		Integer k = Integer.parseInt(value.substring(0, value.length()-2));
 		buffer = k.intValue() * 1024;
 	    } catch (NumberFormatException e) {
                 if (n == null) 

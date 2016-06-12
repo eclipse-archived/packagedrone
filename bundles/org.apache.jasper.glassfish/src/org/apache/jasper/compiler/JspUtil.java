@@ -454,7 +454,7 @@ public class JspUtil {
 	    if (s.equalsIgnoreCase("yes")) {
 		b = true;
 	    } else {
-		b = Boolean.valueOf(s).booleanValue();
+		b = Boolean.parseBoolean(s);
 	    }
 	}
 	return b;
