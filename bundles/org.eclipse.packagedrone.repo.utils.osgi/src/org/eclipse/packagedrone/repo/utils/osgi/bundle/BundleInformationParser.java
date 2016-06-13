@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -22,8 +24,11 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.packagedrone.repo.utils.osgi.ParserHelper;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.BundleRequirement;
+import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.CapabilityValue;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.PackageExport;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.PackageImport;
+import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.ProvideCapability;
+import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.RequireCapability;
 import org.eclipse.packagedrone.utils.AttributedValue;
 import org.eclipse.packagedrone.utils.Headers;
 import org.osgi.framework.Constants;
@@ -103,6 +108,7 @@ public class BundleInformationParser
         processImportPackage ( result, ma );
         processExportPackage ( result, ma );
         processImportBundle ( result, ma );
+        processCapabilities ( result, ma );
 
         attachLocalization ( result, ma );
 
@@ -166,6 +172,44 @@ public class BundleInformationParser
             }
             final String uses = av.getAttributes ().get ( "uses" );
             result.getPackageExports ().add ( new PackageExport ( name, v, uses ) );
+        }
+    }
+
+    private void processCapabilities ( final BundleInformation result, final Attributes ma )
+    {
+        for ( final AttributedValue av : emptyNull ( Headers.parseList ( ma.getValue ( Constants.PROVIDE_CAPABILITY ) ) ) )
+        {
+            final String namespace = av.getValue ();
+            final Map<String, CapabilityValue> values = new HashMap<> ();
+
+            for ( final Map.Entry<String, String> entry : av.getAttributes ().entrySet () )
+            {
+                final String keyType = entry.getKey ();
+                final String value = entry.getValue ();
+
+                final String[] key = keyType.split ( ":", 2 );
+                if ( key.length == 1 )
+                {
+                    values.put ( key[0], new CapabilityValue ( "String", value ) );
+                }
+                else
+                {
+                    values.put ( key[0], new CapabilityValue ( key[1], value ) );
+                }
+            }
+
+            final ProvideCapability pc = new ProvideCapability ( namespace, values );
+            result.getProvidedCapabilities ().add ( pc );
+        }
+
+        for ( final AttributedValue av : emptyNull ( Headers.parseList ( ma.getValue ( Constants.REQUIRE_CAPABILITY ) ) ) )
+        {
+            final String namespace = av.getValue ();
+            final String filter = av.getAttributes ().get ( "filter" );
+            final String effective = av.getAttributes ().get ( "effective" );
+
+            final RequireCapability rc = new RequireCapability ( namespace, filter, effective );
+            result.getRequiredCapabilities ().add ( rc );
         }
     }
 

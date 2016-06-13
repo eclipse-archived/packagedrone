@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -39,8 +41,11 @@ import org.eclipse.packagedrone.repo.aspect.common.spool.SpoolOutTarget;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.BundleRequirement;
+import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.CapabilityValue;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.PackageExport;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.PackageImport;
+import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.ProvideCapability;
+import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.RequireCapability;
 import org.eclipse.packagedrone.utils.Filters;
 import org.eclipse.packagedrone.utils.Filters.Node;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
@@ -180,7 +185,7 @@ public class RepositoryCreator
         caps.put ( "version", bi.getVersion () );
         caps.put ( "type", "osgi.bundle" );
 
-        addIndexCapability ( writer, "osgi.identity", caps );
+        addIndexCapabilityRaw ( writer, "osgi.identity", caps );
     }
 
     public static void addIndexDependencies ( final XMLStreamWriter writer, final BundleInformation bi ) throws XMLStreamException
@@ -206,7 +211,7 @@ public class RepositoryCreator
             caps.put ( "osgi.wiring.bundle", bi.getId () );
             caps.put ( "bundle-version", bi.getVersion () );
 
-            addIndexCapability ( writer, "osgi.wiring.bundle", caps );
+            addIndexCapabilityRaw ( writer, "osgi.wiring.bundle", caps );
         }
 
         {
@@ -215,7 +220,7 @@ public class RepositoryCreator
             caps.put ( "osgi.wiring.host", bi.getId () );
             caps.put ( "bundle-version", bi.getVersion () );
 
-            addIndexCapability ( writer, "osgi.wiring.host", caps );
+            addIndexCapabilityRaw ( writer, "osgi.wiring.host", caps );
         }
 
         for ( final BundleRequirement br : bi.getBundleRequirements () )
@@ -223,8 +228,8 @@ public class RepositoryCreator
             final Map<String, String> reqs = new HashMap<> ();
 
             final String filter = and ( //
-            pair ( "osgi.wiring.bundle", br.getId () ), //
-            versionRange ( "bundle-version", br.getVersionRange () ) //
+                    pair ( "osgi.wiring.bundle", br.getId () ), //
+                    versionRange ( "bundle-version", br.getVersionRange () ) //
             );
 
             reqs.put ( "filter", filter );
@@ -248,7 +253,7 @@ public class RepositoryCreator
                 caps.put ( "version", pe.getVersion () );
             }
 
-            addIndexCapability ( writer, "osgi.wiring.package", caps );
+            addIndexCapabilityRaw ( writer, "osgi.wiring.package", caps );
 
             // Add a 'osgi.contract' capability if this bundle is a framework package
             if ( FRAMEWORK_PACKAGE.equals ( pe.getName () ) )
@@ -259,7 +264,7 @@ public class RepositoryCreator
                     final Map<String, Object> frameworkCaps = new HashMap<> ();
                     frameworkCaps.put ( "osgi.contract", "OSGiFramework" );
                     frameworkCaps.put ( "version", specVersion );
-                    addIndexCapability ( writer, "osgi.contract", frameworkCaps );
+                    addIndexCapabilityRaw ( writer, "osgi.contract", frameworkCaps );
                 }
             }
         }
@@ -269,8 +274,8 @@ public class RepositoryCreator
             final Map<String, String> reqs = new HashMap<> ();
 
             final String filter = and ( //
-            pair ( "osgi.wiring.package", pi.getName () ), //
-            versionRange ( "version", pi.getVersionRange () ) //
+                    pair ( "osgi.wiring.package", pi.getName () ), //
+                    versionRange ( "version", pi.getVersionRange () ) //
             );
 
             reqs.put ( "filter", filter );
@@ -281,6 +286,25 @@ public class RepositoryCreator
             }
 
             addIndexRequirement ( writer, "osgi.wiring.package", reqs );
+        }
+
+        for ( final ProvideCapability pc : bi.getProvidedCapabilities () )
+        {
+            addIndexCapability ( writer, pc.getNamespace (), pc.getValues () );
+        }
+
+        for ( final RequireCapability rc : bi.getRequiredCapabilities () )
+        {
+            final Map<String, String> caps = new HashMap<> ();
+
+            caps.put ( "filter", rc.getFilter () );
+
+            if ( rc.getEffective () != null && !rc.getEffective ().isEmpty () )
+            {
+                caps.put ( "effective", rc.getEffective () );
+            }
+
+            addIndexRequirement ( writer, rc.getNamespace (), caps );
         }
     }
 
@@ -317,8 +341,8 @@ public class RepositoryCreator
         for ( final BundleRequirement br : bi.getBundleRequirements () )
         {
             final String filter = and ( //
-            pair ( "symbolicname", br.getId () ), //
-            versionRange ( "version", br.getVersionRange () ) //
+                    pair ( "symbolicname", br.getId () ), //
+                    versionRange ( "version", br.getVersionRange () ) //
             );
 
             addObrRequirement ( writer, "bundle", filter, false, false, br.isOptional (), br.toString () );
@@ -350,8 +374,8 @@ public class RepositoryCreator
         for ( final PackageImport pi : bi.getPackageImports () )
         {
             final String filter = and ( //
-            pair ( "package", pi.getName () ), //
-            versionRange ( "version", pi.getVersionRange () ) //
+                    pair ( "package", pi.getName () ), //
+                    versionRange ( "version", pi.getVersionRange () ) //
             );
 
             addObrRequirement ( writer, "package", filter, false, false, pi.isOptional (), pi.toString () );
@@ -413,30 +437,69 @@ public class RepositoryCreator
         caps.put ( "mime", "application/vnd.osgi.bundle" );
         caps.put ( "url", url );
 
-        addIndexCapability ( writer, "osgi.content", caps );
+        addIndexCapabilityRaw ( writer, "osgi.content", caps );
     }
 
-    private static void addIndexCapability ( final XMLStreamWriter writer, final String id, final Map<String, Object> caps ) throws XMLStreamException
+    private static void addIndexCapabilityRaw ( final XMLStreamWriter writer, final String id, final Map<String, Object> caps ) throws XMLStreamException
+    {
+        final Map<String, CapabilityValue> newCaps = new HashMap<> ( caps.size () );
+
+        for ( final Map.Entry<String, Object> entry : caps.entrySet () )
+        {
+            final Object rawValue = entry.getValue ();
+
+            final String type;
+            final String value;
+
+            if ( rawValue instanceof Collection<?> )
+            {
+                final Collection<?> col = (Collection<?>)rawValue;
+                if ( !col.isEmpty () )
+                {
+                    final Object first = col.iterator ().next ();
+                    type = String.format ( "List<%>", first.getClass ().getSimpleName () );
+                    value = col.stream ().map ( Object::toString ).collect ( Collectors.joining ( ", " ) );
+                }
+                else
+                {
+                    type = null;
+                    value = null;
+                }
+            }
+            else
+            {
+                type = rawValue.getClass ().getSimpleName ();
+                value = entry.getValue ().toString ();
+            }
+
+            if ( value != null )
+            {
+                newCaps.put ( entry.getKey (), new CapabilityValue ( type, value ) );
+            }
+        }
+
+        addIndexCapability ( writer, id, newCaps );
+    }
+
+    private static void addIndexCapability ( final XMLStreamWriter writer, final String id, final Map<String, CapabilityValue> caps ) throws XMLStreamException
     {
         writer.writeCharacters ( "\t" );
         writer.writeStartElement ( "capability" );
         writer.writeAttribute ( "namespace", id );
         writer.writeCharacters ( "\n" );
 
-        for ( final Map.Entry<String, Object> entry : caps.entrySet () )
+        for ( final Map.Entry<String, CapabilityValue> entry : caps.entrySet () )
         {
             writer.writeCharacters ( "\t\t" );
             writer.writeEmptyElement ( "attribute" );
             writer.writeAttribute ( "name", entry.getKey () );
 
-            final Object v = entry.getValue ();
-
-            if ( ! ( v instanceof String ) )
+            if ( !entry.getValue ().getType ().equals ( "String" ) )
             {
-                writer.writeAttribute ( "type", v.getClass ().getSimpleName () );
+                writer.writeAttribute ( "type", entry.getValue ().getType () );
             }
 
-            writer.writeAttribute ( "value", "" + v );
+            writer.writeAttribute ( "value", entry.getValue ().getValue () );
 
             writer.writeCharacters ( "\n" );
         }

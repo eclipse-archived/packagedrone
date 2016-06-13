@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2014, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -262,6 +262,83 @@ public class BundleInformation implements TranslatedInformation
 
     }
 
+    public static class CapabilityValue
+    {
+        private final String type;
+
+        private final String value;
+
+        public CapabilityValue ( final String type, final String value )
+        {
+            this.type = type;
+            this.value = value;
+        }
+
+        public String getType ()
+        {
+            return this.type;
+        }
+
+        public String getValue ()
+        {
+            return this.value;
+        }
+    }
+
+    public static class ProvideCapability
+    {
+        private final String namespace;
+
+        private final Map<String, CapabilityValue> values;
+
+        public ProvideCapability ( final String namespace, final Map<String, CapabilityValue> values )
+        {
+            this.namespace = namespace;
+            this.values = values;
+        }
+
+        public String getNamespace ()
+        {
+            return this.namespace;
+        }
+
+        public Map<String, CapabilityValue> getValues ()
+        {
+            return this.values;
+        }
+    }
+
+    public static class RequireCapability
+    {
+        private final String namespace;
+
+        private final String filter;
+
+        private final String effective;
+
+        public RequireCapability ( final String namespace, final String filter, final String effective )
+        {
+            this.namespace = namespace;
+            this.filter = filter;
+            this.effective = effective;
+        }
+
+        public String getNamespace ()
+        {
+            return this.namespace;
+        }
+
+        public String getFilter ()
+        {
+            return this.filter;
+        }
+
+        public String getEffective ()
+        {
+            return this.effective;
+        }
+    }
+
     private String id;
 
     private Version version;
@@ -291,6 +368,10 @@ public class BundleInformation implements TranslatedInformation
     private List<String> requiredExecutionEnvironments = new LinkedList<> ();
 
     private String eclipseBundleShape;
+
+    private List<ProvideCapability> providedCapabilities = new LinkedList<> ();
+
+    private List<RequireCapability> requiredCapabilities = new LinkedList<> ();
 
     public void setEclipseBundleShape ( final String eclipseBundleShape )
     {
@@ -448,6 +529,26 @@ public class BundleInformation implements TranslatedInformation
     public String getId ()
     {
         return this.id;
+    }
+
+    public void setProvidedCapabilities ( final List<ProvideCapability> providedCapabilities )
+    {
+        this.providedCapabilities = providedCapabilities;
+    }
+
+    public List<ProvideCapability> getProvidedCapabilities ()
+    {
+        return this.providedCapabilities;
+    }
+
+    public void setRequiredCapabilities ( final List<RequireCapability> requiredCapabilities )
+    {
+        this.requiredCapabilities = requiredCapabilities;
+    }
+
+    public List<RequireCapability> getRequiredCapabilities ()
+    {
+        return this.requiredCapabilities;
     }
 
     public static BundleInformation fromJson ( final String string )
