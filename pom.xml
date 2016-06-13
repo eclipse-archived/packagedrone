@@ -177,6 +177,7 @@
 		<module>bundles/org.eclipse.packagedrone.storage.apm.tests</module>
 
 		<module>bundles/org.eclipse.packagedrone.utils</module>
+		<module>bundles/org.eclipse.packagedrone.utils.tests</module>
 		<module>bundles/org.eclipse.packagedrone.utils.console</module>
 		<module>bundles/org.eclipse.packagedrone.utils.converter</module>
 		<module>bundles/org.eclipse.packagedrone.utils.converter.tests</module>
