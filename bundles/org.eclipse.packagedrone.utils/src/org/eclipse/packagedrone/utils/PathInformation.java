@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class PathInformation implements Iterator<String>
@@ -62,6 +63,42 @@ public class PathInformation implements Iterator<String>
             this.current++;
         }
         return sb.toString ();
+    }
+
+    public <T extends Throwable> String nextOrThrow ( final Supplier<T> supplier ) throws T
+    {
+        try
+        {
+            return next ();
+        }
+        catch ( final NoSuchElementException e )
+        {
+            throw supplier.get ();
+        }
+    }
+
+    public String nextOrElse ( final String defaultValue )
+    {
+        try
+        {
+            return next ();
+        }
+        catch ( final NoSuchElementException e )
+        {
+            return defaultValue;
+        }
+    }
+
+    public String nextOrElseGet ( final Supplier<String> defaultValue )
+    {
+        try
+        {
+            return next ();
+        }
+        catch ( final NoSuchElementException e )
+        {
+            return defaultValue.get ();
+        }
     }
 
     private void eatUp ()
