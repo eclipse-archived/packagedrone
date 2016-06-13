@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Reflections
+Bundle-SymbolicName: org.reflections
+Bundle-Version: 0.9.9.v20160609111100
+Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-Description: Reflections - a Java runtime metadata analysis
+Bundle-DocURL: http://github.com/ronmamo/reflections
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: org.reflections;version="0.9.9",
+ org.reflections.adapters;version="0.9.9",
+ org.reflections.scanners;version="0.9.9",
+ org.reflections.serializers;version="0.9.9",
+ org.reflections.util;version="0.9.9",
+ org.reflections.vfs;version="0.9.9"
