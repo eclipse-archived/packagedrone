@@ -47,6 +47,8 @@ public class ControllerTracker implements RequestHandlerFactory
                 case ServiceEvent.UNREGISTERING:
                     handleRemovedService ( event.getServiceReference () );
                     break;
+                default:
+                    break;
             }
         }
     };

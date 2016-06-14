@@ -202,6 +202,8 @@ public class AptServlet extends AbstractChannelServiceServlet
                 case "Release":
                 case "Release.gpg":
                     return new ChannelCacheHandler ( channel, new MetaKey ( AptChannelAspectFactory.ID, String.format ( "dists/%s/%s", cfg.getDistribution (), component ) ) );
+                default:
+                    break;
             }
 
             // TODO: handle all components when implemented
@@ -259,6 +261,8 @@ public class AptServlet extends AbstractChannelServiceServlet
                     return new ChannelCacheHandler ( channel, new MetaKey ( AptChannelAspectFactory.ID, String.format ( "dists/%s/%s/%s/%s", cfg.getDistribution (), component, type, file ) ) );
                 case "Packages.bz2":
                     return new ChannelCacheHandler ( channel, new MetaKey ( AptChannelAspectFactory.ID, String.format ( "dists/%s/%s/%s/%s", cfg.getDistribution (), component, type, file ) ) );
+                default:
+                    break;
             }
         }
 

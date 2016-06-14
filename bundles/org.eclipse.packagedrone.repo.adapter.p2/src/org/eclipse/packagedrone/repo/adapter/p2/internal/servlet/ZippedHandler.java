@@ -78,6 +78,8 @@ public class ZippedHandler implements Handler
                 case "eclipse.feature":
                     stream ( zos, this.channel, a, "features/" + name );
                     break;
+                default:
+                    break;
             }
         }
 
