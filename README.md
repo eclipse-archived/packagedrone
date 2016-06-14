@@ -15,4 +15,5 @@ Also see:
   * List of features – http://packagedrone.org/features/
  * The demo system – https://thedrone.packagedrone.org
  * The wiki at Eclipse – https://wiki.eclipse.org/PackageDrone
+ * The Mattermost channel - https://mattermost.eclipse.org/eclipse/channels/package-drone
  * Talk @ EclipseCon 2015 "Managing OSGi artifacts with Package Drone" - https://www.youtube.com/watch?v=CTPYBqOxXz4
