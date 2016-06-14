@@ -113,6 +113,7 @@ public class UploadServletV3 extends AbstractChannelServiceServlet
 
     private void processError ( final HttpServletResponse response, final RequestException e ) throws IOException
     {
+        response.setStatus ( e.getStatusCode () );
         response.setContentType ( MediaType.APPLICATION_JSON );
         createGson ().toJson ( new UploadError ( e.getMessage () ), response.getWriter () );
     }
