@@ -45,7 +45,7 @@ import org.w3c.dom.NodeList;
  * A helper class when working with XML documents
  * <p>
  * This class is not thread-safe and methods may throw Exceptions when accessing
- * XML parsers from multiple thread concurrently.
+ * XML parsers from multiple threads concurrently.
  * </p>
  */
 public class XmlHelper
