@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.packagedrone.utils.converter.ConverterManager;
+
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 
 /**
  * Helper methods when working with {@link MetaKey}s
@@ -62,7 +69,7 @@ public final class MetaKeys
      * @param key
      *            the key
      * @param defaultValue
-     *            the value returned if either the metadata parmeter is
+     *            the value returned if either the metadata parameter is
      *            <code>null</code> or the metadata does not contain this key or
      *            the value is <code>null</code>
      * @return the value, as string, may be <code>null</code>
@@ -268,5 +275,53 @@ public final class MetaKeys
         }
 
         return Collections.unmodifiableMap ( result );
+    }
+
+    public static void writeJson ( final Map<MetaKey, String> properties, final Writer output ) throws IOException
+    {
+        @SuppressWarnings ( "resource" )
+        final JsonWriter writer = new JsonWriter ( output );
+
+        writer.beginObject ();
+
+        for ( final Map.Entry<MetaKey, String> entry : properties.entrySet () )
+        {
+            writer.name ( entry.getKey ().toString () );
+            if ( entry.getValue () != null )
+            {
+                writer.value ( entry.getValue () );
+            }
+        }
+
+        writer.endObject ();
+
+        writer.flush ();
+    }
+
+    public static Map<MetaKey, String> readJson ( final Reader input ) throws IOException
+    {
+        @SuppressWarnings ( "resource" )
+        final JsonReader reader = new JsonReader ( input );
+
+        final Map<MetaKey, String> result = new HashMap<> ();
+
+        reader.beginObject ();
+
+        while ( reader.hasNext () )
+        {
+            final String name = reader.nextName ();
+            if ( reader.peek () == JsonToken.NULL )
+            {
+                reader.nextNull ();
+            }
+            else
+            {
+                result.put ( MetaKey.fromString ( name ), reader.nextString () );
+            }
+        }
+
+        reader.endObject ();
+
+        return result;
     }
 }
