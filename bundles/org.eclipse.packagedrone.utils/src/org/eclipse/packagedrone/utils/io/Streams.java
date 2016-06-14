@@ -22,13 +22,31 @@ public final class Streams
 {
     private static final int COPY_BUFFER_SIZE = 8 * 1024;
 
+    private static final InputStream CLOSED_INPUT = new InputStream () {
+
+        @Override
+        public int read () throws IOException
+        {
+            return -1;
+        }
+    };
+
+    private static final OutputStream CLOSED_OUTPUT = new OutputStream () {
+
+        @Override
+        public void write ( final int b ) throws IOException
+        {
+            throw new IOException ( "Failed to write: stream is closed" );
+        }
+    };
+
     private Streams ()
     {
     }
 
     /**
      * Copy the remaining content of one stream to the other
-     * 
+     *
      * @param in
      *            the input stream
      * @param out
@@ -53,5 +71,15 @@ public final class Streams
         }
 
         return result;
+    }
+
+    public static InputStream closedInput ()
+    {
+        return CLOSED_INPUT;
+    }
+
+    public static OutputStream closedOutput ()
+    {
+        return CLOSED_OUTPUT;
     }
 }
