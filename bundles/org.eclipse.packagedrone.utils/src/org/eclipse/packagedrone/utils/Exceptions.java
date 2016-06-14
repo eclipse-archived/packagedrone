@@ -27,6 +27,8 @@ public class Exceptions
      *
      * @param callable
      *            the {@link Callable} to call
+     * @param <T>
+     *            argument type
      * @return the return value of the callable
      */
     public static <T> T wrapException ( final Callable<T> callable )
@@ -63,6 +65,8 @@ public class Exceptions
      *
      * @param callable
      *            the {@link Callable} to call
+     * @param <T>
+     *            argument type
      * @return the return value of the callable
      */
     public static <T> T wrapException ( final Callable<T> callable, final Function<Exception, RuntimeException> func )
@@ -97,6 +101,6 @@ public class Exceptions
         wrapException ( () -> {
             run.run ();
             return null;
-        } , func );
+        }, func );
     }
 }
