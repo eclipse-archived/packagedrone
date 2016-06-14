@@ -15,7 +15,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import org.eclipse.packagedrone.repo.api.ChannelInformation;
+import org.eclipse.packagedrone.repo.api.ChannelListResult;
 import org.eclipse.packagedrone.testing.server.WebContext;
 import org.junit.Assert;
 import org.openqa.selenium.By;
@@ -88,19 +91,8 @@ public class ChannelTester
 
     public static Set<String> getAllChannelIds ( final WebContext context )
     {
-        context.getDriver ().get ( context.resolve ( "/channel" ) );
-
-        final Set<String> result = new HashSet<> ();
-
-        for ( final WebElement ele : context.findElements ( By.cssSelector ( "#channels tr" ) ) )
-        {
-            if ( ele.getAttribute ( "data-channel-id" ) != null )
-            {
-                result.add ( ele.getAttribute ( "data-channel-id" ) );
-            }
-        }
-
-        return result;
+        final ChannelListResult channels = context.target ( "/api/channels" ).request ().get ( ChannelListResult.class );
+        return channels.getChannels ().stream ().map ( ChannelInformation::getId ).collect ( Collectors.toSet () );
     }
 
     public Set<String> getAllArtifactIds ()

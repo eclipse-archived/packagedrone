@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,12 +21,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.client.Client;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.google.common.io.CharStreams;
 
@@ -34,10 +37,16 @@ public class AbstractServerTest
 {
     protected static RemoteWebDriver driver;
 
+    protected static WebDriverWait wait;
+
+    protected static Client client;
+
     @BeforeClass
     public static void setup ()
     {
         driver = TestSuite.getDriver ();
+        wait = new WebDriverWait ( driver, 5 );
+        client = TestSuite.getClient ();
     }
 
     private final WebContext context = new WebContext () {
@@ -71,6 +80,12 @@ public class AbstractServerTest
         {
             return getAbsolutePath ( localFileName );
         }
+
+        @Override
+        public Client getClient ()
+        {
+            return client;
+        };
     };
 
     protected URL getUrl () throws MalformedURLException

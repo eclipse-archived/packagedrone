@@ -15,4 +15,6 @@ public interface CommonResources
     public static final String RESOURCE_BASE = "src/test/resources/";
 
     public static final String BUNDLE_1_RESOURCE = RESOURCE_BASE + "bundles/org.eclipse.scada.utils_0.2.0.v20141023-0849.jar";
+
+    public static final String BUNDLE_2_RESOURCE = RESOURCE_BASE + "bundles/org.eclipse.packagedrone.utils-0.14.0-SNAPSHOT.jar";
 }

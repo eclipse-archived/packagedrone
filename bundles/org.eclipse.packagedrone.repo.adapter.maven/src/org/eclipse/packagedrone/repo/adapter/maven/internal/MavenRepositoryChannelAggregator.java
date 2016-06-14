@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.maven.internal;
 
-import static org.eclipse.packagedrone.repo.XmlHelper.addElement;
+import static org.eclipse.packagedrone.repo.xml.XmlHelper.addElement;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,13 +30,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.MetaKeys;
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.adapter.maven.ChannelData;
 import org.eclipse.packagedrone.repo.adapter.maven.MavenInformation;
 import org.eclipse.packagedrone.repo.aspect.aggregate.AggregationContext;
 import org.eclipse.packagedrone.repo.aspect.aggregate.ChannelAggregator;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.manage.system.SitePrefixService;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

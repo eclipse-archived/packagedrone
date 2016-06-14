@@ -361,13 +361,6 @@
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.packagedrone.repo.manage.usage"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.packagedrone.repo.osgi.web"
          download-size="0"
          install-size="0"
@@ -572,6 +565,13 @@
 
    <plugin
          id="org.eclipse.packagedrone.repo.aspect.common.web"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.packagedrone.repo.api.internal"
          download-size="0"
          install-size="0"
          version="0.0.0"

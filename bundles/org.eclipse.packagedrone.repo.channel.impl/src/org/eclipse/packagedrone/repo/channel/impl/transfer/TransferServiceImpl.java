@@ -45,7 +45,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelDetails;
 import org.eclipse.packagedrone.repo.channel.ChannelId;
@@ -57,6 +56,7 @@ import org.eclipse.packagedrone.repo.channel.ReadableChannel;
 import org.eclipse.packagedrone.repo.channel.transfer.ImportOptions;
 import org.eclipse.packagedrone.repo.channel.transfer.TransferService;
 import org.eclipse.packagedrone.repo.trigger.TriggeredChannel;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

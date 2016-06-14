@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.maven;
 
-import static org.eclipse.packagedrone.repo.XmlHelper.addElement;
-import static org.eclipse.packagedrone.repo.XmlHelper.addElementFirst;
+import static org.eclipse.packagedrone.repo.xml.XmlHelper.addElement;
+import static org.eclipse.packagedrone.repo.xml.XmlHelper.addElementFirst;
 
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
@@ -37,8 +37,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.eclipse.scada.utils.str.StringHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

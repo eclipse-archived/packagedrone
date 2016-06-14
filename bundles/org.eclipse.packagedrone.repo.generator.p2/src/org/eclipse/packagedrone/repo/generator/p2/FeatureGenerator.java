@@ -24,7 +24,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.aspect.common.osgi.OsgiExtractor;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.channel.ChannelArtifactInformation;
@@ -32,6 +31,7 @@ import org.eclipse.packagedrone.repo.channel.search.Predicates;
 import org.eclipse.packagedrone.repo.generator.ArtifactGenerator;
 import org.eclipse.packagedrone.repo.generator.GenerationContext;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.eclipse.packagedrone.web.LinkTarget;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

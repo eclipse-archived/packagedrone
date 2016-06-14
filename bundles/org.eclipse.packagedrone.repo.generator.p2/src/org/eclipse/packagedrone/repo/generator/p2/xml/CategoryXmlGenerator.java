@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.generator.ArtifactGenerator;
 import org.eclipse.packagedrone.repo.generator.GenerationContext;
@@ -26,6 +25,7 @@ import org.eclipse.packagedrone.repo.generator.p2.GeneratorController;
 import org.eclipse.packagedrone.repo.generator.p2.Helper;
 import org.eclipse.packagedrone.repo.generator.p2.Type;
 import org.eclipse.packagedrone.repo.generator.p2.xml.CategoryDefinition.Category;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.eclipse.packagedrone.web.LinkTarget;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

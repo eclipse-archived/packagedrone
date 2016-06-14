@@ -15,7 +15,12 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.google.common.base.Predicate;
 
 public class UserTest extends AbstractServerTest
 {
@@ -29,6 +34,7 @@ public class UserTest extends AbstractServerTest
     @Test
     public void testLogin () throws IOException
     {
+        System.out.println ( "testLogin ()" );
         // Sign in first
 
         final String[] adminToken = Server.loadAdminToken ();
@@ -42,9 +48,23 @@ public class UserTest extends AbstractServerTest
         driver.findElementById ( "command" ).submit ();
     }
 
-    @Test
-    public void testConfig ()
+    private static Predicate<WebDriver> endsWith ( final String urlSuffix )
     {
+        return new Predicate<WebDriver> () {
+
+            @Override
+            public boolean apply ( final WebDriver driver )
+            {
+                return driver.getCurrentUrl ().endsWith ( urlSuffix );
+            }
+        };
+    }
+
+    @Test
+    public void testConfig () throws IOException
+    {
+        System.out.println ( "testConfig ()" );
+
         driver.get ( resolve ( "/user" ) );
 
         // check if we are on the right page
@@ -63,13 +83,15 @@ public class UserTest extends AbstractServerTest
         driver.findElementById ( "name" ).sendKeys ( TEST_USER_REAL_NAME );
         driver.findElementById ( "command" ).submit ();
 
-        Assert.assertTrue ( driver.getCurrentUrl ().endsWith ( "/view" ) );
+        // Assert.assertTrue ( driver.getCurrentUrl ().endsWith ( "/view" ) );
+        wait.until ( endsWith ( "/view" ) );
 
         final String userId = driver.findElementById ( "userId" ).getText ();
 
-        driver.findElementByClassName ( "btn-primary" ).click ();
+        System.out.println ( "Button: " + driver.findElementByClassName ( "btn-primary" ).getText () );
+        wait.until ( ExpectedConditions.elementToBeClickable ( By.className ( "btn-primary" ) ) ).click ();
 
-        Assert.assertTrue ( driver.getCurrentUrl ().endsWith ( "/" + userId + "/edit" ) );
+        wait.until ( endsWith ( "/" + userId + "/edit" ) );
 
         final WebElement newRoleInput = driver.findElement ( By.id ( "newRole" ) );
         final WebElement newRoleButton = driver.findElement ( By.id ( "btnNewRole" ) );
@@ -79,12 +101,16 @@ public class UserTest extends AbstractServerTest
 
         driver.findElementById ( "command" ).submit ();
 
-        Assert.assertTrue ( driver.getCurrentUrl ().endsWith ( "/" + userId + "/view" ) );
+        new WebDriverWait ( driver, 5 ).until ( endsWith ( "/" + userId + "/view" ) );
+
+        System.out.println ( "User created" );
 
         driver.get ( resolve ( "/user/%s/newPassword", userId ) );
         driver.findElement ( By.id ( "password" ) ).sendKeys ( TEST_USER_PASSWORD );
         driver.findElement ( By.id ( "passwordRepeat" ) ).sendKeys ( TEST_USER_PASSWORD );
         driver.findElement ( By.id ( "password" ) ).submit ();
+
+        System.out.println ( "Password set" );
 
         driver.get ( resolve ( "/logout" ) );
         driver.get ( resolve ( "/login" ) );
@@ -92,6 +118,8 @@ public class UserTest extends AbstractServerTest
         driver.findElementById ( "email" ).sendKeys ( TEST_USER_EMAIL );
         driver.findElementById ( "password" ).sendKeys ( TEST_USER_PASSWORD );
         driver.findElementById ( "command" ).submit ();
+
+        System.out.println ( "User logged in" );
     }
 
     private void newRole ( final WebElement newRoleInput, final WebElement newRoleButton, final String role )

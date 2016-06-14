@@ -24,10 +24,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.adapter.p2.aspect.P2RepoConstants;
 import org.eclipse.packagedrone.repo.aspect.Constants;
 import org.eclipse.packagedrone.repo.aspect.extract.Extractor;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 import org.eclipse.scada.utils.str.StringHelper;
 import org.w3c.dom.Document;

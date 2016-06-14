@@ -27,8 +27,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.manage.system.ConfigurationBackupService;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.eclipse.packagedrone.utils.converter.ConverterManager;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;

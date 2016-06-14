@@ -18,11 +18,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.event.AddedEvent;
 import org.eclipse.packagedrone.repo.event.RemovedEvent;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

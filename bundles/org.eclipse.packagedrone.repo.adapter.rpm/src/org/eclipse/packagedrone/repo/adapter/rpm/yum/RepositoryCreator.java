@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.rpm.yum;
 
-import static org.eclipse.packagedrone.repo.XmlHelper.addElement;
-import static org.eclipse.packagedrone.repo.XmlHelper.addOptionalElement;
+import static org.eclipse.packagedrone.repo.xml.XmlHelper.addElement;
+import static org.eclipse.packagedrone.repo.xml.XmlHelper.addOptionalElement;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation.Changelog;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation.Dependency;
@@ -33,6 +32,7 @@ import org.eclipse.packagedrone.repo.aspect.common.spool.OutputSpooler;
 import org.eclipse.packagedrone.repo.aspect.common.spool.SpoolOutTarget;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.signing.SigningService;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.p2.internal.aspect;
 
-import static org.eclipse.packagedrone.repo.XmlHelper.addElement;
-import static org.eclipse.packagedrone.repo.XmlHelper.fixSize;
+import static org.eclipse.packagedrone.repo.xml.XmlHelper.addElement;
+import static org.eclipse.packagedrone.repo.xml.XmlHelper.fixSize;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.eclipse.packagedrone.repo.XmlHelper;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.ProcessingInstruction;

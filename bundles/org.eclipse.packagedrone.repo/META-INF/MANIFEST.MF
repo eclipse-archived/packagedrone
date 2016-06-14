@@ -11,18 +11,10 @@ Import-Package: com.google.common.hash;version="18.0.0",
  javax.servlet.http;version="3.1.0",
  org.eclipse.packagedrone.utils;version="1.0.0",
  org.eclipse.packagedrone.utils.converter;version="1.0.0",
- org.eclipse.packagedrone.utils.xml;version="1.0.0",
  org.osgi.framework;version="1.8.0",
- org.osgi.util.tracker;version="1.5.1",
  org.slf4j;version="1.7.2"
-Export-Package: org.eclipse.packagedrone.repo;version="1.0.0";
-  uses:="org.w3c.dom,
-   javax.xml.parsers,
-   javax.xml.transform,
-   javax.xml.xpath",
+Export-Package: org.eclipse.packagedrone.repo;version="1.0.0";uses:="org.eclipse.packagedrone.utils.converter",
  org.eclipse.packagedrone.repo.event;version="1.0.0",
  org.eclipse.packagedrone.repo.gson;version="1.0.0";uses:="org.eclipse.packagedrone.repo,com.google.gson.stream,com.google.gson",
  org.eclipse.packagedrone.repo.servlet;version="1.0.0";uses:="javax.servlet.http",
  org.eclipse.packagedrone.repo.utils;version="1.0.0"
-Bundle-Activator: org.eclipse.packagedrone.repo.internal.Activator
-Bundle-ActivationPolicy: lazy

@@ -18,6 +18,7 @@
 	<property name="pax-web.version" value="4.2.5"/>
 	<property name="jersey.version" value="2.22.2"/>
 	<property name="hk2.version" value="2.4.0"/>
+	<property name="swagger.version" value="1.5.9"/>
 
     <!-- ================================= 
           target: default
@@ -57,6 +58,30 @@
         	<local name="bundleVersion" />
         	
         	<available file="download/sources/@{artifact}-@{version}-sources.jar" property="hasSource" />
+        	<available file="manifests/@{artifact}-@{version}/MANIFEST.MF" property="hasLocalManifest" />
+        	
+        	<sequential if:set="hasLocalManifest">
+        		<echo>Apply local MANIFEST.MF</echo>
+        		
+        		<mkdir dir="download/repack-osgi/@{artifact}"/>
+        		
+        		<unzip src="download/bundles/@{artifact}-@{version}.jar" dest="download/repack-osgi/@{artifact}" />
+        		
+        		<!-- we do need to delete the original file so it does not get copied over to the target platform later on -->
+        		<copy file="download/bundles/@{artifact}-@{version}.jar" todir="download/bundles-original" />
+        		<delete file="download/bundles/@{artifact}-@{version}.jar" />
+        		
+        		<copy todir="download/repack-osgi/@{artifact}">
+        			<fileset dir="manifests/@{artifact}-@{version}/files" />
+        		</copy>
+        		
+        		<jar
+        			destfile="download/bundles-repacked/@{artifact}-@{version}.jar"
+        			basedir="download/repack-osgi/@{artifact}"
+        			manifest="manifests/@{artifact}-@{version}/MANIFEST.MF"
+        			>
+        		</jar>
+        	</sequential>
         	
         	<sequential if:set="hasSource">
             	<mkdir dir="download/repack/@{artifact}"/>
@@ -69,8 +94,16 @@
         		<copy file="download/sources/@{artifact}-@{version}-sources.jar" todir="download/sourcebundles" if:set="isSourceBundle"/>
         		
         		<sequential unless:set="isSourceBundle">
+        			
+        			<echo>Convert to Eclipse source bundle</echo>
         		
-	        		<unzip src="download/bundles/@{artifact}-@{version}.jar" dest="download/repack/@{artifact}">
+	        		<unzip unless:set="hasLocalManifest" src="download/bundles/@{artifact}-@{version}.jar" dest="download/repack/@{artifact}">
+						<patternset>
+							<include name="META-INF/MANIFEST.MF"/>
+						</patternset>
+	    			</unzip>
+        			
+        			<unzip if:set="hasLocalManifest" src="download/bundles-repacked/@{artifact}-@{version}.jar" dest="download/repack/@{artifact}">
 						<patternset>
 							<include name="META-INF/MANIFEST.MF"/>
 						</patternset>
@@ -144,6 +177,8 @@
     	
         <mkdir dir="download" />
         <mkdir dir="download/bundles" />
+    	<mkdir dir="download/bundles-repacked" />
+    	<mkdir dir="download/bundles-original" />
     	<mkdir dir="download/sources" />
     	<mkdir dir="download/sourcebundles" />
 
@@ -260,6 +295,7 @@
         	
         	<mavenGet group="com/eclipsesource/jaxrs" artifact="publisher" version="5.3.1" /> <!-- CQ 11561 -->
         	<mavenGet group="com/eclipsesource/jaxrs" artifact="provider-gson" version="2.3" /> <!-- CQ 11561 -->
+        	<mavenGet group="com/eclipsesource/jaxrs" artifact="provider-swagger" version="1.1.1" /> <!-- CQ 11561 -->
         	
         	<!-- dependencies for osgi connector -->
         	
@@ -296,6 +332,22 @@
         	<mavenGet group="org/jvnet/mimepull" artifact="mimepull" version="1.9.4" /> <!-- CQ 11559 --> 
         	
         	<mavenGet group="org/javassist" artifact="javassist" version="3.19.0-GA"/> <!-- CQ 11558 -->
+        	
+        	<!-- dependencies for swagger -->
+        	
+        	<mavenGet group="io/swagger" artifact="swagger-annotations" version="${swagger.version}" /> <!-- CQ 11590 -->
+        	<mavenGet group="io/swagger" artifact="swagger-core" version="${swagger.version}" /> <!-- CQ 11591 -->
+        	<mavenGet group="io/swagger" artifact="swagger-jaxrs" version="${swagger.version}" /> <!-- CQ 11592 -->
+        	<mavenGet group="io/swagger" artifact="swagger-models" version="${swagger.version}" /> <!-- CQ 11593 -->
+        	
+        	<mavenGet group="org/apache/commons" artifact="commons-lang3" version="3.3.2" /> <!-- CQ 11589 -->
+        	
+        	<orbitGet bundle="com.fasterxml.jackson.core.jackson-annotations" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11595 -->
+        	<orbitGet bundle="com.fasterxml.jackson.core.jackson-core" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11596 -->
+        	<orbitGet bundle="com.fasterxml.jackson.core.jackson-databind" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11598 -->
+        	<orbitGet bundle="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11594 -->
+        	
+        	<mavenGet group="org/reflections" artifact="reflections" version="0.9.9" /> <!-- CQ 11584 -->
         	
         	<!-- mail -->
         	
@@ -401,7 +453,8 @@
         	</fileset>
         	
             <fileset dir="download/bundles" />
-        	<fileset dir="provided" />
+        	<fileset dir="download/bundles-repacked" />
+        	<fileset dir="provided" includes="*.jar" />
         	
             <mapper type="flatten" />
         </copy>

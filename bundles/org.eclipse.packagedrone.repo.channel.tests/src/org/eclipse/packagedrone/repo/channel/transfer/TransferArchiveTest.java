@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.transfer;
 
-import static org.eclipse.packagedrone.repo.channel.transfer.ContentProvider.string;
+import static org.eclipse.packagedrone.repo.api.transfer.ContentProvider.string;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +23,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.channel.transfer.TransferArchiveReader.Handler;
+import org.eclipse.packagedrone.repo.api.transfer.TransferArchiveReader;
+import org.eclipse.packagedrone.repo.api.transfer.TransferArchiveWriter;
+import org.eclipse.packagedrone.repo.api.transfer.TransferWriterEntryContext;
+import org.eclipse.packagedrone.repo.api.transfer.TransferArchiveReader.Handler;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

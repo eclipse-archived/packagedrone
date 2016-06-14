@@ -15,11 +15,24 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.eclipse.packagedrone.VersionInformation;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Info;
+import io.swagger.annotations.License;
+import io.swagger.annotations.SwaggerDefinition;
 
 @Path ( "/version" )
-public class Version
+@Api
+@SwaggerDefinition ( info = @Info ( title = "Eclipse Package Drone API",
+        version = Version.API_VERSION,
+        description = "This API allows access to Eclipse Package Drone",
+        license = @License ( name = "Eclipse Public License - v 1.0",
+                url = "https://www.eclipse.org/legal/epl-v10.html" ) ) )
+public interface Version
 {
+    @ApiModel ( description = "Information about the product version" )
     public static final class ProductVersion
     {
         private String productName;
@@ -32,14 +45,15 @@ public class Version
 
         private String buildId;
 
-        public String getProductName ()
-        {
-            return this.productName;
-        }
-
         public void setProductName ( final String productName )
         {
             this.productName = productName;
+        }
+
+        @ApiModelProperty ( "The name of the product" )
+        public String getProductName ()
+        {
+            return this.productName;
         }
 
         public void setVersion ( final String version )
@@ -47,6 +61,7 @@ public class Version
             this.version = version;
         }
 
+        @ApiModelProperty ( "The qualified version" )
         public String getVersion ()
         {
             return this.version;
@@ -57,6 +72,7 @@ public class Version
             this.versionUnqualified = versionUnqualified;
         }
 
+        @ApiModelProperty ( "The unqualified version" )
         public String getVersionUnqualified ()
         {
             return this.versionUnqualified;
@@ -67,6 +83,7 @@ public class Version
             this.userAgent = userAgent;
         }
 
+        @ApiModelProperty ( "The user agent string" )
         public String getUserAgent ()
         {
             return this.userAgent;
@@ -77,11 +94,14 @@ public class Version
             this.buildId = buildId;
         }
 
+        @ApiModelProperty ( "The build id" )
         public String getBuildId ()
         {
             return this.buildId;
         }
     }
+
+    public static final String API_VERSION = "0.3";
 
     /**
      * Get the version of the API as plain text
@@ -91,22 +111,13 @@ public class Version
     @GET
     @Produces ( MediaType.TEXT_PLAIN )
     @Path ( "/api" )
-    public String versionText ()
-    {
-        return "0.3";
-    }
+    @ApiOperation ( value = "Get the version of the API", notes = "This returns the version of the API" )
+    public String versionText ();
 
     @GET
     @Produces ( MediaType.APPLICATION_JSON )
     @Path ( "/product" )
-    public ProductVersion productVersionJson ()
-    {
-        final ProductVersion result = new ProductVersion ();
-        result.setProductName ( VersionInformation.PRODUCT );
-        result.setVersion ( VersionInformation.VERSION );
-        result.setVersionUnqualified ( VersionInformation.VERSION_UNQUALIFIED );
-        result.setUserAgent ( VersionInformation.USER_AGENT );
-        result.setBuildId ( VersionInformation.BUILD_ID.orElse ( null ) );
-        return result;
-    }
+    @ApiOperation ( value = "Get the different version informations of this instance",
+            notes = "Fetch all different kind of version information about this installation" )
+    public ProductVersion productVersionJson ();
 }

@@ -1,0 +1,32 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Remote service implementation
+Bundle-SymbolicName: org.eclipse.packagedrone.repo.api.internal
+Bundle-Version: 0.14.0.qualifier
+Bundle-Vendor: Eclipse Package Drone
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Service-Component: OSGI-INF/channels.xml,
+ OSGI-INF/root.xml,
+ OSGI-INF/swagger.xml,
+ OSGI-INF/upload.xml,
+ OSGI-INF/version.xml
+Import-Package: com.google.gson;version="2.3.1",
+ javax.servlet;version="3.1.0",
+ javax.servlet.http;version="3.1.0",
+ javax.ws.rs.core;version="2.0.1",
+ org.eclipse.packagedrone;version="1.0.0",
+ org.eclipse.packagedrone.repo;version="1.0.0",
+ org.eclipse.packagedrone.repo.api;version="0.14.0",
+ org.eclipse.packagedrone.repo.api.transfer;version="0.14.0",
+ org.eclipse.packagedrone.repo.api.upload;version="0.14.0",
+ org.eclipse.packagedrone.repo.channel;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel.provider;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel.servlet;version="1.0.0",
+ org.eclipse.packagedrone.repo.channel.transfer;version="1.0.0",
+ org.eclipse.packagedrone.utils;version="1.0.0",
+ org.eclipse.packagedrone.web.util;version="1.0.0",
+ org.eclipse.scada.utils;version="0.2.0",
+ org.ops4j.pax.web.service;version="4.2.5",
+ org.osgi.service.cm;version="1.5.0",
+ org.osgi.service.http;version="1.2.0",
+ org.slf4j;version="1.7.2"

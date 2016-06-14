@@ -17,6 +17,16 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>org.eclipse.packagedrone</groupId>
+			<artifactId>org.eclipse.packagedrone.utils</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.packagedrone</groupId>
+			<artifactId>org.eclipse.packagedrone.utils.converter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<optional>true</optional>
@@ -24,7 +34,6 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

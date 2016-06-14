@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.generator.p2.xml.CategoryDefinition.Category;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

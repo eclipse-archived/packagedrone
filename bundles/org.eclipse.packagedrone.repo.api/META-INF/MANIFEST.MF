@@ -3,21 +3,15 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse Package Drone™ API
 Bundle-SymbolicName: org.eclipse.packagedrone.repo.api
 Bundle-Version: 0.14.0.qualifier
-Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-Vendor: Eclipse Package Drone
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: javax.servlet;version="3.1.0",
+Import-Package: io.swagger.annotations;version="1.5.9";resolution:=optional,
+ javax.servlet;version="3.1.0",
  javax.servlet.http;version="3.1.0",
  javax.ws.rs;version="2.0.1",
  javax.ws.rs.core;version="2.0.1",
- org.eclipse.packagedrone;version="1.0.0",
  org.eclipse.packagedrone.repo;version="1.0.0",
- org.eclipse.packagedrone.repo.channel;version="1.0.0",
- org.eclipse.packagedrone.repo.channel.provider;version="1.0.0",
- org.eclipse.packagedrone.repo.channel.servlet;version="1.0.0",
- org.eclipse.packagedrone.web.util;version="1.0.0",
- org.eclipse.scada.utils;version="0.2.0",
- org.ops4j.pax.web.service;version="4.1.2",
- org.osgi.service.cm;version="1.5.0",
- org.osgi.service.http;version="1.2.1"
-Service-Component: OSGI-INF/servlet.xml,OSGI-INF/version.xml,
- OSGI-INF/root.xml
+ org.eclipse.packagedrone.utils.io;version="1.0.0"
+Export-Package: org.eclipse.packagedrone.repo.api;version="0.14.0",
+ org.eclipse.packagedrone.repo.api.transfer;version="0.14.0",
+ org.eclipse.packagedrone.repo.api.upload;version="0.14.0"

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.importer.aether.web;
 
-import static org.eclipse.packagedrone.repo.XmlHelper.getText;
+import static org.eclipse.packagedrone.repo.xml.XmlHelper.getText;
 
 import java.io.StringReader;
 import java.util.Collection;
@@ -19,8 +19,8 @@ import java.util.LinkedList;
 
 import javax.xml.parsers.DocumentBuilder;
 
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.importer.aether.MavenCoordinates;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

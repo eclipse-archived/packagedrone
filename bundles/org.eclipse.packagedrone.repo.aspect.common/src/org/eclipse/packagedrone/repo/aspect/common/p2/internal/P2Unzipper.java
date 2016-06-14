@@ -25,10 +25,10 @@ import javax.xml.xpath.XPathExpression;
 
 import org.apache.commons.io.input.CloseShieldInputStream;
 import org.eclipse.packagedrone.repo.MetaKey;
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.aspect.common.p2.P2UnzipAspectFactory;
 import org.eclipse.packagedrone.repo.aspect.virtual.Virtualizer;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

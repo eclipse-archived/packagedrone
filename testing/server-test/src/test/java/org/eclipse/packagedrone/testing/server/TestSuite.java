@@ -14,13 +14,17 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+
 import org.eclipse.packagedrone.testing.server.channel.DebTest;
 import org.eclipse.packagedrone.testing.server.channel.MavenTest;
 import org.eclipse.packagedrone.testing.server.channel.MvnOsgiTest;
 import org.eclipse.packagedrone.testing.server.channel.OsgiTest;
 import org.eclipse.packagedrone.testing.server.channel.P2Test;
 import org.eclipse.packagedrone.testing.server.channel.RpmTest;
-import org.eclipse.packagedrone.testing.server.channel.UploadApiTest;
+import org.eclipse.packagedrone.testing.server.channel.UploadApiV2Test;
+import org.eclipse.packagedrone.testing.server.channel.UploadApiV3Test;
 import org.eclipse.packagedrone.testing.server.channel.UploadTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -28,7 +32,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 import org.openqa.selenium.Platform;
-import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.LocalFileDetector;
@@ -48,7 +52,8 @@ import org.openqa.selenium.remote.RemoteWebDriver;
         OsgiTest.class, //
         MvnOsgiTest.class, //
         MavenTest.class, //
-        UploadApiTest.class //
+        UploadApiV2Test.class, //
+        UploadApiV3Test.class //
 } )
 public class TestSuite
 {
@@ -68,6 +73,8 @@ public class TestSuite
 
     private static RemoteWebDriver driver;
 
+    private static Client client;
+
     public static RemoteWebDriver getDriver ()
     {
         return driver;
@@ -82,7 +89,10 @@ public class TestSuite
     @AfterClass
     public static void stopServer () throws InterruptedException
     {
-        server.stop ();
+        if ( server != null )
+        {
+            server.stop ();
+        }
     }
 
     @BeforeClass
@@ -94,7 +104,8 @@ public class TestSuite
         }
         else
         {
-            driver = new FirefoxDriver ();
+            // driver = new MarionetteDriver ();
+            driver = new ChromeDriver ();
         }
     }
 
@@ -102,8 +113,31 @@ public class TestSuite
     public static void stopBrowser ()
     {
         System.out.print ( "Shutting down browser..." );
-        driver.quit ();
+        if ( driver != null )
+        {
+            driver.quit ();
+        }
         System.out.println ( "done!" );
+    }
+
+    @BeforeClass
+    public static void startClient ()
+    {
+        client = ClientBuilder.newBuilder ().build ();
+    }
+
+    @AfterClass
+    public static void stopClient ()
+    {
+        if ( client != null )
+        {
+            client.close ();
+        }
+    }
+
+    public static Client getClient ()
+    {
+        return client;
     }
 
     protected static RemoteWebDriver createSauce ( final Platform os, final String browser, final String version ) throws MalformedURLException

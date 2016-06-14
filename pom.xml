@@ -61,6 +61,8 @@
 		
 		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
 		<buildTimestamp>${maven.build.timestamp}</buildTimestamp>
+		
+		<jgit.dirtyWorkingTree>error</jgit.dirtyWorkingTree>
 	</properties>
 
 	<repositories>
@@ -108,7 +110,10 @@
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.rpm.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.unzip</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.unzip.tests</module>
+		
 		<module>bundles/org.eclipse.packagedrone.repo.api</module>
+		<module>bundles/org.eclipse.packagedrone.repo.api.internal</module>
+		
 		<module>bundles/org.eclipse.packagedrone.repo.aspect</module>
 		<module>bundles/org.eclipse.packagedrone.repo.aspect.cleanup</module>
 		<module>bundles/org.eclipse.packagedrone.repo.aspect.cleanup.web</module>
@@ -139,7 +144,6 @@
 		<module>bundles/org.eclipse.packagedrone.repo.manage.system.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.manage.todo</module>
 		<module>bundles/org.eclipse.packagedrone.repo.manage.todo.web</module>
-		<module>bundles/org.eclipse.packagedrone.repo.manage.usage</module>
 		<module>bundles/org.eclipse.packagedrone.repo.osgi.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.signing</module>
 		<module>bundles/org.eclipse.packagedrone.repo.signing.pgp</module>
@@ -279,6 +283,7 @@
 						pom.xml
 						CHANGES.txt
 					</jgit.ignore>
+					 <jgit.dirtyWorkingTree>${jgit.dirtyWorkingTree}</jgit.dirtyWorkingTree>
 					<format>yyyyMMdd-HHmm</format>
 					<sourceReferences>
 						<generate>true</generate>

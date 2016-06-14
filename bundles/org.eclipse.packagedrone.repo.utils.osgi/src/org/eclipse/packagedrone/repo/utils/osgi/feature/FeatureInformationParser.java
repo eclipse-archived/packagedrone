@@ -16,13 +16,13 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.utils.osgi.ParserHelper;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.FeatureInclude;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.PluginInclude;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.Qualifiers;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.Requirement;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.Requirement.MatchRule;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

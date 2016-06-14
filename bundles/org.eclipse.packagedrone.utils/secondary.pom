@@ -13,6 +13,7 @@
 	<artifactId>org.eclipse.packagedrone.utils</artifactId>
 
 	<name>Eclipse Package Drone - Utilities</name>
+	<description>Generic helper components</description>
 
 	<dependencies>
 		<dependency>
@@ -22,10 +23,7 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
-			<version>5.0.0</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-
-	<description>Generic helper components</description>
 </project>

@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.maven.internal;
 
-import static org.eclipse.packagedrone.repo.FileTypes.isXml;
+import static org.eclipse.packagedrone.repo.xml.XmlFiles.isXml;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.util.Map;
 
-import org.eclipse.packagedrone.repo.XmlHelper;
 import org.eclipse.packagedrone.repo.aspect.extract.Extractor;
+import org.eclipse.packagedrone.repo.xml.XmlHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

@@ -6,3 +6,4 @@ Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.eclipse.packagedrone.repo.channel
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit
+Import-Package: org.eclipse.packagedrone.repo.api.transfer
