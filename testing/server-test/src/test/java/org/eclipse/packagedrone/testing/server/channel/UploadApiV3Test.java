@@ -17,10 +17,13 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.utils.URIBuilder;
@@ -54,31 +57,20 @@ public class UploadApiV3Test extends AbstractServerTest
         httpclient.close ();
     }
 
-    private ChannelTester tester;
-
-    private String deployKey;
-
-    protected ChannelTester getTester ()
-    {
-        if ( this.tester == null )
-        {
-            this.tester = ChannelTester.create ( getWebContext (), "uploadapi2" );
-            this.tester.assignDeployGroup ( "m1" );
-            this.deployKey = this.tester.getDeployKeys ().iterator ().next ();
-        }
-        return this.tester;
-    }
-
     @Test
     public void upload1Plain () throws URISyntaxException, IOException
     {
-        final ChannelTester tester = getTester ();
+        final ChannelTester tester = ChannelTester.create ( getWebContext (), "uploadapi2a" );
+        tester.assignDeployGroup ( "m1" );
+        final String deployKey = tester.getDeployKeys ().iterator ().next ();
 
         final File file = getAbsolutePath ( CommonResources.BUNDLE_1_RESOURCE );
 
         final URIBuilder b = new URIBuilder ( resolve ( "/api/v3/upload/plain/channel/%s/%s", tester.getId (), file.getName () ) );
-        b.setUserInfo ( "deploy", this.deployKey );
+        b.setUserInfo ( "deploy", deployKey );
         b.addParameter ( "foo:bar", "baz" );
+
+        System.out.println ( "Request: " + b.build () );
 
         try ( final CloseableHttpResponse response = upload ( b, file ) )
         {
@@ -96,50 +88,52 @@ public class UploadApiV3Test extends AbstractServerTest
     @Test
     public void upload2Archive () throws URISyntaxException, IOException
     {
-        final ChannelTester tester = getTester ();
+        final ChannelTester tester = ChannelTester.create ( getWebContext (), "uploadapi2b" );
+        tester.assignDeployGroup ( "m1" );
+        final String deployKey = tester.getDeployKeys ().iterator ().next ();
 
         final File file1 = getAbsolutePath ( CommonResources.BUNDLE_1_RESOURCE );
         final File file2 = getAbsolutePath ( CommonResources.BUNDLE_2_RESOURCE );
 
-        final Path tmp = Files.createTempFile ( "upload", null );
-        try
+        final Path tmp = Paths.get ( "upload-1.zip" );
+
+        try ( TransferArchiveWriter writer = new TransferArchiveWriter ( Files.newOutputStream ( tmp ) ) )
         {
-            try ( TransferArchiveWriter writer = new TransferArchiveWriter ( Files.newOutputStream ( tmp ) ) )
-            {
-                final Map<MetaKey, String> properties = new HashMap<> ();
-                properties.put ( new MetaKey ( "foo", "bar" ), "baz" );
-                properties.put ( new MetaKey ( "foo", "bar2" ), "baz2" );
+            final Map<MetaKey, String> properties = new HashMap<> ();
+            properties.put ( new MetaKey ( "foo", "bar" ), "baz" );
+            properties.put ( new MetaKey ( "foo", "bar2" ), "baz2" );
 
-                writer.createEntry ( file1.getName (), properties, ContentProvider.file ( file1 ) );
-                writer.createEntry ( file2.getName (), properties, ContentProvider.file ( file2 ) );
-            }
-
-            final URIBuilder b = new URIBuilder ( resolve ( "/api/v3/upload/archive/channel/%s", tester.getId () ) );
-            b.setUserInfo ( "deploy", this.deployKey );
-
-            try ( final CloseableHttpResponse response = upload ( b, tmp.toFile () ) )
-            {
-                final String result = CharStreams.toString ( new InputStreamReader ( response.getEntity ().getContent (), StandardCharsets.UTF_8 ) );
-                System.out.println ( "Result: " + response.getStatusLine () );
-                System.out.println ( result );
-                Assert.assertEquals ( 200, response.getStatusLine ().getStatusCode () );
-            }
-
-            final Set<String> arts = tester.getAllArtifactIds ();
-
-            Assert.assertEquals ( 2, arts.size () );
+            writer.createEntry ( file1.getName (), properties, ContentProvider.file ( file1 ) );
+            writer.createEntry ( file2.getName (), properties, ContentProvider.file ( file2 ) );
         }
-        finally
+
+        final URIBuilder b = new URIBuilder ( resolve ( "/api/v3/upload/archive/channel/%s", tester.getId () ) );
+        b.setUserInfo ( "deploy", deployKey );
+
+        System.out.println ( "Request: " + b.build () );
+
+        try ( final CloseableHttpResponse response = upload ( b, tmp.toFile () ) )
         {
-            Files.deleteIfExists ( tmp );
+            final String result = CharStreams.toString ( new InputStreamReader ( response.getEntity ().getContent (), StandardCharsets.UTF_8 ) );
+            System.out.println ( "Result: " + response.getStatusLine () );
+            System.out.println ( result );
+            Assert.assertEquals ( 200, response.getStatusLine ().getStatusCode () );
         }
+
+        final Set<String> arts = tester.getAllArtifactIds ();
+
+        Assert.assertEquals ( 2, arts.size () );
     }
 
     protected CloseableHttpResponse upload ( final URIBuilder uri, final File file ) throws IOException, URISyntaxException
     {
-        final HttpPut httppost = new HttpPut ( uri.build () );
-        httppost.setEntity ( new FileEntity ( file ) );
+        final HttpPut http = new HttpPut ( uri.build () );
 
-        return httpclient.execute ( httppost );
+        final String encodedAuth = Base64.getEncoder ().encodeToString ( uri.getUserInfo ().getBytes ( StandardCharsets.ISO_8859_1 ) );
+
+        http.setHeader ( HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth );
+
+        http.setEntity ( new FileEntity ( file ) );
+        return httpclient.execute ( http );
     }
 }

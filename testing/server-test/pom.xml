@@ -226,6 +226,7 @@
 								<!-- unzip with support for the exec bit -->
 								
 								<unzip src="${project.build.directory}/org.eclipse.packagedrone.server.zip" dest="${project.build.directory}/instance" />
+								<copy file="${basedir}/src/test/resources/logback.xml" tofile="${project.build.directory}/instance/logback.xml" />
 							</target>
 						</configuration>
 						<goals>
