@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.xml;
 
@@ -394,7 +395,7 @@ public class XmlHelper
 
         if ( len > 0 )
         {
-            element.setAttribute ( "size", "" + len );
+            element.setAttribute ( "size", Integer.toString(len) );
         }
         else
         {

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131     
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.p2.internal.aspect;
 
@@ -109,7 +110,7 @@ public class ExtractorImpl implements Extractor
             metadata.put ( P2RepoConstants.KEY_FRAGMENT_DATA.getKey (), sw.toString () );
             metadata.put ( P2RepoConstants.KEY_FRAGMENT_KEYS.getKey (), StringHelper.join ( keys, ENTRY_DELIMITER ) );
             metadata.put ( P2RepoConstants.KEY_FRAGMENT_MD5.getKey (), StringHelper.join ( sums, ENTRY_DELIMITER ) );
-            metadata.put ( P2RepoConstants.KEY_FRAGMENT_COUNT.getKey (), "" + count );
+            metadata.put ( P2RepoConstants.KEY_FRAGMENT_COUNT.getKey (), Integer.toString(count) );
         }
     }
 
@@ -132,7 +133,7 @@ public class ExtractorImpl implements Extractor
             }
 
             metadata.put ( P2RepoConstants.KEY_FRAGMENT_DATA.getKey (), sw.toString () );
-            metadata.put ( P2RepoConstants.KEY_FRAGMENT_COUNT.getKey (), "" + count );
+            metadata.put ( P2RepoConstants.KEY_FRAGMENT_COUNT.getKey (), Integer.toString(count) );
         }
     }
 

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.p2.internal.aspect;
 
@@ -52,7 +53,7 @@ public class P2RepoChannelAggregator implements ChannelAggregator
 
             if ( lastTimestamp != null )
             {
-                result.put ( "last-change", "" + lastTimestamp.getTime () );
+                result.put ( "last-change", Long.toString(lastTimestamp.getTime ()) );
                 result.put ( "last-change-string", DATE_FORMAT.format ( lastTimestamp.getTime () ) );
             }
 

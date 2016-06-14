@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.p2.internal.aspect;
 
@@ -55,7 +56,7 @@ public abstract class AbstractWriter
             this.properties.put ( "p2.compressed", "true" );
         }
 
-        this.properties.put ( "p2.timestamp", "" + timestamp.toEpochMilli () );
+        this.properties.put ( "p2.timestamp", Long.toString(timestamp.toEpochMilli ()) );
 
         if ( additionalProperties != null )
         {

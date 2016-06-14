@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131 
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.deb.aspect.internal;
 
@@ -195,7 +196,7 @@ public class RepoBuilder
             final Map<String, String> values = new HashMap<> ( packageInfo.getControl () );
 
             values.put ( "Filename", packageInfo.getPoolName () );
-            values.put ( "Size", "" + packageInfo.getFileSize () );
+            values.put ( "Size", Long.toString(packageInfo.getFileSize ()) );
 
             if ( !values.containsKey ( "Description-md5" ) )
             {

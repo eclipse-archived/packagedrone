@@ -8,6 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *     Julius Fingerle - fix a few repository generations issues
+ *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.r5;
 
@@ -411,9 +412,9 @@ public class RepositoryCreator
 
         writer.writeAttribute ( "name", id );
         writer.writeAttribute ( "filter", filter );
-        writer.writeAttribute ( "extend", "" + extend );
-        writer.writeAttribute ( "multiple", "" + multiple );
-        writer.writeAttribute ( "optional", "" + optional );
+        writer.writeAttribute ( "extend", Boolean.toString(extend) );
+        writer.writeAttribute ( "multiple", Boolean.toString(multiple) );
+        writer.writeAttribute ( "optional", Boolean.toString(optional) );
 
         writer.writeCharacters ( text );
 
@@ -609,7 +610,7 @@ public class RepositoryCreator
 
         xsw.writeStartElement ( "repository" );
         xsw.writeDefaultNamespace ( "http://www.osgi.org/xmlns/repository/v1.0.0" );
-        xsw.writeAttribute ( "increment", "" + System.currentTimeMillis () );
+        xsw.writeAttribute ( "increment", Long.toString(System.currentTimeMillis ()) );
         xsw.writeAttribute ( "name", this.name );
 
         xsw.writeCharacters ( "\n\n" );

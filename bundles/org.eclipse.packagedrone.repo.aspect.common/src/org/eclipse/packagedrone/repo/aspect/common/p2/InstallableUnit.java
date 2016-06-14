@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.aspect.common.p2;
 
@@ -675,7 +676,7 @@ public class InstallableUnit
     public static void writeXml ( final XMLStreamWriter xsw, final List<InstallableUnit> ius ) throws XMLStreamException
     {
         xsw.writeStartElement ( "units" );
-        xsw.writeAttribute ( "size", "" + ius.size () );
+        xsw.writeAttribute ( "size", Integer.toString(ius.size ()) );
         for ( final InstallableUnit iu : ius )
         {
             iu.writeXmlForUnit ( xsw );
@@ -709,7 +710,7 @@ public class InstallableUnit
         xsw.writeStartElement ( "unit" );
         xsw.writeAttribute ( "id", this.id );
         xsw.writeAttribute ( "version", "" + this.version );
-        xsw.writeAttribute ( "singleton", "" + this.singleton );
+        xsw.writeAttribute ( "singleton", Boolean.toString(this.singleton) );
 
         {
             xsw.writeEmptyElement ( "update" );
@@ -720,7 +721,7 @@ public class InstallableUnit
 
         {
             xsw.writeStartElement ( "properties" );
-            xsw.writeAttribute ( "size", "" + this.properties.size () );
+            xsw.writeAttribute ( "size", Integer.toString(this.properties.size ()) );
 
             for ( final Map.Entry<String, String> entry : this.properties.entrySet () )
             {
@@ -738,7 +739,7 @@ public class InstallableUnit
 
         {
             xsw.writeStartElement ( "provides" );
-            xsw.writeAttribute ( "size", "" + this.provides.size () );
+            xsw.writeAttribute ( "size", Integer.toString(this.provides.size ()) );
 
             for ( final Entry<String> entry : this.provides )
             {
@@ -754,7 +755,7 @@ public class InstallableUnit
 
         {
             xsw.writeStartElement ( "requires" );
-            xsw.writeAttribute ( "size", "" + this.requires.size () );
+            xsw.writeAttribute ( "size", Integer.toString(this.requires.size ()) );
 
             for ( final Entry<Requirement> entry : this.requires )
             {
@@ -800,7 +801,7 @@ public class InstallableUnit
         if ( !this.artifacts.isEmpty () )
         {
             xsw.writeStartElement ( "artifacts" );
-            xsw.writeAttribute ( "size", "" + this.artifacts.size () );
+            xsw.writeAttribute ( "size", Integer.toString(this.artifacts.size ()) );
 
             for ( final Artifact artifact : this.artifacts )
             {
@@ -834,7 +835,7 @@ public class InstallableUnit
                         xsw.writeAttribute ( "size", "1" );
 
                         xsw.writeStartElement ( "instructions" );
-                        xsw.writeAttribute ( "size", "" + tp.getInstructions ().size () );
+                        xsw.writeAttribute ( "size", Integer.toString(tp.getInstructions ().size ()) );
 
                         for ( final Map.Entry<String, String> entry : tp.getInstructions ().entrySet () )
                         {
@@ -853,7 +854,7 @@ public class InstallableUnit
 
         {
             xsw.writeStartElement ( "licenses" );
-            xsw.writeAttribute ( "size", "" + this.licenses.size () );
+            xsw.writeAttribute ( "size", Integer.toString(this.licenses.size ()) );
 
             for ( final License licenseEntry : this.licenses )
             {
