@@ -56,7 +56,7 @@ public abstract class AbstractWriter
             this.properties.put ( "p2.compressed", "true" );
         }
 
-        this.properties.put ( "p2.timestamp", Long.toString(timestamp.toEpochMilli ()) );
+        this.properties.put ( "p2.timestamp", Long.toString ( timestamp.toEpochMilli () ) );
 
         if ( additionalProperties != null )
         {

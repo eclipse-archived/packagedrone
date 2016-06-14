@@ -173,7 +173,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         directory = cleanupPath ( directory );
         if ( !directory.endsWith ( "/" ) )
         {
-            directory += Character.toString('/');
+            directory += Character.toString ( '/' );
         }
         checkCreateParents ( directory );
         internalAddDirectory ( directory, entryInformation );
@@ -308,7 +308,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
 
     protected ContentProvider createControlContent () throws IOException
     {
-        this.packageControlFile.set ( BinaryPackageControlFile.Fields.INSTALLED_SIZE, Long.toString(this.installedSize) );
+        this.packageControlFile.set ( BinaryPackageControlFile.Fields.INSTALLED_SIZE, Long.toString ( this.installedSize ) );
 
         final StringWriter sw = new StringWriter ();
         final ControlFileWriter writer = new ControlFileWriter ( sw, BinaryPackageControlFile.FORMATTERS );

@@ -239,7 +239,7 @@ public class FeatureGenerator implements ArtifactGenerator
 
         p.setAttribute ( "id", id );
         p.setAttribute ( "version", version );
-        p.setAttribute ( "unpack", Boolean.toString(unpack) );
+        p.setAttribute ( "unpack", Boolean.toString ( unpack ) );
     }
 
     @Override

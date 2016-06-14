@@ -196,7 +196,7 @@ public class RepoBuilder
             final Map<String, String> values = new HashMap<> ( packageInfo.getControl () );
 
             values.put ( "Filename", packageInfo.getPoolName () );
-            values.put ( "Size", Long.toString(packageInfo.getFileSize ()) );
+            values.put ( "Size", Long.toString ( packageInfo.getFileSize () ) );
 
             if ( !values.containsKey ( "Description-md5" ) )
             {
@@ -487,7 +487,7 @@ public class RepoBuilder
 
     /**
      * Write field only when the value is set
-     *
+     * 
      * @param writer
      *            the writer to use
      * @param fieldName
@@ -505,15 +505,14 @@ public class RepoBuilder
 
     /**
      * Write a field
-     *
+     * 
      * @param writer
      *            the writer to use
      * @param fieldName
      *            the field name
      * @param value
      *            the value, should not be <code>null</code> since this would
-     *            cause the string
-     *            <q>null</q> in the file.
+     *            cause the string <q>null</q> in the file.
      */
     protected static void write ( final StringWriter writer, final String fieldName, final String value )
     {

@@ -229,7 +229,7 @@ public class RepositoryCreator
             final Map<String, String> reqs = new HashMap<> ();
 
             final String filter = and ( //
-                    pair ( "osgi.wiring.bundle", br.getId () ), //
+            pair ( "osgi.wiring.bundle", br.getId () ), //
                     versionRange ( "bundle-version", br.getVersionRange () ) //
             );
 
@@ -275,7 +275,7 @@ public class RepositoryCreator
             final Map<String, String> reqs = new HashMap<> ();
 
             final String filter = and ( //
-                    pair ( "osgi.wiring.package", pi.getName () ), //
+            pair ( "osgi.wiring.package", pi.getName () ), //
                     versionRange ( "version", pi.getVersionRange () ) //
             );
 
@@ -342,7 +342,7 @@ public class RepositoryCreator
         for ( final BundleRequirement br : bi.getBundleRequirements () )
         {
             final String filter = and ( //
-                    pair ( "symbolicname", br.getId () ), //
+            pair ( "symbolicname", br.getId () ), //
                     versionRange ( "version", br.getVersionRange () ) //
             );
 
@@ -375,7 +375,7 @@ public class RepositoryCreator
         for ( final PackageImport pi : bi.getPackageImports () )
         {
             final String filter = and ( //
-                    pair ( "package", pi.getName () ), //
+            pair ( "package", pi.getName () ), //
                     versionRange ( "version", pi.getVersionRange () ) //
             );
 
@@ -412,9 +412,9 @@ public class RepositoryCreator
 
         writer.writeAttribute ( "name", id );
         writer.writeAttribute ( "filter", filter );
-        writer.writeAttribute ( "extend", Boolean.toString(extend) );
-        writer.writeAttribute ( "multiple", Boolean.toString(multiple) );
-        writer.writeAttribute ( "optional", Boolean.toString(optional) );
+        writer.writeAttribute ( "extend", Boolean.toString ( extend ) );
+        writer.writeAttribute ( "multiple", Boolean.toString ( multiple ) );
+        writer.writeAttribute ( "optional", Boolean.toString ( optional ) );
 
         writer.writeCharacters ( text );
 
@@ -610,7 +610,7 @@ public class RepositoryCreator
 
         xsw.writeStartElement ( "repository" );
         xsw.writeDefaultNamespace ( "http://www.osgi.org/xmlns/repository/v1.0.0" );
-        xsw.writeAttribute ( "increment", Long.toString(System.currentTimeMillis ()) );
+        xsw.writeAttribute ( "increment", Long.toString ( System.currentTimeMillis () ) );
         xsw.writeAttribute ( "name", this.name );
 
         xsw.writeCharacters ( "\n\n" );

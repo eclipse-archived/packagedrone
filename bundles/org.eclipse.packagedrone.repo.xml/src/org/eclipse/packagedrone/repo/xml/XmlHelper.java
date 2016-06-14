@@ -161,8 +161,9 @@ public class XmlHelper
     }
 
     /**
-     * @deprecated Instead the class {@link
-     *             org.eclipse.packagedrone.utils.xml.XmlToolsFactory} should be
+     * @deprecated Instead the class
+     *             {@link org.eclipse.packagedrone.utils.xml.XmlToolsFactory}
+     *             should be
      *             used.
      */
     @Deprecated
@@ -337,7 +338,7 @@ public class XmlHelper
 
     /**
      * Create a new element and add it as the last child
-     *
+     * 
      * @param parent
      *            the parent of the new element
      * @param name
@@ -375,7 +376,7 @@ public class XmlHelper
 
     /**
      * Create a new element and add it as the first child
-     *
+     * 
      * @param parent
      *            the parent to which to add the element
      * @param name
@@ -395,7 +396,7 @@ public class XmlHelper
 
         if ( len > 0 )
         {
-            element.setAttribute ( "size", Integer.toString(len) );
+            element.setAttribute ( "size", Integer.toString ( len ) );
         }
         else
         {
@@ -407,18 +408,18 @@ public class XmlHelper
      * Get the text value of the first element with the matching name
      * <p>
      * Assuming you have an XML file:
-     *
+     * 
      * <pre>
      * &lt;parent&gt;
      * &nbsp;&nbsp;&lt;foo&gt;bar&lt;/foo&gt;
      * &nbsp;&nbsp;&lt;hello&gt;world&lt;/hello&gt;
      * &lt;/parent&gt;
      * </pre>
-     *
+     * 
      * Calling {@link #getText(Element, String)} with "parent" as element and
      * "hello" as name, it would return "world".
      * </p>
-     *
+     * 
      * @param ele
      *            the element to check
      * @param name
