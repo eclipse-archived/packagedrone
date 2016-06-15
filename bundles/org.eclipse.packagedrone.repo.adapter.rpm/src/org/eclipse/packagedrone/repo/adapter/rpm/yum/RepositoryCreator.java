@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.rpm.yum;
 
@@ -325,9 +326,9 @@ public class RepositoryCreator
 
         public void close () throws IOException
         {
-            this.primaryRoot.setAttribute ( "packages", "" + this.count );
-            this.filelistsRoot.setAttribute ( "packages", "" + this.count );
-            this.otherRoot.setAttribute ( "packages", "" + this.count );
+            this.primaryRoot.setAttribute ( "packages", Long.toString ( this.count ) );
+            this.filelistsRoot.setAttribute ( "packages", Long.toString ( this.count ) );
+            this.otherRoot.setAttribute ( "packages", Long.toString ( this.count ) );
 
             try
             {
@@ -442,7 +443,7 @@ public class RepositoryCreator
         final Element root = doc.createElementNS ( "http://linux.duke.edu/metadata/repo", "repomd" );
         doc.appendChild ( root );
 
-        root.setAttribute ( "revision", "" + now / 1000 );
+        root.setAttribute ( "revision", Long.toString ( now / 1000 ) );
 
         addDataFile ( root, this.primaryStreamBuilder, this.primaryUniqueName, "primary", now );
         addDataFile ( root, this.filelistsStreamBuilder, this.filelistsUniqueName, "filelists", now );

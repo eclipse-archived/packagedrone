@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.aspect.common.p2.internal;
 
@@ -77,7 +78,7 @@ public class Creator
                     size++;
                 }
 
-                xsw.writeAttribute ( "size", "" + size );
+                xsw.writeAttribute ( "size", Integer.toString(size) );
 
                 writeProperty ( xsw, "download.size", "" + artifact.getSize () ); // #1
                 writeProperty ( xsw, "artifact.size", "" + artifact.getSize () ); // #2

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.generator.p2;
 
@@ -238,7 +239,7 @@ public class FeatureGenerator implements ArtifactGenerator
 
         p.setAttribute ( "id", id );
         p.setAttribute ( "version", version );
-        p.setAttribute ( "unpack", "" + unpack );
+        p.setAttribute ( "unpack", Boolean.toString ( unpack ) );
     }
 
     @Override

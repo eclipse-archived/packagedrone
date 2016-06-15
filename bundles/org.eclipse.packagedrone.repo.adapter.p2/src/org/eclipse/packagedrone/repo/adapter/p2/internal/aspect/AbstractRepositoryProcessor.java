@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.p2.internal.aspect;
 
@@ -47,7 +48,7 @@ public abstract class AbstractRepositoryProcessor extends AbstractDocumentProces
 
         this.properties.putAll ( additionalProperties );
 
-        this.properties.put ( "p2.timestamp", "" + System.currentTimeMillis () );
+        this.properties.put ( "p2.timestamp", Long.toString ( System.currentTimeMillis () ) );
 
         if ( compressed )
         {
