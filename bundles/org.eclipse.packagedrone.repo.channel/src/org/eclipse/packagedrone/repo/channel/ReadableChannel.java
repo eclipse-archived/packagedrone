@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.provider.AccessContext;
+import org.eclipse.packagedrone.repo.channel.search.ArtifactLocator;
+import org.eclipse.packagedrone.repo.channel.search.stream.StreamArtifactLocator;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 public interface ReadableChannel
@@ -88,5 +90,10 @@ public interface ReadableChannel
     public default List<ArtifactInformation> findByName ( final String name )
     {
         return getContext ().getArtifacts ().values ().stream ().filter ( art -> art.getName ().equals ( name ) ).collect ( Collectors.toList () );
+    }
+
+    public default ArtifactLocator getArtifactLocator ()
+    {
+        return new StreamArtifactLocator ( getArtifacts ()::stream );
     }
 }
