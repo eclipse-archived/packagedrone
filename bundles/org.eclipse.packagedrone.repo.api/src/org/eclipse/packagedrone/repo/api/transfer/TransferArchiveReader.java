@@ -26,6 +26,7 @@ import java.util.zip.ZipInputStream;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.MetaKeys;
 import org.eclipse.packagedrone.utils.io.CloseShieldInputStream;
+import org.eclipse.packagedrone.utils.io.Streams;
 
 public class TransferArchiveReader implements AutoCloseable
 {
@@ -95,6 +96,7 @@ public class TransferArchiveReader implements AutoCloseable
 
         final Map<List<String>, String> paths = new HashMap<> ();
         Map<MetaKey, String> properties = null;
+        String fullName = null;
 
         ZipEntry entry;
         while ( ( entry = this.stream.getNextEntry () ) != null )
@@ -124,9 +126,16 @@ public class TransferArchiveReader implements AutoCloseable
                 parentPath.removeLast ();
                 final String parentId = paths.get ( parentPath );
 
+                // make full name
+
+                if ( fullName == null )
+                {
+                    fullName = path.peekLast ();
+                }
+
                 // handle
 
-                final String id = handler.handleEntry ( parentId, path.peekLast (), properties, new CloseShieldInputStream ( this.stream ) );
+                final String id = handler.handleEntry ( parentId, fullName, properties, new CloseShieldInputStream ( this.stream ) );
 
                 // store ID
 
@@ -135,6 +144,7 @@ public class TransferArchiveReader implements AutoCloseable
                 // reset properties
 
                 properties = null;
+                fullName = null;
 
                 // store
             }
@@ -142,6 +152,10 @@ public class TransferArchiveReader implements AutoCloseable
             {
                 // load properties
                 properties = loadProperties ( new CloseShieldInputStream ( this.stream ) );
+            }
+            else if ( name.endsWith ( "/name" ) )
+            {
+                fullName = Streams.toString ( this.stream, StandardCharsets.UTF_8 );
             }
             else
             {

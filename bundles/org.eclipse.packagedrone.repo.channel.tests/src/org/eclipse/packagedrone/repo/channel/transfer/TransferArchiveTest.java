@@ -24,9 +24,9 @@ import java.util.Map;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.api.transfer.TransferArchiveReader;
+import org.eclipse.packagedrone.repo.api.transfer.TransferArchiveReader.Handler;
 import org.eclipse.packagedrone.repo.api.transfer.TransferArchiveWriter;
 import org.eclipse.packagedrone.repo.api.transfer.TransferWriterEntryContext;
-import org.eclipse.packagedrone.repo.api.transfer.TransferArchiveReader.Handler;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -95,6 +95,57 @@ public class TransferArchiveTest
         }
 
         Assert.assertArrayEquals ( new Object[] { "test1", "test2", "test1.test1a", "test1.test1b", "test2.test2a", "test2.test2b" }, ids.toArray () );
+    }
+
+    @Test
+    public void write2 () throws IOException
+    {
+        try ( TransferArchiveWriter writer = new TransferArchiveWriter ( Files.newOutputStream ( BASE.resolve ( "test2.zip" ) ) ) )
+        {
+            writer.createEntry ( "test1", make ( "foo:bar", "value" ), string ( "foo bar" ) );
+            final TransferWriterEntryContext test2 = writer.createEntry ( "test1/test2", null, string ( "foo bar 2" ) );
+
+            test2.createEntry ( "test3", null, string ( "child 3" ) );
+            test2.createEntry ( "test1/test2/test3", null, string ( "child 3" ) );
+        }
+    }
+
+    @Test
+    public void read2 () throws IOException
+    {
+        final List<String> ids = new LinkedList<> ();
+
+        try ( final TransferArchiveReader reader = new TransferArchiveReader ( Files.newInputStream ( BASE.resolve ( "test2.zip" ) ) ) )
+        {
+            reader.process ( new Handler () {
+                @Override
+                public String handleEntry ( final String parentId, final String artifactName, final Map<MetaKey, String> metadata, final InputStream stream ) throws IOException
+                {
+                    System.out.format ( "========= %s ========= %n", artifactName );
+                    for ( final Map.Entry<MetaKey, String> entry : metadata.entrySet () )
+                    {
+                        System.out.format ( "  '%s' -> '%s'%n", entry.getKey (), entry.getValue () );
+                    }
+                    System.out.format ( "---------------------- %n", artifactName );
+                    ByteStreams.copy ( stream, System.out );
+                    System.out.format ( "%n---------------------- %n", artifactName );
+
+                    final String id;
+                    if ( parentId != null )
+                    {
+                        id = parentId + "." + artifactName;
+                    }
+                    else
+                    {
+                        id = artifactName;
+                    }
+                    ids.add ( id );
+                    return id;
+                }
+            } );
+        }
+
+        Assert.assertArrayEquals ( new Object[] { "test1", "test1/test2", "test1/test2.test3", "test1/test2.test1/test2/test3" }, ids.toArray () );
     }
 
     private Map<MetaKey, String> make ( final String key, final String value )

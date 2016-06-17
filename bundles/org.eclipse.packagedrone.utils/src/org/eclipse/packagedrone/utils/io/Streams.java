@@ -12,7 +12,11 @@ package org.eclipse.packagedrone.utils.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Writer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
@@ -71,6 +75,44 @@ public final class Streams
         }
 
         return result;
+    }
+
+    /**
+     * Copy the remaining content of one reader to the {@link Appendable} (or
+     * {@link Writer}
+     *
+     * @param in
+     *            the input readable
+     * @param out
+     *            the output appendable
+     * @return the number of characters copied
+     * @throws IOException
+     *             if any I/O error occurs
+     */
+    public static long copy ( final Readable readable, final Appendable appendable ) throws IOException
+    {
+        final CharBuffer buffer = CharBuffer.allocate ( COPY_BUFFER_SIZE );
+        long total = 0;
+        while ( readable.read ( buffer ) >= 0 )
+        {
+            buffer.flip ();
+            appendable.append ( buffer );
+            total += buffer.remaining ();
+            buffer.clear ();
+        }
+        return total;
+    }
+
+    public static String toString ( final Readable readable ) throws IOException
+    {
+        final StringBuilder builder = new StringBuilder ();
+        copy ( readable, builder );
+        return builder.toString ();
+    }
+
+    public static String toString ( final InputStream stream, final Charset charset ) throws IOException
+    {
+        return toString ( new InputStreamReader ( stream, charset ) );
     }
 
     public static InputStream closedInput ()

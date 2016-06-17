@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.api.transfer;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -40,14 +41,29 @@ public class TransferArchiveWriter implements AutoCloseable, TransferWriterEntry
         return store ( Collections.emptyList (), name, properties, content );
     }
 
-    private TransferWriterEntryContext store ( final List<String> parents, final String name, final Map<MetaKey, String> properties, final ContentProvider content ) throws IOException
+    private TransferWriterEntryContext store ( final List<String> parents, String name, final Map<MetaKey, String> properties, final ContentProvider content ) throws IOException
     {
         final List<String> newParents = new ArrayList<> ( parents.size () );
         newParents.addAll ( parents );
-        newParents.add ( name );
+
+        name = name.replace ( File.separatorChar, '/' );
+
+        final int idx = name.lastIndexOf ( '/' );
+        if ( idx >= 0 )
+        {
+            newParents.add ( name.substring ( idx + 1, name.length () - 1 ) );
+        }
+        else
+        {
+            newParents.add ( name );
+        }
 
         final String basename = makeBaseName ( newParents );
 
+        if ( idx >= 0 )
+        {
+            addEntry ( basename + "/name", ContentProvider.string ( name ) );
+        }
         addEntry ( basename + "/properties.json", output -> writeProperties ( properties, output ) );
         addEntry ( basename + "/content", content );
 
