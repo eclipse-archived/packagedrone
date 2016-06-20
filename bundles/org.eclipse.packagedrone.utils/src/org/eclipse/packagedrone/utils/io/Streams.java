@@ -81,9 +81,9 @@ public final class Streams
      * Copy the remaining content of one reader to the {@link Appendable} (or
      * {@link Writer}
      *
-     * @param in
+     * @param readable
      *            the input readable
-     * @param out
+     * @param appendable
      *            the output appendable
      * @return the number of characters copied
      * @throws IOException
