@@ -116,6 +116,14 @@
 			
 		</dependencies>
 	</dependencyManagement>
+	
+	<modules>
+		<module>../bundles/org.eclipse.packagedrone.repo/secondary.pom</module>
+		<module>../bundles/org.eclipse.packagedrone.repo.api/secondary.pom</module>
+		<module>../bundles/org.eclipse.packagedrone.utils/secondary.pom</module>
+		<module>../bundles/org.eclipse.packagedrone.utils.converter/secondary.pom</module>
+		<module>../bundles/org.eclipse.packagedrone.utils.rpm/secondary.pom</module>
+	</modules>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -233,13 +241,5 @@
 
 		</plugins>
 	</build>
-
-	<modules>
-		<module>../bundles/org.eclipse.packagedrone.repo/secondary.pom</module>
-		<module>../bundles/org.eclipse.packagedrone.repo.api/secondary.pom</module>
-		<module>../bundles/org.eclipse.packagedrone.utils/secondary.pom</module>
-		<module>../bundles/org.eclipse.packagedrone.utils.converter/secondary.pom</module>
-		<module>../bundles/org.eclipse.packagedrone.utils.rpm/secondary.pom</module>
-	</modules>
 
 </project>
