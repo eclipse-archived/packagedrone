@@ -17,6 +17,9 @@
         <c:when test="${empty label }">
             <div class="col-sm-2"></div>
         </c:when>
+        <c:when test="${empty path }">
+            <label class="col-sm-2 control-label">${fn:escapeXml(label) }</label>
+        </c:when>
         <c:otherwise>
             <form:label path="${path }" cssClass="col-sm-2 control-label">${fn:escapeXml(label) }</form:label>
         </c:otherwise>

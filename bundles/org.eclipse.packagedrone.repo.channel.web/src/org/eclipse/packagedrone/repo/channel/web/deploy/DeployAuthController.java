@@ -130,7 +130,7 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/group", method = RequestMethod.GET )
-    public ModelAndView listGroups ( @RequestParameter ( required = false, value = "start" ) final Integer position)
+    public ModelAndView listGroups ( @RequestParameter ( required = false, value = "start" ) final Integer position )
     {
         final ModelAndView result = new ModelAndView ( "listGroups" );
 
@@ -140,7 +140,7 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/key", method = RequestMethod.GET )
-    public ModelAndView listKeys ( @RequestParameter ( required = false, value = "position" ) Integer position)
+    public ModelAndView listKeys ( @RequestParameter ( required = false, value = "position" ) Integer position )
     {
         final ModelAndView result = new ModelAndView ( "listKeys" );
 
@@ -176,7 +176,7 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/key/{keyId}/delete", method = RequestMethod.GET )
-    public ModelAndView deleteKeyForGroup ( @PathVariable ( "keyId" ) final String keyId)
+    public ModelAndView deleteKeyForGroup ( @PathVariable ( "keyId" ) final String keyId )
     {
         final DeployKey key = this.service.deleteDeployKey ( keyId );
 
@@ -201,14 +201,14 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/group/{groupId}/delete", method = RequestMethod.GET )
-    public String deleteGroup ( @PathVariable ( "groupId" ) final String groupId)
+    public String deleteGroup ( @PathVariable ( "groupId" ) final String groupId )
     {
         this.service.deleteGroup ( groupId );
         return "redirect:/deploy/auth/group";
     }
 
     @RequestMapping ( value = "/addGroup", method = RequestMethod.POST )
-    public ModelAndView addGroupPost ( @RequestParameter ( "name" ) final String name)
+    public ModelAndView addGroupPost ( @RequestParameter ( "name" ) final String name )
     {
         try
         {
@@ -222,7 +222,7 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/group/{groupId}/view" )
-    public ModelAndView viewGroup ( @PathVariable ( "groupId" ) final String groupId)
+    public ModelAndView viewGroup ( @PathVariable ( "groupId" ) final String groupId )
     {
         final DeployGroup group = this.service.getGroup ( groupId );
 
@@ -240,7 +240,7 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/group/{groupId}/edit" )
-    public ModelAndView editGroup ( @PathVariable ( "groupId" ) final String groupId)
+    public ModelAndView editGroup ( @PathVariable ( "groupId" ) final String groupId )
     {
         final DeployGroup group = this.service.getGroup ( groupId );
 
@@ -258,7 +258,7 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/group/{groupId}/edit", method = RequestMethod.POST )
-    public ModelAndView editGroupPost ( @PathVariable ( "groupId" ) final String groupId, @Valid @FormData ( "command" ) final DeployGroupBean group, final BindingResult result)
+    public ModelAndView editGroupPost ( @PathVariable ( "groupId" ) final String groupId, @Valid @FormData ( "command" ) final DeployGroupBean group, final BindingResult result )
     {
         final Map<String, Object> model = new HashMap<> ( 1 );
 
@@ -274,7 +274,7 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/key/{keyId}/edit" )
-    public ModelAndView editKey ( @PathVariable ( "keyId" ) final String keyId)
+    public ModelAndView editKey ( @PathVariable ( "keyId" ) final String keyId )
     {
         final DeployKey key = this.service.getDeployKey ( keyId );
 
@@ -285,13 +285,15 @@ public class DeployAuthController implements InterfaceExtender
 
         final Map<String, Object> model = new HashMap<> ();
 
+        model.put ( "id", key.getId () );
+        model.put ( "groupId", key.getGroup ().getId () );
         model.put ( "command", DeployKeyBean.fromKey ( key ) );
 
         return new ModelAndView ( "editKey", model );
     }
 
     @RequestMapping ( value = "/key/{keyId}/edit", method = RequestMethod.POST )
-    public ModelAndView editKeyPost ( @PathVariable ( "keyId" ) final String keyId, @Valid @FormData ( "command" ) final DeployKeyBean key, final BindingResult result)
+    public ModelAndView editKeyPost ( @PathVariable ( "keyId" ) final String keyId, @Valid @FormData ( "command" ) final DeployKeyBean key, final BindingResult result )
     {
         if ( !result.hasErrors () )
         {
@@ -306,7 +308,7 @@ public class DeployAuthController implements InterfaceExtender
     }
 
     @RequestMapping ( value = "/group/{groupId}/createKey" )
-    public ModelAndView createDeployKey ( @PathVariable ( "groupId" ) final String groupId)
+    public ModelAndView createDeployKey ( @PathVariable ( "groupId" ) final String groupId )
     {
         final DeployGroup group = this.service.getGroup ( groupId );
 
@@ -325,7 +327,7 @@ public class DeployAuthController implements InterfaceExtender
 
     @RequestMapping ( value = "/group/{groupId}/createKey", method = RequestMethod.POST )
     public ModelAndView createDeployKeyPost ( @PathVariable ( "groupId" ) final String groupId, @RequestParameter (
-            value = "name", required = false ) final String name)
+            value = "name", required = false ) final String name )
     {
         try
         {
