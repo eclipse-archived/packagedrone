@@ -425,6 +425,7 @@
   <setupTask
       xsi:type="pde:TargetPlatformTask"
       id="org.eclipse.packagedrone.targetplatform"
+      predecessor="//@setupTasks.6"
       name="Eclipse Package Drone Runtime">
     <description>The Package Drone target platform will be created during the initial startup of the workspace.</description>
   </setupTask>
