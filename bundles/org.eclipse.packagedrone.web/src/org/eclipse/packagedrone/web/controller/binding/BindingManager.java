@@ -220,7 +220,6 @@ public class BindingManager
      *
      * @param binder
      *            the binder to initialize
-     * @return the list of exceptions or <code>null</code> if there were none
      */
     private void initializeBinder ( final Binder binder )
     {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,7 +79,7 @@ public interface CoreService
      * Get multiple core properties with the same namespace
      * <p>
      * The method is a convenience method to
-     * {@link #getCoreProperties(Collection)} and will behave as is if {@link
+     * {@link #getCoreProperties(Collection)} and will behave as is if
      * <code>getCoreProperties(Arrays.asList(keys))</code> would have been
      * called with all keys having the same namespace
      * </p>
@@ -113,7 +113,7 @@ public interface CoreService
      * Get multiple core properties with the same namespace
      * <p>
      * The method is a convenience method to
-     * {@link #getCoreProperties(Collection)} and will behave as is if {@link
+     * {@link #getCoreProperties(Collection)} and will behave as is if
      * <code>getCoreProperties(Arrays.asList(keys))</code> would have been
      * called with all keys having the same namespace
      * </p>
