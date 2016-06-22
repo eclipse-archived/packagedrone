@@ -14,8 +14,6 @@
 
 <div class="container">
 
-<div class="row">
-
 <form:form action="" method="POST"  cssClass="form-horizontal">
     
     <h:formEntry label="E-Mail"  command="command" path="email">
@@ -35,6 +33,6 @@
 
 </form:form>
 
-</div></div>
+</div>
 
 </h:main>
