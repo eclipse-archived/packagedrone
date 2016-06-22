@@ -19,17 +19,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.Info;
-import io.swagger.annotations.License;
-import io.swagger.annotations.SwaggerDefinition;
 
 @Path ( "/version" )
 @Api
-@SwaggerDefinition ( info = @Info ( title = "Eclipse Package Drone API",
-        version = Version.API_VERSION,
-        description = "This API allows access to Eclipse Package Drone",
-        license = @License ( name = "Eclipse Public License - v 1.0",
-                url = "https://www.eclipse.org/legal/epl-v10.html" ) ) )
 public interface Version
 {
     @ApiModel ( description = "Information about the product version" )

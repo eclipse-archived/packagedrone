@@ -13,6 +13,15 @@ package org.eclipse.packagedrone.repo.api.internal;
 import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.api.Version;
 
+import io.swagger.annotations.Info;
+import io.swagger.annotations.License;
+import io.swagger.annotations.SwaggerDefinition;
+
+@SwaggerDefinition ( info = @Info ( title = "Eclipse Package Drone API",
+        version = Version.API_VERSION,
+        description = "This API allows access to Eclipse Package Drone",
+        license = @License ( name = "Eclipse Public License - v 1.0",
+                url = "https://www.eclipse.org/legal/epl-v10.html" ) ) )
 public class VersionImpl implements Version
 {
     public static final String API_VERSION = "0.3";

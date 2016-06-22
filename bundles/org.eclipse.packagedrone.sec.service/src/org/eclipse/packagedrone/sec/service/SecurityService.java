@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.sec.service;
 
+import java.security.Principal;
+import java.util.Optional;
+
 import org.eclipse.packagedrone.sec.UserInformation;
 
 /**
@@ -46,4 +49,14 @@ public interface SecurityService
      *         otherwise
      */
     public boolean hasUserBase ();
+
+    /**
+     * Get principal based on an access token
+     *
+     * @param token
+     *            the access token
+     * @return the optional principal
+     */
+    public Optional<Principal> accessByToken ( String token );
+
 }

@@ -5,15 +5,16 @@ Bundle-SymbolicName: org.eclipse.packagedrone.repo.api.internal
 Bundle-Version: 0.14.0.qualifier
 Bundle-Vendor: Eclipse Package Drone
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Service-Component: OSGI-INF/channels.xml,
- OSGI-INF/root.xml,
- OSGI-INF/swagger.xml,
- OSGI-INF/upload.xml,
- OSGI-INF/version.xml
-Import-Package: com.google.gson;version="2.3.1",
+Service-Component: OSGI-INF/channels.xml,OSGI-INF/errorMapper.xml,OSGI-INF/root.xml,OSGI-INF/swagger.xml,OSGI-INF/upload.xml,OSGI-INF/version.xml,
+ OSGI-INF/security.xml
+Import-Package: com.eclipsesource.jaxrs.provider.security;version="2.2.0",
+ com.google.gson;version="2.3.1",
+ io.swagger.annotations;version="1.5.9",
  javax.servlet;version="3.1.0",
  javax.servlet.http;version="3.1.0",
+ javax.ws.rs.container;version="2.0.1",
  javax.ws.rs.core;version="2.0.1",
+ javax.ws.rs.ext;version="2.0.1",
  org.eclipse.packagedrone;version="1.0.0",
  org.eclipse.packagedrone.repo;version="1.0.0",
  org.eclipse.packagedrone.repo.api;version="0.14.0",
@@ -23,6 +24,7 @@ Import-Package: com.google.gson;version="2.3.1",
  org.eclipse.packagedrone.repo.channel.provider;version="1.0.0",
  org.eclipse.packagedrone.repo.channel.servlet;version="1.0.0",
  org.eclipse.packagedrone.repo.channel.transfer;version="1.0.0",
+ org.eclipse.packagedrone.sec.service;version="1.0.0",
  org.eclipse.packagedrone.utils;version="1.0.0",
  org.eclipse.packagedrone.web.util;version="1.0.0",
  org.eclipse.scada.utils;version="0.2.0",

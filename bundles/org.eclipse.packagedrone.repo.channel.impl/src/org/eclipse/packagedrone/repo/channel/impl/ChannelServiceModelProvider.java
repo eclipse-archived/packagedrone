@@ -37,7 +37,7 @@ public class ChannelServiceModelProvider extends AbstractSimpleStorageModelProvi
 {
     public ChannelServiceModelProvider ()
     {
-        super ( ChannelServiceAccess.class, ChannelServiceModify.class );
+        super ( ChannelServiceModify.class );
     }
 
     @Override

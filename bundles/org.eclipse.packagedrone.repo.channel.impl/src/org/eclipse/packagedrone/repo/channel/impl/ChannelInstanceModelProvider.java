@@ -29,7 +29,7 @@ public class ChannelInstanceModelProvider extends AbstractSimpleStorageModelProv
 
     public ChannelInstanceModelProvider ( final String channelId )
     {
-        super ( ChannelInstanceModelAccess.class, ChannelInstanceModel.class );
+        super ( ChannelInstanceModel.class );
         this.channelId = channelId;
     }
 
@@ -47,9 +47,10 @@ public class ChannelInstanceModelProvider extends AbstractSimpleStorageModelProv
 
     private static Gson createGson ()
     {
-        final GsonBuilder gb = new GsonBuilder ();
-        gb.setPrettyPrinting ();
-        return gb.create ();
+        final GsonBuilder builder = new GsonBuilder ();
+        builder.setPrettyPrinting ();
+        builder.setDateFormat ( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" );
+        return builder.create ();
     }
 
     @Override

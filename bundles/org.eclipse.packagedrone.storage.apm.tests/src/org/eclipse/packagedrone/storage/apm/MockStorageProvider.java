@@ -16,9 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
-import org.eclipse.packagedrone.storage.apm.AbstractSimpleStorageModelProvider;
-import org.eclipse.packagedrone.storage.apm.StorageContext;
-
 public class MockStorageProvider extends AbstractSimpleStorageModelProvider<MockStorageViewModel, MockStorageModel>
 {
     private final String key;
@@ -27,7 +24,7 @@ public class MockStorageProvider extends AbstractSimpleStorageModelProvider<Mock
 
     public MockStorageProvider ( final String key, final String initialValue )
     {
-        super ( MockStorageViewModel.class, MockStorageModel.class );
+        super ( MockStorageModel.class );
 
         this.key = key;
         this.initialValue = initialValue;

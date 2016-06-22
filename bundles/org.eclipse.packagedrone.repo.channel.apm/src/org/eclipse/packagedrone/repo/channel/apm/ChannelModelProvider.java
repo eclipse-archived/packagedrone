@@ -57,7 +57,7 @@ public class ChannelModelProvider extends AbstractSimpleStorageModelProvider<Acc
 
     public ChannelModelProvider ( final String channelId, final String dir )
     {
-        super ( AccessContext.class, ModifyContextImpl.class );
+        super ( ModifyContextImpl.class );
 
         this.channelId = channelId;
         this.dir = dir;

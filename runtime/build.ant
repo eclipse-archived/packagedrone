@@ -296,6 +296,7 @@
         	<mavenGet group="com/eclipsesource/jaxrs" artifact="publisher" version="5.3.1" /> <!-- CQ 11561 -->
         	<mavenGet group="com/eclipsesource/jaxrs" artifact="provider-gson" version="2.3" /> <!-- CQ 11561 -->
         	<mavenGet group="com/eclipsesource/jaxrs" artifact="provider-swagger" version="1.1.1" /> <!-- CQ 11561 -->
+        	<mavenGet group="com/eclipsesource/jaxrs" artifact="provider-security" version="2.2" /> <!-- CQ 11561 -->
         	
         	<!-- dependencies for osgi connector -->
         	

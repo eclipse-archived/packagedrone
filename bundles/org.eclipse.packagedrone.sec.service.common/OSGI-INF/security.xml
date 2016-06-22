@@ -3,5 +3,7 @@
    <implementation class="org.eclipse.packagedrone.sec.service.common.internal.SecurityServiceImpl"/>
    <service>
       <provide interface="org.eclipse.packagedrone.sec.service.SecurityService"/>
+      <provide interface="org.eclipse.packagedrone.sec.service.AccessTokenService"/>
    </service>
+   <reference bind="setStorageManager" cardinality="1..1" interface="org.eclipse.packagedrone.storage.apm.StorageManager" name="StorageManager" policy="static"/>
 </scr:component>

@@ -17,6 +17,9 @@ import org.eclipse.packagedrone.repo.api.Version;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+/*
+ * This is currently dead code is it does not get picked up the OSGi connector
+ */
 public class SwaggerConfigurator
 {
     private ConfigurationAdmin configurationAdmin;
