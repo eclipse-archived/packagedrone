@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ import com.google.gson.GsonBuilder;
 
 public class Functions
 {
-    private static Comparator<Object> COMPARATOR = new AnyComparator ();
+    private static final Comparator<Object> COMPARATOR = new AnyComparator ();
 
     private static class AnyComparator implements Comparator<Object>
     {
@@ -162,5 +162,25 @@ public class Functions
     public static Date toDate ( final Instant instant )
     {
         return Date.from ( instant );
+    }
+
+    public static String limit ( final String value, final int length, String ellipsis )
+    {
+        if ( value == null || value.length () < length )
+        {
+            return value;
+        }
+
+        if ( length <= 0 )
+        {
+            return "";
+        }
+
+        if ( ellipsis == null )
+        {
+            ellipsis = "…";
+        }
+
+        return value.substring ( 0, length ) + ellipsis;
     }
 }

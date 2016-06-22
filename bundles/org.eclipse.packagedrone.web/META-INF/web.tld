@@ -120,4 +120,11 @@
         <function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
         <function-signature>java.util.Date toDate(java.time.Instant)</function-signature>
     </function>
+    
+    <function>
+    	<description>Limit the length of a string</description>
+    	<name>limit</name>
+    	<function-class>org.eclipse.packagedrone.web.tags.Functions</function-class>
+    	<function-signature>java.lang.String limit(java.lang.String,int,java.lang.String)</function-signature>
+    </function>
 </taglib>
