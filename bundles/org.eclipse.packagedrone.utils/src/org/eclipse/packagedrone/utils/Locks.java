@@ -31,9 +31,9 @@ public final class Locks
     /**
      * Lock and return {@link AutoCloseable} instance for unlocking
      * Use with a <tt>try-with-resources</tt> construct:
-     * 
+     *
      * <pre>
-     * {@code
+     * {@code}
      * try ( Locked l = lock ( myLock ) ) {
      *      // locked "myLock"
      * }
