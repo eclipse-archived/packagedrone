@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,7 @@ import com.google.gson.GsonBuilder;
 
 public abstract class AbstractJsonJobFactory<T, R> implements JobFactory
 {
-    private static GsonBuilder DEFAULT = new GsonBuilder ();
+    private static final GsonBuilder DEFAULT = new GsonBuilder ();
 
     private Supplier<GsonBuilder> gsonBuilder;
 
@@ -30,7 +30,7 @@ public abstract class AbstractJsonJobFactory<T, R> implements JobFactory
     public AbstractJsonJobFactory ( final Class<T> dataClazz, final Supplier<GsonBuilder> gsonBuilder )
     {
         this.dataClazz = dataClazz;
-        this.gsonBuilder = gsonBuilder == null ? ( ) -> DEFAULT : gsonBuilder;
+        this.gsonBuilder = gsonBuilder == null ? () -> DEFAULT : gsonBuilder;
     }
 
     public AbstractJsonJobFactory ( final Class<T> dataClazz, final GsonBuilder gsonBuilder )
