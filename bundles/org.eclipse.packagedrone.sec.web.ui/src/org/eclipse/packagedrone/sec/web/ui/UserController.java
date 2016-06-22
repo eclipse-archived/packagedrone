@@ -138,7 +138,7 @@ public class UserController extends AbstractUserCreationController implements In
     }
 
     @RequestMapping ( method = RequestMethod.GET )
-    public ModelAndView list ( @RequestParameter ( required = false, value = "start" ) final Integer position)
+    public ModelAndView list ( @RequestParameter ( required = false, value = "start" ) final Integer position )
     {
         final ModelAndView result = new ModelAndView ( "user/list" );
         result.put ( "users", Pagination.paginate ( position, 25, this.storage::list ) );
@@ -156,7 +156,7 @@ public class UserController extends AbstractUserCreationController implements In
     }
 
     @RequestMapping ( value = "/add", method = RequestMethod.POST )
-    public ModelAndView addUserPost ( @Valid @FormData ( "command" ) final CreateUser data, final BindingResult result)
+    public ModelAndView addUserPost ( @Valid @FormData ( "command" ) final CreateUser data, final BindingResult result )
     {
         if ( result.hasErrors () )
         {
@@ -172,7 +172,7 @@ public class UserController extends AbstractUserCreationController implements In
 
     @RequestMapping ( value = "/{userId}/view", method = RequestMethod.GET )
     @HttpConstraint ( value = EmptyRoleSemantic.PERMIT )
-    public ModelAndView viewUser ( @PathVariable ( "userId" ) final String userId, final HttpServletRequest request)
+    public ModelAndView viewUser ( @PathVariable ( "userId" ) final String userId, final HttpServletRequest request )
     {
         final boolean you = isYou ( userId, request );
 
@@ -205,7 +205,7 @@ public class UserController extends AbstractUserCreationController implements In
     }
 
     @RequestMapping ( value = "/{userId}/edit", method = RequestMethod.GET )
-    public ModelAndView editUser ( @PathVariable ( "userId" ) final String userId)
+    public ModelAndView editUser ( @PathVariable ( "userId" ) final String userId )
     {
         final DatabaseUserInformation user = this.storage.getUserDetails ( userId );
 
@@ -250,7 +250,7 @@ public class UserController extends AbstractUserCreationController implements In
     }
 
     @RequestMapping ( value = "/{userId}/edit", method = RequestMethod.POST )
-    public ModelAndView editUserPost ( @PathVariable ( "userId" ) final String userId, @Valid @FormData ( "command" ) final UserDetailsBean data, final BindingResult result, final HttpSession session)
+    public ModelAndView editUserPost ( @PathVariable ( "userId" ) final String userId, @Valid @FormData ( "command" ) final UserDetailsBean data, final BindingResult result, final HttpSession session )
     {
         final DatabaseUserInformation user = this.storage.getUserDetails ( userId );
 
@@ -280,21 +280,21 @@ public class UserController extends AbstractUserCreationController implements In
     }
 
     @RequestMapping ( "/{userId}/lock" )
-    public ModelAndView lockUser ( @PathVariable ( "userId" ) final String userId)
+    public ModelAndView lockUser ( @PathVariable ( "userId" ) final String userId )
     {
         this.storage.lockUser ( userId );
         return new ModelAndView ( "redirect:/user/" + userId + "/view" );
     }
 
     @RequestMapping ( "/{userId}/unlock" )
-    public ModelAndView unlockUser ( @PathVariable ( "userId" ) final String userId)
+    public ModelAndView unlockUser ( @PathVariable ( "userId" ) final String userId )
     {
         this.storage.unlockUser ( userId );
         return new ModelAndView ( "redirect:/user/" + userId + "/view" );
     }
 
     @RequestMapping ( "/{userId}/delete" )
-    public ModelAndView deleteUser ( @PathVariable ( "userId" ) final String userId)
+    public ModelAndView deleteUser ( @PathVariable ( "userId" ) final String userId )
     {
         this.storage.deleteUser ( userId );
         return new ModelAndView ( "redirect:/user" );
@@ -302,7 +302,7 @@ public class UserController extends AbstractUserCreationController implements In
 
     @RequestMapping ( "/{userId}/newPassword" )
     @HttpConstraint ( value = EmptyRoleSemantic.PERMIT )
-    public ModelAndView changePassword ( @PathVariable ( "userId" ) final String userId, final HttpServletRequest request)
+    public ModelAndView changePassword ( @PathVariable ( "userId" ) final String userId, final HttpServletRequest request )
     {
         final Map<String, Object> model = new HashMap<> ();
 
@@ -336,7 +336,7 @@ public class UserController extends AbstractUserCreationController implements In
 
     @RequestMapping ( value = "/{userId}/newPassword", method = RequestMethod.POST )
     @HttpConstraint ( value = EmptyRoleSemantic.PERMIT )
-    public ModelAndView changePasswordPost ( @PathVariable ( "userId" ) final String userId, @Valid @FormData ( "command" ) final NewPassword data, final BindingResult result, final HttpServletRequest request)
+    public ModelAndView changePasswordPost ( @PathVariable ( "userId" ) final String userId, @Valid @FormData ( "command" ) final NewPassword data, final BindingResult result, final HttpServletRequest request )
     {
         final boolean you = isYou ( userId, request );
 
