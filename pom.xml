@@ -187,6 +187,7 @@
 		<module>bundles/org.eclipse.packagedrone.utils.converter.tests</module>
 		<module>bundles/org.eclipse.packagedrone.utils.deb</module>
 		<module>bundles/org.eclipse.packagedrone.utils.deb.tests</module>
+		<module>bundles/org.eclipse.packagedrone.utils.gson</module>
 		<module>bundles/org.eclipse.packagedrone.utils.logging.jul</module>
 		<module>bundles/org.eclipse.packagedrone.utils.profiler</module>
 		<module>bundles/org.eclipse.packagedrone.utils.rpm</module>
