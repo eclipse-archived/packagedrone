@@ -7,8 +7,6 @@ Bundle-Vendor: Jens Reimann
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.packagedrone.repo.manage.system;version="1.0.0"
 Import-Package: com.google.common.io;version="18.0.0",
- org.eclipse.jetty.server;version="9.2.7",
- org.eclipse.jetty.util.component;version="9.2.7",
  org.eclipse.packagedrone.repo;version="1.0.0",
  org.eclipse.packagedrone.repo.manage.core;version="1.0.0",
  org.eclipse.packagedrone.repo.xml;version="1.0.0",
@@ -18,5 +16,7 @@ Import-Package: com.google.common.io;version="18.0.0",
  org.osgi.service.cm;version="1.5.0",
  org.osgi.service.http;version="1.2.1",
  org.slf4j;version="1.7.2"
-Service-Component: OSGI-INF/system.xml,OSGI-INF/backup.xml,
+Service-Component: OSGI-INF/system.xml,
+ OSGI-INF/backup.xml,
  OSGI-INF/sitePrefix.xml
+Bundle-ActivationPolicy: lazy

@@ -4,5 +4,4 @@
    <service>
       <provide interface="org.eclipse.packagedrone.repo.manage.system.SystemService"/>
    </service>
-   <reference bind="setServer" cardinality="0..1" interface="org.eclipse.jetty.server.Server" name="Server" policy="dynamic" unbind="unsetServer"/>
 </scr:component>
