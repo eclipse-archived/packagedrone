@@ -24,7 +24,7 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
   <h:nav menu="${menuManager.getViews(channel) }"/>
   
   <div class="table-responsive">
-  	<s:valTable messages="${messages }"/>
+  	<s:valTable channelId="${channel.id }" messages="${messages }"/>
   </div>
 
 </jsp:body>

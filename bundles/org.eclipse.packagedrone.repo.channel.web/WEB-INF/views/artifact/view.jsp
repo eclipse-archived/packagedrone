@@ -65,7 +65,7 @@
 <%-- VALIDATION --%>
 
 <div role="tabpanel" class="tab-pane table-responsive" id="val">
-    <s:valTable messages="${artifact.validationMessages }"/>
+    <s:valTable channelId="${artifact.channelId.id }" messages="${artifact.validationMessages }"/>
 </div>
 
 <%-- RELATIONS --%>
