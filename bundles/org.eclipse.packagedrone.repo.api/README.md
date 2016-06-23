@@ -99,6 +99,6 @@ type [`UploadResult`](src/org/eclipse/packagedrone/repo/api/upload/UploadResult.
 
 For an unsuccessful HTTP request (4xx, 5xx) the result will always be a JSON encoded message of the type [`UploadError`](src/org/eclipse/packagedrone/repo/api/upload/UploadError.java).
 
-***Note: ** Even a successful upload may have chosen to reject artifacts, but not to fail the process. This can e.g. be configured using the trigger system. In this case the upload request
+**Note: ** Even a successful upload may have chosen to reject artifacts, but not to fail the process. This can e.g. be configured using the trigger system. In this case the upload request
 will be successful and the `UploadResult` structure will contain more information in the
 `rejectedArtifacts` list. 
