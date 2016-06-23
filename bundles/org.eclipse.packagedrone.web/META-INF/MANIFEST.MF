@@ -63,6 +63,3 @@ Export-Package: org.eclipse.packagedrone.web;version="1.0.0";
  org.eclipse.packagedrone.web.util;version="1.0.0";uses:="javax.servlet.http"
 Bundle-ActivationPolicy: lazy
 Web-Export-Taglib: META-INF/web.tld, META-INF/json.tld
-Eclipse-BundleShape: dir
-
-
