@@ -56,7 +56,7 @@
     <requirement
         name="org.eclipse.pde.feature.group"/>
     <repository
-        url="http://download.eclipse.org/eclipse/updates/4.5"/>
+        url="http://download.eclipse.org/eclipse/updates/4.6"/>
     <description>Install the tools needed in the IDE to work with the source code for ${scope.project.label}</description>
   </setupTask>
   <setupTask
