@@ -24,3 +24,13 @@ Add the following entries to your maven settings file (`~/.m2/settings.xml`):
 ```
 
 Be sure to fill out the gaps!
+
+# Running the build
+
+Also see: https://wiki.eclipse.org/PackageDrone/ReleaseBuild
+
+First run:
+
+    pushd runtime ; mvn clean package ; popd
+    mvn clean integration-test -Pjdeb-sign -Prpm -Dtycho.localArtifacts=ignore
+    pushd testing/server-test ; mvn clean test; popd
