@@ -30,7 +30,7 @@ public class ExceptionMapperImpl implements ExceptionMapper<Exception>
     {
         final ErrorInformation errorInformation = new ErrorInformation ();
 
-        errorInformation.setCode ( 1 );
+        errorInformation.setCode ( "generic.error" );
         errorInformation.setMessage ( ExceptionHelper.getMessage ( error ) );
 
         return errorInformation;

@@ -6,6 +6,7 @@ Bundle-Version: 0.14.0.qualifier
 Bundle-Vendor: Eclipse Package Drone
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: io.swagger.annotations;version="1.5.9";resolution:=optional,
+ javax.annotation.security;version="1.2.0",
  javax.servlet;version="3.1.0",
  javax.servlet.http;version="3.1.0",
  javax.ws.rs;version="2.0.1",

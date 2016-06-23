@@ -16,19 +16,19 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel ( description = "Generic error information" )
 public class ErrorInformation
 {
-    private int code;
+    private String code;
 
     private String message;
 
     private String description;
 
     @ApiModelProperty ( "An error code" )
-    public int getCode ()
+    public String getCode ()
     {
         return this.code;
     }
 
-    public void setCode ( final int code )
+    public void setCode ( final String code )
     {
         this.code = code;
     }

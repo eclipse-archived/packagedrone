@@ -10,12 +10,19 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.api.internal;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.api.ChannelInformation;
 import org.eclipse.packagedrone.repo.api.ChannelListResult;
 import org.eclipse.packagedrone.repo.api.Channels;
+import org.eclipse.packagedrone.repo.api.CreateChannel;
+import org.eclipse.packagedrone.repo.channel.ChannelDetails;
+import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
+import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 
 public class ChannelsImpl implements Channels
 {
@@ -34,8 +41,30 @@ public class ChannelsImpl implements Channels
         return result;
     }
 
+    @Override
+    public ChannelInformation createChannel ( final CreateChannel createChannel )
+    {
+        final ChannelDetails details = new ChannelDetails ();
+        details.setDescription ( createChannel.getDescription () );
+
+        final Map<MetaKey, String> configuration = new HashMap<> ();
+
+        final ChannelId id = this.channelService.create ( null, details, configuration );
+        if ( id == null )
+        {
+            return null;
+        }
+
+        return toInfo ( this.channelService.getState ( By.id ( id.getId () ) ).orElse ( null ) );
+    }
+
     private static ChannelInformation toInfo ( final org.eclipse.packagedrone.repo.channel.ChannelInformation channel )
     {
+        if ( channel == null )
+        {
+            return null;
+        }
+
         final ChannelInformation result = new ChannelInformation ();
 
         result.setId ( channel.getId () );
