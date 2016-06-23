@@ -5,11 +5,11 @@
   trimDirectiveWhitespaces="true"
   %>
 
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/repo/channel" prefix="pm" %>
-<%@ taglib uri="http://eclipse.org/packagedrone/web" prefix="web" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="pm" uri="http://eclipse.org/packagedrone/repo/channel" %>
+<%@ taglib prefix="web" uri="http://eclipse.org/packagedrone/web" %>
 
 <%@ taglib prefix="h" tagdir="/WEB-INF/tags/main" %>
 <%@ taglib prefix="s" tagdir="/WEB-INF/tags/storage" %>
@@ -18,8 +18,8 @@
 pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
 %>
 
-<c:set var="idUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( channel.id )) }"/>
-<c:set var="exampleUrl" value="${ fn:escapeXml(exampleSitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( channel.id )) }" />
+<c:set var="idUrl" value="${ fn:escapeXml(sitePrefix.concat ( '/api/v3/upload/{plain,archive}/channel/' ).concat ( channel.id )) }"/>
+<c:set var="exampleUrl" value="${ fn:escapeXml(exampleSitePrefix.concat ( '/api/v3/upload/plain/channel/' ).concat ( channel.id )) }" />
 
 <h:main title="API Upload" subtitle="${pm:channel(channel) }">
 
@@ -43,19 +43,30 @@ pageContext.setAttribute ( "manager", request.isUserInRole ( "MANAGER" ) );
         </div>
     </c:if>
     
+    <div class="alert alert-info">
+      <strong>Upload API V3!</strong> This page documents the upload API version 3. The older version 2 API is still present and working.
+      For more information also see
+      <a class="alert-link" href="https://github.com/eclipse/packagedrone/blob/master/bundles/org.eclipse.packagedrone.repo.api/README.md" target="_blank">the readme</a>.
+    </div>
+    
     <p>
-        It is possible to upload to this channel by making a <code>PUT</code> request to the following URLs:
+        It is possible to upload to this channel by making a <code>PUT</code> or <code>POST</code> request to the following URLs:
     </p>
     <ul>
         <li><code>${idUrl }</code></li>
         <c:if test="${not empty channel.names }">
-			<c:forEach var="name" items="${channel.names }">
-           		<li><code>${ fn:escapeXml(sitePrefix.concat ( '/api/v2/upload/channel/' ).concat ( web:encode(name) )) }</code></li>
-           	</c:forEach>    
+				  <c:forEach var="name" items="${channel.names }">
+	          <li><code>${ fn:escapeXml(sitePrefix.concat ( '/api/v3/upload/{plain,archive}/channel/' ).concat ( web:encode(name) )) }</code></li>
+	        </c:forEach>    
         </c:if>
     </ul>
+    
     <p>
-        <em>Note:</em> it is required to perform <q>Basic Authentication</q> using one of the assigned deploy keys.
+        <strong>Note:</strong> it is required to perform <q>Basic Authentication</q> using one of the assigned deploy keys. The password must be the deploy key token. The user name is ignored.
+    </p>
+    
+    <p>
+    For more information about the Upload API V3 also see the .
     </p>
     
     <h3>Jenkins Plugin</h3>
