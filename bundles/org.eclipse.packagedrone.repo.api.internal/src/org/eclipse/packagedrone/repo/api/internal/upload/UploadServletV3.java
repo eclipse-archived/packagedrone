@@ -34,6 +34,7 @@ import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
 import org.eclipse.packagedrone.repo.channel.ChannelService.ChannelOperation;
 import org.eclipse.packagedrone.repo.channel.ModifiableChannel;
+import org.eclipse.packagedrone.repo.channel.VetoArtifactException;
 import org.eclipse.packagedrone.repo.channel.servlet.AbstractChannelServiceServlet;
 import org.eclipse.packagedrone.utils.PathInformation;
 import org.eclipse.scada.utils.ExceptionHelper;
@@ -63,9 +64,20 @@ public class UploadServletV3 extends AbstractChannelServiceServlet
             this.statusCode = statusCode;
         }
 
+        public RequestException ( final int statusCode, final String message, final Throwable cause )
+        {
+            super ( message, cause );
+            this.statusCode = statusCode;
+        }
+
         public RequestException ( final String message )
         {
             this ( HttpServletResponse.SC_BAD_REQUEST, message );
+        }
+
+        public RequestException ( final String message, final Throwable cause )
+        {
+            this ( HttpServletResponse.SC_BAD_REQUEST, message, cause );
         }
 
         public int getStatusCode ()
@@ -270,19 +282,26 @@ public class UploadServletV3 extends AbstractChannelServiceServlet
 
                     final String effectiveParentId = parentId == null ? rootParentId : parentId;
 
-                    final ArtifactInformation result = channel.getContext ().createArtifact ( effectiveParentId, stream, artifactName, metadata );
-                    if ( result == null )
+                    try
                     {
-                        // failed to add
-                        id = UUID.randomUUID ().toString ();
-                        ignored.add ( id );
+                        final ArtifactInformation result = channel.getContext ().createArtifact ( effectiveParentId, stream, artifactName, metadata );
+                        if ( result == null )
+                        {
+                            // failed to add
+                            id = UUID.randomUUID ().toString ();
+                            ignored.add ( id );
+                        }
+                        else
+                        {
+                            // successfully added
+                            id = result.getId ();
+                        }
+                        addResult ( uploadResult, artifactName, result );
                     }
-                    else
+                    catch ( final VetoArtifactException e )
                     {
-                        // successfully added
-                        id = result.getId ();
+                        throw new RequestException ( HttpServletResponse.SC_CONFLICT, e.getMessage (), e );
                     }
-                    addResult ( uploadResult, artifactName, result );
                 }
                 return id;
             } );
