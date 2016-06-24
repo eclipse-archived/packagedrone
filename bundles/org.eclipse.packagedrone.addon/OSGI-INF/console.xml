@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" name="org.eclipse.packagedrone.addon.console">
+   <implementation class="org.eclipse.packagedrone.addon.Console"/>
+   <service>
+      <provide interface="org.eclipse.packagedrone.addon.Console"/>
+   </service>
+   <reference bind="setAddonManager" cardinality="1..1" interface="org.eclipse.packagedrone.addon.AddonManager" name="AddonManager" policy="static"/>
+   <property name="osgi.command.scope" type="String" value="addons"/>
+   <property name="osgi.command.function" type="String">list
+info
+install
+uninstall
+disable
+enable
+   </property>
+</scr:component>

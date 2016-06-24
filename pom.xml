@@ -84,6 +84,8 @@
 		<module>bundles/org.tukani.xz</module>
 
 		<module>bundles/org.eclipse.packagedrone</module>
+		
+		<module>bundles/org.eclipse.packagedrone.addon</module>
 
 		<module>bundles/org.eclipse.packagedrone.external.maven</module>
 

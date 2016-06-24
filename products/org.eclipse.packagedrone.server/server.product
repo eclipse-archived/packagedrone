@@ -58,6 +58,7 @@
       <plugin id="org.eclipse.jetty.webapp" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.jetty.xml" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.packagedrone.addon" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.job" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.job.apm" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.packagedrone.job.web" autoStart="true" startLevel="0" />
