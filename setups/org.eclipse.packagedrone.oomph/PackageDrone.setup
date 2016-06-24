@@ -416,6 +416,18 @@
           key="/instance/org.eclipse.pde.api.tools/missing_default_api_profile"
           value="Ignore"/>
     </setupTask>
+    <setupTask
+        xsi:type="setup:CompoundTask"
+        name="Editor">
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/org.eclipse.ui.editors/spacesForTabs"
+          value="true"/>
+      <setupTask
+          xsi:type="setup:PreferenceTask"
+          key="/org.eclipse.ui.editors/tabWidth"
+          value="2"/>
+    </setupTask>
   </setupTask>
   <setupTask
       xsi:type="launching:LaunchTask"
