@@ -33,4 +33,5 @@ First run:
 
     pushd runtime ; mvn clean package ; popd
     mvn clean integration-test -Pjdeb-sign -Prpm -Dtycho.localArtifacts=ignore
+    pushd secondary ; mvn install ; popd
     pushd testing/server-test ; mvn clean test; popd
