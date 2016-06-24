@@ -10,16 +10,13 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.sec.service.common.internal;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.packagedrone.sec.service.AccessToken;
 
-public interface UserProfileStorage
+public interface AccessTokenStorage
 {
-    public Optional<Principal> getPrincipalFromAccessToken ( String accessToken );
-
     /**
      * Get a list of all access tokens sorted by ID
      *
@@ -28,4 +25,6 @@ public interface UserProfileStorage
     public List<AccessToken> list ();
 
     public Optional<AccessToken> getToken ( String id );
+
+    public Optional<AccessToken> getByToken ( String accessToken );
 }

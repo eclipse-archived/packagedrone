@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.repo.api.internal;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.MetaKey;
@@ -19,10 +20,12 @@ import org.eclipse.packagedrone.repo.api.ChannelInformation;
 import org.eclipse.packagedrone.repo.api.ChannelListResult;
 import org.eclipse.packagedrone.repo.api.Channels;
 import org.eclipse.packagedrone.repo.api.CreateChannel;
+import org.eclipse.packagedrone.repo.channel.AspectableChannel;
 import org.eclipse.packagedrone.repo.channel.ChannelDetails;
 import org.eclipse.packagedrone.repo.channel.ChannelId;
 import org.eclipse.packagedrone.repo.channel.ChannelService;
 import org.eclipse.packagedrone.repo.channel.ChannelService.By;
+import org.eclipse.packagedrone.repo.channel.DescriptorAdapter;
 
 public class ChannelsImpl implements Channels
 {
@@ -44,6 +47,8 @@ public class ChannelsImpl implements Channels
     @Override
     public ChannelInformation createChannel ( final CreateChannel createChannel )
     {
+        Objects.requireNonNull ( createChannel, "Missing channel information" );
+
         final ChannelDetails details = new ChannelDetails ();
         details.setDescription ( createChannel.getDescription () );
 
@@ -53,6 +58,28 @@ public class ChannelsImpl implements Channels
         if ( id == null )
         {
             return null;
+        }
+
+        try
+        {
+            if ( createChannel.getNames () != null && !createChannel.getNames ().isEmpty () )
+            {
+                this.channelService.accessRun ( By.id ( id.getId () ), DescriptorAdapter.class, channel -> {
+                    channel.setNames ( createChannel.getNames () );
+                } );
+            }
+
+            if ( createChannel.getAspects () != null && !createChannel.getAspects ().isEmpty () )
+            {
+                this.channelService.accessRun ( By.id ( id.getId () ), AspectableChannel.class, channel -> {
+                    channel.addAspects ( createChannel.isAspectsWithDependencies (), createChannel.getAspects () );
+                } );
+            }
+        }
+        catch ( final Exception e )
+        {
+            this.channelService.delete ( By.id ( id.getId () ) );
+            throw e;
         }
 
         return toInfo ( this.channelService.getState ( By.id ( id.getId () ) ).orElse ( null ) );

@@ -289,13 +289,23 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
     {
         final String channelId = UUID.randomUUID ().toString ();
 
+        final String actualProviderId;
+        if ( providerId != null )
+        {
+            actualProviderId = providerId;
+        }
+        else
+        {
+            actualProviderId = "apm";
+        }
+
         final ChannelConfiguration cfg = new ChannelConfiguration ();
-        cfg.setProviderId ( providerId );
+        cfg.setProviderId ( actualProviderId );
         cfg.setConfiguration ( configuration );
         cfg.setDescription ( details.getDescription () );
 
-        this.providerTracker.run ( providerId, p -> {
-            final ChannelProvider provider = p.orElseThrow ( () -> new IllegalStateException ( String.format ( "Channel provider '%s' is not registered", providerId ) ) );
+        this.providerTracker.run ( actualProviderId, p -> {
+            final ChannelProvider provider = p.orElseThrow ( () -> new IllegalStateException ( String.format ( "Channel provider '%s' is not registered", actualProviderId ) ) );
             provider.create ( channelId, configuration );
         } );
 
@@ -304,7 +314,7 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
         } );
 
         // FIXME: ensure that we are the only active call to the storage manager model KEY_STORAGE
-        commitCreateChannel ( channelId, providerId, configuration );
+        commitCreateChannel ( channelId, actualProviderId, configuration );
 
         return new ChannelId ( channelId );
     }

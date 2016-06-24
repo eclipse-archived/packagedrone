@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.sec.service.common.internal;
 
-import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,24 +25,8 @@ import java.util.UUID;
 import org.eclipse.packagedrone.repo.utils.Tokens;
 import org.eclipse.packagedrone.sec.service.AccessToken;
 
-public class ModifiableUserProfileStorage implements UserProfileStorage
+public class ModifiableAccessTokenStorage implements AccessTokenStorage
 {
-    public final class AccessTokenPrincipal implements Principal
-    {
-        private final AccessToken accessToken;
-
-        public AccessTokenPrincipal ( final AccessToken accessToken )
-        {
-            this.accessToken = accessToken;
-        }
-
-        @Override
-        public String getName ()
-        {
-            return this.accessToken.getId ();
-        }
-    }
-
     /**
      * Map ID to information
      */
@@ -56,12 +39,12 @@ public class ModifiableUserProfileStorage implements UserProfileStorage
 
     private final List<AccessToken> tokenList;
 
-    public ModifiableUserProfileStorage ()
+    public ModifiableAccessTokenStorage ()
     {
         this ( (List<AccessToken>)null );
     }
 
-    public ModifiableUserProfileStorage ( final List<AccessToken> tokens )
+    public ModifiableAccessTokenStorage ( final List<AccessToken> tokens )
     {
         if ( tokens != null )
         {
@@ -82,7 +65,7 @@ public class ModifiableUserProfileStorage implements UserProfileStorage
         }
     }
 
-    public ModifiableUserProfileStorage ( final ModifiableUserProfileStorage other )
+    public ModifiableAccessTokenStorage ( final ModifiableAccessTokenStorage other )
     {
         this.tokensById = new HashMap<> ( other.tokensById );
         this.tokensByToken = new HashMap<> ( other.tokensByToken );
@@ -126,9 +109,9 @@ public class ModifiableUserProfileStorage implements UserProfileStorage
     }
 
     @Override
-    public Optional<Principal> getPrincipalFromAccessToken ( final String accessToken )
+    public Optional<AccessToken> getByToken ( final String accessToken )
     {
-        return Optional.ofNullable ( this.tokensByToken.get ( accessToken ) ).map ( AccessTokenPrincipal::new );
+        return Optional.ofNullable ( this.tokensByToken.get ( accessToken ) );
     }
 
     @Override

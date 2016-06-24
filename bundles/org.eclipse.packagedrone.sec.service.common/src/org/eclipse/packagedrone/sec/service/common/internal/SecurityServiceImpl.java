@@ -11,6 +11,7 @@
 package org.eclipse.packagedrone.sec.service.common.internal;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +24,7 @@ import org.eclipse.packagedrone.sec.service.AccessTokenService;
 import org.eclipse.packagedrone.sec.service.LoginException;
 import org.eclipse.packagedrone.sec.service.SecurityService;
 import org.eclipse.packagedrone.sec.service.UserService;
+import org.eclipse.packagedrone.sec.service.common.AccessTokenPrincipal;
 import org.eclipse.packagedrone.storage.apm.StorageManager;
 import org.eclipse.packagedrone.storage.apm.StorageRegistration;
 import org.eclipse.scada.utils.ExceptionHelper;
@@ -56,7 +58,7 @@ public class SecurityServiceImpl implements SecurityService, AccessTokenService
     public void activate ()
     {
         this.userServiceTracker.open ();
-        this.modelHandle = this.storageManager.registerModel ( 1_000, MODEL_KEY, new SecurityServiceStorageHandler () );
+        this.modelHandle = this.storageManager.registerModel ( 1_000, MODEL_KEY, new AccessTokenStorageHandler () );
     }
 
     public void deactivate ()
@@ -116,15 +118,17 @@ public class SecurityServiceImpl implements SecurityService, AccessTokenService
     @Override
     public Optional<Principal> accessByToken ( final String token )
     {
-        return this.storageManager.accessCall ( MODEL_KEY, UserProfileStorage.class, storage -> {
-            return storage.getPrincipalFromAccessToken ( token );
+        final Optional<AccessToken> accessToken = this.storageManager.accessCall ( MODEL_KEY, AccessTokenStorage.class, storage -> {
+            return storage.getByToken ( token );
         } );
+
+        return accessToken.map ( value -> new AccessTokenPrincipal ( value.getId (), Arrays.asList ( "MANAGER" ) ) );
     }
 
     @Override
     public List<AccessToken> list ( final int start, final int amount )
     {
-        return this.storageManager.accessCall ( MODEL_KEY, UserProfileStorage.class, storage -> {
+        return this.storageManager.accessCall ( MODEL_KEY, AccessTokenStorage.class, storage -> {
             return Splits.split ( storage.list (), start, amount );
         } );
     }
@@ -132,7 +136,7 @@ public class SecurityServiceImpl implements SecurityService, AccessTokenService
     @Override
     public AccessToken createAccessToken ( final String description )
     {
-        return this.storageManager.modifyCall ( MODEL_KEY, ModifiableUserProfileStorage.class, storage -> {
+        return this.storageManager.modifyCall ( MODEL_KEY, ModifiableAccessTokenStorage.class, storage -> {
             return storage.createAccessToken ( description );
         } );
     }
@@ -140,7 +144,7 @@ public class SecurityServiceImpl implements SecurityService, AccessTokenService
     @Override
     public void editAccessToken ( final String id, final String description )
     {
-        this.storageManager.modifyRun ( MODEL_KEY, ModifiableUserProfileStorage.class, storage -> {
+        this.storageManager.modifyRun ( MODEL_KEY, ModifiableAccessTokenStorage.class, storage -> {
             storage.editAccessToken ( id, description );
         } );
     }
@@ -148,7 +152,7 @@ public class SecurityServiceImpl implements SecurityService, AccessTokenService
     @Override
     public Optional<AccessToken> getToken ( final String id )
     {
-        return this.storageManager.accessCall ( MODEL_KEY, UserProfileStorage.class, storage -> {
+        return this.storageManager.accessCall ( MODEL_KEY, AccessTokenStorage.class, storage -> {
             return storage.getToken ( id );
         } );
     }
@@ -156,7 +160,7 @@ public class SecurityServiceImpl implements SecurityService, AccessTokenService
     @Override
     public void deleteAccessToken ( final String id )
     {
-        this.storageManager.modifyRun ( MODEL_KEY, ModifiableUserProfileStorage.class, storage -> {
+        this.storageManager.modifyRun ( MODEL_KEY, ModifiableAccessTokenStorage.class, storage -> {
             storage.deleteAccessToken ( id );
         } );
     }

@@ -16,6 +16,7 @@ import java.util.List;
 import javax.ws.rs.container.ContainerRequestContext;
 
 import org.eclipse.packagedrone.sec.service.SecurityService;
+import org.eclipse.packagedrone.sec.service.common.AccessTokenPrincipal;
 
 import com.eclipsesource.jaxrs.provider.security.AuthenticationHandler;
 import com.eclipsesource.jaxrs.provider.security.AuthorizationHandler;
@@ -32,6 +33,10 @@ public class SecurityHandler implements AuthenticationHandler, AuthorizationHand
     @Override
     public boolean isUserInRole ( final Principal user, final String role )
     {
+        if ( user instanceof AccessTokenPrincipal )
+        {
+            return ( (AccessTokenPrincipal)user ).getRoles ().contains ( role );
+        }
         return false;
     }
 

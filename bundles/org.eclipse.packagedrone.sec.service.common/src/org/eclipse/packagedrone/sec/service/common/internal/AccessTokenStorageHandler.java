@@ -12,15 +12,15 @@ package org.eclipse.packagedrone.sec.service.common.internal;
 
 import org.eclipse.packagedrone.storage.apm.AbstractSimplerGsonStorageModelProvider;
 
-public class SecurityServiceStorageHandler extends AbstractSimplerGsonStorageModelProvider<UserProfileStorage, ModifiableUserProfileStorage, AccessTokenModel>
+public class AccessTokenStorageHandler extends AbstractSimplerGsonStorageModelProvider<AccessTokenStorage, ModifiableAccessTokenStorage, AccessTokenModel>
 {
-    public SecurityServiceStorageHandler ()
+    public AccessTokenStorageHandler ()
     {
-        super ( UserProfileStorage.class, ModifiableUserProfileStorage.class, AccessTokenModel.class, "accessTokens.json", ModifiableUserProfileStorage::new, ModifiableUserProfileStorage::new );
+        super ( AccessTokenStorage.class, ModifiableAccessTokenStorage.class, AccessTokenModel.class, "accessTokens.json", ModifiableAccessTokenStorage::new, ModifiableAccessTokenStorage::new );
     }
 
     @Override
-    protected AccessTokenModel toGsonModel ( final ModifiableUserProfileStorage writeModel )
+    protected AccessTokenModel toGsonModel ( final ModifiableAccessTokenStorage writeModel )
     {
         final AccessTokenModel model = new AccessTokenModel ();
         model.setTokens ( writeModel.list () );
@@ -28,8 +28,8 @@ public class SecurityServiceStorageHandler extends AbstractSimplerGsonStorageMod
     }
 
     @Override
-    protected ModifiableUserProfileStorage fromGsonModel ( final AccessTokenModel gsonModel )
+    protected ModifiableAccessTokenStorage fromGsonModel ( final AccessTokenModel gsonModel )
     {
-        return new ModifiableUserProfileStorage ( gsonModel.getTokens () );
+        return new ModifiableAccessTokenStorage ( gsonModel.getTokens () );
     }
 }

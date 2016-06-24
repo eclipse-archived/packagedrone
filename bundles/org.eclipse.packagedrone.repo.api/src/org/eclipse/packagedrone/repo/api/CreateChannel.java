@@ -14,11 +14,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel
 public class CreateChannel
 {
     private Set<String> names = new HashSet<> ();
+
+    private Set<String> aspects = new HashSet<> ();
+
+    @ApiModelProperty ( required = false, value = "Wether to add aspects with or without required dependencies" )
+    private boolean aspectsWithDependencies = true;
 
     private String description;
 
@@ -41,4 +47,25 @@ public class CreateChannel
     {
         this.names = names;
     }
+
+    public Set<String> getAspects ()
+    {
+        return this.aspects;
+    }
+
+    public void setAspects ( final Set<String> aspects )
+    {
+        this.aspects = aspects;
+    }
+
+    public boolean isAspectsWithDependencies ()
+    {
+        return this.aspectsWithDependencies;
+    }
+
+    public void setAspectsWithDependencies ( final boolean aspectsWithDependencies )
+    {
+        this.aspectsWithDependencies = aspectsWithDependencies;
+    }
+
 }
