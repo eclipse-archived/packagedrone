@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2162
  *******************************************************************************/
 
 package org.eclipse.packagedrone.repo.channel.web.channel;
@@ -232,7 +233,7 @@ public class AspectInformation
         {
             return false;
         }
-        if ( ! ( obj instanceof AspectInformation ) )
+        if ( this.getClass() != obj.getClass() )
         {
             return false;
         }
@@ -313,7 +314,7 @@ public class AspectInformation
             {
                 return false;
             }
-            if ( ! ( obj instanceof Group ) )
+            if ( this.getClass() != obj.getClass() )
             {
                 return false;
             }

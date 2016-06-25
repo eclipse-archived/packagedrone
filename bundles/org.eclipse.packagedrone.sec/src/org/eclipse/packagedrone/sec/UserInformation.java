@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2162
  *******************************************************************************/
 package org.eclipse.packagedrone.sec;
 
@@ -83,7 +84,7 @@ public class UserInformation implements Comparable<UserInformation>
         {
             return false;
         }
-        if ( ! ( obj instanceof UserInformation ) )
+        if ( this.getClass() != obj.getClass() )
         {
             return false;
         }

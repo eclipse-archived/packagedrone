@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2162
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.utils.osgi.feature;
 
@@ -275,7 +276,7 @@ public class FeatureInformation implements TranslatedInformation
             {
                 return false;
             }
-            if ( ! ( obj instanceof PluginInclude ) )
+            if ( this.getClass() != obj.getClass() )
             {
                 return false;
             }
@@ -400,7 +401,7 @@ public class FeatureInformation implements TranslatedInformation
             {
                 return false;
             }
-            if ( ! ( obj instanceof FeatureInclude ) )
+            if ( this.getClass() != obj.getClass() )
             {
                 return false;
             }

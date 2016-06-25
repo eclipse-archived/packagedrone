@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2162
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.cleanup;
 
@@ -95,7 +96,7 @@ public class ResultKey implements Comparable<ResultKey>
         {
             return false;
         }
-        if ( ! ( obj instanceof ResultKey ) )
+        if ( this.getClass() != obj.getClass() )
         {
             return false;
         }

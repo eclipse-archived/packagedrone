@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2162
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.maven;
 
@@ -214,7 +215,7 @@ public class MavenInformation
         {
             return false;
         }
-        if ( ! ( obj instanceof MavenInformation ) )
+        if ( this.getClass() != obj.getClass() )
         {
             return false;
         }

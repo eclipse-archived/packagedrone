@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2162
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.utils.osgi.bundle;
 
@@ -79,7 +80,7 @@ public class BundleInformation implements TranslatedInformation
             {
                 return false;
             }
-            if ( ! ( obj instanceof PackageImport ) )
+            if ( this.getClass() != obj.getClass() )
             {
                 return false;
             }
@@ -156,7 +157,7 @@ public class BundleInformation implements TranslatedInformation
             {
                 return false;
             }
-            if ( ! ( obj instanceof PackageExport ) )
+            if ( this.getClass() != obj.getClass() )
             {
                 return false;
             }
@@ -241,7 +242,7 @@ public class BundleInformation implements TranslatedInformation
             {
                 return false;
             }
-            if ( ! ( obj instanceof BundleRequirement ) )
+            if ( this.getClass() != obj.getClass() )
             {
                 return false;
             }

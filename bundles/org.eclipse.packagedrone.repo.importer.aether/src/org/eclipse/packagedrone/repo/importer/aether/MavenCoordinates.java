@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2162
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.importer.aether;
 
@@ -236,7 +237,7 @@ public class MavenCoordinates implements Comparable<MavenCoordinates>
         {
             return false;
         }
-        if ( ! ( obj instanceof MavenCoordinates ) )
+        if ( this.getClass() != obj.getClass() )
         {
             return false;
         }

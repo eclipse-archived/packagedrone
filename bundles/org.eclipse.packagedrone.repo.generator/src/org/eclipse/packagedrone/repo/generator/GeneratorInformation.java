@@ -60,7 +60,7 @@ public class GeneratorInformation implements Comparable<GeneratorInformation>
         {
             return false;
         }
-        if ( ! ( obj instanceof GeneratorInformation ) )
+        if ( this.getClass() != obj.getClass() )
         {
             return false;
         }

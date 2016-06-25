@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2162
  *******************************************************************************/
 package org.eclipse.packagedrone.sec.service.apm.model;
 
@@ -226,7 +227,7 @@ public class UserEntity
         {
             return false;
         }
-        if ( ! ( obj instanceof UserEntity ) )
+        if ( this.getClass() != obj.getClass() )
         {
             return false;
         }
