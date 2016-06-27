@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S2162
  *******************************************************************************/
 package org.eclipse.packagedrone.repo;
 
@@ -82,7 +83,7 @@ public class MetaKey implements Comparable<MetaKey>, Serializable
         {
             return false;
         }
-        if ( ! ( obj instanceof MetaKey ) )
+        if ( this.getClass() != obj.getClass() )
         {
             return false;
         }
