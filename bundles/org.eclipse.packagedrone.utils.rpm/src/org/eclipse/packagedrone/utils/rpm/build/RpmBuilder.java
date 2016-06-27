@@ -18,10 +18,10 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.ToLongFunction;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
@@ -473,8 +474,6 @@ public class RpmBuilder implements AutoCloseable
 
     private final Path targetFile;
 
-    private final OpenOption[] openOptions;
-
     private final Set<Dependency> provides = new HashSet<> ();
 
     private final Set<Dependency> requirements = new HashSet<> ();
@@ -493,6 +492,8 @@ public class RpmBuilder implements AutoCloseable
 
     private final List<SignatureProcessor> signatureProcessors = new LinkedList<> ();
 
+    private final BuilderOptions options;
+
     public RpmBuilder ( final String name, final String version, final String release, final Path target ) throws IOException
     {
         this ( name, version, release, "noarch", target );
@@ -500,19 +501,25 @@ public class RpmBuilder implements AutoCloseable
 
     public RpmBuilder ( final String name, final RpmVersion version, final String architecture, final Path targetFile, final OpenOption... openOptions ) throws IOException
     {
+        this ( name, version, architecture, targetFile, makeBuilderOptions ( openOptions ) );
+    }
+
+    private static BuilderOptions makeBuilderOptions ( final OpenOption[] openOptions )
+    {
+        final BuilderOptions options = new BuilderOptions ();
+        options.setOpenOptions ( openOptions );
+        return options;
+    }
+
+    public RpmBuilder ( final String name, final RpmVersion version, final String architecture, final Path targetFile, final BuilderOptions options ) throws IOException
+    {
         this.name = name;
         this.version = version;
         this.architecture = architecture;
 
+        this.options = options == null ? new BuilderOptions () : new BuilderOptions ( options );
+
         this.targetFile = makeTargetFile ( targetFile );
-        if ( openOptions == null || openOptions.length == 0 )
-        {
-            this.openOptions = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING };
-        }
-        else
-        {
-            this.openOptions = openOptions;
-        }
 
         this.recorder = new PayloadRecorder ( true );
 
@@ -600,23 +607,27 @@ public class RpmBuilder implements AutoCloseable
             final long installedSize = Arrays.stream ( files ).mapToLong ( FileEntry::getTargetSize ).sum ();
             this.header.putSize ( installedSize, RpmTag.SIZE, RpmTag.LONGSIZE );
 
+            final Collection<FileEntry> filesList = Arrays.asList ( files );
+
             // TODO: implement LONG file sizes
-            Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_SIZES, entry -> (int)entry.getSize () );
-            Header.putShortFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_MODES, FileEntry::getMode );
-            Header.putShortFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_RDEVS, FileEntry::getRdevs );
-            Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_MTIMES, FileEntry::getModificationTime );
-            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_DIGESTS, String[]::new, FileEntry::getDigest, Header::putStringArray );
-            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_LINKTO, String[]::new, FileEntry::getLinkTo, Header::putStringArray );
-            Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_FLAGS, FileEntry::getFlags );
-            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_USERNAME, String[]::new, FileEntry::getUser, Header::putStringArray );
-            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_GROUPNAME, String[]::new, FileEntry::getGroup, Header::putStringArray );
+            Header.putIntFields ( this.header, filesList, RpmTag.FILE_SIZES, entry -> (int)entry.getSize () );
+            Header.putShortFields ( this.header, filesList, RpmTag.FILE_MODES, FileEntry::getMode );
+            Header.putShortFields ( this.header, filesList, RpmTag.FILE_RDEVS, FileEntry::getRdevs );
+            Header.putIntFields ( this.header, filesList, RpmTag.FILE_MTIMES, FileEntry::getModificationTime );
+            Header.putFields ( this.header, filesList, RpmTag.FILE_DIGESTS, String[]::new, FileEntry::getDigest, Header::putStringArray );
+            Header.putFields ( this.header, filesList, RpmTag.FILE_LINKTO, String[]::new, FileEntry::getLinkTo, Header::putStringArray );
+            Header.putIntFields ( this.header, filesList, RpmTag.FILE_FLAGS, FileEntry::getFlags );
+            Header.putFields ( this.header, filesList, RpmTag.FILE_USERNAME, String[]::new, FileEntry::getUser, Header::putStringArray );
+            Header.putFields ( this.header, filesList, RpmTag.FILE_GROUPNAME, String[]::new, FileEntry::getGroup, Header::putStringArray );
 
-            Header.putIntFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_VERIFYFLAGS, FileEntry::getVerifyFlags );
-            Header.putLongFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_DEVICES, FileEntry::getDevice );
-            Header.putLongFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_INODES, FileEntry::getInode );
-            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.FILE_LANGS, String[]::new, FileEntry::getLang, Header::putStringArray );
+            Header.putIntFields ( this.header, filesList, RpmTag.FILE_VERIFYFLAGS, FileEntry::getVerifyFlags );
 
-            Header.putFields ( this.header, Arrays.asList ( files ), RpmTag.BASENAMES, String[]::new, fe -> fe.getTargetName ().getBasename (), Header::putStringArray );
+            putNumber ( this.options.getLongMode (), this.header, filesList, RpmTag.FILE_DEVICES, FileEntry::getDevice );
+            putNumber ( this.options.getLongMode (), this.header, filesList, RpmTag.FILE_INODES, FileEntry::getInode );
+
+            Header.putFields ( this.header, filesList, RpmTag.FILE_LANGS, String[]::new, FileEntry::getLang, Header::putStringArray );
+
+            Header.putFields ( this.header, filesList, RpmTag.BASENAMES, String[]::new, fe -> fe.getTargetName ().getBasename (), Header::putStringArray );
 
             {
                 // compress file names
@@ -649,6 +660,55 @@ public class RpmBuilder implements AutoCloseable
                 this.header.putStringArray ( RpmTag.DIRNAMES, dirnames.toArray ( new String[dirnames.size ()] ) );
             }
         }
+    }
+
+    private static void putNumber ( final LongMode longMode, final Header<RpmTag> header, final Collection<FileEntry> files, final RpmTag tag, final ToLongFunction<FileEntry> func )
+    {
+        boolean useLong;
+        if ( longMode == LongMode.FORCE_64BIT )
+        {
+            // no need to check, got with 64bit
+            useLong = true;
+        }
+        else
+        {
+            // check if we need 64bit
+            final boolean needLong = needLong ( files, func );
+            if ( longMode == LongMode.FORCE_32BIT )
+            {
+                if ( needLong )
+                {
+                    // we need it but are forced to 32bit
+                    throw new IllegalStateException ( "Requested 32bit mode, but 64bit is necessary" );
+                }
+                else
+                {
+                    // we don't need it, so we can accept 32bit
+                    useLong = false;
+                }
+            }
+            else // everything else is DEFAULT
+            {
+                // we can choose, so choose
+                useLong = needLong;
+            }
+        }
+
+        if ( useLong )
+        {
+            // write as 64bit
+            Header.putLongFields ( header, files, tag, func );
+        }
+        else
+        {
+            // write as 32bit
+            Header.putIntFields ( header, files, tag, file -> (int)func.applyAsLong ( file ) );
+        }
+    }
+
+    private static boolean needLong ( final Collection<FileEntry> files, final ToLongFunction<FileEntry> func )
+    {
+        return files.stream ().anyMatch ( file -> func.applyAsLong ( file ) > Integer.MAX_VALUE );
     }
 
     private Path makeTargetFile ( final Path target )
@@ -739,7 +799,7 @@ public class RpmBuilder implements AutoCloseable
         final LeadBuilder leadBuilder = new LeadBuilder ( this.name, this.version );
         leadBuilder.fillFlagsFromHeader ( this.header );
 
-        try ( RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.openOptions ) )
+        try ( RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.options.getOpenOptions () ) )
         {
             writer.addAllSignatureProcessors ( this.signatureProcessors );
             writer.setPayload ( this.recorder );
