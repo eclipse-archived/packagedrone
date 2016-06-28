@@ -97,7 +97,18 @@ public final class Dependencies
 
         final Object rawNames = header.getValue ( namesTag ).orElse ( null );
         final Object rawVersions = header.getValue ( versionsTag ).orElse ( null );
-        final Object rawFlags = header.getValue ( flagsTag ).orElse ( null );
+        Object rawFlags = header.getValue ( flagsTag ).orElse ( null );
+
+        if ( rawFlags instanceof Integer[] )
+        {
+            final Integer[] iflags = (Integer[])rawFlags;
+            final int[] flags = new int[iflags.length];
+            for ( int i = 0; i < iflags.length; i++ )
+            {
+                flags[i] = iflags[i];
+            }
+            rawFlags = flags;
+        }
 
         if ( rawNames instanceof String[] && rawVersions instanceof String[] && rawFlags instanceof int[] )
         {
