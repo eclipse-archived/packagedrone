@@ -185,7 +185,17 @@ public class RpmInputStream extends InputStream
 
         final byte[] nameData = readComplete ( 66 ); // NAME
 
-        final String name = StandardCharsets.UTF_8.decode ( ByteBuffer.wrap ( nameData ) ).toString ();
+        final ByteBuffer nameBuffer = ByteBuffer.wrap ( nameData );
+        for ( int i = 0; i < nameData.length; i++ )
+        {
+            if ( nameData[i] == 0 )
+            {
+                nameBuffer.limit ( i );
+                break;
+            }
+        }
+
+        final String name = StandardCharsets.UTF_8.decode ( nameBuffer ).toString ();
 
         final short os = this.in.readShort ();
 
@@ -246,7 +256,7 @@ public class RpmInputStream extends InputStream
 
         final long end = this.count.getCount ();
 
-        return new InputHeader<T> ( entries, start, end - start );
+        return new InputHeader<> ( entries, start, end - start );
     }
 
     private HeaderValue readEntry () throws IOException
