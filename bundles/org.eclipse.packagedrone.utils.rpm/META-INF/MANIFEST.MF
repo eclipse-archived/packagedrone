@@ -22,5 +22,5 @@ Import-Package: com.google.common.io;version="18.0.0",
  org.bouncycastle.openpgp;version="1.52.0",
  org.bouncycastle.openpgp.operator.bc;version="1.52.0",
  org.slf4j;version="1.7.2",
- org.tukaani.xz;version="1.3.0",
+ org.tukaani.xz;version="1.5.0",
  org.tukaani.xz.lzma;version="1.5.0"
