@@ -9,11 +9,11 @@
 	xmlns:unless="ant:unless"
 	>
 	
-    <description>
-    	Set up jetty target platform
-    </description>
+  <description>
+  	Set up jetty target platform
+  </description>
     
-    <property name="eclipse.orbit.release" value="R20150519210750"/>
+  <property name="eclipse.orbit.release" value="R20150519210750"/>
 	<property name="jetty.version" value="9.3.10.v20160621"/>
 	<property name="pax-web.version" value="4.2.5"/>
 	<property name="jersey.version" value="2.22.2"/>
