@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.utils.rpm.deps;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Set;
 
 public class Dependency
 {
@@ -32,6 +33,20 @@ public class Dependency
         else
         {
             this.flags = EnumSet.copyOf ( Arrays.asList ( flags ) );
+        }
+    }
+
+    public Dependency ( final String name, final String version, final Set<RpmDependencyFlags> flags )
+    {
+        this.name = name;
+        this.version = version;
+        if ( flags == null || flags.isEmpty () )
+        {
+            this.flags = EnumSet.noneOf ( RpmDependencyFlags.class );
+        }
+        else
+        {
+            this.flags = EnumSet.copyOf ( flags );
         }
     }
 

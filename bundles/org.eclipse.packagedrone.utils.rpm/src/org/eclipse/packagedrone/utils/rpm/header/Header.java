@@ -20,14 +20,16 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
+import org.eclipse.packagedrone.utils.rpm.ReadableHeader;
 import org.eclipse.packagedrone.utils.rpm.RpmBaseTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 
-public class Header<T extends RpmBaseTag>
+public class Header<T extends RpmBaseTag> implements ReadableHeader<T>
 {
     @FunctionalInterface
     public interface ArrayAllocator<T>
@@ -277,9 +279,15 @@ public class Header<T extends RpmBaseTag>
         return this.entries.get ( tag );
     }
 
-    public Object get ( final RpmTag tag )
+    public Object get ( final T tag )
     {
         return this.entries.get ( tag.getValue () );
+    }
+
+    @Override
+    public Optional<Object> getValue ( final T tag )
+    {
+        return Optional.ofNullable ( get ( tag ) );
     }
 
     /**

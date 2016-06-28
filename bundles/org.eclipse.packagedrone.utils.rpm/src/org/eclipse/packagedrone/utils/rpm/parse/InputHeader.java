@@ -15,9 +15,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.packagedrone.utils.rpm.ReadableHeader;
 import org.eclipse.packagedrone.utils.rpm.RpmBaseTag;
 
-public class InputHeader<T extends RpmBaseTag>
+public class InputHeader<T extends RpmBaseTag> implements ReadableHeader<T>
 {
     private final Map<Integer, HeaderValue> entries;
 
@@ -67,6 +68,12 @@ public class InputHeader<T extends RpmBaseTag>
     public Object getTag ( final int tag )
     {
         return getTagOrDefault ( tag, null );
+    }
+
+    @Override
+    public Optional<Object> getValue ( final T tag )
+    {
+        return Optional.ofNullable ( getTag ( tag ) );
     }
 
     public Optional<Object> getOptionalTag ( final T tag )
