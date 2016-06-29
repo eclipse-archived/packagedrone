@@ -10,4 +10,4 @@
 /**
  * YUM repository functionality
  */
-package org.eclipse.packagedrone.repo.adapter.rpm.yum;
+package org.eclipse.packagedrone.utils.rpm.yum;

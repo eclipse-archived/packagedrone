@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,26 +9,34 @@
  *     IBH SYSTEMS GmbH - initial API and implementation
  *     M-Ezzat - code cleanup - squid:S2131
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.adapter.rpm.yum;
-
-import static org.eclipse.packagedrone.repo.xml.XmlHelper.addElement;
-import static org.eclipse.packagedrone.repo.xml.XmlHelper.addOptionalElement;
+package org.eclipse.packagedrone.utils.rpm.yum;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
-import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
-import org.eclipse.packagedrone.repo.signing.SigningService;
-import org.eclipse.packagedrone.repo.xml.XmlHelper;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.packagedrone.utils.io.OutputSpooler;
 import org.eclipse.packagedrone.utils.io.SpoolOutTarget;
@@ -46,7 +54,7 @@ public class RepositoryCreator
 
     private static final String MD_TAG = "sha256";
 
-    private final XmlHelper xml = new XmlHelper ();
+    private final XmlContext xml;
 
     private final OutputSpooler primaryStreamBuilder;
 
@@ -66,12 +74,114 @@ public class RepositoryCreator
 
     private final String otherUniqueName;
 
-    public interface Context
+    public interface XmlContext
     {
-        public void addPackage ( final String sha1, final ArtifactInformation artifact, final RpmInformation info );
+        public void write ( Document primary, OutputStream primaryStream ) throws IOException;
+
+        public Document createDocument ();
     }
 
-    public class ContextImpl implements Context
+    public static class DefaultXmlContext implements XmlContext
+    {
+        private final DocumentBuilderFactory documentBuilderFactory;
+
+        private final TransformerFactory transformerFactory;
+
+        public DefaultXmlContext ()
+        {
+            this.documentBuilderFactory = DocumentBuilderFactory.newInstance ();
+            this.documentBuilderFactory.setNamespaceAware ( true );
+
+            this.transformerFactory = TransformerFactory.newInstance ();
+        }
+
+        public DefaultXmlContext ( final DocumentBuilderFactory documentBuilderFactory, final TransformerFactory transformerFactory )
+        {
+            Objects.requireNonNull ( documentBuilderFactory );
+            Objects.requireNonNull ( transformerFactory );
+
+            if ( !documentBuilderFactory.isNamespaceAware () )
+            {
+                throw new IllegalArgumentException ( "The provided DocumentBuilderFactory must be namespace aware" );
+            }
+
+            this.documentBuilderFactory = DocumentBuilderFactory.newInstance ();
+            this.documentBuilderFactory.setNamespaceAware ( true );
+
+            this.transformerFactory = TransformerFactory.newInstance ();
+        }
+
+        @Override
+        public Document createDocument ()
+        {
+            try
+            {
+                return this.documentBuilderFactory.newDocumentBuilder ().newDocument ();
+            }
+            catch ( final ParserConfigurationException e )
+            {
+                throw new RuntimeException ( e );
+            }
+        }
+
+        @Override
+        public void write ( final Document doc, final OutputStream outputStream ) throws IOException
+        {
+            try
+            {
+                final Transformer transformer = this.transformerFactory.newTransformer ();
+                final DOMSource source = new DOMSource ( doc );
+                final Result result = new StreamResult ( outputStream );
+                transformer.setOutputProperty ( OutputKeys.INDENT, "yes" );
+                transformer.setOutputProperty ( OutputKeys.ENCODING, "UTF-8" );
+                transformer.setOutputProperty ( "{http://xml.apache.org/xslt}indent-amount", "2" );
+
+                transformer.transform ( source, result );
+            }
+            catch ( final TransformerException e )
+            {
+                throw new IOException ( e );
+            }
+        }
+    }
+
+    public interface Context
+    {
+        public void addPackage ( FileInformation fileInformation, RpmInformation rpmInformation, Map<ChecksumType, String> checksums, ChecksumType idType );
+    }
+
+    public static class FileInformation
+    {
+        private final Instant timestamp;
+
+        private final long size;
+
+        private final String location;
+
+        public FileInformation ( final Instant timestamp, final long size, final String location )
+        {
+            this.timestamp = timestamp;
+            this.size = size;
+            this.location = location;
+        }
+
+        public Instant getTimestamp ()
+        {
+            return this.timestamp;
+        }
+
+        public long getSize ()
+        {
+            return this.size;
+        }
+
+        public String getLocation ()
+        {
+            return this.location;
+        }
+    }
+
+    private class ContextImpl implements Context
     {
         private final OutputStream primaryStream;
 
@@ -79,13 +189,13 @@ public class RepositoryCreator
 
         private final OutputStream otherStream;
 
+        private final XmlContext xml;
+
         private final Document primary;
 
         private final Document filelists;
 
         private final Document other;
-
-        private final XmlHelper xml;
 
         private final Element primaryRoot;
 
@@ -95,53 +205,59 @@ public class RepositoryCreator
 
         private long count;
 
-        public ContextImpl ( final OutputStream primaryStream, final OutputStream filelistsStream, final OutputStream otherStream, final XmlHelper xml )
+        public ContextImpl ( final OutputStream primaryStream, final OutputStream filelistsStream, final OutputStream otherStream, final XmlContext xml )
         {
             this.primaryStream = primaryStream;
             this.filelistsStream = filelistsStream;
             this.otherStream = otherStream;
 
-            this.primary = xml.createNs ();
+            this.xml = xml;
+
+            this.primary = xml.createDocument ();
             this.primaryRoot = this.primary.createElementNS ( "http://linux.duke.edu/metadata/common", "metadata" );
             this.primaryRoot.setAttribute ( "xmlns:rpm", "http://linux.duke.edu/metadata/rpm" );
             this.primary.appendChild ( this.primaryRoot );
 
-            this.filelists = xml.createNs ();
+            this.filelists = xml.createDocument ();
             this.filelistsRoot = this.filelists.createElementNS ( "http://linux.duke.edu/metadata/filelists", "filelists" );
             this.filelists.appendChild ( this.filelistsRoot );
 
-            this.other = xml.createNs ();
+            this.other = xml.createDocument ();
             this.otherRoot = this.other.createElementNS ( "http://linux.duke.edu/metadata/other", "otherdata" );
             this.other.appendChild ( this.otherRoot );
-
-            this.xml = xml;
         }
 
         @Override
-        public void addPackage ( final String sha1, final ArtifactInformation artifact, final RpmInformation info )
+        public void addPackage ( final FileInformation fileInformation, final RpmInformation info, final Map<ChecksumType, String> checksums, final ChecksumType idType )
         {
-            if ( info == null )
+            Objects.requireNonNull ( fileInformation );
+            Objects.requireNonNull ( info );
+            Objects.requireNonNull ( checksums );
+            Objects.requireNonNull ( idType );
+
+            final String id = checksums.get ( idType );
+            if ( id == null || id.isEmpty () )
             {
-                return;
+                throw new IllegalArgumentException ( String.format ( "Checksums map did not contain a value for the ID type: %s", idType ) );
             }
 
             this.count++;
 
             // insert to primary
 
-            insertToPrimary ( sha1, artifact, info );
+            insertToPrimary ( fileInformation, info, checksums, idType );
 
             // insert to "filelists"
 
             {
-                final Element pkg = createPackage ( this.filelistsRoot, sha1, info );
+                final Element pkg = createPackage ( this.filelistsRoot, id, info );
                 appendFiles ( info, pkg, null, null );
             }
 
             // insert to "other"
 
             {
-                final Element pkg = createPackage ( this.otherRoot, sha1, info );
+                final Element pkg = createPackage ( this.otherRoot, id, info );
                 for ( final Changelog log : info.getChangelog () )
                 {
                     final Element cl = addElement ( pkg, "changelog", log.getText () );
@@ -170,7 +286,7 @@ public class RepositoryCreator
             }
         }
 
-        private void insertToPrimary ( final String sha1, final ArtifactInformation artifact, final RpmInformation info )
+        private void insertToPrimary ( final FileInformation fileInformation, final RpmInformation info, final Map<ChecksumType, String> checksums, final ChecksumType idType )
         {
             final Element pkg = addElement ( this.primaryRoot, "package" );
             pkg.setAttribute ( "type", "rpm" );
@@ -180,9 +296,15 @@ public class RepositoryCreator
 
             addVersion ( pkg, info.getVersion () );
 
-            final Element checksum = addElement ( pkg, "checksum", sha1 );
-            checksum.setAttribute ( "type", "sha" );
-            checksum.setAttribute ( "pkgid", "YES" );
+            for ( final Map.Entry<ChecksumType, String> entry : checksums.entrySet () )
+            {
+                final Element checksum = addElement ( pkg, "checksum", entry.getValue () );
+                checksum.setAttribute ( "type", entry.getKey ().getId () );
+                if ( entry.getKey () == idType )
+                {
+                    checksum.setAttribute ( "pkgid", "YES" );
+                }
+            }
 
             addElement ( pkg, "summary", info.getSummary () );
             addElement ( pkg, "description", info.getDescription () );
@@ -192,7 +314,7 @@ public class RepositoryCreator
             // time
 
             final Element time = addElement ( pkg, "time" );
-            time.setAttribute ( "file", "" + artifact.getCreationTimestamp ().getTime () / 1000 );
+            time.setAttribute ( "file", "" + fileInformation.getTimestamp ().getEpochSecond () );
             if ( info.getBuildTimestamp () != null )
             {
                 time.setAttribute ( "build", "" + info.getBuildTimestamp () );
@@ -201,7 +323,7 @@ public class RepositoryCreator
             // size
 
             final Element size = addElement ( pkg, "size" );
-            size.setAttribute ( "package", "" + artifact.getSize () );
+            size.setAttribute ( "package", "" + fileInformation.getSize () );
             if ( info.getInstalledSize () != null )
             {
                 size.setAttribute ( "installed", "" + info.getInstalledSize () );
@@ -214,7 +336,7 @@ public class RepositoryCreator
             // location
 
             final Element location = addElement ( pkg, "location" );
-            location.setAttribute ( "href", String.format ( "pool/%s/%s", artifact.getId (), artifact.getName () ) );
+            location.setAttribute ( "href", fileInformation.getLocation () );
 
             // add format section
 
@@ -347,8 +469,20 @@ public class RepositoryCreator
         }
     }
 
-    public RepositoryCreator ( final SpoolOutTarget target, final SigningService signing )
+    public RepositoryCreator ( final SpoolOutTarget target, final Function<OutputStream, OutputStream> signingStreamCreator )
     {
+        this ( target, new DefaultXmlContext (), signingStreamCreator );
+    }
+
+    public RepositoryCreator ( final SpoolOutTarget target, final XmlContext xml, final Function<OutputStream, OutputStream> signingStreamCreator )
+    {
+        Objects.requireNonNull ( target );
+        Objects.requireNonNull ( xml );
+
+        // xml
+
+        this.xml = xml;
+
         // filters
 
         final String dirFilter = System.getProperty ( "drone.rpm.yum.primaryDirs", "bin/,^/etc/" );
@@ -393,9 +527,9 @@ public class RepositoryCreator
         this.mdStreamBuilder = new OutputSpooler ( target );
 
         this.mdStreamBuilder.addOutput ( "repodata/repomd.xml", "application/xml" );
-        if ( signing != null )
+        if ( signingStreamCreator != null )
         {
-            this.mdStreamBuilder.addOutput ( "repodata/repomd.xml.asc", "text/plain", output -> signing.signingStream ( output, false ) );
+            this.mdStreamBuilder.addOutput ( "repodata/repomd.xml.asc", "text/plain", signingStreamCreator::apply );
         }
     }
 
@@ -438,7 +572,7 @@ public class RepositoryCreator
 
     private void writeRepoMd ( final OutputStream stream, final long now ) throws IOException
     {
-        final Document doc = this.xml.createNs ();
+        final Document doc = this.xml.createDocument ();
 
         final Element root = doc.createElementNS ( "http://linux.duke.edu/metadata/repo", "repomd" );
         doc.appendChild ( root );
@@ -478,5 +612,32 @@ public class RepositoryCreator
 
         addElement ( data, "size", "" + spooler.getSize ( filename + ".gz" ) );
         addElement ( data, "open-size", "" + spooler.getSize ( filename ) );
+    }
+
+    private static void addOptionalElement ( final Element parent, final String name, final Object value )
+    {
+        if ( value == null )
+        {
+            return;
+        }
+
+        addElement ( parent, name, value );
+    }
+
+    private static Element addElement ( final Element parent, final String name )
+    {
+        return addElement ( parent, name, null );
+    }
+
+    private static Element addElement ( final Element parent, final String name, final Object value )
+    {
+        final Document doc = parent.getOwnerDocument ();
+        final Element result = doc.createElement ( name );
+        parent.appendChild ( result );
+        if ( value != null )
+        {
+            result.appendChild ( doc.createTextNode ( value.toString () ) );
+        }
+        return result;
     }
 }

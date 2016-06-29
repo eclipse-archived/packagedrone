@@ -14,9 +14,16 @@ import org.eclipse.packagedrone.repo.adapter.rpm.Constants;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspect;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectFactory;
 import org.eclipse.packagedrone.repo.aspect.aggregate.ChannelAggregator;
+import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 
 public class YumChannelAspectFactory implements ChannelAspectFactory
 {
+    private XmlToolsFactory xml;
+
+    public void setXml ( final XmlToolsFactory xml )
+    {
+        this.xml = xml;
+    }
 
     @Override
     public ChannelAspect createAspect ()
@@ -32,7 +39,7 @@ public class YumChannelAspectFactory implements ChannelAspectFactory
             @Override
             public ChannelAggregator getChannelAggregator ()
             {
-                return new YumChannelAggregator ();
+                return new YumChannelAggregator ( YumChannelAspectFactory.this.xml );
             }
         };
     }

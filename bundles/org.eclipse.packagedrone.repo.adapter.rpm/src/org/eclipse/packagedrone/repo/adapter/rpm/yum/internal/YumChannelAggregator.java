@@ -10,20 +10,28 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.rpm.yum.internal;
 
+import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.adapter.rpm.Constants;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformationsJson;
-import org.eclipse.packagedrone.repo.adapter.rpm.yum.RepositoryCreator;
 import org.eclipse.packagedrone.repo.aspect.aggregate.AggregationContext;
 import org.eclipse.packagedrone.repo.aspect.aggregate.ChannelAggregator;
 import org.eclipse.packagedrone.repo.aspect.common.spool.ChannelCacheTarget;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.signing.SigningService;
 import org.eclipse.packagedrone.utils.rpm.info.RpmInformation;
+import org.eclipse.packagedrone.utils.rpm.yum.ChecksumType;
+import org.eclipse.packagedrone.utils.rpm.yum.RepositoryCreator;
+import org.eclipse.packagedrone.utils.rpm.yum.RepositoryCreator.DefaultXmlContext;
+import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -36,8 +44,11 @@ public class YumChannelAggregator implements ChannelAggregator
 
     private final BundleContext context;
 
-    public YumChannelAggregator ()
+    private final XmlToolsFactory xml;
+
+    public YumChannelAggregator ( final XmlToolsFactory xml )
     {
+        this.xml = xml;
         this.context = FrameworkUtil.getBundle ( YumChannelAggregator.class ).getBundleContext ();
     }
 
@@ -62,7 +73,10 @@ public class YumChannelAggregator implements ChannelAggregator
 
         try
         {
-            final RepositoryCreator creator = new RepositoryCreator ( new ChannelCacheTarget ( context ), signingService );
+            final DefaultXmlContext xmlCtx = makeXmlContext ();
+            final Function<OutputStream, OutputStream> signingStreamCreator = makeSigningStreamCreator ( signingService );
+
+            final RepositoryCreator creator = new RepositoryCreator ( new ChannelCacheTarget ( context ), xmlCtx, signingStreamCreator );
 
             final Map<String, String> result = new HashMap<> ();
 
@@ -77,8 +91,12 @@ public class YumChannelAggregator implements ChannelAggregator
                     }
 
                     final String sha1 = art.getMetaData ().get ( KEY_SHA1 );
+                    final Map<ChecksumType, String> checksums = Collections.singletonMap ( ChecksumType.SHA1, sha1 );
 
-                    repoContext.addPackage ( sha1, art, info );
+                    final String location = String.format ( "pool/%s/%s", art.getId (), art.getName () );
+                    final RepositoryCreator.FileInformation file = new RepositoryCreator.FileInformation ( art.getCreationInstant (), art.getSize (), location );
+
+                    repoContext.addPackage ( file, info, checksums, ChecksumType.SHA1 );
                 }
             } );
 
@@ -91,5 +109,24 @@ public class YumChannelAggregator implements ChannelAggregator
                 this.context.ungetService ( ssref );
             }
         }
+    }
+
+    private Function<OutputStream, OutputStream> makeSigningStreamCreator ( final SigningService signingService )
+    {
+        Function<OutputStream, OutputStream> signingStreamCreator = null;
+        if ( signingService != null )
+        {
+            final SigningService signingServiceFinal = signingService;
+            signingStreamCreator = output -> signingServiceFinal.signingStream ( output, false );
+        }
+        return signingStreamCreator;
+    }
+
+    private DefaultXmlContext makeXmlContext ()
+    {
+        final DocumentBuilderFactory dbf = this.xml.newDocumentBuilderFactory ();
+        dbf.setNamespaceAware ( true );
+        final DefaultXmlContext xmlCtx = new DefaultXmlContext ( dbf, this.xml.newTransformerFactory () );
+        return xmlCtx;
     }
 }
