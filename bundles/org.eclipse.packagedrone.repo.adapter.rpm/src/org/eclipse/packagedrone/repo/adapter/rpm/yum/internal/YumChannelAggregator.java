@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,13 +16,14 @@ import java.util.Map;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.adapter.rpm.Constants;
-import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation;
+import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformationsJson;
 import org.eclipse.packagedrone.repo.adapter.rpm.yum.RepositoryCreator;
 import org.eclipse.packagedrone.repo.aspect.aggregate.AggregationContext;
 import org.eclipse.packagedrone.repo.aspect.aggregate.ChannelAggregator;
 import org.eclipse.packagedrone.repo.aspect.common.spool.ChannelCacheTarget;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.signing.SigningService;
+import org.eclipse.packagedrone.utils.rpm.info.RpmInformation;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -68,7 +69,7 @@ public class YumChannelAggregator implements ChannelAggregator
             creator.process ( repoContext -> {
                 for ( final ArtifactInformation art : context.getArtifacts () )
                 {
-                    final RpmInformation info = RpmInformation.fromJson ( art.getMetaData ().get ( Constants.KEY_INFO ) );
+                    final RpmInformation info = RpmInformationsJson.fromJson ( art.getMetaData ().get ( Constants.KEY_INFO ) );
 
                     if ( info == null )
                     {

@@ -26,9 +26,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
-import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation;
-import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation.Changelog;
-import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformation.Dependency;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.signing.SigningService;
 import org.eclipse.packagedrone.repo.xml.XmlHelper;
@@ -37,6 +34,9 @@ import org.eclipse.packagedrone.utils.io.OutputSpooler;
 import org.eclipse.packagedrone.utils.io.SpoolOutTarget;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
+import org.eclipse.packagedrone.utils.rpm.info.RpmInformation;
+import org.eclipse.packagedrone.utils.rpm.info.RpmInformation.Changelog;
+import org.eclipse.packagedrone.utils.rpm.info.RpmInformation.Dependency;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

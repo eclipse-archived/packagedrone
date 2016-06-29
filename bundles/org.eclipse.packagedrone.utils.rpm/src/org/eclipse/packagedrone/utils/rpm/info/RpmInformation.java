@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,15 +8,12 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.adapter.rpm;
+package org.eclipse.packagedrone.utils.rpm.info;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class RpmInformation
 {
@@ -307,27 +304,6 @@ public class RpmInformation
     public void setDirectories ( final Set<String> directories )
     {
         this.directories = directories;
-    }
-
-    public static Gson makeGson ()
-    {
-        final GsonBuilder gb = new GsonBuilder ();
-        return gb.create ();
-    }
-
-    public static RpmInformation fromJson ( final String json )
-    {
-        if ( json == null )
-        {
-            return null;
-        }
-
-        return makeGson ().fromJson ( json, RpmInformation.class );
-    }
-
-    public String toJson ()
-    {
-        return makeGson ().toJson ( this );
     }
 
     public String getSummary ()
