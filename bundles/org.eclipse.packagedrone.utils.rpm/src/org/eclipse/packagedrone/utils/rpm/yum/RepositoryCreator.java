@@ -37,6 +37,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.packagedrone.utils.io.OutputSpooler;
 import org.eclipse.packagedrone.utils.io.SpoolOutTarget;
@@ -45,6 +46,7 @@ import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 import org.eclipse.packagedrone.utils.rpm.info.RpmInformation;
 import org.eclipse.packagedrone.utils.rpm.info.RpmInformation.Changelog;
 import org.eclipse.packagedrone.utils.rpm.info.RpmInformation.Dependency;
+import org.eclipse.packagedrone.utils.security.pgp.SigningStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -469,12 +471,56 @@ public class RepositoryCreator
         }
     }
 
-    public RepositoryCreator ( final SpoolOutTarget target, final Function<OutputStream, OutputStream> signingStreamCreator )
+    public static class Builder
     {
-        this ( target, new DefaultXmlContext (), signingStreamCreator );
+        private SpoolOutTarget target;
+
+        private XmlContext xmlContext;
+
+        private Function<OutputStream, OutputStream> signingStreamCreator;
+
+        public Builder ()
+        {
+        }
+
+        public Builder setTarget ( final SpoolOutTarget target )
+        {
+            this.target = target;
+            return this;
+        }
+
+        public Builder setXmlContext ( final XmlContext xmlContext )
+        {
+            this.xmlContext = xmlContext;
+            return this;
+        }
+
+        public Builder setSigning ( final Function<OutputStream, OutputStream> signingStreamCreator )
+        {
+            this.signingStreamCreator = signingStreamCreator;
+            return this;
+        }
+
+        public Builder setSigning ( final PGPPrivateKey privateKey )
+        {
+            if ( privateKey != null )
+            {
+                this.signingStreamCreator = output -> new SigningStream ( output, privateKey, false );
+            }
+            else
+            {
+                this.signingStreamCreator = null;
+            }
+            return this;
+        }
+
+        public RepositoryCreator build ()
+        {
+            return new RepositoryCreator ( this.target, this.xmlContext == null ? new DefaultXmlContext () : this.xmlContext, this.signingStreamCreator );
+        }
     }
 
-    public RepositoryCreator ( final SpoolOutTarget target, final XmlContext xml, final Function<OutputStream, OutputStream> signingStreamCreator )
+    private RepositoryCreator ( final SpoolOutTarget target, final XmlContext xml, final Function<OutputStream, OutputStream> signingStreamCreator )
     {
         Objects.requireNonNull ( target );
         Objects.requireNonNull ( xml );

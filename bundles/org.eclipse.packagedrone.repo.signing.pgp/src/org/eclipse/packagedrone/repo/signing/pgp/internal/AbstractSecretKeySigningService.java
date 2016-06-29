@@ -31,7 +31,7 @@ import org.bouncycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.bc.BcPGPDigestCalculatorProvider;
 import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.signing.SigningService;
-import org.eclipse.packagedrone.repo.signing.pgp.SigningStream;
+import org.eclipse.packagedrone.utils.security.pgp.SigningStream;
 
 public abstract class AbstractSecretKeySigningService implements SigningService
 {
@@ -61,7 +61,7 @@ public abstract class AbstractSecretKeySigningService implements SigningService
     @Override
     public OutputStream signingStream ( final OutputStream stream, final boolean inline )
     {
-        return new SigningStream ( stream, this.privateKey, inline );
+        return new SigningStream ( stream, this.privateKey, inline, VersionInformation.VERSIONED_PRODUCT );
     }
 
     @Override

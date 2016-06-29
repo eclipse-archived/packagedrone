@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.signing.pgp;
+package org.eclipse.packagedrone.utils.security.pgp;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,7 +22,6 @@ import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureGenerator;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentSignerBuilder;
-import org.eclipse.packagedrone.VersionInformation;
 
 public class SigningStream extends OutputStream
 {
@@ -38,11 +37,19 @@ public class SigningStream extends OutputStream
 
     private boolean initialized;
 
-    public SigningStream ( final OutputStream stream, final PGPPrivateKey privateKey, final boolean inline )
+    private final String version;
+
+    public SigningStream ( final OutputStream stream, final PGPPrivateKey privateKey, final boolean inline, final String version )
     {
         this.stream = stream;
         this.privateKey = privateKey;
         this.inline = inline;
+        this.version = version;
+    }
+
+    public SigningStream ( final OutputStream stream, final PGPPrivateKey privateKey, final boolean inline )
+    {
+        this ( stream, privateKey, inline, null );
     }
 
     protected void testInit () throws IOException
@@ -61,7 +68,7 @@ public class SigningStream extends OutputStream
             this.signatureGenerator.init ( PGPSignature.BINARY_DOCUMENT, this.privateKey );
 
             this.armoredOutput = new ArmoredOutputStream ( this.stream );
-            this.armoredOutput.setHeader ( "Version", VersionInformation.VERSIONED_PRODUCT );
+            this.armoredOutput.setHeader ( "Version", this.version );
 
             if ( this.inline )
             {

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.signing.pgp.web.managed;
 
-import static org.eclipse.packagedrone.repo.signing.pgp.PgpHelper.fromString;
-import static org.eclipse.packagedrone.repo.signing.pgp.PgpHelper.streamSecretKeys;
+import static org.eclipse.packagedrone.utils.security.pgp.PgpHelper.fromString;
+import static org.eclipse.packagedrone.utils.security.pgp.PgpHelper.streamSecretKeys;
 
 import java.util.HashMap;
 import java.util.LinkedList;

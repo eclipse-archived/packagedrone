@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Security related utilities
+Bundle-SymbolicName: org.eclipse.packagedrone.utils.security
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Eclipse Package Drone
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.bouncycastle.bcpg;version="1.52.0",
+ org.bouncycastle.openpgp;version="1.52.0",
+ org.bouncycastle.openpgp.bc;version="1.52.0",
+ org.bouncycastle.openpgp.operator.bc;version="1.52.0"
+Export-Package: org.eclipse.packagedrone.utils.security.pgp;version="0.14.0";uses:="org.bouncycastle.openpgp"

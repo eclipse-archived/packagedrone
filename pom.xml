@@ -196,6 +196,7 @@
 		<module>bundles/org.eclipse.packagedrone.utils.rpm.tests</module>
 		<module>bundles/org.eclipse.packagedrone.utils.scheduler</module>
 		<module>bundles/org.eclipse.packagedrone.utils.scheduler.simple</module>
+		<module>bundles/org.eclipse.packagedrone.utils.security</module>
 		<module>bundles/org.eclipse.packagedrone.utils.validation</module>
 		<module>bundles/org.eclipse.packagedrone.utils.validation.hibernate</module>
 		<module>bundles/org.eclipse.packagedrone.utils.xml</module>

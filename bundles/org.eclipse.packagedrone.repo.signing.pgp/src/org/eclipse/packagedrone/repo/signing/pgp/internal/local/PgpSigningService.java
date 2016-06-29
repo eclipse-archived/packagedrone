@@ -17,8 +17,8 @@ import java.io.InputStream;
 
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPSecretKey;
-import org.eclipse.packagedrone.repo.signing.pgp.PgpHelper;
 import org.eclipse.packagedrone.repo.signing.pgp.internal.AbstractSecretKeySigningService;
+import org.eclipse.packagedrone.utils.security.pgp.PgpHelper;
 
 public class PgpSigningService extends AbstractSecretKeySigningService
 {

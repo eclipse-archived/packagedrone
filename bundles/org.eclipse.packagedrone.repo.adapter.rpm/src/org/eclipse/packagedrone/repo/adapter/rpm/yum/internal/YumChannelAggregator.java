@@ -76,7 +76,12 @@ public class YumChannelAggregator implements ChannelAggregator
             final DefaultXmlContext xmlCtx = makeXmlContext ();
             final Function<OutputStream, OutputStream> signingStreamCreator = makeSigningStreamCreator ( signingService );
 
-            final RepositoryCreator creator = new RepositoryCreator ( new ChannelCacheTarget ( context ), xmlCtx, signingStreamCreator );
+            final RepositoryCreator.Builder builder = new RepositoryCreator.Builder ();
+            builder.setTarget ( new ChannelCacheTarget ( context ) );
+            builder.setXmlContext ( xmlCtx );
+            builder.setSigning ( signingStreamCreator );
+
+            final RepositoryCreator creator = builder.build ();
 
             final Map<String, String> result = new HashMap<> ();
 

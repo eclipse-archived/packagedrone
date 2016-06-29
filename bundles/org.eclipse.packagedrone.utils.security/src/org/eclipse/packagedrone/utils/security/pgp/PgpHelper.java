@@ -8,7 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.signing.pgp;
+package org.eclipse.packagedrone.utils.security.pgp;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

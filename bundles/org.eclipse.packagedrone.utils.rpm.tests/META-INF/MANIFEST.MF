@@ -9,8 +9,9 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
  org.eclipse.packagedrone.repo.signing.pgp;bundle-version="1.0.0"
 Import-Package: org.apache.commons.compress.archivers.cpio;version="1.9.0",
- org.eclipse.packagedrone.utils.rpm,
+ org.eclipse.packagedrone.utils.rpm;version="0.14.0",
  org.eclipse.packagedrone.utils.rpm.build;version="0.13.0",
  org.eclipse.packagedrone.utils.rpm.deps;version="0.13.0",
  org.eclipse.packagedrone.utils.rpm.header;version="0.13.0",
+ org.eclipse.packagedrone.utils.security.pgp;version="0.14.0",
  org.eclipse.scada.utils.str;version="0.2.0"
