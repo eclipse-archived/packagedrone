@@ -123,6 +123,7 @@
 		<module>../bundles/org.eclipse.packagedrone.utils/secondary.pom</module>
 		<module>../bundles/org.eclipse.packagedrone.utils.converter/secondary.pom</module>
 		<module>../bundles/org.eclipse.packagedrone.utils.rpm/secondary.pom</module>
+		<module>../bundles/org.eclipse.packagedrone.utils.security/secondary.pom</module>
 	</modules>
 
 	<build>

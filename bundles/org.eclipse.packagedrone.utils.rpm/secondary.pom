@@ -45,6 +45,11 @@
 		  <artifactId>org.eclipse.packagedrone.utils</artifactId>
 		  <version>${project.version}</version>
 		</dependency>
+		<dependency>
+      <groupId>org.eclipse.packagedrone</groupId>
+      <artifactId>org.eclipse.packagedrone.utils.security</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 	</dependencies>
 
 </project>
