@@ -37,8 +37,6 @@ import javax.xml.stream.XMLStreamWriter;
 import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.common.osgi.OsgiAspectFactory;
-import org.eclipse.packagedrone.repo.aspect.common.spool.OutputSpooler;
-import org.eclipse.packagedrone.repo.aspect.common.spool.SpoolOutTarget;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.BundleRequirement;
@@ -50,6 +48,8 @@ import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.Require
 import org.eclipse.packagedrone.utils.Filters;
 import org.eclipse.packagedrone.utils.Filters.Node;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
+import org.eclipse.packagedrone.utils.io.OutputSpooler;
+import org.eclipse.packagedrone.utils.io.SpoolOutTarget;
 import org.osgi.framework.Version;
 
 public class RepositoryCreator

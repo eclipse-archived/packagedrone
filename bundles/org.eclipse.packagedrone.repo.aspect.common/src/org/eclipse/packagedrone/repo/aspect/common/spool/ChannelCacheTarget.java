@@ -15,6 +15,7 @@ import java.io.OutputStream;
 
 import org.eclipse.packagedrone.repo.aspect.aggregate.AggregationContext;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
+import org.eclipse.packagedrone.utils.io.SpoolOutTarget;
 
 public class ChannelCacheTarget implements SpoolOutTarget
 {

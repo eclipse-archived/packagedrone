@@ -16,8 +16,8 @@ import org.eclipse.packagedrone.repo.adapter.r5.RepositoryCreator;
 import org.eclipse.packagedrone.repo.aspect.aggregate.AggregationContext;
 import org.eclipse.packagedrone.repo.aspect.aggregate.ChannelAggregator;
 import org.eclipse.packagedrone.repo.aspect.common.spool.ChannelCacheTarget;
-import org.eclipse.packagedrone.repo.aspect.common.spool.SpoolOutTarget;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
+import org.eclipse.packagedrone.utils.io.SpoolOutTarget;
 import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
 
 public class R5RepoIndexAggregator implements ChannelAggregator

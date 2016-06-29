@@ -8,7 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.aspect.common.spool;
+package org.eclipse.packagedrone.utils.io;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -27,10 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.eclipse.packagedrone.utils.io.IOConsumer;
-import org.eclipse.packagedrone.utils.io.IOFunction;
-
-import com.google.common.io.BaseEncoding;
+import org.eclipse.packagedrone.utils.Strings;
 
 public class OutputSpooler
 {
@@ -257,7 +254,7 @@ public class OutputSpooler
 
     private void setResult ( final String key, final byte[] result )
     {
-        this.checksums.put ( key, BaseEncoding.base16 ().lowerCase ().encode ( result ) );
+        this.checksums.put ( key, Strings.hex ( result ).toLowerCase () );
     }
 
     private void setResultSize ( final String key, final long length )

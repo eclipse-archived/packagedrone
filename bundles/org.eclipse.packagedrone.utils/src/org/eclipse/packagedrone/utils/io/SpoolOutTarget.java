@@ -8,12 +8,10 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.repo.aspect.common.spool;
+package org.eclipse.packagedrone.utils.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import org.eclipse.packagedrone.utils.io.IOConsumer;
 
 @FunctionalInterface
 public interface SpoolOutTarget
