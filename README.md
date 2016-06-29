@@ -1,10 +1,10 @@
-# Eclipse Package Drone
+# Eclipse Package Drone™
 
 Package Drone is a software artifact repository with an initial focus on OSGi.
 The system can be enhanced by plugins to also support other types of artifacts
 and repository interfaces.
 
-Eclipse Package Drone is a projected hosted by the Eclipse Foundation. It is open source and licensed under the EPL.
+Eclipse Package Drone™ is a projected hosted by the Eclipse Foundation. It is open source and licensed under the EPL.
 
 ## More Information
 
