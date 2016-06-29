@@ -100,7 +100,7 @@ public final class PgpHelper
 
     public static PGPPrivateKey loadPrivateKey ( final InputStream input, final String keyId, final String passPhrase ) throws IOException, PGPException
     {
-        return loadPrivateKey ( input, keyId, passPhrase.toCharArray () );
+        return loadPrivateKey ( input, keyId, passPhrase != null ? passPhrase.toCharArray () : null );
     }
 
     public static PGPPrivateKey loadPrivateKey ( final InputStream input, final String keyId, final char[] passPhrase ) throws IOException, PGPException
