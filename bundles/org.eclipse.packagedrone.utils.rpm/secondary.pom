@@ -40,6 +40,9 @@
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpg-jdk15on</artifactId>
 		</dependency>
+		<dependency>
+		  <artifactId>org.eclipse.packagedrone.utils</artifactId>
+		</dependency>
 	</dependencies>
 
 </project>
