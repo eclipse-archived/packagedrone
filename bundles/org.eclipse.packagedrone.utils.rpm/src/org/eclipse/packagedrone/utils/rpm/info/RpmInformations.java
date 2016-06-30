@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.utils.rpm.info;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -152,6 +153,14 @@ public final class RpmInformations
             if ( flagsVal instanceof Long )
             {
                 flagsVal = new Long[] { (Long)flagsVal };
+            }
+            else if ( flagsVal instanceof Integer )
+            {
+                flagsVal = new Long[] { ( (Integer)flagsVal ).longValue () };
+            }
+            else if ( flagsVal instanceof Integer[] )
+            {
+                flagsVal = Arrays.stream ( (Integer[])flagsVal ).toArray ( Long[]::new );
             }
             else
             {
