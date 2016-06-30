@@ -27,8 +27,8 @@ import org.eclipse.packagedrone.repo.aspect.aggregate.ChannelAggregator;
 import org.eclipse.packagedrone.repo.aspect.common.spool.ChannelCacheTarget;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
 import org.eclipse.packagedrone.repo.signing.SigningService;
+import org.eclipse.packagedrone.utils.rpm.HashAlgorithm;
 import org.eclipse.packagedrone.utils.rpm.info.RpmInformation;
-import org.eclipse.packagedrone.utils.rpm.yum.ChecksumType;
 import org.eclipse.packagedrone.utils.rpm.yum.RepositoryCreator;
 import org.eclipse.packagedrone.utils.rpm.yum.RepositoryCreator.DefaultXmlContext;
 import org.eclipse.packagedrone.utils.xml.XmlToolsFactory;
@@ -96,12 +96,12 @@ public class YumChannelAggregator implements ChannelAggregator
                     }
 
                     final String sha1 = art.getMetaData ().get ( KEY_SHA1 );
-                    final Map<ChecksumType, String> checksums = Collections.singletonMap ( ChecksumType.SHA1, sha1 );
+                    final Map<HashAlgorithm, String> checksums = Collections.singletonMap ( HashAlgorithm.SHA1, sha1 );
 
                     final String location = String.format ( "pool/%s/%s", art.getId (), art.getName () );
                     final RepositoryCreator.FileInformation file = new RepositoryCreator.FileInformation ( art.getCreationInstant (), art.getSize (), location );
 
-                    repoContext.addPackage ( file, info, checksums, ChecksumType.SHA1 );
+                    repoContext.addPackage ( file, info, checksums, HashAlgorithm.SHA1 );
                 }
             } );
 

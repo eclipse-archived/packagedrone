@@ -42,6 +42,7 @@ import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.packagedrone.utils.io.OutputSpooler;
 import org.eclipse.packagedrone.utils.io.SpoolOutTarget;
+import org.eclipse.packagedrone.utils.rpm.HashAlgorithm;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 import org.eclipse.packagedrone.utils.rpm.info.RpmInformation;
@@ -150,7 +151,7 @@ public class RepositoryCreator
 
     public interface Context
     {
-        public void addPackage ( FileInformation fileInformation, RpmInformation rpmInformation, Map<ChecksumType, String> checksums, ChecksumType idType );
+        public void addPackage ( FileInformation fileInformation, RpmInformation rpmInformation, Map<HashAlgorithm, String> checksums, HashAlgorithm idType );
     }
 
     public static class FileInformation
@@ -231,7 +232,7 @@ public class RepositoryCreator
         }
 
         @Override
-        public void addPackage ( final FileInformation fileInformation, final RpmInformation info, final Map<ChecksumType, String> checksums, final ChecksumType idType )
+        public void addPackage ( final FileInformation fileInformation, final RpmInformation info, final Map<HashAlgorithm, String> checksums, final HashAlgorithm idType )
         {
             Objects.requireNonNull ( fileInformation );
             Objects.requireNonNull ( info );
@@ -289,7 +290,7 @@ public class RepositoryCreator
             }
         }
 
-        private void insertToPrimary ( final FileInformation fileInformation, final RpmInformation info, final Map<ChecksumType, String> checksums, final ChecksumType idType )
+        private void insertToPrimary ( final FileInformation fileInformation, final RpmInformation info, final Map<HashAlgorithm, String> checksums, final HashAlgorithm idType )
         {
             final Element pkg = addElement ( this.primaryRoot, "package" );
             pkg.setAttribute ( "type", "rpm" );
@@ -299,7 +300,7 @@ public class RepositoryCreator
 
             addVersion ( pkg, info.getVersion () );
 
-            for ( final Map.Entry<ChecksumType, String> entry : checksums.entrySet () )
+            for ( final Map.Entry<HashAlgorithm, String> entry : checksums.entrySet () )
             {
                 final Element checksum = addElement ( pkg, "checksum", entry.getValue () );
                 checksum.setAttribute ( "type", entry.getKey ().getId () );

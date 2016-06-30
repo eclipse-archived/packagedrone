@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bouncycastle.openpgp.PGPException;
+import org.eclipse.packagedrone.utils.rpm.HashAlgorithm;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.eclipse.packagedrone.utils.rpm.app.Dumper;
@@ -39,7 +40,6 @@ import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 import org.eclipse.packagedrone.utils.rpm.header.Header;
 import org.eclipse.packagedrone.utils.rpm.parse.RpmInputStream;
 import org.eclipse.packagedrone.utils.rpm.signature.RsaHeaderSignatureProcessor;
-import org.eclipse.packagedrone.utils.rpm.signature.RsaHeaderSignatureProcessor.HashAlgorithm;
 import org.eclipse.packagedrone.utils.security.pgp.PgpHelper;
 import org.junit.BeforeClass;
 import org.junit.Test;
