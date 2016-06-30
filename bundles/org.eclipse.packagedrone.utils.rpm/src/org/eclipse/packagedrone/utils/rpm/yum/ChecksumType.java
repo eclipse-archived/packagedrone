@@ -12,7 +12,8 @@ package org.eclipse.packagedrone.utils.rpm.yum;
 
 public enum ChecksumType
 {
-    SHA1 ( "sha" );
+    SHA1 ( "sha" ),
+    SHA256 ( "sha256" );
 
     private String id;
 
