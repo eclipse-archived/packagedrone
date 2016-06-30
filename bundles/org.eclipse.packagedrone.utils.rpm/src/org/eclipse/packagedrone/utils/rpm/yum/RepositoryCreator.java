@@ -579,7 +579,7 @@ public class RepositoryCreator
         }
     }
 
-    public boolean matches ( final String pathName, final List<Pattern> filterList )
+    private boolean matches ( final String pathName, final List<Pattern> filterList )
     {
         for ( final Pattern p : filterList )
         {
