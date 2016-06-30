@@ -96,7 +96,10 @@ public class SigningStream extends OutputStream
             this.signatureGenerator.init ( PGPSignature.BINARY_DOCUMENT, this.privateKey );
 
             this.armoredOutput = new ArmoredOutputStream ( this.stream );
-            this.armoredOutput.setHeader ( "Version", this.version );
+            if ( this.version != null )
+            {
+                this.armoredOutput.setHeader ( "Version", this.version );
+            }
 
             if ( this.inline )
             {
