@@ -61,7 +61,7 @@ public abstract class AbstractSecretKeySigningService implements SigningService
     @Override
     public OutputStream signingStream ( final OutputStream stream, final boolean inline )
     {
-        return new SigningStream ( stream, this.privateKey, inline, VersionInformation.VERSIONED_PRODUCT );
+        return new SigningStream ( stream, this.privateKey, HashAlgorithmTags.SHA1, inline, VersionInformation.VERSIONED_PRODUCT );
     }
 
     @Override

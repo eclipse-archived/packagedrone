@@ -39,17 +39,46 @@ public class SigningStream extends OutputStream
 
     private final String version;
 
-    public SigningStream ( final OutputStream stream, final PGPPrivateKey privateKey, final boolean inline, final String version )
+    private final int digestAlgorithm;
+
+    /**
+     * Create a new signing stream
+     *
+     * @param stream
+     *            the actual output stream
+     * @param privateKey
+     *            the private key to sign with
+     * @param digestAlgorithm
+     *            the digest algorithm to use, from {@link HashAlgorithmTags}
+     * @param inline
+     *            whether to sign inline or just write the signature
+     * @param version
+     *            the optional version which will be in the signature comment
+     */
+    public SigningStream ( final OutputStream stream, final PGPPrivateKey privateKey, final int digestAlgorithm, final boolean inline, final String version )
     {
         this.stream = stream;
         this.privateKey = privateKey;
+        this.digestAlgorithm = digestAlgorithm;
         this.inline = inline;
         this.version = version;
     }
 
-    public SigningStream ( final OutputStream stream, final PGPPrivateKey privateKey, final boolean inline )
+    /**
+     * Create a new signing stream
+     *
+     * @param stream
+     *            the actual output stream
+     * @param privateKey
+     *            the private key to sign with
+     * @param digestAlgorithm
+     *            the digest algorithm to use, from {@link HashAlgorithmTags}
+     * @param inline
+     *            whether to sign inline or just write the signature
+     */
+    public SigningStream ( final OutputStream stream, final PGPPrivateKey privateKey, final int digestAlgorithm, final boolean inline )
     {
-        this ( stream, privateKey, inline, null );
+        this ( stream, privateKey, digestAlgorithm, inline, null );
     }
 
     protected void testInit () throws IOException
@@ -63,8 +92,7 @@ public class SigningStream extends OutputStream
 
         try
         {
-            final int digest = HashAlgorithmTags.SHA1;
-            this.signatureGenerator = new PGPSignatureGenerator ( new BcPGPContentSignerBuilder ( this.privateKey.getPublicKeyPacket ().getAlgorithm (), digest ) );
+            this.signatureGenerator = new PGPSignatureGenerator ( new BcPGPContentSignerBuilder ( this.privateKey.getPublicKeyPacket ().getAlgorithm (), this.digestAlgorithm ) );
             this.signatureGenerator.init ( PGPSignature.BINARY_DOCUMENT, this.privateKey );
 
             this.armoredOutput = new ArmoredOutputStream ( this.stream );
@@ -72,7 +100,7 @@ public class SigningStream extends OutputStream
 
             if ( this.inline )
             {
-                this.armoredOutput.beginClearText ( digest );
+                this.armoredOutput.beginClearText ( this.digestAlgorithm );
             }
         }
         catch ( final PGPException e )

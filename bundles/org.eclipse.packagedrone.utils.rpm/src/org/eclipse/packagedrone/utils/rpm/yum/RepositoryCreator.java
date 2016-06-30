@@ -37,6 +37,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.eclipse.packagedrone.utils.io.IOConsumer;
 import org.eclipse.packagedrone.utils.io.OutputSpooler;
@@ -503,9 +504,14 @@ public class RepositoryCreator
 
         public Builder setSigning ( final PGPPrivateKey privateKey )
         {
+            return setSigning ( privateKey, HashAlgorithmTags.SHA1 );
+        }
+
+        public Builder setSigning ( final PGPPrivateKey privateKey, final int digestAlgorithm )
+        {
             if ( privateKey != null )
             {
-                this.signingStreamCreator = output -> new SigningStream ( output, privateKey, false );
+                this.signingStreamCreator = output -> new SigningStream ( output, privateKey, digestAlgorithm, false );
             }
             else
             {
