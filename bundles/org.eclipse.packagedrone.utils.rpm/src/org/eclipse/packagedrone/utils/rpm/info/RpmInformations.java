@@ -160,7 +160,7 @@ public final class RpmInformations
             }
             else if ( flagsVal instanceof Integer[] )
             {
-                flagsVal = Arrays.stream ( (Integer[])flagsVal ).toArray ( Long[]::new );
+                flagsVal = Arrays.stream ( (Integer[])flagsVal ).map ( Integer::longValue ).toArray ( Long[]::new );
             }
             else
             {
