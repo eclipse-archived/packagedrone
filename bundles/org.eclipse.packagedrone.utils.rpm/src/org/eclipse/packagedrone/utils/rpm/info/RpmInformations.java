@@ -228,6 +228,15 @@ public final class RpmInformations
         {
             return (String)value;
         }
+        if ( value instanceof String[] )
+        {
+            final String[] values = (String[])value;
+            if ( values.length > 0 )
+            {
+                return values[0];
+            }
+            return null;
+        }
 
         return value.toString ();
     }
