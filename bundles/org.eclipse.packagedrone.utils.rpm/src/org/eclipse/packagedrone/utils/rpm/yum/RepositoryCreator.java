@@ -508,6 +508,11 @@ public class RepositoryCreator
             return setSigning ( privateKey, HashAlgorithmTags.SHA1 );
         }
 
+        public Builder setSigning ( final PGPPrivateKey privateKey, final HashAlgorithm hashAlgorithm )
+        {
+            return setSigning ( privateKey, hashAlgorithm.getValue () );
+        }
+
         public Builder setSigning ( final PGPPrivateKey privateKey, final int digestAlgorithm )
         {
             if ( privateKey != null )
