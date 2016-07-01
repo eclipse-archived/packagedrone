@@ -7,15 +7,17 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S1943
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.deb.build;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
@@ -26,8 +28,9 @@ public class TextFileContentProvider implements ContentProvider
 
     public TextFileContentProvider ( final File file ) throws FileNotFoundException, IOException
     {
-        try ( FileReader reader = new FileReader ( file ) )
+        try ( FileInputStream fileInputStream = new FileInputStream ( file ) )
         {
+            InputStreamReader reader = new InputStreamReader ( fileInputStream, StandardCharsets.UTF_8 );
             if ( file != null )
             {
                 String data = IOUtils.toString ( reader );

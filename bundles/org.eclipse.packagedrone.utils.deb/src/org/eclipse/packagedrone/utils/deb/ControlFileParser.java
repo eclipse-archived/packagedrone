@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S1943
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.deb;
 
@@ -50,7 +51,7 @@ public final class ControlFileParser
 
     public static LinkedHashMap<String, String> parse ( final InputStream stream ) throws IOException, ParserException
     {
-        return parse ( new InputStreamReader ( stream ) );
+        return parse ( new InputStreamReader ( stream, StandardCharsets.UTF_8 ) );
     }
 
     public static LinkedHashMap<String, String> parse ( final Reader inputReader ) throws IOException, ParserException
