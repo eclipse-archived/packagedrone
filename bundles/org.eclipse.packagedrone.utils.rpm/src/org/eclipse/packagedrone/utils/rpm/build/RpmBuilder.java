@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc - fix an issue with no-files RPMs
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
@@ -659,6 +660,10 @@ public class RpmBuilder implements AutoCloseable
                 this.header.putInt ( RpmTag.DIR_INDEXES, dirIndexes );
                 this.header.putStringArray ( RpmTag.DIRNAMES, dirnames.toArray ( new String[dirnames.size ()] ) );
             }
+        }
+        else
+        {
+            this.header.putSize ( 0, RpmTag.SIZE, RpmTag.LONGSIZE );
         }
     }
 
