@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc - allow the use of the target name
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
@@ -25,13 +26,13 @@ public class ProviderRule<T>
         this.provider = provider;
     }
 
-    public FileInformation run ( final Object object, final PayloadEntryType type ) throws IOException
+    public FileInformation run ( final String targetName, final Object object, final PayloadEntryType type ) throws IOException
     {
         Objects.requireNonNull ( object );
 
         if ( this.clazz.isAssignableFrom ( object.getClass () ) )
         {
-            return this.provider.provide ( this.clazz.cast ( object ), type );
+            return this.provider.provide ( targetName, this.clazz.cast ( object ), type );
         }
         return null;
     }

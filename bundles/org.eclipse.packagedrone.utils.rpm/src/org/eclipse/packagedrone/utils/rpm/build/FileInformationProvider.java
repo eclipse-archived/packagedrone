@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc - allow the use of the target name
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
@@ -15,7 +16,7 @@ import java.io.IOException;
 @FunctionalInterface
 public interface FileInformationProvider<T>
 {
-    public FileInformation provide ( T object, PayloadEntryType type ) throws IOException;
+    public FileInformation provide ( String targetName, T object, PayloadEntryType type ) throws IOException;
 
     public default FileInformationProvider<T> customize ( final FileInformationCustomizer<T> customizer )
     {
@@ -24,8 +25,8 @@ public interface FileInformationProvider<T>
             return this;
         }
 
-        return ( object, type ) -> {
-            final FileInformation information = provide ( object, type );
+        return ( targetName, object, type ) -> {
+            final FileInformation information = provide ( targetName, object, type );
             customizer.perform ( object, information );
             return information;
         };
@@ -38,8 +39,8 @@ public interface FileInformationProvider<T>
             return this;
         }
 
-        return ( object, type ) -> {
-            final FileInformation information = provide ( object, type );
+        return ( targetName, object, type ) -> {
+            final FileInformation information = provide ( targetName, object, type );
             customizer.perform ( information );
             return information;
         };

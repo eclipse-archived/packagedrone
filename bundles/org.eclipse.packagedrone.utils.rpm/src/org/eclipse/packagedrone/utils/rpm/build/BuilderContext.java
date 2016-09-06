@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc - allow the use of the target name
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
@@ -82,7 +83,7 @@ public interface BuilderContext
         return new FileInformationProvider<T> () {
 
             @Override
-            public FileInformation provide ( final T object, final PayloadEntryType type ) throws IOException
+            public FileInformation provide ( final String targetName, final T object, final PayloadEntryType type ) throws IOException
             {
                 return new FileInformation ();
             }
@@ -116,17 +117,17 @@ public interface BuilderContext
         return new FileInformationProvider<T> () {
 
             @Override
-            public FileInformation provide ( final Object object, final PayloadEntryType type ) throws IOException
+            public FileInformation provide ( final String targetName, final Object object, final PayloadEntryType type ) throws IOException
             {
                 for ( final ProviderRule<?> rule : rules )
                 {
-                    final FileInformation result = rule.run ( object, type );
+                    final FileInformation result = rule.run ( targetName, object, type );
                     if ( result != null )
                     {
                         return result;
                     }
                 }
-                return defaultProvider.provide ( object, type );
+                return defaultProvider.provide ( targetName, object, type );
             }
         };
     }

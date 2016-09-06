@@ -8,6 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *     Red Hat Inc - fix an issue with no-files RPMs
+ *          - allowing the target name for the customizer
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
@@ -411,15 +412,15 @@ public class RpmBuilder implements AutoCloseable
             return this.defaultProvider;
         }
 
-        protected <T> FileInformation makeInformation ( final T source, final PayloadEntryType type, final FileInformationProvider<T> provider ) throws IOException
+        protected <T> FileInformation makeInformation ( final String targetName, final T source, final PayloadEntryType type, final FileInformationProvider<T> provider ) throws IOException
         {
             if ( provider != null )
             {
-                return provider.provide ( source, type );
+                return provider.provide ( targetName, source, type );
             }
             if ( this.defaultProvider != null )
             {
-                return this.defaultProvider.provide ( source, type );
+                return this.defaultProvider.provide ( targetName, source, type );
             }
 
             throw new IllegalStateException ( "There was neither a default provider nor a specfic provider set" );
@@ -986,35 +987,35 @@ public class RpmBuilder implements AutoCloseable
                 {
                     throw new IllegalArgumentException ( String.format ( "'%s' is not a regular file", source ) );
                 }
-                final FileInformation info = makeInformation ( source, PayloadEntryType.FILE, provider );
+                final FileInformation info = makeInformation ( targetName, source, PayloadEntryType.FILE, provider );
                 RpmBuilder.this.addFile ( targetName, source, info.getMode (), info.getTimestamp (), entry -> customizeFile ( entry, info ) );
             }
 
             @Override
             public void addFile ( final String targetName, final InputStream source, final FileInformationProvider<Object> provider ) throws IOException
             {
-                final FileInformation info = makeInformation ( source, PayloadEntryType.FILE, provider );
+                final FileInformation info = makeInformation ( targetName, source, PayloadEntryType.FILE, provider );
                 RpmBuilder.this.addFile ( targetName, source, info.getMode (), info.getTimestamp (), entry -> customizeFile ( entry, info ) );
             }
 
             @Override
             public void addFile ( final String targetName, final ByteBuffer source, final FileInformationProvider<Object> provider ) throws IOException
             {
-                final FileInformation info = makeInformation ( source, PayloadEntryType.FILE, provider );
+                final FileInformation info = makeInformation ( targetName, source, PayloadEntryType.FILE, provider );
                 RpmBuilder.this.addFile ( targetName, source, info.getMode (), info.getTimestamp (), entry -> customizeFile ( entry, info ) );
             }
 
             @Override
             public void addDirectory ( final String targetName, final FileInformationProvider<? super Directory> provider ) throws IOException
             {
-                final FileInformation info = makeInformation ( BuilderContext.DIRECTORY, PayloadEntryType.DIRECTORY, provider );
+                final FileInformation info = makeInformation ( targetName, BuilderContext.DIRECTORY, PayloadEntryType.DIRECTORY, provider );
                 RpmBuilder.this.addDirectory ( targetName, info.getMode (), info.getTimestamp (), entry -> customizeDirectory ( entry, info ) );
             }
 
             @Override
             public void addSymbolicLink ( final String targetName, final String linkTo, final FileInformationProvider<? super SymbolicLink> provider ) throws IOException
             {
-                final FileInformation info = makeInformation ( BuilderContext.SYMBOLIC_LINK, PayloadEntryType.SYMBOLIC_LINK, provider );
+                final FileInformation info = makeInformation ( targetName, BuilderContext.SYMBOLIC_LINK, PayloadEntryType.SYMBOLIC_LINK, provider );
                 RpmBuilder.this.addSymbolicLink ( targetName, linkTo, info.getMode (), info.getTimestamp (), entry -> customizeSymbolicLink ( entry, info ) );
             }
         };

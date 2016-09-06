@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc - Allow the use of the target name
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
@@ -30,14 +31,14 @@ final class Defaults
     static final FileInformationProvider<SymbolicLink> SIMPLE_SYMBOLIC_LINK = BuilderContext.simpleProvider ( 0644 );
 
     static final FileInformationProvider<Object> DEFAULT_MULTI_PROVIDER = BuilderContext.multiProvider ( SIMPLE_FILE_PROVIDER, new ProviderRule<?>[] { //
-            new ProviderRule<Directory> ( Directory.class, SIMPLE_DIRECTORY_PROVIDER ), //
-            new ProviderRule<SymbolicLink> ( SymbolicLink.class, SIMPLE_SYMBOLIC_LINK ) //
+            new ProviderRule<> ( Directory.class, SIMPLE_DIRECTORY_PROVIDER ), //
+            new ProviderRule<> ( SymbolicLink.class, SIMPLE_SYMBOLIC_LINK ) //
     } );
 
     static final FileInformationProvider<Path> PATH_PROVIDER = new FileInformationProvider<Path> () {
 
         @Override
-        public FileInformation provide ( final Path path, final PayloadEntryType type ) throws IOException
+        public FileInformation provide ( final String targetName, final Path path, final PayloadEntryType type ) throws IOException
         {
             return new FileInformation ();
         }
