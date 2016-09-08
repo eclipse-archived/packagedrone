@@ -27,9 +27,11 @@ pageContext.setAttribute ( "NL", "\n" );
             <h4>By Channel ID</h4>
             <pre>yum-config-manager --add-repo ${fn:escapeXml(sitePrefix) }/yum/${fn:escapeXml(channel.id) }/config.repo</pre>
             
-            <c:if test="${not empty channel.name }">
+            <c:if test="${not empty channel.names }">
             <h4>By Channel Name</h4>
-            <pre>yum-config-manager --add-repo ${fn:escapeXml(sitePrefix) }/yum/${fn:escapeXml(channel.name) }/config.repo</pre>
+            <c:forEach var="name" items="${channel.names }">
+            	<pre>yum-config-manager --add-repo ${fn:escapeXml(sitePrefix) }/yum/${fn:escapeXml(name) }/config.repo</pre>
+            </c:forEach>
             </c:if>
         </div>
         
