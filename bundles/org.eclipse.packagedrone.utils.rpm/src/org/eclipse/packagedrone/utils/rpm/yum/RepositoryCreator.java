@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *     M-Ezzat - code cleanup - squid:S2131
+ *     Red Hat Inc - Fix issue #81
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.yum;
 
@@ -109,10 +110,8 @@ public class RepositoryCreator
                 throw new IllegalArgumentException ( "The provided DocumentBuilderFactory must be namespace aware" );
             }
 
-            this.documentBuilderFactory = DocumentBuilderFactory.newInstance ();
-            this.documentBuilderFactory.setNamespaceAware ( true );
-
-            this.transformerFactory = TransformerFactory.newInstance ();
+            this.documentBuilderFactory = documentBuilderFactory;
+            this.transformerFactory = transformerFactory;
         }
 
         @Override
