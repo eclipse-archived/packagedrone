@@ -431,6 +431,7 @@
   </setupTask>
   <setupTask
       xsi:type="launching:LaunchTask"
+      predecessor="//@setupTasks.4"
       launcher="runtime/runtime build.ant.launch">
     <description>Launch the build script which creates the target platform bundle directory</description>
   </setupTask>
