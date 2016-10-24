@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Debian Tools
+Bundle-Name: Java DEB Library
 Bundle-SymbolicName: org.eclipse.packagedrone.utils.deb
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: Jens Reimann
+Bundle-Vendor: Eclipse Package Drone
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.apache.commons.compress.archivers;version="1.9.0",
  org.apache.commons.compress.archivers.ar;version="1.9.0",

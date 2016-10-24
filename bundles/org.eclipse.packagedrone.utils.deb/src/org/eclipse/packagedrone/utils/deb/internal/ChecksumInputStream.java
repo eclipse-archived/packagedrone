@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * A filter input stream which create multiple message digests while reading
- * <br/>
+ * <br>
  * Only the bytes actually read are processed.
  */
 public class ChecksumInputStream extends FilterInputStream

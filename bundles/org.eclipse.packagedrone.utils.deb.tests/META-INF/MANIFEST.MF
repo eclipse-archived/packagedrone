@@ -3,10 +3,11 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Tests for 'org.eclipse.packagedrone.utils.deb'
 Bundle-SymbolicName: org.eclipse.packagedrone.utils.deb.tests
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: Jens Reimann
+Bundle-Vendor: Eclipse Package Drone
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit
-Import-Package: com.google.common.io;version="18.0.0",
+Import-Package: com.google.common.hash;version="18.0.0",
+ com.google.common.io;version="18.0.0",
  org.eclipse.packagedrone.utils.deb,
  org.eclipse.packagedrone.utils.deb.build;version="1.0.0",
  org.eclipse.packagedrone.utils.deb.control;version="1.0.0"
