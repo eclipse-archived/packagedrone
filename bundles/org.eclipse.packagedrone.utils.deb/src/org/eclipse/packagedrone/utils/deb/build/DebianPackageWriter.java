@@ -21,12 +21,14 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
@@ -88,7 +90,18 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
 
     public void addFile ( final File file, final String fileName, final EntryInformation entryInformation ) throws IOException
     {
-        addFile ( new FileContentProvider ( file ), fileName, entryInformation );
+        addFile ( new FileContentProvider ( file ), fileName, entryInformation, new Supplier<Instant> () {
+            @Override
+            public Instant get ()
+            {
+                return file == null || !file.canRead () ? null : Instant.ofEpochMilli ( file.lastModified () );
+            }
+        } );
+    }
+
+    public void addFile ( final File file, final String fileName, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
+    {
+        addFile ( new FileContentProvider ( file ), fileName, entryInformation, timestampSupplier );
     }
 
     public void addFile ( final byte[] content, final String fileName, final EntryInformation entryInformation ) throws IOException
@@ -96,13 +109,23 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         addFile ( new StaticContentProvider ( content ), fileName, entryInformation );
     }
 
+    public void addFile ( final byte[] content, final String fileName, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
+    {
+        addFile ( new StaticContentProvider ( content ), fileName, entryInformation, timestampSupplier );
+    }
+
     public void addFile ( final String content, final String fileName, final EntryInformation entryInformation ) throws IOException
     {
         addFile ( new StaticContentProvider ( content ), fileName, entryInformation );
     }
 
+    public void addFile ( final String content, final String fileName, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
+    {
+        addFile ( new StaticContentProvider ( content ), fileName, entryInformation, timestampSupplier );
+    }
+
     @Override
-    public void addFile ( final ContentProvider contentProvider, String fileName, EntryInformation entryInformation ) throws IOException
+    public void addFile ( final ContentProvider contentProvider, String fileName, EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
     {
         if ( entryInformation == null )
         {
@@ -120,9 +143,15 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
 
             final TarArchiveEntry entry = new TarArchiveEntry ( fileName );
             entry.setSize ( contentProvider.getSize () );
+            // in case the content provider supplies a modification time itself, use that one
             applyInfo ( entry, entryInformation );
+            // if the modification time should be overridden, then do it here
+            if ( timestampSupplier != null && timestampSupplier.get () != null )
+            {
+                entry.setModTime ( timestampSupplier.get ().toEpochMilli () );
+            }
 
-            checkCreateParents ( fileName );
+            checkCreateParents ( fileName, timestampSupplier );
 
             this.dataStream.putArchiveEntry ( entry );
 
@@ -168,21 +197,25 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
     }
 
     @Override
-    public void addDirectory ( String directory, final EntryInformation entryInformation ) throws IOException
+    public void addDirectory ( String directory, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
     {
         directory = cleanupPath ( directory );
         if ( !directory.endsWith ( "/" ) )
         {
             directory += Character.toString ( '/' );
         }
-        checkCreateParents ( directory );
-        internalAddDirectory ( directory, entryInformation );
+        checkCreateParents ( directory, timestampSupplier );
+        internalAddDirectory ( directory, entryInformation, timestampSupplier );
     }
 
-    protected void internalAddDirectory ( final String path, final EntryInformation entryInformation ) throws IOException
+    protected void internalAddDirectory ( final String path, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
     {
         final TarArchiveEntry entry = new TarArchiveEntry ( path );
         applyInfo ( entry, entryInformation );
+        if ( timestampSupplier != null && timestampSupplier.get () != null )
+        {
+            entry.setModTime ( timestampSupplier.get ().toEpochMilli () );
+        }
 
         this.dataStream.putArchiveEntry ( entry );
         this.dataStream.closeArchiveEntry ();
@@ -208,7 +241,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         entry.setMode ( entryInformation.getMode () );
     }
 
-    private void checkCreateParents ( final String fileName ) throws IOException
+    private void checkCreateParents ( final String fileName, final Supplier<Instant> timestampSupplier ) throws IOException
     {
         final String toks[] = fileName.split ( "/+" );
 
@@ -224,7 +257,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
             current += toks[i] + "/";
             if ( !this.paths.contains ( current ) )
             {
-                internalAddDirectory ( current, EntryInformation.DEFAULT_DIRECTORY );
+                internalAddDirectory ( current, EntryInformation.DEFAULT_DIRECTORY, timestampSupplier );
             }
         }
     }
