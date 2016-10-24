@@ -39,7 +39,7 @@ public interface ContentProvider
     public long getSize ();
 
     /**
-     * Create a new input stream <br/>
+     * Create a new input stream <br>
      * <em>Note:</em> The caller must close the stream
      *
      * @return a new input stream

@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A generic control file <br/>
+ * A generic control file <br>
  * This type can be used to implement other control files are directly.
  */
 public class GenericControlFile
