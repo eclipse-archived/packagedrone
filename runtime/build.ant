@@ -183,7 +183,7 @@
     	<mkdir dir="download/sourcebundles" />
 
         <parallel threadcount="4">
-        	<proxyget src="/jetty/${jetty.version}/dist/jetty-distribution-${jetty.version}.tar.gz" dest="download/jetty-distribution.tar.gz" />
+        	<get src="http://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${jetty.version}/jetty-distribution-${jetty.version}.tar.gz" dest="download/jetty-distribution.tar.gz" usetimestamp="true" />
         	
         	<!-- JDT core -->
         	<proxyget src="/eclipse/downloads/drops4/R-4.5.2-201602121500/ecj-4.5.2.jar" dest="download/bundles/ecj.jar" />
