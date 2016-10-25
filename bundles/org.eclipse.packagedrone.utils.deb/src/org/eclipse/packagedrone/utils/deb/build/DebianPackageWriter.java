@@ -45,9 +45,13 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
 {
     public static final Charset CHARSET = Charset.forName ( "UTF-8" );
 
+    private static final int AR_ARCHIVE_DEFAULT_MODE = 33188; // see ArArchive
+
     private final ArArchiveOutputStream ar;
 
     private final byte[] binaryHeader = "2.0\n".getBytes ();
+
+    private final Supplier<Instant> timestampSupplier;
 
     private final File dataTemp;
 
@@ -73,12 +77,24 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
 
     public DebianPackageWriter ( final OutputStream stream, final BinaryPackageControlFile packageControlFile ) throws IOException
     {
+        this ( stream, packageControlFile, new Supplier<Instant> () {
+            @Override
+            public Instant get ()
+            {
+                return Instant.now ();
+            }
+        } );
+    }
+
+    public DebianPackageWriter ( final OutputStream stream, final BinaryPackageControlFile packageControlFile, final Supplier<Instant> timestampSupplier ) throws IOException
+    {
+        this.timestampSupplier = timestampSupplier;
         this.packageControlFile = packageControlFile;
         BinaryPackageControlFile.validate ( packageControlFile );
 
         this.ar = new ArArchiveOutputStream ( stream );
 
-        this.ar.putArchiveEntry ( new ArArchiveEntry ( "debian-binary", this.binaryHeader.length ) );
+        this.ar.putArchiveEntry ( new ArArchiveEntry ( "debian-binary", this.binaryHeader.length, 0, 0, AR_ARCHIVE_DEFAULT_MODE, timestampSupplier.get ().getEpochSecond () ) );
         this.ar.write ( this.binaryHeader );
         this.ar.closeArchiveEntry ();
 
@@ -274,9 +290,9 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         {
             try
             {
-                buildAndAddControlFile ();
+                buildAndAddControlFile ( this.timestampSupplier );
                 this.dataStream.close ();
-                addArFile ( this.dataTemp, "data.tar.gz" );
+                addArFile ( this.dataTemp, "data.tar.gz", this.timestampSupplier );
             }
             finally
             {
@@ -289,7 +305,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         }
     }
 
-    private void buildAndAddControlFile () throws IOException, FileNotFoundException
+    private void buildAndAddControlFile ( final Supplier<Instant> timestampSupplier ) throws IOException, FileNotFoundException
     {
         final File controlFile = File.createTempFile ( "control", null );
         try
@@ -299,15 +315,15 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
             {
                 tout.setLongFileMode ( TarArchiveOutputStream.LONGFILE_GNU );
 
-                addControlContent ( tout, "control", createControlContent (), -1 );
-                addControlContent ( tout, "md5sums", createChecksumContent (), -1 );
-                addControlContent ( tout, "conffiles", createConfFilesContent (), -1 );
-                addControlContent ( tout, "preinst", this.preinstScript, EntryInformation.DEFAULT_FILE_EXEC.getMode () );
-                addControlContent ( tout, "prerm", this.prermScript, EntryInformation.DEFAULT_FILE_EXEC.getMode () );
-                addControlContent ( tout, "postinst", this.postinstScript, EntryInformation.DEFAULT_FILE_EXEC.getMode () );
-                addControlContent ( tout, "postrm", this.postrmScript, EntryInformation.DEFAULT_FILE_EXEC.getMode () );
+                addControlContent ( tout, "control", createControlContent (), -1, timestampSupplier );
+                addControlContent ( tout, "md5sums", createChecksumContent (), -1, timestampSupplier );
+                addControlContent ( tout, "conffiles", createConfFilesContent (), -1, timestampSupplier );
+                addControlContent ( tout, "preinst", this.preinstScript, EntryInformation.DEFAULT_FILE_EXEC.getMode (), timestampSupplier );
+                addControlContent ( tout, "prerm", this.prermScript, EntryInformation.DEFAULT_FILE_EXEC.getMode (), timestampSupplier );
+                addControlContent ( tout, "postinst", this.postinstScript, EntryInformation.DEFAULT_FILE_EXEC.getMode (), timestampSupplier );
+                addControlContent ( tout, "postrm", this.postrmScript, EntryInformation.DEFAULT_FILE_EXEC.getMode (), timestampSupplier );
             }
-            addArFile ( controlFile, "control.tar.gz" );
+            addArFile ( controlFile, "control.tar.gz", timestampSupplier );
         }
         finally
         {
@@ -315,7 +331,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         }
     }
 
-    private void addControlContent ( final TarArchiveOutputStream out, final String name, final ContentProvider content, final int mode ) throws IOException
+    private void addControlContent ( final TarArchiveOutputStream out, final String name, final ContentProvider content, final int mode, final Supplier<Instant> timestampSupplier ) throws IOException
     {
         if ( content == null || !content.hasContent () )
         {
@@ -331,6 +347,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         entry.setUserName ( "root" );
         entry.setGroupName ( "root" );
         entry.setSize ( content.getSize () );
+        entry.setModTime ( timestampSupplier.get ().toEpochMilli () );
         out.putArchiveEntry ( entry );
         try ( InputStream stream = content.createInputStream () )
         {
@@ -393,9 +410,9 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         return new StaticContentProvider ( sw.toString () );
     }
 
-    private void addArFile ( final File file, final String entryName ) throws IOException
+    private void addArFile ( final File file, final String entryName, final Supplier<Instant> timestampSupplier ) throws IOException
     {
-        final ArArchiveEntry entry = new ArArchiveEntry ( entryName, file.length () );
+        final ArArchiveEntry entry = new ArArchiveEntry ( entryName, file.length (), 0, 0, AR_ARCHIVE_DEFAULT_MODE, timestampSupplier.get ().getEpochSecond () );
         this.ar.putArchiveEntry ( entry );
 
         IOUtils.copy ( new FileInputStream ( file ), this.ar );
