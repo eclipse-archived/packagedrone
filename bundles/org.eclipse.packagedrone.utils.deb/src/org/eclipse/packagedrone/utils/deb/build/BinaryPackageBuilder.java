@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.utils.deb.build;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -39,7 +40,7 @@ public interface BinaryPackageBuilder
      */
     public default void addFile ( final ContentProvider contentProvider, final String fileName, final EntryInformation entryInformation ) throws IOException
     {
-        addFile ( contentProvider, fileName, entryInformation, null );
+        addFile ( contentProvider, fileName, entryInformation, Optional.empty () );
     }
 
     /**
@@ -56,7 +57,7 @@ public interface BinaryPackageBuilder
      * @throws IOException
      *             if the file cannot be written to the package
      */
-    public void addFile ( ContentProvider contentProvider, String fileName, EntryInformation entryInformation, Supplier<Instant> timestampSupplier ) throws IOException;
+    public void addFile ( ContentProvider contentProvider, String fileName, EntryInformation entryInformation, Optional<Supplier<Instant>> timestampSupplier ) throws IOException;
 
     /**
      * Add a directory to the binary package
@@ -70,7 +71,7 @@ public interface BinaryPackageBuilder
      */
     public default void addDirectory ( final String directory, final EntryInformation entryInformation ) throws IOException
     {
-        addDirectory ( directory, entryInformation, null );
+        addDirectory ( directory, entryInformation, Optional.empty () );
     }
 
     /**
@@ -85,5 +86,5 @@ public interface BinaryPackageBuilder
      * @throws IOException
      *             if the directory information cannot be written to the package
      */
-    public void addDirectory ( String directory, EntryInformation entryInformation, Supplier<Instant> timestampSupplier ) throws IOException;
+    public void addDirectory ( String directory, EntryInformation entryInformation, Optional<Supplier<Instant>> timestampSupplier ) throws IOException;
 }
