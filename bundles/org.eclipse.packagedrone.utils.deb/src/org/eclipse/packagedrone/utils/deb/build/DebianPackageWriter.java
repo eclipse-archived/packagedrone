@@ -25,6 +25,8 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -77,17 +79,13 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
 
     public DebianPackageWriter ( final OutputStream stream, final BinaryPackageControlFile packageControlFile ) throws IOException
     {
-        this ( stream, packageControlFile, new Supplier<Instant> () {
-            @Override
-            public Instant get ()
-            {
-                return Instant.now ();
-            }
-        } );
+        this ( stream, packageControlFile, Instant::now );
     }
 
     public DebianPackageWriter ( final OutputStream stream, final BinaryPackageControlFile packageControlFile, final Supplier<Instant> timestampSupplier ) throws IOException
     {
+        Objects.requireNonNull ( timestampSupplier );
+
         this.timestampSupplier = timestampSupplier;
         this.packageControlFile = packageControlFile;
         BinaryPackageControlFile.validate ( packageControlFile );
@@ -106,16 +104,12 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
 
     public void addFile ( final File file, final String fileName, final EntryInformation entryInformation ) throws IOException
     {
-        addFile ( new FileContentProvider ( file ), fileName, entryInformation, new Supplier<Instant> () {
-            @Override
-            public Instant get ()
-            {
-                return file == null || !file.canRead () ? null : Instant.ofEpochMilli ( file.lastModified () );
-            }
-        } );
+        addFile ( new FileContentProvider ( file ), fileName, entryInformation, Optional.of ( (Supplier<Instant>) () -> {
+            return file == null || !file.canRead () ? null : Instant.ofEpochMilli ( file.lastModified () );
+        } ) );
     }
 
-    public void addFile ( final File file, final String fileName, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
+    public void addFile ( final File file, final String fileName, final EntryInformation entryInformation, final Optional<Supplier<Instant>> timestampSupplier ) throws IOException
     {
         addFile ( new FileContentProvider ( file ), fileName, entryInformation, timestampSupplier );
     }
@@ -125,7 +119,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         addFile ( new StaticContentProvider ( content ), fileName, entryInformation );
     }
 
-    public void addFile ( final byte[] content, final String fileName, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
+    public void addFile ( final byte[] content, final String fileName, final EntryInformation entryInformation, final Optional<Supplier<Instant>> timestampSupplier ) throws IOException
     {
         addFile ( new StaticContentProvider ( content ), fileName, entryInformation, timestampSupplier );
     }
@@ -135,14 +129,16 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         addFile ( new StaticContentProvider ( content ), fileName, entryInformation );
     }
 
-    public void addFile ( final String content, final String fileName, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
+    public void addFile ( final String content, final String fileName, final EntryInformation entryInformation, final Optional<Supplier<Instant>> timestampSupplier ) throws IOException
     {
         addFile ( new StaticContentProvider ( content ), fileName, entryInformation, timestampSupplier );
     }
 
     @Override
-    public void addFile ( final ContentProvider contentProvider, String fileName, EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
+    public void addFile ( final ContentProvider contentProvider, String fileName, EntryInformation entryInformation, final Optional<Supplier<Instant>> timestampSupplier ) throws IOException
     {
+        Objects.requireNonNull ( timestampSupplier );
+
         if ( entryInformation == null )
         {
             entryInformation = EntryInformation.DEFAULT_FILE;
@@ -162,10 +158,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
             // in case the content provider supplies a modification time itself, use that one
             applyInfo ( entry, entryInformation );
             // if the modification time should be overridden, then do it here
-            if ( timestampSupplier != null && timestampSupplier.get () != null )
-            {
-                entry.setModTime ( timestampSupplier.get ().toEpochMilli () );
-            }
+            applyTimestamp ( entry, timestampSupplier );
 
             checkCreateParents ( fileName, timestampSupplier );
 
@@ -213,7 +206,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
     }
 
     @Override
-    public void addDirectory ( String directory, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
+    public void addDirectory ( String directory, final EntryInformation entryInformation, final Optional<Supplier<Instant>> timestampSupplier ) throws IOException
     {
         directory = cleanupPath ( directory );
         if ( !directory.endsWith ( "/" ) )
@@ -224,19 +217,21 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         internalAddDirectory ( directory, entryInformation, timestampSupplier );
     }
 
-    protected void internalAddDirectory ( final String path, final EntryInformation entryInformation, final Supplier<Instant> timestampSupplier ) throws IOException
+    protected void internalAddDirectory ( final String path, final EntryInformation entryInformation, final Optional<Supplier<Instant>> timestampSupplier ) throws IOException
     {
         final TarArchiveEntry entry = new TarArchiveEntry ( path );
         applyInfo ( entry, entryInformation );
-        if ( timestampSupplier != null && timestampSupplier.get () != null )
-        {
-            entry.setModTime ( timestampSupplier.get ().toEpochMilli () );
-        }
+        applyTimestamp ( entry, timestampSupplier );
 
         this.dataStream.putArchiveEntry ( entry );
         this.dataStream.closeArchiveEntry ();
 
         this.paths.add ( path );
+    }
+
+    private static void applyTimestamp ( final TarArchiveEntry entry, final Optional<Supplier<Instant>> timestampSupplier )
+    {
+        timestampSupplier.map ( Supplier::get ).map ( Instant::toEpochMilli ).ifPresent ( entry::setModTime );
     }
 
     private static void applyInfo ( final TarArchiveEntry entry, final EntryInformation entryInformation )
@@ -257,7 +252,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
         entry.setMode ( entryInformation.getMode () );
     }
 
-    private void checkCreateParents ( final String fileName, final Supplier<Instant> timestampSupplier ) throws IOException
+    private void checkCreateParents ( final String fileName, final Optional<Supplier<Instant>> timestampSupplier ) throws IOException
     {
         final String toks[] = fileName.split ( "/+" );
 
