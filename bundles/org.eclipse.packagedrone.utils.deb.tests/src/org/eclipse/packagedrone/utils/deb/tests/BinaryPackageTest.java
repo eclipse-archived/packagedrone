@@ -10,15 +10,13 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.deb.tests;
 
-import static java.time.temporal.TemporalAdjusters.firstDayOfYear;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Instant;
-import java.time.LocalDate;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.packagedrone.utils.deb.build.DebianPackageWriter;
@@ -37,20 +35,14 @@ public class BinaryPackageTest
         final File file1 = File.createTempFile ( "test-1-", ".deb" );
         final File file2 = File.createTempFile ( "test-2-", ".deb" );
 
-        final long startOfYear = LocalDate.now ().with ( firstDayOfYear () ).toEpochDay () * 24 * 60 * 60 * 1000; // 2015-11-23
-        final Supplier<Instant> timestampProvider = new Supplier<Instant> () {
-            @Override
-            public Instant get ()
-            {
-                return Instant.ofEpochMilli ( startOfYear );
-            }
-        };
+        final Instant now = Instant.now ();
+        final Supplier<Instant> timestampProvider = () -> now;
 
         createDebFile ( file1, timestampProvider );
         System.out.println ( "File: " + file1 );
         Assert.assertTrue ( "File exists", file1.exists () );
 
-        Thread.sleep ( 10 );
+        Thread.sleep ( 1_001 ); // sleep for a second to make sure that a timestamp might be changed
 
         createDebFile ( file2, timestampProvider );
         System.out.println ( "File: " + file2 );
@@ -65,7 +57,7 @@ public class BinaryPackageTest
         Assert.assertEquals ( h1, h2 );
     }
 
-    private void createDebFile ( final File file1, final Supplier<Instant> timestampProvider ) throws IOException, FileNotFoundException
+    private void createDebFile ( final File file, final Supplier<Instant> timestampProvider ) throws IOException, FileNotFoundException
     {
         final BinaryPackageControlFile packageFile = new BinaryPackageControlFile ();
         packageFile.setPackage ( "test" );
@@ -74,10 +66,10 @@ public class BinaryPackageTest
         packageFile.setMaintainer ( "Jens Reimann <ctron@dentrassi.de>" );
         packageFile.setDescription ( "Test package\nThis is just a test package\n\nNothing to worry about!" );
 
-        try ( DebianPackageWriter deb = new DebianPackageWriter ( new FileOutputStream ( file1 ), packageFile ) )
+        try ( DebianPackageWriter deb = new DebianPackageWriter ( new FileOutputStream ( file ), packageFile ) )
         {
-            deb.addFile ( "Hello World\n".getBytes (), "/usr/share/foo-test/foo.txt", null, timestampProvider );
-            deb.addFile ( "Hello World\n".getBytes (), "/etc/foo.txt", EntryInformation.DEFAULT_FILE_CONF, timestampProvider );
+            deb.addFile ( "Hello World\n".getBytes (), "/usr/share/foo-test/foo.txt", null, Optional.of ( timestampProvider ) );
+            deb.addFile ( "Hello World\n".getBytes (), "/etc/foo.txt", EntryInformation.DEFAULT_FILE_CONF, Optional.of ( timestampProvider ) );
         }
     }
 }
