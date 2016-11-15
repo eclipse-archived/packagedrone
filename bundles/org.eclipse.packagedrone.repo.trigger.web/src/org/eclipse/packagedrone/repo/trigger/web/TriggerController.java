@@ -61,7 +61,7 @@ import org.osgi.framework.FrameworkUtil;
 @Controller
 @Secured
 @ControllerInterceptor ( SecuredControllerInterceptor.class )
-@HttpConstraint ( rolesAllowed = "ADMIN" )
+@HttpConstraint ( rolesAllowed = "MANAGER" )
 @ControllerInterceptor ( HttpContraintControllerInterceptor.class )
 @ViewResolver ( "/WEB-INF/views/%s.jsp" )
 @RequestMapping ( "/trigger" )
