@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Bachmann electronic GmbH - Bug #87 Unzip repository adapter always returns zero length file
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.unzip;
 
@@ -576,7 +577,11 @@ public class UnzipServlet extends AbstractChannelServiceServlet
                     {
                         final String type = this.fileTypeMap.getContentType ( entry.getName () );
                         response.setContentType ( type );
-                        response.setContentLengthLong ( entry.getSize () );
+                        final long size = entry.getSize ();
+                        if ( size > 0 )
+                        {
+                            response.setContentLengthLong ( entry.getSize () );
+                        }
                         response.setDateHeader ( "Last-Modified", artifact.getCreationTimestamp ().getTime () );
                         ByteStreams.copy ( zis, response.getOutputStream () );
                         break;
