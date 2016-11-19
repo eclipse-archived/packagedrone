@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Bachmann electronic GmbH - #76 Changing role from ADMIN to MANAGER
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.trigger.web;
 
@@ -61,7 +62,7 @@ import org.osgi.framework.FrameworkUtil;
 @Controller
 @Secured
 @ControllerInterceptor ( SecuredControllerInterceptor.class )
-@HttpConstraint ( rolesAllowed = "ADMIN" )
+@HttpConstraint ( rolesAllowed = "MANAGER" )
 @ControllerInterceptor ( HttpContraintControllerInterceptor.class )
 @ViewResolver ( "/WEB-INF/views/%s.jsp" )
 @RequestMapping ( "/trigger" )
@@ -93,7 +94,7 @@ public class TriggerController extends ChannelServiceController implements Inter
     }
 
     @RequestMapping ( value = "/channel/{channelId}/list" )
-    public ModelAndView list ( @PathVariable ( "channelId" ) final String channelId)
+    public ModelAndView list ( @PathVariable ( "channelId" ) final String channelId )
     {
         return withChannel ( channelId, TriggeredChannel.class, channel -> {
 
@@ -122,7 +123,7 @@ public class TriggerController extends ChannelServiceController implements Inter
     }
 
     @RequestMapping ( value = "/channel/{channelId}/removeProcessor", method = RequestMethod.POST )
-    public ModelAndView removeProcessor ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "triggerId" ) final String triggerId, @RequestParameter ( "processorId" ) final String processorId)
+    public ModelAndView removeProcessor ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "triggerId" ) final String triggerId, @RequestParameter ( "processorId" ) final String processorId )
     {
         return withChannel ( channelId, TriggeredChannel.class, channel -> {
             channel.deleteProcessor ( triggerId, processorId );
@@ -131,7 +132,7 @@ public class TriggerController extends ChannelServiceController implements Inter
     }
 
     @RequestMapping ( value = "/channel/{channelId}/removeTrigger", method = RequestMethod.POST )
-    public ModelAndView removeTrigger ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "triggerId" ) final String triggerId)
+    public ModelAndView removeTrigger ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "triggerId" ) final String triggerId )
     {
         return withChannel ( channelId, TriggeredChannel.class, channel -> {
             channel.deleteConfiguredTrigger ( triggerId );
@@ -142,7 +143,7 @@ public class TriggerController extends ChannelServiceController implements Inter
     @RequestMapping ( value = "/channel/{channelId}/reorder", method = RequestMethod.POST )
     public void reorder ( @PathVariable ( "channelId" ) final String channelId, @RequestParameter ( "triggerId1" ) final String triggerId1, @RequestParameter ( "processorId1" ) final String processorId1, @RequestParameter ( "triggerId2" ) final String triggerId2, @RequestParameter (
             value = "processorId2",
-            required = false ) final String processorId2, final HttpServletResponse response) throws IOException
+            required = false ) final String processorId2, final HttpServletResponse response ) throws IOException
     {
         withChannelRun ( channelId, TriggeredChannel.class, channel -> {
             handleFullReorder ( channel, response, triggerId1, processorId1, triggerId2, processorId2 );
