@@ -109,6 +109,7 @@
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.r5</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.r5.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.rpm</module>
+		<module>bundles/org.eclipse.packagedrone.repo.adapter.rpm.tests</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.rpm.web</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.unzip</module>
 		<module>bundles/org.eclipse.packagedrone.repo.adapter.unzip.tests</module>
