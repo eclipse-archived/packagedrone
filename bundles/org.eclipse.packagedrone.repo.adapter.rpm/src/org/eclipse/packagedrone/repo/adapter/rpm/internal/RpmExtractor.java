@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Bachmann electronic GmbH - #86 Adding 'release' rpm metadata tag
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.rpm.internal;
 
@@ -50,6 +51,7 @@ public class RpmExtractor implements Extractor
             metadata.put ( "version", RpmInformations.asString ( in.getPayloadHeader ().getTag ( RpmTag.VERSION ) ) );
             metadata.put ( "os", RpmInformations.asString ( in.getPayloadHeader ().getTag ( RpmTag.OS ) ) );
             metadata.put ( "arch", RpmInformations.asString ( in.getPayloadHeader ().getTag ( RpmTag.ARCH ) ) );
+            metadata.put ( "release", RpmInformations.asString ( in.getPayloadHeader ().getTag ( RpmTag.RELEASE ) ) );
 
             metadata.put ( Constants.KEY_INFO.getKey (), RpmInformationsJson.toJson ( info ) );
         }
