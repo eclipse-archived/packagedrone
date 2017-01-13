@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc - fix issue #96
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
@@ -97,7 +98,7 @@ public class RpmWriter implements AutoCloseable
         }
     }
 
-    private void debug ( final String fmt, final Object... args )
+    private static void debug ( final String fmt, final Object... args )
     {
         logger.debug ( String.format ( fmt, args ) );
     }
@@ -219,7 +220,7 @@ public class RpmWriter implements AutoCloseable
 
         // set signature data
 
-        final Header<RpmSignatureTag> signature = new Header<RpmSignatureTag> ();
+        final Header<RpmSignatureTag> signature = new Header<> ();
 
         // process signatures
 
@@ -244,9 +245,9 @@ public class RpmWriter implements AutoCloseable
 
         try ( ReadableByteChannel payloadChannel = this.payloadProvider.openChannel () )
         {
-            if ( payloadChannel instanceof FileChannel )
+            if ( payloadChannel instanceof FileChannel && !isForceCopy () )
             {
-                final long count = ( (FileChannel)payloadChannel ).transferTo ( 0, Long.MAX_VALUE, this.file );
+                final long count = copyFileChannel ( (FileChannel)payloadChannel, this.file );
                 debug ( "transfered - %s", count );
             }
             else
@@ -257,6 +258,61 @@ public class RpmWriter implements AutoCloseable
         }
 
         debug ( "end - offset: %s", this.file.position () );
+    }
+
+    /**
+     * Check of in-JVM copy should be forced over
+     * {@link FileChannel#transferTo(long, long, java.nio.channels.WritableByteChannel)}
+     *
+     * @return {@code true} if copying should be forced, {@code false}
+     *         otherwise. Defaults to {@code false}.
+     */
+    private static boolean isForceCopy ()
+    {
+        return Boolean.getBoolean ( "org.eclipse.packagedrone.utils.rpm.build.RpmWriter.forceCopy" );
+    }
+
+    private static long copyFileChannel ( final FileChannel fileChannel, final FileChannel file ) throws IOException
+    {
+        long remaning = fileChannel.size ();
+        long position = 0;
+
+        while ( remaning > 0 )
+        {
+            // transfer next chunk
+
+            final long rc = fileChannel.transferTo ( position, remaning, file );
+
+            // check for negative result
+
+            if ( rc < 0 )
+            {
+                throw new IOException ( String.format ( "Failed to transfer bytes: rc = %s", rc ) );
+            }
+
+            debug ( "transferTo - position: %s, size: %s => rc: %s", position, remaning, rc );
+
+            // we should never get zero back, but check anyway
+
+            if ( rc == 0 )
+            {
+                break;
+            }
+
+            // update state
+
+            position += rc;
+            remaning -= rc;
+        }
+
+        // final check if we got it all
+
+        if ( remaning > 0 )
+        {
+            throw new IOException ( "Failed to transfer full content" );
+        }
+
+        return position;
     }
 
     private void processSignatures ( final Header<RpmSignatureTag> signature ) throws IOException
