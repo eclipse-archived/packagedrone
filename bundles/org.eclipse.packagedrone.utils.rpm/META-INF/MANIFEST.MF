@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Java RPM Library
 Bundle-SymbolicName: org.eclipse.packagedrone.utils.rpm
-Bundle-Version: 0.14.0.qualifier
-Bundle-Vendor: IBH SYSTEMS GmbH
+Bundle-Version: 0.14.1.qualifier
+Bundle-Vendor: Eclipse Package Drone
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.packagedrone.utils.rpm;version="0.14.0",
  org.eclipse.packagedrone.utils.rpm.app;version="0.14.0";uses:="org.eclipse.packagedrone.utils.rpm.parse",
