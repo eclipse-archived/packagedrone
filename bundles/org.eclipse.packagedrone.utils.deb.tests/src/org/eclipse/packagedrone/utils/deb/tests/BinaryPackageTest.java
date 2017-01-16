@@ -66,7 +66,7 @@ public class BinaryPackageTest
         packageFile.setMaintainer ( "Jens Reimann <ctron@dentrassi.de>" );
         packageFile.setDescription ( "Test package\nThis is just a test package\n\nNothing to worry about!" );
 
-        try ( DebianPackageWriter deb = new DebianPackageWriter ( new FileOutputStream ( file ), packageFile ) )
+        try ( DebianPackageWriter deb = new DebianPackageWriter ( new FileOutputStream ( file ), packageFile, timestampProvider ) )
         {
             deb.addFile ( "Hello World\n".getBytes (), "/usr/share/foo-test/foo.txt", null, Optional.of ( timestampProvider ) );
             deb.addFile ( "Hello World\n".getBytes (), "/etc/foo.txt", EntryInformation.DEFAULT_FILE_CONF, Optional.of ( timestampProvider ) );
