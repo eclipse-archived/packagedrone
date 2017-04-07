@@ -1,6 +1,6 @@
 This project performs an integration test of the Eclipse Package Drone™ server.
 
-I does require:
+It does require:
 
  * That you did run `mvn clean package` on the main project (packagedrone.git)
  * That you did run `mvn clean install` on the "secondary" project (packagedrone.git/secondary). You may need it to run with `-Dgpg.skip=true`
