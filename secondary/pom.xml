@@ -5,7 +5,7 @@
 
 	<groupId>org.eclipse.packagedrone</groupId>
 	<artifactId>secondary-parent</artifactId>
-	<version>0.14.0</version>
+	<version>0.14.1</version>
 	<packaging>pom</packaging>
 
 	<url>https://eclipse.org/package-drone</url>
@@ -16,10 +16,10 @@
 	<developers>
 		<developer>
 			<name>Jens Reimann</name>
-			<email>ctron@dentrassi.de</email>
+			<email>jreimann@redhat.com</email>
 			<id>ctron</id>
-			<organization>IBH SYSTEMS GmbH</organization>
-			<organizationUrl>http://ibh-systems.com</organizationUrl>
+			<organization>Red Hat Inc</organization>
+			<organizationUrl>http://redhat.com</organizationUrl>
 			<url>http://dentrassi.de</url>
 			<roles>
 				<role>Project Lead</role>
