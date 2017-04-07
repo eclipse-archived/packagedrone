@@ -9,11 +9,12 @@
 	xmlns:unless="ant:unless"
 	>
 	
-  <description>
-  	Set up jetty target platform
-  </description>
-    
-  <property name="eclipse.orbit.release" value="R20150519210750"/>
+	<description>
+		Set up jetty target platform
+	</description>
+
+	<property name="aether.version" value="1.0.1.v20141111"/>
+	<property name="eclipse.orbit.release" value="R20150519210750"/>
 	<property name="jetty.version" value="9.3.10.v20160621"/>
 	<property name="pax-web.version" value="4.2.5"/>
 	<property name="jersey.version" value="2.22.2"/>
@@ -251,9 +252,15 @@
         	<mavenGet group="org/bouncycastle" artifact="bcpg-jdk15on" version="1.52"/>
         	
         	<!-- aether -->
-        	
-        	<proxyget src="/aether/aether-core/1.0.1/dist/aether-1.0.1-bin.zip" dest="download/aether-bin.zip" />
-        	<proxyget src="/aether/aether-core/1.0.1/dist/aether-1.0.1-src.zip" dest="download/aether-src.zip" />
+
+        	<mavenGet group="org/eclipse/aether" artifact="aether-api" version="${aether.version}"/>
+        	<mavenGet group="org/eclipse/aether" artifact="aether-connector-basic" version="${aether.version}"/>
+        	<mavenGet group="org/eclipse/aether" artifact="aether-impl" version="${aether.version}"/>
+        	<mavenGet group="org/eclipse/aether" artifact="aether-spi" version="${aether.version}"/>
+        	<mavenGet group="org/eclipse/aether" artifact="aether-transport-classpath" version="${aether.version}"/>
+        	<mavenGet group="org/eclipse/aether" artifact="aether-transport-file" version="${aether.version}"/>
+        	<mavenGet group="org/eclipse/aether" artifact="aether-transport-http" version="${aether.version}"/>
+        	<mavenGet group="org/eclipse/aether" artifact="aether-util" version="${aether.version}"/>
         	
         	<orbitGet bundle="org.apache.httpcomponents.httpcore" version="4.3.3" qualifier="v201411290715" />
         	<orbitGet bundle="org.apache.httpcomponents.httpclient" version="4.3.6" qualifier="v201411290715" />
@@ -370,8 +377,6 @@
         </untar>
         
     	<unzip src="download/equinox-SDK.zip" dest="unpack/equinox" />
-    	<unzip src="download/aether-bin.zip" dest="unpack/aether/bin" />
-    	<unzip src="download/aether-src.zip" dest="unpack/aether/src" />
     </target>
 
     <!-- ================================= 
@@ -448,11 +453,6 @@
             	
             </fileset>
 
-        	<fileset dir="unpack/aether/bin">
-        	    <exclude name="**/*-wagon-*.jar"/>
-        	    <include name="*/*.jar"/>
-        	</fileset>
-        	
             <fileset dir="download/bundles" />
         	<fileset dir="download/bundles-repacked" />
         	<fileset dir="provided" includes="*.jar" />
