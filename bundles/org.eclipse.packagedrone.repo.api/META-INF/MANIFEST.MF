@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse Package Drone™ API
 Bundle-SymbolicName: org.eclipse.packagedrone.repo.api
-Bundle-Version: 0.14.0.qualifier
+Bundle-Version: 0.14.1.qualifier
 Bundle-Vendor: Eclipse Package Drone
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: io.swagger.annotations;version="1.5.9";resolution:=optional,
