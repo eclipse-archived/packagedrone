@@ -71,6 +71,8 @@ public class NodeAdapter implements JsonSerializer<Node>, JsonDeserializer<Node>
                 return ctx.deserialize ( val, DataNode.class );
             case "ArtifactNode":
                 return ctx.deserialize ( val, ArtifactNode.class );
+            default:
+                break;
         }
 
         return null;

@@ -60,6 +60,8 @@ public class Functions
             case LINK:
                 value = "link";
                 break;
+            default:
+                break;
         }
 
         if ( value != null && prefix != null )

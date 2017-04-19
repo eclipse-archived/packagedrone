@@ -124,6 +124,8 @@ public final class ParserHelper
                             case "qualifier":
                                 qualifier = reader.peek () == JsonToken.NULL ? null : reader.nextString ();
                                 break;
+                            default:
+                                break;
                         }
                     }
                     reader.endObject ();

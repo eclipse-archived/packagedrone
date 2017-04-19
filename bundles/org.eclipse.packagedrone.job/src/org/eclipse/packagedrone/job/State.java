@@ -38,6 +38,8 @@ public enum State
                 return RUNNING;
             case 2:
                 return COMPLETE;
+            default:
+                break;
         }
         throw new IllegalArgumentException ( String.format ( "State %s is unknown", id ) );
     }

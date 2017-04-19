@@ -115,6 +115,8 @@ public class UpgradeTaskProvider extends DefaultTaskProvider implements EventHan
             case ServiceEvent.REGISTERED:
                 refresh ();
                 break;
+            default:
+                break;
         }
     }
 
