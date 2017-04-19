@@ -2075,7 +2075,7 @@ class Generator {
                         if (isTagFile) {
                             String verS = ctxt.getTagInfo().
                                     getTagLibrary().getRequiredVersion();
-                            Double version = Double.valueOf(verS).doubleValue();
+                            Double version = Double.parseDouble(verS);
                             if (version < 2.1) {
                                 unescapePound = true;
                             }

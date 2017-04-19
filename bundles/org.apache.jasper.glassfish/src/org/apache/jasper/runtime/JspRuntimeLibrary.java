@@ -162,14 +162,14 @@ public class JspRuntimeLibrary {
 	if (s == null || s.length() == 0)
 	    return false;
 	else
-	    return Boolean.valueOf(s).booleanValue();
+	    return Boolean.parseBoolean(s);
     }
 
     public static byte coerceToByte(String s) {
 	if (s == null || s.length() == 0)
 	    return (byte) 0;
 	else
-	    return Byte.valueOf(s).byteValue();
+	    return Byte.parseByte(s);
     }
 
     public static char coerceToChar(String s) {
@@ -185,35 +185,35 @@ public class JspRuntimeLibrary {
 	if (s == null || s.length() == 0)
 	    return (double) 0;
 	else
-	    return Double.valueOf(s).doubleValue();
+	    return Double.parseDouble(s);
     }
 
     public static float coerceToFloat(String s) {
 	if (s == null || s.length() == 0)
 	    return (float) 0;
 	else
-	    return Float.valueOf(s).floatValue();
+	    return Float.parseFloat(s);
     }
 
     public static int coerceToInt(String s) {
 	if (s == null || s.length() == 0)
 	    return 0;
 	else
-	    return Integer.valueOf(s).intValue();
+	    return Integer.parseInt(s);
     }
 
     public static short coerceToShort(String s) {
 	if (s == null || s.length() == 0)
 	    return (short) 0;
 	else
-	    return Short.valueOf(s).shortValue();
+	    return Short.parseShort(s);
     }
 
     public static long coerceToLong(String s) {
 	if (s == null || s.length() == 0)
 	    return (long) 0;
 	else
-	    return Long.valueOf(s).longValue();
+	    return Long.parseLong(s);
     }
 
     @SuppressWarnings("unchecked")
@@ -554,12 +554,12 @@ public class JspRuntimeLibrary {
 	    } else if (t.equals(double.class)) {
 		double[] tmpval = new double[values.length];
 		for (int i = 0 ; i < values.length; i++)
-		    tmpval[i] = Double.valueOf(values[i]).doubleValue();
+		    tmpval[i] = Double.parseDouble(values[i]);
 		method.invoke (bean, new Object[] {tmpval});
 	    } else if (t.equals(float.class)) {
 		float[] tmpval = new float[values.length];
 		for (int i = 0 ; i < values.length; i++)
-		    tmpval[i] = Float.valueOf(values[i]).floatValue();
+		    tmpval[i] = Float.parseFloat(values[i]);
 		method.invoke (bean, new Object[] {tmpval});
 	    } else if (t.equals(char.class)) {
 		char[] tmpval = new char[values.length];

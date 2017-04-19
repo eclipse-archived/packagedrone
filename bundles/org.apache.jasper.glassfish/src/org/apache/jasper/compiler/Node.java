@@ -1439,7 +1439,7 @@ abstract class Node implements TagConstants {
             super(qName, localName, attrs, nonTaglibXmlnsAttrs, taglibAttrs,
                   start, parent);
 
-            this.jspVersion = Double.valueOf(jspVersion).doubleValue();
+            this.jspVersion = Double.parseDouble(jspVersion);
 	    this.uri = uri;
 	    this.prefix = prefix;
 	    this.tagInfo = tagInfo;
@@ -1483,7 +1483,7 @@ abstract class Node implements TagConstants {
             super(qName, localName, attrs, nonTaglibXmlnsAttrs, taglibAttrs,
                   start, parent);
 
-            this.jspVersion = Double.valueOf(jspVersion).doubleValue();
+            this.jspVersion = Double.parseDouble(jspVersion);
 	    this.uri = uri;
 	    this.prefix = prefix;
 	    this.tagFileInfo = tagFileInfo;
