@@ -6,6 +6,26 @@ and repository interfaces.
 
 Eclipse Package Drone™ is a projected hosted by the Eclipse Foundation. It is open source and licensed under the EPL.
 
+## Building
+
+In order to re-build Package Drone you will need Maven 3.3+ and Java 8.
+
+Build the P2 target environment first:
+
+    mvn install -f runtime/pom.xml
+
+The build the main project:
+
+    mvn install
+
+Build the secondary artifacts:
+
+    mvn install -f secondary/pom.xml -Dgpg.skip
+
+Building the target environment is only required once, or after the target
+environment has been updated. The secondary artifacts rebuilds parts of
+Package Drone in way it can be distributed on Maven Central.
+
 ## More Information
 
 Also see:
