@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
+import org.eclipse.packagedrone.utils.rpm.FileFlags;
+
+import java.util.EnumSet;
 import java.time.Instant;
 
 public class FileInformation
@@ -20,7 +23,7 @@ public class FileInformation
 
     private String group = BuilderContext.DEFAULT_GROUP;
 
-    private boolean configuration = false;
+    private EnumSet<FileFlags> fileFlags = EnumSet.noneOf(FileFlags.class);
 
     private short mode = 0644;
 
@@ -34,14 +37,33 @@ public class FileInformation
         return this.timestamp;
     }
 
+    @Deprecated
     public void setConfiguration ( final boolean configuration )
     {
-        this.configuration = configuration;
+        if ( configuration == true)
+        {
+            this.fileFlags.add(FileFlags.CONFIGURATION);
+        }
+        else
+        {
+            this.fileFlags.remove(FileFlags.CONFIGURATION);
+        }
     }
 
+    @Deprecated
     public boolean isConfiguration ()
     {
-        return this.configuration;
+        return this.fileFlags.contains(FileFlags.CONFIGURATION);
+    }
+
+    public void setFileFlags ( final EnumSet<FileFlags> fileFlags )
+    {
+        this.fileFlags = fileFlags;
+    }
+
+    public EnumSet<FileFlags> getFileFlags()
+    {
+        return this.fileFlags;
     }
 
     public void setUser ( final String user )
@@ -77,6 +99,6 @@ public class FileInformation
     @Override
     public String toString ()
     {
-        return String.format ( "[FileInformation - user: %s, group: %s, mode: 0%04o, cfg: %s]", this.user, this.group, this.mode, this.configuration );
+        return String.format ( "[FileInformation - user: %s, group: %s, mode: 0%04o, flags: %s]", this.user, this.group, this.mode, this.fileFlags );
     }
 }

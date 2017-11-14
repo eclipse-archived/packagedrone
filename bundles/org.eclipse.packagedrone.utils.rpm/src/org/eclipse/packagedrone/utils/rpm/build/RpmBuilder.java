@@ -24,6 +24,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -450,9 +451,12 @@ public class RpmBuilder implements AutoCloseable
         protected void customizeFile ( final FileEntry entry, final FileInformation information )
         {
             customizeCommon ( entry, information );
-            if ( information.isConfiguration () )
+            if ( !information.getFileFlags().isEmpty() )
             {
-                entry.setFlags ( entry.getFlags () | FileFlags.CONFIGURATION.getValue () );
+                for ( FileFlags fileFlag : information.getFileFlags() )
+                {
+                    entry.setFlags ( entry.getFlags () | fileFlag.getValue () );
+                }
             }
         }
 
