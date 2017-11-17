@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -125,6 +126,8 @@ public class OsgiExtractor implements Extractor
                 manifest = new Manifest ( is );
             }
 
+            storeManifestData ( manifest, metadata );
+
             try
             {
                 bi = new BundleInformationParser ( zipFile, manifest ).parse ();
@@ -173,6 +176,14 @@ public class OsgiExtractor implements Extractor
         // store bundle information
         metadata.put ( KEY_NAME_BUNDLE_INFORMATION, bi.toJson () );
 
+    }
+
+    private void storeManifestData ( final Manifest manifest, final Map<String, String> metadata )
+    {
+        for ( final Entry<Object, Object> entry : manifest.getMainAttributes ().entrySet () )
+        {
+            metadata.put ( ( (Attributes.Name)entry.getKey () ).toString (), (String)entry.getValue () );
+        }
     }
 
     private boolean validateBundle ( final Context context, final BundleInformation bi )
