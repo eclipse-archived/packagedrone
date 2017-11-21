@@ -311,11 +311,11 @@ public class StorageManager
         {
             if ( !Files.isDirectory ( basePath ) )
             {
-                throw new IllegalStateException ( String.format ( "Base path '%s' already exists but is not a directory" ) );
+                throw new IllegalStateException ( String.format ( "Base path '%s' already exists but is not a directory", basePath.toString () ) );
             }
             if ( !Files.isWritable ( basePath ) )
             {
-                throw new IllegalStateException ( String.format ( "Base path '%s' already exists but is not writable" ) );
+                throw new IllegalStateException ( String.format ( "Base path '%s' already exists but is not writable", basePath.toString () ) );
             }
         }
         else
