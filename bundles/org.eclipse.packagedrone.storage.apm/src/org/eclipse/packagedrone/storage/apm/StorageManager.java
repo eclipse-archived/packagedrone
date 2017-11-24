@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Peter Jeschke/Gemtec GmbH - correction of incorrect exception messages
  *******************************************************************************/
 package org.eclipse.packagedrone.storage.apm;
 
