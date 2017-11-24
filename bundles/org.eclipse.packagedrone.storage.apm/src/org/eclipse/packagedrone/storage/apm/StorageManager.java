@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Peter Jeschke/Gemtec GmbH - correction of incorrect exception messages
  *******************************************************************************/
 package org.eclipse.packagedrone.storage.apm;
 
@@ -311,11 +312,11 @@ public class StorageManager
         {
             if ( !Files.isDirectory ( basePath ) )
             {
-                throw new IllegalStateException ( String.format ( "Base path '%s' already exists but is not a directory" ) );
+                throw new IllegalStateException ( String.format ( "Base path '%s' already exists but is not a directory", basePath.toString () ) );
             }
             if ( !Files.isWritable ( basePath ) )
             {
-                throw new IllegalStateException ( String.format ( "Base path '%s' already exists but is not writable" ) );
+                throw new IllegalStateException ( String.format ( "Base path '%s' already exists but is not writable", basePath.toString () ) );
             }
         }
         else
