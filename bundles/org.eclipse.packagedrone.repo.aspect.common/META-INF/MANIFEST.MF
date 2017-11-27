@@ -41,7 +41,8 @@ Service-Component: OSGI-INF/hash.xml,
  OSGI-INF/tycho-cleaner.xml,
  OSGI-INF/eclipseSourceBundle.xml,
  OSGI-INF/groupOther.xml,
- OSGI-INF/groupOsgi.xml
+ OSGI-INF/groupOsgi.xml,
+ OSGI-INF/manifest.xml
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.packagedrone.repo.aspect.common.osgi;version="1.0.0";
   uses:="org.eclipse.packagedrone.repo.aspect,
