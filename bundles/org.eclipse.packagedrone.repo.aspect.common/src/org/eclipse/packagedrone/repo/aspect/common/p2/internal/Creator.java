@@ -132,7 +132,7 @@ public class Creator
         this.context.create ( makeName ( art, "-p2metadata.xml" ), out -> {
             try
             {
-                final XMLStreamWriter xsw = this.factoryProvider.get ().createXMLStreamWriter ( out );
+                final XMLStreamWriter xsw = this.factoryProvider.get ().createXMLStreamWriter ( out, "UTF-8" );
                 InstallableUnit.writeXml ( xsw, ius );
                 xsw.close ();
             }
