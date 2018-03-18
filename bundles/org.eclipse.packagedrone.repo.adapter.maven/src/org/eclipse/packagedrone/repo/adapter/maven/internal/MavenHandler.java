@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +36,7 @@ import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.adapter.maven.ChannelData;
 import org.eclipse.packagedrone.repo.adapter.maven.ChannelData.ArtifactNode;
 import org.eclipse.packagedrone.repo.adapter.maven.ChannelData.ContentNode;
+import org.eclipse.packagedrone.repo.adapter.maven.ChannelData.DataNode;
 import org.eclipse.packagedrone.repo.adapter.maven.ChannelData.DirectoryNode;
 import org.eclipse.packagedrone.repo.adapter.maven.ChannelData.Node;
 import org.eclipse.packagedrone.repo.channel.ReadableChannel;
@@ -45,6 +47,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.html.HtmlEscapers;
 import com.google.common.io.CharStreams;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 public class MavenHandler
 {
@@ -84,7 +91,16 @@ public class MavenHandler
             }
 
             response.setStatus ( HttpServletResponse.SC_OK );
-            renderDir ( response, (DirectoryNode)node, path );
+
+            final String acceptHeader = request.getHeader ( "Accept" );
+            if ( acceptHeader != null && acceptHeader.contains ( "application/json" ) )
+            {
+                renderDirAsJson ( response, node );
+            }
+            else
+            {
+                renderDirAsHtml ( response, (DirectoryNode)node, path );
+            }
         }
         else if ( node instanceof ContentNode )
         {
@@ -114,11 +130,30 @@ public class MavenHandler
         streamArtifact ( response, node.getArtifactId (), empty (), false, this.channel, null );
     }
 
-    private static class DirRenderer
+    private void renderDirAsJson ( final HttpServletResponse response, final Node node ) throws IOException
+    {
+        final GsonBuilder gsonBuilder = new GsonBuilder ();
+        gsonBuilder.registerTypeAdapter ( DataNode.class, new JsonSerializer<DataNode> () {
+
+            @Override
+            public JsonElement serialize ( final DataNode src, final Type typeOfSrc, final JsonSerializationContext context )
+            {
+                final JsonObject jsonObject = new JsonObject ();
+                // final String data = new String ( src.getData () );
+                // jsonObject.addProperty("data", data);
+                jsonObject.addProperty ( "mimeType", src.getMimeType () );
+                return jsonObject;
+            }
+        } );
+        response.setContentType ( "application/json" );
+        gsonBuilder.create ().toJson ( node, response.getWriter () );
+    }
+
+    private static class HtmlDirRenderer
     {
         private final DirectoryNode dir;
 
-        public DirRenderer ( final DirectoryNode dir )
+        public HtmlDirRenderer ( final DirectoryNode dir )
         {
             this.dir = dir;
         }
@@ -166,7 +201,7 @@ public class MavenHandler
         }
     }
 
-    private void renderDir ( final HttpServletResponse response, final DirectoryNode dir, final String path ) throws IOException
+    private void renderDirAsHtml ( final HttpServletResponse response, final DirectoryNode dir, final String path ) throws IOException
     {
         response.setContentType ( "text/html; charset=utf-8" );
 
@@ -175,7 +210,7 @@ public class MavenHandler
 
         final Map<String, Object> model = new HashMap<> ();
         model.put ( "path", path );
-        model.put ( "dir", new DirRenderer ( dir ) );
+        model.put ( "dir", new HtmlDirRenderer ( dir ) );
         model.put ( "version", VersionInformation.VERSION );
         w.write ( StringReplacer.replace ( loadResource ( "content/index.html" ), new ExtendedPropertiesReplacer ( model ), StringReplacer.DEFAULT_PATTERN, true ) );
     }
