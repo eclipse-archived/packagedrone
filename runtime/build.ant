@@ -155,17 +155,24 @@
             <proxyget src="/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}.source_@{version}.@{qualifier}.jar" dest="download/sourcebundles/@{bundle}.source_@{version}.@{qualifier}.jar" ignoreerrors="true" />
         </sequential>
     </macrodef>
-    
+
     <!--
       Download a file from download.eclipse.org using the download.php script
       -->
     <macrodef name="proxyget">
+        <attribute name="archived" default="false"/>
         <attribute name="src" />
         <attribute name="dest" />
         <attribute name="ignoreerrors" default="false" />
         <sequential>
-            <get unless:set="skipMirrors" src="http://eclipse.org/downloads/download.php?file=@{src}&amp;r=1" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
-            <get if:set="skipMirrors" src="http://download.eclipse.org@{src}" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
+            <sequential if:true="@{archived}">
+                <echo message="Fetching from archive: @{src}"/>
+                <get src="http://archive.eclipse.org@{src}" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
+            </sequential>
+            <sequential unless:true="@{archived}">
+                <get unless:set="skipMirrors" src="http://eclipse.org/downloads/download.php?file=@{src}&amp;r=1" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
+                <get if:set="skipMirrors" src="http://download.eclipse.org@{src}" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
+            </sequential>
         </sequential>
     </macrodef>
 
@@ -189,12 +196,12 @@
             <!-- JDT core -->
             <proxyget src="/eclipse/downloads/drops4/R-4.5.2-201602121500/ecj-4.5.2.jar" dest="download/bundles/ecj.jar" />
 
-            <proxyget src="/equinox/drops/R-Mars-201506032000/equinox-SDK-Mars.zip" dest="download/equinox-SDK.zip" />
-            
+            <proxyget archived="true" src="/equinox/drops/R-Mars-201506032000/equinox-SDK-Mars.zip" dest="download/equinox-SDK.zip" />
+
             <orbitGet bundle="ch.qos.logback.classic" version="1.0.7" qualifier="v20121108-1250"/>
             <orbitGet bundle="ch.qos.logback.core" version="1.0.7" qualifier="v20121108-1250"/>
             <orbitGet bundle="ch.qos.logback.slf4j" version="1.0.7" qualifier="v201505121915"/>
-            
+
             <!-- annotation stuff -->
 
             <orbitGet bundle="javax.transaction" version="1.1.1" qualifier="v201105210645"/>
