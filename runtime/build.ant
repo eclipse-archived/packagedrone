@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- ====================================================================== 
-	 Set up jetty target platform                                                          
+     Set up jetty target platform                                                          
      ====================================================================== -->
 <project
-	name="project"
-	default="default"
-	xmlns:if="ant:if"
-	xmlns:unless="ant:unless"
-	>
-	
-	<description>
-		Set up jetty target platform
-	</description>
+    name="project"
+    default="default"
+    xmlns:if="ant:if"
+    xmlns:unless="ant:unless"
+    >
 
-	<property name="aether.version" value="1.0.1.v20141111"/>
-	<property name="eclipse.orbit.release" value="R20150519210750"/>
-	<property name="jetty.version" value="9.3.10.v20160621"/>
-	<property name="pax-web.version" value="4.2.5"/>
-	<property name="jersey.version" value="2.22.2"/>
-	<property name="hk2.version" value="2.4.0"/>
-	<property name="swagger.version" value="1.5.9"/>
+    <description>
+        Set up jetty target platform
+    </description>
+
+    <property name="aether.version" value="1.0.1.v20141111"/>
+    <property name="eclipse.orbit.release" value="R20150519210750"/>
+    <property name="jetty.version" value="9.3.10.v20160621"/>
+    <property name="pax-web.version" value="4.2.5"/>
+    <property name="jersey.version" value="2.22.2"/>
+    <property name="hk2.version" value="2.4.0"/>
+    <property name="swagger.version" value="1.5.9"/>
 
     <!-- ================================= 
           target: default
@@ -41,326 +41,333 @@
         <delete dir="unpack" />
         <delete dir="lib" />
     </target>
-	
-	<!-- = = = = = = = = = = = = = = = = =
+    
+    <!-- = = = = = = = = = = = = = = = = =
           macrodef: mavenGet          
          = = = = = = = = = = = = = = = = = -->
     <macrodef name="mavenGet">
         <attribute name="group" />
-    	<attribute name="artifact" />
-    	<attribute name="version" />
+        <attribute name="artifact" />
+        <attribute name="version" />
         <sequential>
-        	<get src="http://repo1.maven.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}.jar" dest="download/bundles" usetimestamp="true"/>
-        	<get src="http://repo1.maven.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}-sources.jar" dest="download/sources" usetimestamp="true" ignoreerrors="true"/>
-        	
-        	<local name="hasSource" />
-        	<local name="isSourceBundle" />
-        	<local name="bundleName" />
-        	<local name="bundleVersion" />
-        	
-        	<available file="download/sources/@{artifact}-@{version}-sources.jar" property="hasSource" />
-        	<available file="manifests/@{artifact}-@{version}/MANIFEST.MF" property="hasLocalManifest" />
-        	
-        	<sequential if:set="hasLocalManifest">
-        		<echo>Apply local MANIFEST.MF</echo>
-        		
-        		<mkdir dir="download/repack-osgi/@{artifact}"/>
-        		
-        		<unzip src="download/bundles/@{artifact}-@{version}.jar" dest="download/repack-osgi/@{artifact}" />
-        		
-        		<!-- we do need to delete the original file so it does not get copied over to the target platform later on -->
-        		<copy file="download/bundles/@{artifact}-@{version}.jar" todir="download/bundles-original" />
-        		<delete file="download/bundles/@{artifact}-@{version}.jar" />
-        		
-        		<copy todir="download/repack-osgi/@{artifact}">
-        			<fileset dir="manifests/@{artifact}-@{version}/files" />
-        		</copy>
-        		
-        		<jar
-        			destfile="download/bundles-repacked/@{artifact}-@{version}.jar"
-        			basedir="download/repack-osgi/@{artifact}"
-        			manifest="manifests/@{artifact}-@{version}/MANIFEST.MF"
-        			>
-        		</jar>
-        	</sequential>
-        	
-        	<sequential if:set="hasSource">
-            	<mkdir dir="download/repack/@{artifact}"/>
-            	<unzip src="download/sources/@{artifact}-@{version}-sources.jar" dest="download/repack/@{artifact}" />
-        		
-        		<condition property="isSourceBundle">
-        			<resourcecontains resource="download/repack/@{artifact}/META-INF/MANIFEST.MF" substring="Eclipse-SourceBundle:" />
-        		</condition>
-        		
-        		<copy file="download/sources/@{artifact}-@{version}-sources.jar" todir="download/sourcebundles" if:set="isSourceBundle"/>
-        		
-        		<sequential unless:set="isSourceBundle">
-        			
-        			<echo>Convert to Eclipse source bundle</echo>
-        		
-	        		<unzip unless:set="hasLocalManifest" src="download/bundles/@{artifact}-@{version}.jar" dest="download/repack/@{artifact}">
-						<patternset>
-							<include name="META-INF/MANIFEST.MF"/>
-						</patternset>
-	    			</unzip>
-        			
-        			<unzip if:set="hasLocalManifest" src="download/bundles-repacked/@{artifact}-@{version}.jar" dest="download/repack/@{artifact}">
-						<patternset>
-							<include name="META-INF/MANIFEST.MF"/>
-						</patternset>
-	    			</unzip>
-	        		
-	        		<loadfile property="bundleName" srcfile="download/repack/@{artifact}/META-INF/MANIFEST.MF">
-						<filterchain>
-							<linecontainsregexp>
-								<regexp pattern="Bundle-SymbolicName: (.*)"/>
-							</linecontainsregexp>
-							<replaceregex pattern="Bundle-SymbolicName: (.*)" replace="\1" />
-							<striplinebreaks/>
-						</filterchain>
-	        		</loadfile>
-	        		<loadfile property="bundleVersion" srcfile="download/repack/@{artifact}/META-INF/MANIFEST.MF">
-						<filterchain>
-							<linecontainsregexp>
-								<regexp pattern="Bundle-Version: (.*)"/>
-							</linecontainsregexp>
-							<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
-							<striplinebreaks/>
-						</filterchain>
-	        		</loadfile>
-        			
-	        		<jar destfile="download/sourcebundles/@{artifact}-@{version}-sourcepacked.jar" basedir="download/repack/@{artifact}" includes="**/*.java" if:set="bundleName">
-	        			<manifest>
-	        				<attribute name="Manifest-Version" value="1.0"/>
-	        				<attribute name="Bundle-ManifestVersion" value="2"/>
-							<attribute name="Eclipse-SourceBundle" value="${bundleName};version=&quot;${bundleVersion}&quot;"/>
-	        				<attribute name="Bundle-SymbolicName" value="${bundleName}.source"/>
-	        				<attribute name="Bundle-Version" value="${bundleVersion}"/>
-	        			</manifest>
-	        		</jar>
-        			
-    			</sequential>
-        		
-        	</sequential>
-        	
+            <get src="http://repo1.maven.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}.jar" dest="download/bundles" usetimestamp="true"/>
+            <get src="http://repo1.maven.org/maven2/@{group}/@{artifact}/@{version}/@{artifact}-@{version}-sources.jar" dest="download/sources" usetimestamp="true" ignoreerrors="true"/>
+            
+            <local name="hasSource" />
+            <local name="isSourceBundle" />
+            <local name="bundleName" />
+            <local name="bundleVersion" />
+            
+            <available file="download/sources/@{artifact}-@{version}-sources.jar" property="hasSource" />
+            <available file="manifests/@{artifact}-@{version}/MANIFEST.MF" property="hasLocalManifest" />
+            
+            <sequential if:set="hasLocalManifest">
+                <echo>Apply local MANIFEST.MF</echo>
+                
+                <mkdir dir="download/repack-osgi/@{artifact}"/>
+                
+                <unzip src="download/bundles/@{artifact}-@{version}.jar" dest="download/repack-osgi/@{artifact}" />
+                
+                <!-- we do need to delete the original file so it does not get copied over to the target platform later on -->
+                <copy file="download/bundles/@{artifact}-@{version}.jar" todir="download/bundles-original" />
+                <delete file="download/bundles/@{artifact}-@{version}.jar" />
+                
+                <copy todir="download/repack-osgi/@{artifact}">
+                    <fileset dir="manifests/@{artifact}-@{version}/files" />
+                </copy>
+                
+                <jar
+                    destfile="download/bundles-repacked/@{artifact}-@{version}.jar"
+                    basedir="download/repack-osgi/@{artifact}"
+                    manifest="manifests/@{artifact}-@{version}/MANIFEST.MF"
+                    >
+                </jar>
+            </sequential>
+            
+            <sequential if:set="hasSource">
+                <mkdir dir="download/repack/@{artifact}"/>
+                <unzip src="download/sources/@{artifact}-@{version}-sources.jar" dest="download/repack/@{artifact}" />
+                
+                <condition property="isSourceBundle">
+                    <resourcecontains resource="download/repack/@{artifact}/META-INF/MANIFEST.MF" substring="Eclipse-SourceBundle:" />
+                </condition>
+                
+                <copy file="download/sources/@{artifact}-@{version}-sources.jar" todir="download/sourcebundles" if:set="isSourceBundle"/>
+                
+                <sequential unless:set="isSourceBundle">
+                    
+                    <echo>Convert to Eclipse source bundle</echo>
+                
+                    <unzip unless:set="hasLocalManifest" src="download/bundles/@{artifact}-@{version}.jar" dest="download/repack/@{artifact}">
+                        <patternset>
+                            <include name="META-INF/MANIFEST.MF"/>
+                        </patternset>
+                    </unzip>
+                    
+                    <unzip if:set="hasLocalManifest" src="download/bundles-repacked/@{artifact}-@{version}.jar" dest="download/repack/@{artifact}">
+                        <patternset>
+                            <include name="META-INF/MANIFEST.MF"/>
+                        </patternset>
+                    </unzip>
+                    
+                    <loadfile property="bundleName" srcfile="download/repack/@{artifact}/META-INF/MANIFEST.MF">
+                        <filterchain>
+                            <linecontainsregexp>
+                                <regexp pattern="Bundle-SymbolicName: (.*)"/>
+                            </linecontainsregexp>
+                            <replaceregex pattern="Bundle-SymbolicName: (.*)" replace="\1" />
+                            <striplinebreaks/>
+                        </filterchain>
+                    </loadfile>
+                    <loadfile property="bundleVersion" srcfile="download/repack/@{artifact}/META-INF/MANIFEST.MF">
+                        <filterchain>
+                            <linecontainsregexp>
+                                <regexp pattern="Bundle-Version: (.*)"/>
+                            </linecontainsregexp>
+                            <replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+                            <striplinebreaks/>
+                        </filterchain>
+                    </loadfile>
+                    
+                    <jar destfile="download/sourcebundles/@{artifact}-@{version}-sourcepacked.jar" basedir="download/repack/@{artifact}" includes="**/*.java" if:set="bundleName">
+                        <manifest>
+                            <attribute name="Manifest-Version" value="1.0"/>
+                            <attribute name="Bundle-ManifestVersion" value="2"/>
+                            <attribute name="Eclipse-SourceBundle" value="${bundleName};version=&quot;${bundleVersion}&quot;"/>
+                            <attribute name="Bundle-SymbolicName" value="${bundleName}.source"/>
+                            <attribute name="Bundle-Version" value="${bundleVersion}"/>
+                        </manifest>
+                    </jar>
+                    
+                </sequential>
+                
+            </sequential>
+            
         </sequential>
     </macrodef>
 
     <macrodef name="orbitGet">
         <attribute name="bundle" />
-    	<attribute name="version" />
-    	<attribute name="qualifier" />
-    	<sequential>
-    		<proxyget src="/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}_@{version}.@{qualifier}.jar" dest="download/bundles/@{bundle}_@{version}.@{qualifier}.jar" />
-    		<proxyget src="/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}.source_@{version}.@{qualifier}.jar" dest="download/sourcebundles/@{bundle}.source_@{version}.@{qualifier}.jar" ignoreerrors="true" />
-    	</sequential>
+        <attribute name="version" />
+        <attribute name="qualifier" />
+        <sequential>
+            <proxyget src="/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}_@{version}.@{qualifier}.jar" dest="download/bundles/@{bundle}_@{version}.@{qualifier}.jar" />
+            <proxyget src="/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/plugins/@{bundle}.source_@{version}.@{qualifier}.jar" dest="download/sourcebundles/@{bundle}.source_@{version}.@{qualifier}.jar" ignoreerrors="true" />
+        </sequential>
     </macrodef>
-	
-	<!--
-	  Download a file from download.eclipse.org using the download.php script
-	  -->
-	<macrodef name="proxyget">
-		<attribute name="src" />
-		<attribute name="dest" />
-		<attribute name="ignoreerrors" default="false" />
-		<sequential>
-			<get unless:set="skipMirrors" src="http://eclipse.org/downloads/download.php?file=@{src}&amp;r=1" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
-			<get if:set="skipMirrors" src="http://download.eclipse.org@{src}" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
-		</sequential>
-	</macrodef>
+
+    <!--
+      Download a file from download.eclipse.org using the download.php script
+      -->
+    <macrodef name="proxyget">
+        <attribute name="archived" default="false"/>
+        <attribute name="src" />
+        <attribute name="dest" />
+        <attribute name="ignoreerrors" default="false" />
+        <sequential>
+            <sequential if:true="@{archived}">
+                <echo message="Fetching from archive: @{src}"/>
+                <get src="http://archive.eclipse.org@{src}" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
+            </sequential>
+            <sequential unless:true="@{archived}">
+                <get unless:set="skipMirrors" src="http://eclipse.org/downloads/download.php?file=@{src}&amp;r=1" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
+                <get if:set="skipMirrors" src="http://download.eclipse.org@{src}" dest="@{dest}" usetimestamp="true" ignoreerrors="@{ignoreerrors}"/>
+            </sequential>
+        </sequential>
+    </macrodef>
 
     <!-- ================================= 
           target: download
          ================================= -->
     <target name="download">
-    	
-    	<delete dir="download/repack"/>
-    	
+        
+        <delete dir="download/repack"/>
+        
         <mkdir dir="download" />
         <mkdir dir="download/bundles" />
-    	<mkdir dir="download/bundles-repacked" />
-    	<mkdir dir="download/bundles-original" />
-    	<mkdir dir="download/sources" />
-    	<mkdir dir="download/sourcebundles" />
+        <mkdir dir="download/bundles-repacked" />
+        <mkdir dir="download/bundles-original" />
+        <mkdir dir="download/sources" />
+        <mkdir dir="download/sourcebundles" />
 
         <parallel threadcount="4">
-        	<get src="http://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${jetty.version}/jetty-distribution-${jetty.version}.tar.gz" dest="download/jetty-distribution.tar.gz" usetimestamp="true" />
-        	
-        	<!-- JDT core -->
-        	<proxyget src="/eclipse/downloads/drops4/R-4.5.2-201602121500/ecj-4.5.2.jar" dest="download/bundles/ecj.jar" />
+            <get src="http://repo1.maven.org/maven2/org/eclipse/jetty/jetty-distribution/${jetty.version}/jetty-distribution-${jetty.version}.tar.gz" dest="download/jetty-distribution.tar.gz" usetimestamp="true" />
+            
+            <!-- JDT core -->
+            <proxyget src="/eclipse/downloads/drops4/R-4.5.2-201602121500/ecj-4.5.2.jar" dest="download/bundles/ecj.jar" />
 
-        	<proxyget src="/equinox/drops/R-Mars-201506032000/equinox-SDK-Mars.zip" dest="download/equinox-SDK.zip" />
-        	
+            <proxyget archived="true" src="/equinox/drops/R-Mars-201506032000/equinox-SDK-Mars.zip" dest="download/equinox-SDK.zip" />
+
             <orbitGet bundle="ch.qos.logback.classic" version="1.0.7" qualifier="v20121108-1250"/>
-        	<orbitGet bundle="ch.qos.logback.core" version="1.0.7" qualifier="v20121108-1250"/>
-        	<orbitGet bundle="ch.qos.logback.slf4j" version="1.0.7" qualifier="v201505121915"/>
-        	
+            <orbitGet bundle="ch.qos.logback.core" version="1.0.7" qualifier="v20121108-1250"/>
+            <orbitGet bundle="ch.qos.logback.slf4j" version="1.0.7" qualifier="v201505121915"/>
+
             <!-- annotation stuff -->
 
             <orbitGet bundle="javax.transaction" version="1.1.1" qualifier="v201105210645"/>
             <orbitGet bundle="javax.annotation" version="1.2.0" qualifier="v201401042248"/>
-        	
-        	<mavenGet group="org/apache/aries" artifact="org.apache.aries.util" version="1.0.0" />
-        	<mavenGet group="org/apache/aries/spifly" artifact="org.apache.aries.spifly.dynamic.bundle" version="1.0.2" />
-        	
-        	<orbitGet bundle="org.objectweb.asm" version="5.0.1" qualifier="v201404251740" />
-        	<orbitGet bundle="org.objectweb.asm.commons" version="5.0.1" qualifier="v201404251740" />
-    		<orbitGet bundle="org.objectweb.asm.tree" version="5.0.1" qualifier="v201404251740" />
-        	
+            
+            <mavenGet group="org/apache/aries" artifact="org.apache.aries.util" version="1.0.0" />
+            <mavenGet group="org/apache/aries/spifly" artifact="org.apache.aries.spifly.dynamic.bundle" version="1.0.2" />
+            
+            <orbitGet bundle="org.objectweb.asm" version="5.0.1" qualifier="v201404251740" />
+            <orbitGet bundle="org.objectweb.asm.commons" version="5.0.1" qualifier="v201404251740" />
+            <orbitGet bundle="org.objectweb.asm.tree" version="5.0.1" qualifier="v201404251740" />
+            
             <orbitGet bundle="javax.activation" version="1.1.0" qualifier="v201211130549"/>
 
-        	<!-- other -->
-        	
-        	<mavenGet group="com/google/code/gson" artifact="gson" version="2.3.1"/>
-        	<mavenGet group="com/google/guava" artifact="guava" version="18.0"/>
-        	
-        	<orbitGet bundle="org.junit" version="4.11.0" qualifier="v201303080030"/>
-        	<mavenGet group="org/apache/felix" artifact="org.apache.felix.configadmin" version="1.8.4"/>
-        	
+            <!-- other -->
+            
+            <mavenGet group="com/google/code/gson" artifact="gson" version="2.3.1"/>
+            <mavenGet group="com/google/guava" artifact="guava" version="18.0"/>
+            
+            <orbitGet bundle="org.junit" version="4.11.0" qualifier="v201303080030"/>
+            <mavenGet group="org/apache/felix" artifact="org.apache.felix.configadmin" version="1.8.4"/>
+            
             <!-- jsp stuff -->
 
-        	<orbitGet bundle="org.apache.xalan" version="2.7.1" qualifier="v201005080400"/>
-        	<orbitGet bundle="org.apache.xml.serializer" version="2.7.1" qualifier="v201005080400"/>
+            <orbitGet bundle="org.apache.xalan" version="2.7.1" qualifier="v201005080400"/>
+            <orbitGet bundle="org.apache.xml.serializer" version="2.7.1" qualifier="v201005080400"/>
 
             <!-- for logging -->
 
             <orbitGet bundle="org.slf4j.jcl" version="1.7.2" qualifier="v20130115-1340"/>
-        	<orbitGet bundle="org.slf4j.jul" version="1.7.2" qualifier="v20121108-1250"/>
-        	
+            <orbitGet bundle="org.slf4j.jul" version="1.7.2" qualifier="v20121108-1250"/>
+            
             <!-- for hibernate validation -->
 
-        	<mavenGet group="com/fasterxml" artifact="classmate" version="1.3.0"/>
+            <mavenGet group="com/fasterxml" artifact="classmate" version="1.3.0"/>
             <get src="http://repo1.maven.org/maven2/org/jboss/logging/jboss-logging/3.1.3.GA/jboss-logging-3.1.3.GA.jar" dest="download/bundles" usetimestamp="true" />
             
-        	<orbitGet bundle="javax.xml" version="1.3.4" qualifier="v201005080400"/>
+            <orbitGet bundle="javax.xml" version="1.3.4" qualifier="v201005080400"/>
             
-        	<get src="http://download.eclipse.org/eclipsescada/downloads/org.eclipse.scada/drops/0.2.0/R201501260629/p2/plugins/org.eclipse.scada.utils_0.2.0.v20141023-0849.jar" dest="download/bundles" usetimestamp="true" />
-        	<get src="http://download.eclipse.org/eclipsescada/downloads/org.eclipse.scada/drops/0.2.0/R201501260629/p2/plugins/org.eclipse.scada.utils.source_0.2.0.v20141023-0849.jar" dest="download/bundles" usetimestamp="true" />
-        	
+            <get src="http://download.eclipse.org/eclipsescada/downloads/org.eclipse.scada/drops/0.2.0/R201501260629/p2/plugins/org.eclipse.scada.utils_0.2.0.v20141023-0849.jar" dest="download/bundles" usetimestamp="true" />
+            <get src="http://download.eclipse.org/eclipsescada/downloads/org.eclipse.scada/drops/0.2.0/R201501260629/p2/plugins/org.eclipse.scada.utils.source_0.2.0.v20141023-0849.jar" dest="download/bundles" usetimestamp="true" />
+            
             <orbitGet bundle="org.apache.commons.beanutils" version="1.8.0" qualifier="v201205091237"/>
             <orbitGet bundle="org.apache.commons.collections" version="3.2.0" qualifier="v2013030210310"/>
-        	
-        	<!-- common -->
-        	
-        	<mavenGet group="commons-io" artifact="commons-io" version="2.4" />
-        	<mavenGet group="org/apache/commons" artifact="commons-compress" version="1.9"/>
-        	
-        	<!-- for jdeb -->
-        	
-        	<orbitGet bundle="org.apache.ant" version="1.9.2" qualifier="v201404171502"/>
-        	<mavenGet group="org/bouncycastle" artifact="bcprov-jdk15on" version="1.52"/>
-        	<mavenGet group="org/bouncycastle" artifact="bcpg-jdk15on" version="1.52"/>
-        	
-        	<!-- aether -->
+            
+            <!-- common -->
+            
+            <mavenGet group="commons-io" artifact="commons-io" version="2.4" />
+            <mavenGet group="org/apache/commons" artifact="commons-compress" version="1.9"/>
+            
+            <!-- for jdeb -->
+            
+            <orbitGet bundle="org.apache.ant" version="1.9.2" qualifier="v201404171502"/>
+            <mavenGet group="org/bouncycastle" artifact="bcprov-jdk15on" version="1.52"/>
+            <mavenGet group="org/bouncycastle" artifact="bcpg-jdk15on" version="1.52"/>
+            
+            <!-- aether -->
 
-        	<mavenGet group="org/eclipse/aether" artifact="aether-api" version="${aether.version}"/>
-        	<mavenGet group="org/eclipse/aether" artifact="aether-connector-basic" version="${aether.version}"/>
-        	<mavenGet group="org/eclipse/aether" artifact="aether-impl" version="${aether.version}"/>
-        	<mavenGet group="org/eclipse/aether" artifact="aether-spi" version="${aether.version}"/>
-        	<mavenGet group="org/eclipse/aether" artifact="aether-transport-classpath" version="${aether.version}"/>
-        	<mavenGet group="org/eclipse/aether" artifact="aether-transport-file" version="${aether.version}"/>
-        	<mavenGet group="org/eclipse/aether" artifact="aether-transport-http" version="${aether.version}"/>
-        	<mavenGet group="org/eclipse/aether" artifact="aether-util" version="${aether.version}"/>
-        	
-        	<orbitGet bundle="org.apache.httpcomponents.httpcore" version="4.3.3" qualifier="v201411290715" />
-        	<orbitGet bundle="org.apache.httpcomponents.httpclient" version="4.3.6" qualifier="v201411290715" />
-        	<orbitGet bundle="org.apache.commons.codec" version="1.6.0" qualifier="v201305230611" />
-        	
-        	<!-- pax web -->
-        	
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-api" version="${pax-web.version}"/>
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-spi" version="${pax-web.version}"/>
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-runtime" version="${pax-web.version}"/>
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-jetty" version="${pax-web.version}"/>
-        	<mavenGet group="org/ops4j/pax/web" artifact="pax-web-extender-whiteboard" version="${pax-web.version}"/>
-        	
-        	<mavenGet group="org/apache/xbean" artifact="xbean-finder" version="4.3"/>
-        	<mavenGet group="org/apache/xbean" artifact="xbean-bundleutils" version="4.3"/>
-        	<mavenGet group="org/apache/xbean" artifact="xbean-reflect" version="4.3"/>
+            <mavenGet group="org/eclipse/aether" artifact="aether-api" version="${aether.version}"/>
+            <mavenGet group="org/eclipse/aether" artifact="aether-connector-basic" version="${aether.version}"/>
+            <mavenGet group="org/eclipse/aether" artifact="aether-impl" version="${aether.version}"/>
+            <mavenGet group="org/eclipse/aether" artifact="aether-spi" version="${aether.version}"/>
+            <mavenGet group="org/eclipse/aether" artifact="aether-transport-classpath" version="${aether.version}"/>
+            <mavenGet group="org/eclipse/aether" artifact="aether-transport-file" version="${aether.version}"/>
+            <mavenGet group="org/eclipse/aether" artifact="aether-transport-http" version="${aether.version}"/>
+            <mavenGet group="org/eclipse/aether" artifact="aether-util" version="${aether.version}"/>
+            
+            <orbitGet bundle="org.apache.httpcomponents.httpcore" version="4.3.3" qualifier="v201411290715" />
+            <orbitGet bundle="org.apache.httpcomponents.httpclient" version="4.3.6" qualifier="v201411290715" />
+            <orbitGet bundle="org.apache.commons.codec" version="1.6.0" qualifier="v201305230611" />
+            
+            <!-- pax web -->
+            
+            <mavenGet group="org/ops4j/pax/web" artifact="pax-web-api" version="${pax-web.version}"/>
+            <mavenGet group="org/ops4j/pax/web" artifact="pax-web-spi" version="${pax-web.version}"/>
+            <mavenGet group="org/ops4j/pax/web" artifact="pax-web-runtime" version="${pax-web.version}"/>
+            <mavenGet group="org/ops4j/pax/web" artifact="pax-web-jetty" version="${pax-web.version}"/>
+            <mavenGet group="org/ops4j/pax/web" artifact="pax-web-extender-whiteboard" version="${pax-web.version}"/>
+            
+            <mavenGet group="org/apache/xbean" artifact="xbean-finder" version="4.3"/>
+            <mavenGet group="org/apache/xbean" artifact="xbean-bundleutils" version="4.3"/>
+            <mavenGet group="org/apache/xbean" artifact="xbean-reflect" version="4.3"/>
 
-        	<!-- provides api and impl -->
-        	<mavenGet group="org/glassfish" artifact="javax.el" version="3.0.1-b08"/>
-        	
-        	<orbitGet bundle="javax.servlet" version="3.1.0" qualifier="v201410161800"/>
-        	
-        	<mavenGet group="org/jboss/spec/javax/servlet/jstl" artifact="jboss-jstl-api_1.2_spec" version="1.1.2.Final"/>
-        	
-        	<orbitGet bundle="org.apache.juli.extras" version="7.0.56" qualifier="v201412180755"/>
-        	
-        	<!-- validation -->
-        	
-        	<mavenGet group="javax/validation" artifact="validation-api" version="1.1.0.Final"/>
-        	<mavenGet group="org/hibernate" artifact="hibernate-validator" version="5.2.2.Final" />
-        	
-        	<!-- for testing -->
-        	
-        	<orbitGet bundle="org.hamcrest.core" version="1.3.0" qualifier="v201303031735"/>
-        	
-        	<!-- jax rs -->
-        	
-        	<orbitGet bundle="javax.ws.rs" version="2.0.1" qualifier="v201504171603"/>
-        	
-        	<mavenGet group="com/eclipsesource/jaxrs" artifact="publisher" version="5.3.1" /> <!-- CQ 11561 -->
-        	<mavenGet group="com/eclipsesource/jaxrs" artifact="provider-gson" version="2.3" /> <!-- CQ 11561 -->
-        	<mavenGet group="com/eclipsesource/jaxrs" artifact="provider-swagger" version="1.1.1" /> <!-- CQ 11561 -->
-        	<mavenGet group="com/eclipsesource/jaxrs" artifact="provider-security" version="2.2" /> <!-- CQ 11561 -->
-        	
-        	<!-- dependencies for osgi connector -->
-        	
-        	<!-- <mavenGet group="com/eclipsesource/jaxrs" artifact="swagger-all" version="1.5.7" /> --> <!-- we add swagger later -->
-        	
-        	<mavenGet group="org/glassfish/jersey/containers" artifact="jersey-container-servlet" version="${jersey.version}" /> <!-- CQ 11567 -->
-			<mavenGet group="org/glassfish/jersey/core" artifact="jersey-client" version="${jersey.version}" /> <!-- CQ 11568 -->
-        	<mavenGet group="org/glassfish/jersey/core" artifact="jersey-server" version="${jersey.version}" /> <!-- CQ 11569 -->
-    		<mavenGet group="org/glassfish/jersey/media" artifact="jersey-media-sse" version="${jersey.version}" /> <!-- CQ 11570 -->
-    		<mavenGet group="org/glassfish/jersey/media" artifact="jersey-media-multipart" version="${jersey.version}" /> <!-- CQ 11571 -->
-    		<mavenGet group="org/glassfish/jersey/ext" artifact="jersey-mvc" version="${jersey.version}" /> <!-- CQ 11572 -->
-        	
-        	<!--
-    		<mavenGet group="org/glassfish/jersey/security" artifact="oauth1-server" version="${jersey.version}" />
-        	<mavenGet group="org/glassfish/jersey/security" artifact="oauth1-client" version="${jersey.version}" />
-        	<mavenGet group="org/glassfish/jersey/security" artifact="oauth2-client" version="${jersey.version}" />
-        	-->
-        	
-        	<mavenGet group="org/glassfish/jersey/bundles/repackaged" artifact="jersey-guava" version="${jersey.version}"/> <!-- CQ 11575 -->
-        	        	
-        	<mavenGet group="org/glassfish/jersey/core" artifact="jersey-common" version="${jersey.version}" /> <!-- CQ 11573 -->
-        	<mavenGet group="org/glassfish/jersey/containers" artifact="jersey-container-servlet-core" version="${jersey.version}" /> <!-- CQ 11574 -->
-        	
-        	<orbitGet bundle="javax.inject" version="1.0.0" qualifier="v20091030"/> <!-- CQ 11557 -->
-        	<!-- <mavenGet group="org/glassfish/hk2/external" artifact="aopalliance-repackaged" version="${hk2.version}" /> -->
-        	<orbitGet bundle="org.aopalliance" version="1.0.0" qualifier="v201105210816" /> <!-- CQ 11566 --> 
-        	
-        	<mavenGet group="org/glassfish/hk2" artifact="hk2-api" version="${hk2.version}" /> <!-- CQ 11564 --> 
-        	<mavenGet group="org/glassfish/hk2" artifact="hk2-locator" version="${hk2.version}" /> <!-- CQ 11563 -->
-        	<mavenGet group="org/glassfish/hk2" artifact="hk2-utils" version="${hk2.version}" /> <!-- CQ 11562 -->
-        	<mavenGet group="org/glassfish/hk2" artifact="osgi-resource-locator" version="1.0.1" /> <!-- seems a bug in glassfish, 2.22.2 requires 1.0.1 --> <!-- CQ 11560 -->
-        	
-        	<!-- <mavenGet group="org/jvnet" artifact="tiger-types" version="1.4"/> -->
-        	<mavenGet group="org/jvnet/mimepull" artifact="mimepull" version="1.9.4" /> <!-- CQ 11559 --> 
-        	
-        	<mavenGet group="org/javassist" artifact="javassist" version="3.19.0-GA"/> <!-- CQ 11558 -->
-        	
-        	<!-- dependencies for swagger -->
-        	
-        	<mavenGet group="io/swagger" artifact="swagger-annotations" version="${swagger.version}" /> <!-- CQ 11590 -->
-        	<mavenGet group="io/swagger" artifact="swagger-core" version="${swagger.version}" /> <!-- CQ 11591 -->
-        	<mavenGet group="io/swagger" artifact="swagger-jaxrs" version="${swagger.version}" /> <!-- CQ 11592 -->
-        	<mavenGet group="io/swagger" artifact="swagger-models" version="${swagger.version}" /> <!-- CQ 11593 -->
-        	
-        	<mavenGet group="org/apache/commons" artifact="commons-lang3" version="3.3.2" /> <!-- CQ 11589 -->
-        	
-        	<orbitGet bundle="com.fasterxml.jackson.core.jackson-annotations" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11595 -->
-        	<orbitGet bundle="com.fasterxml.jackson.core.jackson-core" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11596 -->
-        	<orbitGet bundle="com.fasterxml.jackson.core.jackson-databind" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11598 -->
-        	<orbitGet bundle="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11594 -->
-        	
-        	<mavenGet group="org/reflections" artifact="reflections" version="0.9.9" /> <!-- CQ 11584 -->
-        	
-        	<!-- mail -->
-        	
-        	<get src="https://maven.java.net/content/repositories/releases/com/sun/mail/javax.mail/1.5.4/javax.mail-1.5.4.jar" dest="download/bundles" usetimestamp="true" />
-        	
+            <!-- provides api and impl -->
+            <mavenGet group="org/glassfish" artifact="javax.el" version="3.0.1-b08"/>
+            
+            <orbitGet bundle="javax.servlet" version="3.1.0" qualifier="v201410161800"/>
+            
+            <mavenGet group="org/jboss/spec/javax/servlet/jstl" artifact="jboss-jstl-api_1.2_spec" version="1.1.2.Final"/>
+            
+            <orbitGet bundle="org.apache.juli.extras" version="7.0.56" qualifier="v201412180755"/>
+            
+            <!-- validation -->
+            
+            <mavenGet group="javax/validation" artifact="validation-api" version="1.1.0.Final"/>
+            <mavenGet group="org/hibernate" artifact="hibernate-validator" version="5.2.2.Final" />
+            
+            <!-- for testing -->
+            
+            <orbitGet bundle="org.hamcrest.core" version="1.3.0" qualifier="v201303031735"/>
+            
+            <!-- jax rs -->
+            
+            <orbitGet bundle="javax.ws.rs" version="2.0.1" qualifier="v201504171603"/>
+            
+            <mavenGet group="com/eclipsesource/jaxrs" artifact="publisher" version="5.3.1" /> <!-- CQ 11561 -->
+            <mavenGet group="com/eclipsesource/jaxrs" artifact="provider-gson" version="2.3" /> <!-- CQ 11561 -->
+            <mavenGet group="com/eclipsesource/jaxrs" artifact="provider-swagger" version="1.1.1" /> <!-- CQ 11561 -->
+            <mavenGet group="com/eclipsesource/jaxrs" artifact="provider-security" version="2.2" /> <!-- CQ 11561 -->
+            
+            <!-- dependencies for osgi connector -->
+            
+            <!-- <mavenGet group="com/eclipsesource/jaxrs" artifact="swagger-all" version="1.5.7" /> --> <!-- we add swagger later -->
+            
+            <mavenGet group="org/glassfish/jersey/containers" artifact="jersey-container-servlet" version="${jersey.version}" /> <!-- CQ 11567 -->
+            <mavenGet group="org/glassfish/jersey/core" artifact="jersey-client" version="${jersey.version}" /> <!-- CQ 11568 -->
+            <mavenGet group="org/glassfish/jersey/core" artifact="jersey-server" version="${jersey.version}" /> <!-- CQ 11569 -->
+            <mavenGet group="org/glassfish/jersey/media" artifact="jersey-media-sse" version="${jersey.version}" /> <!-- CQ 11570 -->
+            <mavenGet group="org/glassfish/jersey/media" artifact="jersey-media-multipart" version="${jersey.version}" /> <!-- CQ 11571 -->
+            <mavenGet group="org/glassfish/jersey/ext" artifact="jersey-mvc" version="${jersey.version}" /> <!-- CQ 11572 -->
+            
+            <!--
+            <mavenGet group="org/glassfish/jersey/security" artifact="oauth1-server" version="${jersey.version}" />
+            <mavenGet group="org/glassfish/jersey/security" artifact="oauth1-client" version="${jersey.version}" />
+            <mavenGet group="org/glassfish/jersey/security" artifact="oauth2-client" version="${jersey.version}" />
+            -->
+            
+            <mavenGet group="org/glassfish/jersey/bundles/repackaged" artifact="jersey-guava" version="${jersey.version}"/> <!-- CQ 11575 -->
+                        
+            <mavenGet group="org/glassfish/jersey/core" artifact="jersey-common" version="${jersey.version}" /> <!-- CQ 11573 -->
+            <mavenGet group="org/glassfish/jersey/containers" artifact="jersey-container-servlet-core" version="${jersey.version}" /> <!-- CQ 11574 -->
+            
+            <orbitGet bundle="javax.inject" version="1.0.0" qualifier="v20091030"/> <!-- CQ 11557 -->
+            <!-- <mavenGet group="org/glassfish/hk2/external" artifact="aopalliance-repackaged" version="${hk2.version}" /> -->
+            <orbitGet bundle="org.aopalliance" version="1.0.0" qualifier="v201105210816" /> <!-- CQ 11566 --> 
+            
+            <mavenGet group="org/glassfish/hk2" artifact="hk2-api" version="${hk2.version}" /> <!-- CQ 11564 --> 
+            <mavenGet group="org/glassfish/hk2" artifact="hk2-locator" version="${hk2.version}" /> <!-- CQ 11563 -->
+            <mavenGet group="org/glassfish/hk2" artifact="hk2-utils" version="${hk2.version}" /> <!-- CQ 11562 -->
+            <mavenGet group="org/glassfish/hk2" artifact="osgi-resource-locator" version="1.0.1" /> <!-- seems a bug in glassfish, 2.22.2 requires 1.0.1 --> <!-- CQ 11560 -->
+            
+            <!-- <mavenGet group="org/jvnet" artifact="tiger-types" version="1.4"/> -->
+            <mavenGet group="org/jvnet/mimepull" artifact="mimepull" version="1.9.4" /> <!-- CQ 11559 --> 
+            
+            <mavenGet group="org/javassist" artifact="javassist" version="3.19.0-GA"/> <!-- CQ 11558 -->
+            
+            <!-- dependencies for swagger -->
+            
+            <mavenGet group="io/swagger" artifact="swagger-annotations" version="${swagger.version}" /> <!-- CQ 11590 -->
+            <mavenGet group="io/swagger" artifact="swagger-core" version="${swagger.version}" /> <!-- CQ 11591 -->
+            <mavenGet group="io/swagger" artifact="swagger-jaxrs" version="${swagger.version}" /> <!-- CQ 11592 -->
+            <mavenGet group="io/swagger" artifact="swagger-models" version="${swagger.version}" /> <!-- CQ 11593 -->
+            
+            <mavenGet group="org/apache/commons" artifact="commons-lang3" version="3.3.2" /> <!-- CQ 11589 -->
+            
+            <orbitGet bundle="com.fasterxml.jackson.core.jackson-annotations" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11595 -->
+            <orbitGet bundle="com.fasterxml.jackson.core.jackson-core" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11596 -->
+            <orbitGet bundle="com.fasterxml.jackson.core.jackson-databind" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11598 -->
+            <orbitGet bundle="com.fasterxml.jackson.dataformat.jackson-dataformat-yaml" version="2.5.0" qualifier="v201504151636" />  <!-- CQ 11594 -->
+            
+            <mavenGet group="org/reflections" artifact="reflections" version="0.9.9" /> <!-- CQ 11584 -->
+            
+            <!-- mail -->
+            
+            <get src="https://maven.java.net/content/repositories/releases/com/sun/mail/javax.mail/1.5.4/javax.mail-1.5.4.jar" dest="download/bundles" usetimestamp="true" />
+            
         </parallel>
 
     </target>
@@ -372,11 +379,11 @@
         <mkdir dir="unpack/jetty" />
         <mkdir dir="unpack/equinox" />
 
-    	<untar compression="gzip" src="download/jetty-distribution.tar.gz" dest="unpack/jetty">
+        <untar compression="gzip" src="download/jetty-distribution.tar.gz" dest="unpack/jetty">
             <cutdirsmapper dirs="1" />
         </untar>
         
-    	<unzip src="download/equinox-SDK.zip" dest="unpack/equinox" />
+        <unzip src="download/equinox-SDK.zip" dest="unpack/equinox" />
     </target>
 
     <!-- ================================= 
@@ -384,14 +391,14 @@
          ================================= -->
     <target name="copy">
         <mkdir dir="lib/plugins" />
-    	<mkdir dir="lib/sourcebundles" />
-    	
-    	<copy todir="lib/sourcebundles">
-    		<fileset dir="download/sourcebundles" />
-    	</copy>
-    	
+        <mkdir dir="lib/sourcebundles" />
+        
+        <copy todir="lib/sourcebundles">
+            <fileset dir="download/sourcebundles" />
+        </copy>
+        
         <copy todir="lib/plugins">
-        	
+            
             <fileset dir="unpack/jetty/lib">
 
                 <include name="jetty-server-*.jar" />
@@ -401,12 +408,12 @@
                 <include name="jetty-webapp-*.jar" />
                 <include name="jetty-http-*.jar" />
                 <include name="jetty-io-*.jar" />
-            	<include name="jetty-xml-*.jar" />
-            	<include name="jetty-servlets-*.jar" />
-            	<include name="jetty-continuation-*.jar" />
-            	<include name="jetty-webapp-*.jar" />
-            	<include name="jetty-util-ajax-*.jar" />
-            	<include name="jetty-schemas-3.1.jar" />
+                <include name="jetty-xml-*.jar" />
+                <include name="jetty-servlets-*.jar" />
+                <include name="jetty-continuation-*.jar" />
+                <include name="jetty-webapp-*.jar" />
+                <include name="jetty-util-ajax-*.jar" />
+                <include name="jetty-schemas-3.1.jar" />
             </fileset>
 
             <fileset dir="unpack/equinox/plugins">
@@ -418,45 +425,45 @@
                 <include name="org.eclipse.equinox.common_*.jar" />
                 <include name="org.eclipse.equinox.console_*.jar" />
                 <include name="org.eclipse.equinox.ds_*.jar" />
-            	<include name="org.eclipse.equinox.ds.source_*.jar" />
+                <include name="org.eclipse.equinox.ds.source_*.jar" />
                 <include name="org.eclipse.equinox.event_*.jar" />
-            	<include name="org.eclipse.equinox.event.source_*.jar" />
+                <include name="org.eclipse.equinox.event.source_*.jar" />
                 <include name="org.eclipse.equinox.supplement_*.jar" />
-            	<include name="org.eclipse.equinox.supplement.source_*.jar" />
+                <include name="org.eclipse.equinox.supplement.source_*.jar" />
                 <include name="org.eclipse.equinox.util_*.jar" />
-            	<include name="org.eclipse.equinox.util.source*.jar" />
-            	
-            	<include name="org.eclipse.equinox.launcher_*.jar" />
+                <include name="org.eclipse.equinox.util.source*.jar" />
+                
+                <include name="org.eclipse.equinox.launcher_*.jar" />
 
                 <include name="org.eclipse.osgi_*.jar" />
                 <include name="org.eclipse.osgi.source_*.jar" />
                 <include name="org.eclipse.osgi.services_*.jar" />
-            	<include name="org.eclipse.osgi.services.source_*.jar" />
+                <include name="org.eclipse.osgi.services.source_*.jar" />
                 <include name="org.eclipse.osgi.util_*.jar" />
-            	<include name="org.eclipse.osgi.util.source_*.jar" />
-            	
+                <include name="org.eclipse.osgi.util.source_*.jar" />
+                
                 <include name="org.slf4j.api_*.jar" />
-            	
-            	<!-- using patched version
-            	<include name="org.eclipse.equinox.jsp.jasper_*.jar" />
+                
+                <!-- using patched version
+                <include name="org.eclipse.equinox.jsp.jasper_*.jar" />
                 <include name="org.eclipse.equinox.jsp.jasper.source_*.jar" />
                 -->
-            	
-            	<!-- for testing -->
-            	
+                
+                <!-- for testing -->
+                
                 <include name="org.eclipse.core.runtime_*.jar" />
                 <include name="org.eclipse.core.jobs_*.jar" />
-            	<include name="org.eclipse.equinox.registry_*.jar" />
-            	<include name="org.eclipse.equinox.preferences_*.jar" />
-            	<include name="org.eclipse.core.contenttype_*.jar" />
-            	<include name="org.eclipse.equinox.app_*.jar" />
-            	
+                <include name="org.eclipse.equinox.registry_*.jar" />
+                <include name="org.eclipse.equinox.preferences_*.jar" />
+                <include name="org.eclipse.core.contenttype_*.jar" />
+                <include name="org.eclipse.equinox.app_*.jar" />
+                
             </fileset>
 
             <fileset dir="download/bundles" />
-        	<fileset dir="download/bundles-repacked" />
-        	<fileset dir="provided" includes="*.jar" />
-        	
+            <fileset dir="download/bundles-repacked" />
+            <fileset dir="provided" includes="*.jar" />
+            
             <mapper type="flatten" />
         </copy>
     </target>

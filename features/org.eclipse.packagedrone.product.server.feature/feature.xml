@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.packagedrone.product.server"
       label="Eclipse Package Drone™ Server Product"
-      version="0.14.1.qualifier"
+      version="0.15.0.qualifier"
       provider-name="Eclipse Package Drone"
       plugin="org.eclipse.packagedrone">
 

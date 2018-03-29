@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2016, 2018 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,11 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
- *     Red Hat Inc - fix issue #96
+ *     Red Hat Inc - fix issue #96, allow using provided lead
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
+
+import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,7 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
+import java.util.function.Supplier;
 
 import org.eclipse.packagedrone.utils.rpm.RpmLead;
 import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
@@ -63,12 +65,21 @@ public class RpmWriter implements AutoCloseable
 
     private final List<SignatureProcessor> signatureProcessors = new LinkedList<> ();
 
-    public RpmWriter ( final Path path, final LeadBuilder leadBuilder, final Header<RpmTag> header, final OpenOption... options ) throws IOException
+    public RpmWriter ( final Path path, final Supplier<RpmLead> leadProvider, final Header<RpmTag> header, final OpenOption... options ) throws IOException
     {
+        requireNonNull ( path );
+        requireNonNull ( leadProvider );
+        requireNonNull ( header );
+
         this.file = FileChannel.open ( path, options != null && options.length > 0 ? options : DEFAULT_OPEN_OPTIONS );
-        this.lead = leadBuilder.build ();
+        this.lead = leadProvider.get ();
 
         this.header = Headers.render ( header.makeEntries (), true, Rpms.IMMUTABLE_TAG_HEADER );
+    }
+
+    public RpmWriter ( final Path path, final LeadBuilder leadBuilder, final Header<RpmTag> header, final OpenOption... options ) throws IOException
+    {
+        this ( path, leadBuilder::build, header, options );
     }
 
     public void addSignatureProcessor ( final SignatureProcessor processor )
@@ -85,7 +96,7 @@ public class RpmWriter implements AutoCloseable
     {
         checkNotFinished ();
 
-        Objects.requireNonNull ( payloadProvider );
+        requireNonNull ( payloadProvider );
 
         this.payloadProvider = payloadProvider;
     }
