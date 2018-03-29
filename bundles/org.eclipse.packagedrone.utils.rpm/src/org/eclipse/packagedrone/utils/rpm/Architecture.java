@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2016, 2018 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc - add new aliases
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm;
 
@@ -27,7 +28,7 @@ public enum Architecture
     RS6000 ( (short)8, "rs6000" ),
     IA64 ( (short)9, "ia64" ),
     MIPSEL ( (short)11, "mipsel" ),
-    ARM ( (short)12, "armv3l, armv4b, armv4l, armv5tel, armv5tejl, armv6l, armv7l" ),
+    ARM ( (short)12, "armv3l, armv4b, armv4l, armv5tel, armv5tejl, armv6l, armv6hl, armv7l, armv7hl" ),
     M86KMINT ( (short)13, "m68kmint, atarist, atariste, ataritt, falcon, atariclone, milan, hades" ),
     S390 ( (short)14, "s390, i370" ),
     S390X ( (short)15, "s390x" ),
