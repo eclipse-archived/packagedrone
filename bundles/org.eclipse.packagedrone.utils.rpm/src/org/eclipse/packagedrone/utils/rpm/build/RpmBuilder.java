@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2016, 2018 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,10 +9,12 @@
  *     IBH SYSTEMS GmbH - initial API and implementation
  *     Red Hat Inc - fix an issue with no-files RPMs
  *          - allowing the target name for the customizer
+ *          - allow lead arch/os override
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
 import static java.util.Comparator.comparing;
+import static java.util.Optional.of;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,19 +26,22 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
+import org.eclipse.packagedrone.utils.rpm.Architecture;
 import org.eclipse.packagedrone.utils.rpm.FileFlags;
+import org.eclipse.packagedrone.utils.rpm.OperatingSystem;
 import org.eclipse.packagedrone.utils.rpm.PathName;
 import org.eclipse.packagedrone.utils.rpm.RpmLead;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
@@ -451,9 +456,9 @@ public class RpmBuilder implements AutoCloseable
         protected void customizeFile ( final FileEntry entry, final FileInformation information )
         {
             customizeCommon ( entry, information );
-            if ( !information.getFileFlags().isEmpty() )
+            if ( !information.getFileFlags ().isEmpty () )
             {
-                for ( FileFlags fileFlag : information.getFileFlags() )
+                for ( final FileFlags fileFlag : information.getFileFlags () )
                 {
                     entry.setFlags ( entry.getFlags () | fileFlag.getValue () );
                 }
@@ -499,6 +504,10 @@ public class RpmBuilder implements AutoCloseable
     private final List<SignatureProcessor> signatureProcessors = new LinkedList<> ();
 
     private final BuilderOptions options;
+
+    private Architecture leadOverrideArchitecture;
+
+    private OperatingSystem leadOverrideOperatingSystem;
 
     public RpmBuilder ( final String name, final String version, final String release, final Path target ) throws IOException
     {
@@ -553,6 +562,16 @@ public class RpmBuilder implements AutoCloseable
         addSignatureProcessor ( SignatureProcessors.md5 () );
         addSignatureProcessor ( SignatureProcessors.sha1Header () );
         addSignatureProcessor ( SignatureProcessors.payloadSize () );
+    }
+
+    public void setLeadOverrideArchitecture ( final Architecture leadOverrideArchitecture )
+    {
+        this.leadOverrideArchitecture = leadOverrideArchitecture;
+    }
+
+    public void setLeadOverrideOperatingSystem ( final OperatingSystem leadOverrideOperatingSystem )
+    {
+        this.leadOverrideOperatingSystem = leadOverrideOperatingSystem;
     }
 
     private void fillRequirements ()
@@ -807,12 +826,37 @@ public class RpmBuilder implements AutoCloseable
         fillHeader ();
 
         final LeadBuilder leadBuilder = new LeadBuilder ( this.name, this.version );
-        leadBuilder.fillFlagsFromHeader ( this.header );
+
+        leadBuilder.fillFlagsFromHeader ( this.header, createLeadArchitectureMapper (), createLeadOperatingSystemMapper () );
 
         try ( RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.options.getOpenOptions () ) )
         {
             writer.addAllSignatureProcessors ( this.signatureProcessors );
             writer.setPayload ( this.recorder );
+        }
+    }
+
+    private Function<String, Optional<Architecture>> createLeadArchitectureMapper ()
+    {
+        if ( this.leadOverrideArchitecture != null )
+        {
+            return s -> of ( this.leadOverrideArchitecture );
+        }
+        else
+        {
+            return Architecture::fromAlias;
+        }
+    }
+
+    private Function<String, Optional<OperatingSystem>> createLeadOperatingSystemMapper ()
+    {
+        if ( this.leadOverrideOperatingSystem != null )
+        {
+            return s -> of ( this.leadOverrideOperatingSystem );
+        }
+        else
+        {
+            return OperatingSystem::fromAlias;
         }
     }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2016, 2018 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,13 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc - allow arch/os mapping
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 
 import org.eclipse.packagedrone.utils.rpm.Architecture;
 import org.eclipse.packagedrone.utils.rpm.OperatingSystem;
@@ -72,20 +75,28 @@ public class LeadBuilder
         return this.operatingSystem;
     }
 
-    public void fillFlagsFromHeader ( final Header<RpmTag> header )
+    public void fillFlagsFromHeader ( final Header<RpmTag> header, final Function<String, Optional<Architecture>> architectureMapper, final Function<String, Optional<OperatingSystem>> operatingSystemMapper )
     {
         Objects.requireNonNull ( header );
+        Objects.requireNonNull ( architectureMapper );
+        Objects.requireNonNull ( operatingSystemMapper );
+
         final Object os = header.get ( RpmTag.OS );
         final Object arch = header.get ( RpmTag.ARCH );
 
         if ( os instanceof String )
         {
-            this.architecture = Architecture.fromAlias ( (String)os ).orElse ( Architecture.NOARCH ).getValue ();
+            this.architecture = architectureMapper.apply ( (String)os ).orElse ( Architecture.NOARCH ).getValue ();
         }
         if ( arch instanceof String )
         {
-            this.operatingSystem = OperatingSystem.fromAlias ( (String)arch ).orElse ( OperatingSystem.UNKNOWN ).getValue ();
+            this.operatingSystem = operatingSystemMapper.apply ( (String)arch ).orElse ( OperatingSystem.UNKNOWN ).getValue ();
         }
+    }
+
+    public void fillFlagsFromHeader ( final Header<RpmTag> header )
+    {
+        fillFlagsFromHeader ( header, Architecture::fromAlias, OperatingSystem::fromAlias );
     }
 
     public RpmLead build ()
