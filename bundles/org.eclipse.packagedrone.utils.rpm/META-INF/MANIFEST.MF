@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Automatic-Module-Name: org.eclipse.packagedrone.utils.rpm
 Bundle-ManifestVersion: 2
 Bundle-Name: Java RPM Library
 Bundle-SymbolicName: org.eclipse.packagedrone.utils.rpm
