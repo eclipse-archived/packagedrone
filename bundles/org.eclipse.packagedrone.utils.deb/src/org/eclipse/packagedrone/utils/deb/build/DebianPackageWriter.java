@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
- *     M-Ezzat - code cleanup - squid:S2131
+ *     M-Ezzat - code cleanup - squid:S2131, squid:S1943
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.deb.build;
 
@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.HashMap;
@@ -51,7 +52,7 @@ public class DebianPackageWriter implements AutoCloseable, BinaryPackageBuilder
 
     private final ArArchiveOutputStream ar;
 
-    private final byte[] binaryHeader = "2.0\n".getBytes ();
+    private final byte[] binaryHeader = "2.0\n".getBytes ( StandardCharsets.UTF_8 );
 
     private final Supplier<Instant> timestampSupplier;
 

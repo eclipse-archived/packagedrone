@@ -7,13 +7,16 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     M-Ezzat - code cleanup - squid:S1943 
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.manage.system.internal;
 
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.packagedrone.repo.manage.system.SystemService;
 
@@ -90,8 +93,10 @@ public class SystemServiceImpl implements SystemService
 
         if ( hostname == null )
         {
-            try ( Reader reader = new FileReader ( "/etc/hostname" ) )
+
+            try ( FileInputStream fileInputStream = new FileInputStream ( "/etc/hostname" ) )
             {
+                InputStreamReader reader = new InputStreamReader ( fileInputStream, StandardCharsets.UTF_8 );
                 hostname = CharStreams.toString ( reader ).trim ();
             }
             catch ( final Exception e )
