@@ -755,7 +755,7 @@ public class RpmBuilder implements AutoCloseable
     private String makeDefaultFileName ()
     {
         final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( this.name, this.version ) );
-        sb.append ( '-' ).append ( this.architecture ).append ( ".rpm" );
+        sb.append ( '.' ).append ( this.architecture ).append ( ".rpm" );
         return sb.toString ();
     }
 
