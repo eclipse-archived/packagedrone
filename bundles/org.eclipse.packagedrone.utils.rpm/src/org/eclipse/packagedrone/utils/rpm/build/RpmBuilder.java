@@ -8,6 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *     Red Hat Inc
+ *     Yariv Amar - customize RPM final file name
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
@@ -576,6 +577,44 @@ public class RpmBuilder implements AutoCloseable
 
     private Consumer<Header<RpmTag>> headerCustomizer;
 
+    private RpmFileNameProvider rpmFileNameProvider = LEGACY_FILENAME_PROVIDER;
+
+    /**
+     * Legacy filename provider.
+     * <p>
+     * this provider is the legacy file name format, using "-" before the
+     * "arch.rpm" it is here, and set as the default for backwards compatibility
+     * <p>
+     */
+    public static final RpmFileNameProvider LEGACY_FILENAME_PROVIDER = new RpmFileNameProvider () {
+
+        @Override
+        public String getRpmFileName ( final RpmBuilder rpmBuilder )
+        {
+            final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( rpmBuilder.getName (), rpmBuilder.getVersion () ) );
+            sb.append ( '-' ).append ( rpmBuilder.getArchitecture () ).append ( ".rpm" );
+            return sb.toString ();
+        }
+    };
+
+    /**
+     * Default filename provider.
+     * <p>
+     * this rpm file name provider follows the standard RPM file name as
+     * {@code <name>-<version>-<release>.<architecture>.rpm}
+     * </p>
+     */
+    public static final RpmFileNameProvider DEFAULT_FILENAME_PROVIDER = new RpmFileNameProvider () {
+
+        @Override
+        public String getRpmFileName ( final RpmBuilder rpmBuilder )
+        {
+            final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( rpmBuilder.getName (), rpmBuilder.getVersion () ) );
+            sb.append ( '.' ).append ( rpmBuilder.getArchitecture () ).append ( ".rpm" );
+            return sb.toString ();
+        }
+    };
+
     public RpmBuilder ( final String name, final String version, final String release, final Path target ) throws IOException
     {
         this ( name, version, release, "noarch", target );
@@ -834,9 +873,7 @@ public class RpmBuilder implements AutoCloseable
 
     private String makeDefaultFileName ()
     {
-        final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( this.name, this.version ) );
-        sb.append ( '-' ).append ( this.architecture ).append ( ".rpm" );
-        return sb.toString ();
+        return this.rpmFileNameProvider.getRpmFileName ( this );
     }
 
     /**
@@ -1273,5 +1310,19 @@ public class RpmBuilder implements AutoCloseable
     public Version getRequiredRpmVersion ()
     {
         return this.requiredRpmVersion;
+    }
+
+    public void setRpmFileNameProvider ( final RpmFileNameProvider provider )
+    {
+        if ( provider == null )
+        {
+            throw new IllegalArgumentException ( "RPM file name provider must not be null, " );
+        }
+        this.rpmFileNameProvider = provider;
+    }
+
+    public RpmFileNameProvider getRpmFileNameProvider ()
+    {
+        return this.rpmFileNameProvider;
     }
 }
