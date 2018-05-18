@@ -490,6 +490,10 @@ public class RpmBuilder implements AutoCloseable
 
     private final Set<Dependency> requirements = new HashSet<> ();
 
+    private final Set<Dependency> recommendations = new HashSet<> ();
+
+    private final Set<Dependency> suggestions = new HashSet<> ();
+
     private final Set<Dependency> conflicts = new HashSet<> ();
 
     private final Set<Dependency> obsoletes = new HashSet<> ();
@@ -613,6 +617,24 @@ public class RpmBuilder implements AutoCloseable
         this.requirements.add ( new Dependency ( "rpmlib(CompressedFileNames)", "3.0.4-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
     }
 
+    private void fillRecommendations ()
+    {
+        if ( !this.recommendations.isEmpty() )
+        {
+            this.recommendations.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+            this.recommendations.add ( new Dependency ( "rpmlib(CompressedFileNames)", "3.0.4-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+        }
+    }
+
+    private void fillSuggestions ()
+    {
+        if ( !this.suggestions.isEmpty() )
+        {
+            this.suggestions.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+            this.suggestions.add ( new Dependency ( "rpmlib(CompressedFileNames)", "3.0.4-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+        }
+    }
+
     private void fillProvides ()
     {
         this.provides.add ( new Dependency ( this.name, this.version.toString (), RpmDependencyFlags.EQUAL ) );
@@ -654,6 +676,8 @@ public class RpmBuilder implements AutoCloseable
 
         Dependencies.putProvides ( this.header, this.provides );
         Dependencies.putRequirements ( this.header, this.requirements );
+        Dependencies.putRecommendations ( this.header, this.recommendations );
+        Dependencies.putSuggestions ( this.header, this.suggestions );
         Dependencies.putConflicts ( this.header, this.conflicts );
         Dependencies.putObsoletes ( this.header, this.obsoletes );
 
@@ -853,6 +877,8 @@ public class RpmBuilder implements AutoCloseable
 
         fillProvides ();
         fillRequirements ();
+        fillRecommendations();
+        fillSuggestions();
 
         fillHeader ();
 
@@ -900,6 +926,16 @@ public class RpmBuilder implements AutoCloseable
     public void addRequirement ( final String name, final String version, final RpmDependencyFlags... flags )
     {
         this.requirements.add ( new Dependency ( name, version, flags ) );
+    }
+
+    public void addRecommendation ( final String name, final String version, final RpmDependencyFlags... flags )
+    {
+        this.recommendations.add ( new Dependency ( name, version, flags ) );
+    }
+
+    public void addSuggestion ( final String name, final String version, final RpmDependencyFlags... flags )
+    {
+        this.suggestions.add ( new Dependency ( name, version, flags ) );
     }
 
     public void addProvides ( final String name, final String version, final RpmDependencyFlags... flags )

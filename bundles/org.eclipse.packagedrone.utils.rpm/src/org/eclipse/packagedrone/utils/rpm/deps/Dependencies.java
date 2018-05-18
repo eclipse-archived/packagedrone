@@ -37,6 +37,16 @@ public final class Dependencies
         putDependencies ( header, requirements, RpmTag.REQUIRE_NAME, RpmTag.REQUIRE_VERSION, RpmTag.REQUIRE_FLAGS );
     }
 
+    public static void putRecommendations ( final Header<RpmTag> header, final Collection<Dependency> requirements )
+    {
+        putDependencies ( header, requirements, RpmTag.RECOMMEND_NAME, RpmTag.RECOMMEND_VERSION, RpmTag.RECOMMEND_FLAGS );
+    }
+
+    public static void putSuggestions ( final Header<RpmTag> header, final Collection<Dependency> requirements )
+    {
+        putDependencies ( header, requirements, RpmTag.SUGGEST_NAME, RpmTag.SUGGEST_VERSION, RpmTag.SUGGEST_FLAGS );
+    }
+
     public static void putProvides ( final Header<RpmTag> header, final Collection<Dependency> provides )
     {
         putDependencies ( header, provides, RpmTag.PROVIDE_NAME, RpmTag.PROVIDE_VERSION, RpmTag.PROVIDE_FLAGS );
