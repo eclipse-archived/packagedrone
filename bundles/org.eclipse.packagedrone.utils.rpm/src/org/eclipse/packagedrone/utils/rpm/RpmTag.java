@@ -87,7 +87,13 @@ public enum RpmTag implements RpmBaseTag
     PAYLOAD_CODING ( 1125 ),
     PAYLOAD_FLAGS ( 1126 ),
     PLATFORM ( 1132 ),
-    LONGSIZE ( 5009 );
+    LONGSIZE ( 5009 ),
+    RECOMMEND_NAME ( 5046 ),
+    RECOMMEND_VERSION ( 5047 ),
+    RECOMMEND_FLAGS ( 5048 ),
+    SUGGEST_NAME ( 5049 ),
+    SUGGEST_VERSION ( 5050 ),
+    SUGGEST_FLAGS ( 5051 );
 
     private Integer value;
 
