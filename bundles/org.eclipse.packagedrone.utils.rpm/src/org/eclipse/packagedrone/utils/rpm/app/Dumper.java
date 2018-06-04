@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.app;
 
@@ -74,30 +75,23 @@ public class Dumper
             dumpEntry ( entry );
         }
 
-        {
-            final String[] names = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.REQUIRE_NAME ) ).asStringArray ().orElse ( null );
-            final String[] versions = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.REQUIRE_VERSION ) ).asStringArray ().orElse ( null );
-            final Integer[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.REQUIRE_FLAGS ) ).asIntegerArray ().orElse ( null );
-            dumpDeps ( "Require", names, versions, flags );
-        }
-        {
-            final String[] names = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.PROVIDE_NAME ) ).asStringArray ().orElse ( null );
-            final String[] versions = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.PROVIDE_VERSION ) ).asStringArray ().orElse ( null );
-            final Integer[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.PROVIDE_FLAGS ) ).asIntegerArray ().orElse ( null );
-            dumpDeps ( "Provide", names, versions, flags );
-        }
-        {
-            final String[] names = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.CONFLICT_NAME ) ).asStringArray ().orElse ( null );
-            final String[] versions = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.CONFLICT_VERSION ) ).asStringArray ().orElse ( null );
-            final Integer[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.CONFLICT_FLAGS ) ).asIntegerArray ().orElse ( null );
-            dumpDeps ( "Conflict", names, versions, flags );
-        }
-        {
-            final String[] names = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.OBSOLETE_NAME ) ).asStringArray ().orElse ( null );
-            final String[] versions = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.OBSOLETE_VERSION ) ).asStringArray ().orElse ( null );
-            final Integer[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( RpmTag.OBSOLETE_FLAGS ) ).asIntegerArray ().orElse ( null );
-            dumpDeps ( "Obsolete", names, versions, flags );
-        }
+        dumpGroup ( in, "Require", RpmTag.REQUIRE_NAME, RpmTag.REQUIRE_VERSION, RpmTag.REQUIRE_FLAGS );
+        dumpGroup ( in, "Provide", RpmTag.PROVIDE_NAME, RpmTag.PROVIDE_VERSION, RpmTag.PROVIDE_FLAGS );
+        dumpGroup ( in, "Conflict", RpmTag.CONFLICT_NAME, RpmTag.CONFLICT_VERSION, RpmTag.CONFLICT_FLAGS );
+        dumpGroup ( in, "Obsolete", RpmTag.OBSOLETE_NAME, RpmTag.OBSOLETE_VERSION, RpmTag.OBSOLETE_FLAGS );
+        dumpGroup ( in, "Suggest", RpmTag.SUGGEST_NAME, RpmTag.SUGGEST_VERSION, RpmTag.SUGGEST_FLAGS );
+        dumpGroup ( in, "Recommend", RpmTag.RECOMMEND_NAME, RpmTag.RECOMMEND_VERSION, RpmTag.RECOMMEND_FLAGS );
+        dumpGroup ( in, "Supplement", RpmTag.SUPPLEMENT_NAME, RpmTag.SUPPLEMENT_VERSION, RpmTag.SUPPLEMENT_FLAGS );
+        dumpGroup ( in, "Enhance", RpmTag.ENHANCE_NAME, RpmTag.ENHANCE_VERSION, RpmTag.ENHANCE_FLAGS );
+
+    }
+
+    private static void dumpGroup ( final RpmInputStream in, final String name, final RpmTag nameTag, final RpmTag versionTag, final RpmTag flagTag ) throws IOException
+    {
+        final String[] names = new RpmTagValue ( in.getPayloadHeader ().getTag ( nameTag ) ).asStringArray ().orElse ( null );
+        final String[] versions = new RpmTagValue ( in.getPayloadHeader ().getTag ( versionTag ) ).asStringArray ().orElse ( null );
+        final Integer[] flags = new RpmTagValue ( in.getPayloadHeader ().getTag ( flagTag ) ).asIntegerArray ().orElse ( null );
+        dumpDeps ( name, names, versions, flags );
     }
 
     private static void dumpDeps ( final String string, final String[] names, final String[] versions, final Integer[] flags )
