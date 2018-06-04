@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2016, 2018 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,13 +7,15 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
-import org.eclipse.packagedrone.utils.rpm.FileFlags;
-
-import java.util.EnumSet;
 import java.time.Instant;
+import java.util.EnumSet;
+import java.util.Set;
+
+import org.eclipse.packagedrone.utils.rpm.FileFlags;
 
 public class FileInformation
 {
@@ -23,7 +25,7 @@ public class FileInformation
 
     private String group = BuilderContext.DEFAULT_GROUP;
 
-    private EnumSet<FileFlags> fileFlags = EnumSet.noneOf(FileFlags.class);
+    private Set<FileFlags> fileFlags = EnumSet.noneOf ( FileFlags.class );
 
     private short mode = 0644;
 
@@ -40,28 +42,35 @@ public class FileInformation
     @Deprecated
     public void setConfiguration ( final boolean configuration )
     {
-        if ( configuration == true)
+        if ( configuration == true )
         {
-            this.fileFlags.add(FileFlags.CONFIGURATION);
+            this.fileFlags.add ( FileFlags.CONFIGURATION );
         }
         else
         {
-            this.fileFlags.remove(FileFlags.CONFIGURATION);
+            this.fileFlags.remove ( FileFlags.CONFIGURATION );
         }
     }
 
     @Deprecated
     public boolean isConfiguration ()
     {
-        return this.fileFlags.contains(FileFlags.CONFIGURATION);
+        return this.fileFlags.contains ( FileFlags.CONFIGURATION );
     }
 
-    public void setFileFlags ( final EnumSet<FileFlags> fileFlags )
+    public void setFileFlags ( final Set<FileFlags> fileFlags )
     {
-        this.fileFlags = fileFlags;
+        if ( fileFlags.isEmpty () )
+        {
+            this.fileFlags = EnumSet.noneOf ( FileFlags.class );
+        }
+        else
+        {
+            this.fileFlags = EnumSet.copyOf ( fileFlags );
+        }
     }
 
-    public EnumSet<FileFlags> getFileFlags()
+    public Set<FileFlags> getFileFlags ()
     {
         return this.fileFlags;
     }

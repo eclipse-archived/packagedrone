@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.tests;
 
+import static java.util.EnumSet.of;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bouncycastle.openpgp.PGPException;
+import org.eclipse.packagedrone.utils.rpm.FileFlags;
 import org.eclipse.packagedrone.utils.rpm.HashAlgorithm;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
@@ -158,7 +161,6 @@ public class WriterTest
         }
     }
 
-    @SuppressWarnings ( "deprecation" )
     @Test
     public void test3 () throws IOException, PGPException
     {
@@ -186,12 +188,12 @@ public class WriterTest
             } );
 
             ctx.addFile ( "/etc/test3/file1", IN_BASE.resolve ( "file1" ), BuilderContext.pathProvider ().customize ( finfo -> {
-                finfo.setConfiguration ( true );
+                finfo.setFileFlags ( of ( FileFlags.CONFIGURATION ) );
             } ) );
 
             ctx.addFile ( "/etc/test3/file2", new ByteArrayInputStream ( "foo".getBytes ( StandardCharsets.UTF_8 ) ), finfo -> {
                 finfo.setTimestamp ( LocalDateTime.of ( 2014, 1, 1, 0, 0 ).toInstant ( ZoneOffset.UTC ) );
-                finfo.setConfiguration ( true );
+                finfo.setFileFlags ( of ( FileFlags.CONFIGURATION ) );
             } );
 
             ctx.addSymbolicLink ( "/etc/test3/file3", "/etc/test3/file1" );
