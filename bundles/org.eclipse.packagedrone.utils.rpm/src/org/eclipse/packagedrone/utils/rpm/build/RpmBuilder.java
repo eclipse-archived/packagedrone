@@ -344,6 +344,8 @@ public class RpmBuilder implements AutoCloseable
 
         private String url;
 
+        private String sourcePackage;
+
         public void setDistribution ( final String distribution )
         {
             this.distribution = distribution;
@@ -442,6 +444,16 @@ public class RpmBuilder implements AutoCloseable
         public String getUrl ()
         {
             return this.url;
+        }
+
+        public void setSourcePackage ( final String sourcePackage )
+        {
+            this.sourcePackage = sourcePackage;
+        }
+
+        public String getSourcePackage ()
+        {
+            return this.sourcePackage;
         }
     }
 
@@ -562,6 +574,8 @@ public class RpmBuilder implements AutoCloseable
 
     private Version requiredRpmVersion = Version.V4_11;
 
+    private Consumer<Header<RpmTag>> headerCustomizer;
+
     public RpmBuilder ( final String name, final String version, final String release, final Path target ) throws IOException
     {
         this ( name, version, release, "noarch", target );
@@ -627,6 +641,11 @@ public class RpmBuilder implements AutoCloseable
         this.leadOverrideOperatingSystem = leadOverrideOperatingSystem;
     }
 
+    public void setHeaderCustomizer ( final Consumer<Header<RpmTag>> headerCustomizer )
+    {
+        this.headerCustomizer = headerCustomizer;
+    }
+
     /**
      * Fill extra requirements the RPM file itself may have
      */
@@ -674,6 +693,7 @@ public class RpmBuilder implements AutoCloseable
         this.header.putI18nString ( RpmTag.GROUP, this.information.getGroup () );
         this.header.putString ( RpmTag.ARCH, this.architecture );
         this.header.putString ( RpmTag.OS, this.information.getOperatingSystem () );
+        this.header.putStringOptional ( RpmTag.SOURCE_PACKAGE, this.information.getSourcePackage () );
 
         Dependencies.putProvides ( this.header, this.provides );
         Dependencies.putRequirements ( this.header, this.requirements );
@@ -889,7 +909,12 @@ public class RpmBuilder implements AutoCloseable
 
         leadBuilder.fillFlagsFromHeader ( this.header, createLeadArchitectureMapper (), createLeadOperatingSystemMapper () );
 
-        try ( RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.options.getOpenOptions () ) )
+        if ( this.headerCustomizer != null )
+        {
+            this.headerCustomizer.accept ( this.header );
+        }
+
+        try ( final RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.options.getOpenOptions () ) )
         {
             writer.addAllSignatureProcessors ( this.signatureProcessors );
             writer.setPayload ( this.recorder );
