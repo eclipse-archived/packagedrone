@@ -576,8 +576,6 @@ public class RpmBuilder implements AutoCloseable
 
     private Consumer<Header<RpmTag>> headerCustomizer;
 
-    private RpmFileNameProvider rpmFileNameProvider = RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
-
     public RpmBuilder ( final String name, final String version, final String release, final Path target ) throws IOException
     {
         this ( name, version, release, "noarch", target );
@@ -836,7 +834,7 @@ public class RpmBuilder implements AutoCloseable
 
     private String makeDefaultFileName ()
     {
-        return this.rpmFileNameProvider.getRpmFileName ( this.name, this.version, this.architecture );
+        return this.options.getFileNameProvider ().getRpmFileName ( this.name, this.version, this.architecture );
     }
 
     /**
@@ -1273,19 +1271,5 @@ public class RpmBuilder implements AutoCloseable
     public Version getRequiredRpmVersion ()
     {
         return this.requiredRpmVersion;
-    }
-
-    public void setRpmFileNameProvider ( final RpmFileNameProvider provider )
-    {
-        if ( provider == null )
-        {
-            throw new IllegalArgumentException ( "RPM file name provider must not be null, " );
-        }
-        this.rpmFileNameProvider = provider;
-    }
-
-    public RpmFileNameProvider getRpmFileNameProvider ()
-    {
-        return this.rpmFileNameProvider;
     }
 }
