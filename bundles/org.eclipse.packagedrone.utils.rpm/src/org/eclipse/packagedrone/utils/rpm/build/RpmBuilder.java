@@ -42,7 +42,6 @@ import org.eclipse.packagedrone.utils.rpm.Architecture;
 import org.eclipse.packagedrone.utils.rpm.FileFlags;
 import org.eclipse.packagedrone.utils.rpm.OperatingSystem;
 import org.eclipse.packagedrone.utils.rpm.PathName;
-import org.eclipse.packagedrone.utils.rpm.RpmLead;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
@@ -577,43 +576,7 @@ public class RpmBuilder implements AutoCloseable
 
     private Consumer<Header<RpmTag>> headerCustomizer;
 
-    private RpmFileNameProvider rpmFileNameProvider = LEGACY_FILENAME_PROVIDER;
-
-    /**
-     * Legacy filename provider.
-     * <p>
-     * this provider is the legacy file name format, using "-" before the
-     * "arch.rpm" it is here, and set as the default for backwards compatibility
-     * <p>
-     */
-    public static final RpmFileNameProvider LEGACY_FILENAME_PROVIDER = new RpmFileNameProvider () {
-
-        @Override
-        public String getRpmFileName ( final RpmBuilder rpmBuilder )
-        {
-            final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( rpmBuilder.getName (), rpmBuilder.getVersion () ) );
-            sb.append ( '-' ).append ( rpmBuilder.getArchitecture () ).append ( ".rpm" );
-            return sb.toString ();
-        }
-    };
-
-    /**
-     * Default filename provider.
-     * <p>
-     * this rpm file name provider follows the standard RPM file name as
-     * {@code <name>-<version>-<release>.<architecture>.rpm}
-     * </p>
-     */
-    public static final RpmFileNameProvider DEFAULT_FILENAME_PROVIDER = new RpmFileNameProvider () {
-
-        @Override
-        public String getRpmFileName ( final RpmBuilder rpmBuilder )
-        {
-            final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( rpmBuilder.getName (), rpmBuilder.getVersion () ) );
-            sb.append ( '.' ).append ( rpmBuilder.getArchitecture () ).append ( ".rpm" );
-            return sb.toString ();
-        }
-    };
+    private RpmFileNameProvider rpmFileNameProvider = RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
 
     public RpmBuilder ( final String name, final String version, final String release, final Path target ) throws IOException
     {
@@ -873,7 +836,7 @@ public class RpmBuilder implements AutoCloseable
 
     private String makeDefaultFileName ()
     {
-        return this.rpmFileNameProvider.getRpmFileName ( this );
+        return this.rpmFileNameProvider.getRpmFileName ( this.name, this.version, this.architecture );
     }
 
     /**
