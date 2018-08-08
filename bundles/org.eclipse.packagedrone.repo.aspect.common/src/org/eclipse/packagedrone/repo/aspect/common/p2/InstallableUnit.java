@@ -504,7 +504,7 @@ public class InstallableUnit
 
     public static InstallableUnit fromBundle ( final BundleInformation bundle )
     {
-        return fromBundle ( bundle, null );
+        return fromBundle ( bundle, new P2MetaDataInformation () );
     }
 
     public static InstallableUnit fromBundle ( final BundleInformation bundle, final P2MetaDataInformation info )
@@ -561,8 +561,12 @@ public class InstallableUnit
 
         try
         {
-            final Map<String, String> td = new HashMap<String, String> ( 1 );
+            final Map<String, String> td = new HashMap<> ( 1 );
             td.put ( "manifest", makeManifest ( bundle.getId (), bundle.getVersion () ) );
+            if ( "dir".equals ( bundle.getEclipseBundleShape () ) )
+            {
+                td.put ( "zipped", "true" );
+            }
             result.getTouchpoints ().add ( new Touchpoint ( "org.eclipse.equinox.p2.osgi", "1.0.0", td ) );
         }
         catch ( final Exception e )
@@ -599,7 +603,7 @@ public class InstallableUnit
 
     /**
      * Add property entry only of value is not null
-     * 
+     *
      * @param props
      *            properties
      * @param key
@@ -665,7 +669,7 @@ public class InstallableUnit
 
     /**
      * Write a list of units inside a {@code units} element
-     * 
+     *
      * @param xsw
      *            the stream to write to
      * @param ius
@@ -686,7 +690,7 @@ public class InstallableUnit
 
     /**
      * Write a single unit inside a {@code units} element
-     * 
+     *
      * @param xsw
      *            the stream to write to
      * @throws XMLStreamException
@@ -699,7 +703,7 @@ public class InstallableUnit
 
     /**
      * Write the unit as XML fragment
-     * 
+     *
      * @param xsw
      *            the XMLStreamWriter to write to
      * @throws XMLStreamException
