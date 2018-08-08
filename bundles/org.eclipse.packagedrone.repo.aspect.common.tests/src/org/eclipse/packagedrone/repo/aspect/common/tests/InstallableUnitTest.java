@@ -10,19 +10,27 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.aspect.common.tests;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.eclipse.packagedrone.repo.aspect.common.p2.InstallableUnit;
 import org.eclipse.packagedrone.repo.aspect.common.p2.InstallableUnit.Entry;
+import org.eclipse.packagedrone.repo.aspect.common.p2.InstallableUnit.Touchpoint;
+import org.eclipse.packagedrone.repo.aspect.common.p2.P2MetaDataInformation;
+import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.Qualifiers;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.Requirement;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.Requirement.MatchRule;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.Requirement.Type;
+import org.hamcrest.CustomTypeSafeMatcher;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.osgi.framework.Version;
 
@@ -107,5 +115,34 @@ public class InstallableUnitTest
     private static List<Entry<org.eclipse.packagedrone.repo.aspect.common.p2.InstallableUnit.Requirement>> findRequirement ( final InstallableUnit iu, final String namespace, final String key )
     {
         return iu.getRequires ().stream ().filter ( entry -> entry.getNamespace ().equals ( namespace ) && entry.getKey ().equals ( key ) ).collect ( Collectors.toList () );
+    }
+
+    @Test
+    public void addsZippedInstructionOnDirShape () throws Exception
+    {
+        final P2MetaDataInformation p2info = new P2MetaDataInformation ();
+        final BundleInformation bi = new BundleInformation ();
+        bi.setEclipseBundleShape ( "dir" );
+
+        final InstallableUnit iu = InstallableUnit.fromBundle ( bi, p2info );
+
+        final Touchpoint touchpoint = iu.getTouchpoints ().get ( 0 );
+        assertThat ( touchpoint.getInstructions (), hasEntry ( "zipped", "true" ) );
+    }
+
+    static private final Matcher<Map<?, ?>> hasEntry ( final Object key, final Object value )
+    {
+        return new CustomTypeSafeMatcher<Map<?, ?>> ( "" ) {
+
+            @Override
+            protected boolean matchesSafely ( final Map<?, ?> item )
+            {
+                if ( Objects.equals ( item.get ( key ), value ) )
+                {
+                    return true;
+                }
+                return false;
+            }
+        };
     }
 }
