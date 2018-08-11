@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.aspect.common.p2;
 
+import static org.osgi.framework.Constants.SINGLETON_DIRECTIVE;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
@@ -32,6 +35,7 @@ import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.BundleRequirement;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.PackageExport;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.PackageImport;
+import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.VersionRangedName;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.FeatureInclude;
 import org.eclipse.packagedrone.repo.utils.osgi.feature.FeatureInformation.PluginInclude;
@@ -535,6 +539,11 @@ public class InstallableUnit
             addProvides ( result, "java.package", pe.getName (), makeVersion ( pe.getVersion () ) );
         }
 
+        if ( bundle.getFragmentHost () != null )
+        {
+            addProvides ( result, "osgi.fragment", bundle.getFragmentHost ().getName (), makeVersion ( bundle.getVersion () ) );
+        }
+
         // localization
 
         addLocalization ( props, result.getProvides (), bundle.getLocalization () );
@@ -553,6 +562,13 @@ public class InstallableUnit
             addRequires ( result, "osgi.bundle", transformBundleName ( systemBundleAlias, br.getId () ), new Requirement ( br.getVersionRange (), br.isOptional (), br.isOptional () ? false : null, null ) );
         }
 
+        final VersionRangedName fragmentHost = bundle.getFragmentHost ();
+        if ( fragmentHost != null )
+        {
+            VersionRange versionRange = fragmentHost.getVersionRange ();
+            versionRange = versionRange != null ? versionRange : VersionRange.valueOf ( "0.0.0" );
+            addRequires ( result, "osgi.bundle", transformBundleName ( systemBundleAlias, fragmentHost.getName () ), new Requirement ( versionRange, false, null, null ) );
+        }
         // artifacts
 
         result.getArtifacts ().add ( new Artifact ( bundle.getId (), "osgi.bundle", bundle.getVersion () ) );
@@ -562,7 +578,7 @@ public class InstallableUnit
         try
         {
             final Map<String, String> td = new HashMap<> ( 1 );
-            td.put ( "manifest", makeManifest ( bundle.getId (), bundle.getVersion () ) );
+            td.put ( "manifest", makeManifest ( bundle ) );
             if ( "dir".equals ( bundle.getEclipseBundleShape () ) )
             {
                 td.put ( "zipped", "true" );
@@ -912,12 +928,21 @@ public class InstallableUnit
         }
     }
 
-    private static String makeManifest ( final String id, final Version version ) throws IOException
+    private static String makeManifest ( final BundleInformation bundle ) throws IOException
     {
         final Manifest mf = new Manifest ();
         mf.getMainAttributes ().put ( Attributes.Name.MANIFEST_VERSION, "1.0" );
-        mf.getMainAttributes ().putValue ( Constants.BUNDLE_SYMBOLICNAME, id );
-        mf.getMainAttributes ().putValue ( Constants.BUNDLE_VERSION, "" + version );
+        mf.getMainAttributes ().putValue ( Constants.BUNDLE_SYMBOLICNAME, bundle.getId () + ( bundle.isSingleton () ? ";" + SINGLETON_DIRECTIVE + ":=true" : "" ) );
+        mf.getMainAttributes ().putValue ( Constants.BUNDLE_VERSION, "" + bundle.getVersion () );
+
+        final VersionRangedName fragmentHost = bundle.getFragmentHost ();
+        if ( fragmentHost != null && fragmentHost.getName () != null )
+        {
+            final String name = fragmentHost.getName ();
+            final Optional<VersionRange> version = Optional.ofNullable ( fragmentHost.getVersionRange () );
+            final Optional<String> versionStr = version.map ( vr -> ";" + Constants.BUNDLE_VERSION_ATTRIBUTE + "=\"" + vr.toString () + "\"" );
+            mf.getMainAttributes ().putValue ( Constants.FRAGMENT_HOST, name + versionStr.orElse ( "" ) );
+        }
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream ();
         mf.write ( out );
