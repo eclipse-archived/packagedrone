@@ -29,6 +29,7 @@ import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.Package
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.PackageImport;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.ProvideCapability;
 import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.RequireCapability;
+import org.eclipse.packagedrone.repo.utils.osgi.bundle.BundleInformation.VersionRangedName;
 import org.eclipse.packagedrone.utils.AttributedValue;
 import org.eclipse.packagedrone.utils.Headers;
 import org.osgi.framework.Constants;
@@ -81,9 +82,17 @@ public class BundleInformationParser
         {
             return null;
         }
+        final AttributedValue fragmentHost = Headers.parse ( ma.getValue ( Constants.FRAGMENT_HOST ) );
+        if ( fragmentHost != null )
+        {
+            final String bundleSymbolicName = fragmentHost.getValue ();
+            final String rangeStr = fragmentHost.getAttributes ().get ( Constants.BUNDLE_VERSION_ATTRIBUTE );
+            final VersionRange versionRange = rangeStr != null ? new VersionRange ( rangeStr ) : null;
+            result.setFragmentHost ( new VersionRangedName ( bundleSymbolicName, versionRange ) );
+        }
 
         result.setId ( id.getValue () );
-        result.setSingleton ( Boolean.parseBoolean ( id.getAttributes ().get ( "singleton" ) ) );
+        result.setSingleton ( Boolean.parseBoolean ( id.getAttributes ().get ( Constants.SINGLETON_DIRECTIVE ) ) );
 
         try
         {
