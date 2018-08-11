@@ -438,6 +438,8 @@ public class BundleInformation implements TranslatedInformation
 
     private List<RequireCapability> requiredCapabilities = new LinkedList<> ();
 
+    private String eclipsePlatformFilter;
+
     public void setEclipseBundleShape ( final String eclipseBundleShape )
     {
         this.eclipseBundleShape = eclipseBundleShape;
@@ -624,6 +626,16 @@ public class BundleInformation implements TranslatedInformation
     public List<RequireCapability> getRequiredCapabilities ()
     {
         return this.requiredCapabilities;
+    }
+
+    public void setEclipsePlatformFilter ( final String eclipsePlatformFilter )
+    {
+        this.eclipsePlatformFilter = eclipsePlatformFilter;
+    }
+
+    public String getEclipsePlatformFilter ()
+    {
+        return this.eclipsePlatformFilter;
     }
 
     public static BundleInformation fromJson ( final String string )
