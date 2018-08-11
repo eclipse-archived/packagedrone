@@ -590,6 +590,8 @@ public class InstallableUnit
             logger.warn ( "Failed to generate manifest", e );
         }
 
+        result.setFilter ( bundle.getEclipsePlatformFilter () );
+
         return result;
     }
 
