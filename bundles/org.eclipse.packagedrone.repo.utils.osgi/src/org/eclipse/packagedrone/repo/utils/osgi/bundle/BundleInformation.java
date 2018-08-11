@@ -440,6 +440,8 @@ public class BundleInformation implements TranslatedInformation
 
     private String eclipsePlatformFilter;
 
+    private boolean sourceBundle;
+
     public void setEclipseBundleShape ( final String eclipseBundleShape )
     {
         this.eclipseBundleShape = eclipseBundleShape;
@@ -655,5 +657,15 @@ public class BundleInformation implements TranslatedInformation
     public String toJson ()
     {
         return ParserHelper.newGson ().toJson ( this );
+    }
+
+    public void setSourceBunde ( final boolean source )
+    {
+        this.sourceBundle = source;
+    }
+
+    public boolean isSourceBundle ()
+    {
+        return this.sourceBundle;
     }
 }

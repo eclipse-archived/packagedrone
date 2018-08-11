@@ -532,8 +532,14 @@ public class InstallableUnit
 
         addProvides ( result, "osgi.bundle", bundle.getId (), "" + bundle.getVersion () );
         addProvides ( result, "org.eclipse.equinox.p2.iu", bundle.getId (), "" + bundle.getVersion () );
-        addProvides ( result, "org.eclipse.equinox.p2.eclipse.type", "bundle", "1.0.0" );
-
+        if ( bundle.isSourceBundle () )
+        {
+            addProvides ( result, "org.eclipse.equinox.p2.eclipse.type", "source", "1.0.0" );
+        }
+        else
+        {
+            addProvides ( result, "org.eclipse.equinox.p2.eclipse.type", "bundle", "1.0.0" );
+        }
         for ( final PackageExport pe : bundle.getPackageExports () )
         {
             addProvides ( result, "java.package", pe.getName (), makeVersion ( pe.getVersion () ) );
