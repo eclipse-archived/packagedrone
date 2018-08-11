@@ -30,19 +30,16 @@ public class BundleInformation implements TranslatedInformation
 {
     public static final MetaKey META_KEY = new MetaKey ( "osgi", "bundle-information" );
 
-    public static class PackageImport
+    public static class VersionRangedName
     {
-        private final String name;
+        protected final String name;
 
-        private final VersionRange versionRange;
+        protected final VersionRange versionRange;
 
-        private final boolean optional;
-
-        public PackageImport ( final String name, final VersionRange versionRange, final boolean optional )
+        public VersionRangedName ( final String name, final VersionRange versionRange )
         {
             this.name = name;
             this.versionRange = versionRange;
-            this.optional = optional;
         }
 
         public String getName ()
@@ -53,6 +50,80 @@ public class BundleInformation implements TranslatedInformation
         public VersionRange getVersionRange ()
         {
             return this.versionRange;
+        }
+
+        @Override
+        public int hashCode ()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ( this.name == null ? 0 : this.name.hashCode () );
+            result = prime * result + ( this.versionRange == null ? 0 : this.versionRange.hashCode () );
+            return result;
+        }
+
+        @Override
+        public boolean equals ( final Object obj )
+        {
+            if ( this == obj )
+            {
+                return true;
+            }
+            if ( obj == null )
+            {
+                return false;
+            }
+            if ( getClass () != obj.getClass () )
+            {
+                return false;
+            }
+            final VersionRangedName other = (VersionRangedName)obj;
+            if ( this.name == null )
+            {
+                if ( other.name != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.name.equals ( other.name ) )
+            {
+                return false;
+            }
+            if ( this.versionRange == null )
+            {
+                if ( other.versionRange != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.versionRange.equals ( other.versionRange ) )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString ()
+        {
+            if ( this.versionRange != null )
+            {
+                return this.name + ";version=\"" + this.versionRange.getLeftType () + this.versionRange.getLeft () + "," + this.versionRange.getRight () + this.versionRange.getRightType () + "\"";
+            }
+            return this.name;
+        }
+
+    }
+
+    public static class PackageImport extends VersionRangedName
+    {
+
+        private final boolean optional;
+
+        public PackageImport ( final String name, final VersionRange versionRange, final boolean optional )
+        {
+            super ( name, versionRange );
+            this.optional = optional;
         }
 
         public boolean isOptional ()
@@ -80,7 +151,7 @@ public class BundleInformation implements TranslatedInformation
             {
                 return false;
             }
-            if ( this.getClass() != obj.getClass() )
+            if ( this.getClass () != obj.getClass () )
             {
                 return false;
             }
@@ -157,7 +228,7 @@ public class BundleInformation implements TranslatedInformation
             {
                 return false;
             }
-            if ( this.getClass() != obj.getClass() )
+            if ( this.getClass () != obj.getClass () )
             {
                 return false;
             }
@@ -184,11 +255,8 @@ public class BundleInformation implements TranslatedInformation
 
     }
 
-    public static class BundleRequirement
+    public static class BundleRequirement extends VersionRangedName
     {
-        private final String id;
-
-        private final VersionRange versionRange;
 
         private final boolean optional;
 
@@ -196,20 +264,14 @@ public class BundleInformation implements TranslatedInformation
 
         public BundleRequirement ( final String id, final VersionRange versionRange, final boolean optional, final boolean reexport )
         {
-            this.id = id;
-            this.versionRange = versionRange;
+            super ( id, versionRange );
             this.optional = optional;
             this.reexport = reexport;
         }
 
         public String getId ()
         {
-            return this.id;
-        }
-
-        public VersionRange getVersionRange ()
-        {
-            return this.versionRange;
+            return this.name;
         }
 
         public boolean isOptional ()
@@ -227,7 +289,7 @@ public class BundleInformation implements TranslatedInformation
         {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ( this.id == null ? 0 : this.id.hashCode () );
+            result = prime * result + ( this.name == null ? 0 : this.name.hashCode () );
             return result;
         }
 
@@ -242,19 +304,19 @@ public class BundleInformation implements TranslatedInformation
             {
                 return false;
             }
-            if ( this.getClass() != obj.getClass() )
+            if ( this.getClass () != obj.getClass () )
             {
                 return false;
             }
             final BundleRequirement other = (BundleRequirement)obj;
-            if ( this.id == null )
+            if ( this.name == null )
             {
-                if ( other.id != null )
+                if ( other.name != null )
                 {
                     return false;
                 }
             }
-            else if ( !this.id.equals ( other.id ) )
+            else if ( !this.name.equals ( other.name ) )
             {
                 return false;
             }
@@ -355,6 +417,8 @@ public class BundleInformation implements TranslatedInformation
     private String description;
 
     private boolean singleton;
+
+    private VersionRangedName fragmentHost;
 
     private String bundleLocalization;
 
@@ -479,6 +543,16 @@ public class BundleInformation implements TranslatedInformation
     public boolean isSingleton ()
     {
         return this.singleton;
+    }
+
+    public VersionRangedName getFragmentHost ()
+    {
+        return this.fragmentHost;
+    }
+
+    public void setFragmentHost ( final VersionRangedName fragmentHost )
+    {
+        this.fragmentHost = fragmentHost;
     }
 
     @Override
