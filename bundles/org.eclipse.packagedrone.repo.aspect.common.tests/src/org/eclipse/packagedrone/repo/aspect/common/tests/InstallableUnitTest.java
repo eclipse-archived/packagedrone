@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.repo.aspect.common.tests;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
@@ -142,6 +143,32 @@ public class InstallableUnitTest
         final InstallableUnit iu = InstallableUnit.fromBundle ( bi, p2info );
 
         assertThat ( iu.getFilter (), is ( platformFilter ) );
+    }
+
+    @Test
+    public void providesTypeBundle () throws Exception
+    {
+        final BundleInformation bi = new BundleInformation ();
+        bi.setSourceBunde ( false );
+        final P2MetaDataInformation p2info = new P2MetaDataInformation ();
+
+        final InstallableUnit iu = InstallableUnit.fromBundle ( bi, p2info );
+
+        assertThat ( iu, hasProvided ( "org.eclipse.equinox.p2.eclipse.type", "bundle", "1.0.0" ) );
+        assertThat ( iu, not ( hasProvided ( "org.eclipse.equinox.p2.eclipse.type", "source", "1.0.0" ) ) );
+    }
+
+    @Test
+    public void providesTypeSource () throws Exception
+    {
+        final BundleInformation bi = new BundleInformation ();
+        bi.setSourceBunde ( true );
+        final P2MetaDataInformation p2info = new P2MetaDataInformation ();
+
+        final InstallableUnit iu = InstallableUnit.fromBundle ( bi, p2info );
+
+        assertThat ( iu, hasProvided ( "org.eclipse.equinox.p2.eclipse.type", "source", "1.0.0" ) );
+        assertThat ( iu, not ( hasProvided ( "org.eclipse.equinox.p2.eclipse.type", "bundle", "1.0.0" ) ) );
     }
 
     static private final Matcher<InstallableUnit> hasProvided ( final String namespace, final String name, final String version )
