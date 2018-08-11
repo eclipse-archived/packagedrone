@@ -131,6 +131,19 @@ public class InstallableUnitTest
         assertThat ( touchpointInstructions, hasEntry ( "manifest", containsString ( fragmentHostEntry ) ) );
     }
 
+    @Test
+    public void platformFilterConvertedToFilter () throws Exception
+    {
+        final String platformFilter = "(&(arc=x68)(os=win32))";
+        final BundleInformation bi = new BundleInformation ();
+        bi.setEclipsePlatformFilter ( platformFilter );
+        final P2MetaDataInformation p2info = new P2MetaDataInformation ();
+
+        final InstallableUnit iu = InstallableUnit.fromBundle ( bi, p2info );
+
+        assertThat ( iu.getFilter (), is ( platformFilter ) );
+    }
+
     static private final Matcher<InstallableUnit> hasProvided ( final String namespace, final String name, final String version )
     {
         return new CustomTypeSafeMatcher<InstallableUnit> ( "IU with 'provided'-element [namespace=" + namespace + ", name=" + name + ", version=" + version + " ]" ) {

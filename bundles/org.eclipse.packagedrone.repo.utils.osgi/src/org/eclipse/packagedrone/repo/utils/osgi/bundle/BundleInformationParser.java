@@ -113,6 +113,7 @@ public class BundleInformationParser
         result.setEclipseBundleShape ( ma.getValue ( "Eclipse-BundleShape" ) );
 
         result.setRequiredExecutionEnvironments ( Headers.parseStringList ( ma.getValue ( Constants.BUNDLE_REQUIREDEXECUTIONENVIRONMENT ) ) );
+        result.setEclipsePlatformFilter ( ma.getValue ( "Eclipse-PlatformFilter" ) );
 
         processImportPackage ( result, ma );
         processExportPackage ( result, ma );
