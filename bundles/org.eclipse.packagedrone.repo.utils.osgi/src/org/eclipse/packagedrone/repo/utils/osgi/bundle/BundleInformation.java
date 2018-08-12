@@ -30,6 +30,9 @@ public class BundleInformation implements TranslatedInformation
 {
     public static final MetaKey META_KEY = new MetaKey ( "osgi", "bundle-information" );
 
+    /**
+     * @since 1.1
+     */
     public static class VersionRangedName
     {
         protected final String name;
@@ -549,11 +552,17 @@ public class BundleInformation implements TranslatedInformation
         return this.singleton;
     }
 
+    /**
+     * @since 1.1
+     */
     public VersionRangedName getFragmentHost ()
     {
         return this.fragmentHost;
     }
 
+    /**
+     * @since 1.1
+     */
     public void setFragmentHost ( final VersionRangedName fragmentHost )
     {
         this.fragmentHost = fragmentHost;
@@ -630,11 +639,17 @@ public class BundleInformation implements TranslatedInformation
         return this.requiredCapabilities;
     }
 
+    /**
+     * @since 1.1
+     */
     public void setEclipsePlatformFilter ( final String eclipsePlatformFilter )
     {
         this.eclipsePlatformFilter = eclipsePlatformFilter;
     }
 
+    /**
+     * @since 1.1
+     */
     public String getEclipsePlatformFilter ()
     {
         return this.eclipsePlatformFilter;
@@ -659,11 +674,17 @@ public class BundleInformation implements TranslatedInformation
         return ParserHelper.newGson ().toJson ( this );
     }
 
+    /**
+     * @since 1.1
+     */
     public void setSourceBunde ( final boolean source )
     {
         this.sourceBundle = source;
     }
 
+    /**
+     * @since 1.1
+     */
     public boolean isSourceBundle ()
     {
         return this.sourceBundle;
