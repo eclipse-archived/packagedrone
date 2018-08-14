@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2018 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm;
 
@@ -87,7 +88,19 @@ public enum RpmTag implements RpmBaseTag
     PAYLOAD_CODING ( 1125 ),
     PAYLOAD_FLAGS ( 1126 ),
     PLATFORM ( 1132 ),
-    LONGSIZE ( 5009 );
+    LONGSIZE ( 5009 ),
+    RECOMMEND_NAME ( 5046 ),
+    RECOMMEND_VERSION ( 5047 ),
+    RECOMMEND_FLAGS ( 5048 ),
+    SUGGEST_NAME ( 5049 ),
+    SUGGEST_VERSION ( 5050 ),
+    SUGGEST_FLAGS ( 5051 ),
+    SUPPLEMENT_NAME ( 5052 ),
+    SUPPLEMENT_VERSION ( 5053 ),
+    SUPPLEMENT_FLAGS ( 5054 ),
+    ENHANCE_NAME ( 5055 ),
+    ENHANCE_VERSION ( 5056 ),
+    ENHANCE_FLAGS ( 5057 );
 
     private Integer value;
 

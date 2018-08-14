@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2016, 2018 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.deps;
 
@@ -52,6 +53,26 @@ public final class Dependencies
         putDependencies ( header, obsoletes, RpmTag.OBSOLETE_NAME, RpmTag.OBSOLETE_VERSION, RpmTag.OBSOLETE_FLAGS );
     }
 
+    public static void putSuggests ( final Header<RpmTag> header, final Collection<Dependency> suggests )
+    {
+        putDependencies ( header, suggests, RpmTag.SUGGEST_NAME, RpmTag.SUGGEST_VERSION, RpmTag.SUGGEST_FLAGS );
+    }
+
+    public static void putRecommends ( final Header<RpmTag> header, final Collection<Dependency> recommends )
+    {
+        putDependencies ( header, recommends, RpmTag.RECOMMEND_NAME, RpmTag.RECOMMEND_VERSION, RpmTag.RECOMMEND_FLAGS );
+    }
+
+    public static void putSupplements ( final Header<RpmTag> header, final Collection<Dependency> supplements )
+    {
+        putDependencies ( header, supplements, RpmTag.SUPPLEMENT_NAME, RpmTag.SUPPLEMENT_VERSION, RpmTag.SUPPLEMENT_FLAGS );
+    }
+
+    public static void putEnhances ( final Header<RpmTag> header, final Collection<Dependency> enhances )
+    {
+        putDependencies ( header, enhances, RpmTag.ENHANCE_NAME, RpmTag.ENHANCE_VERSION, RpmTag.ENHANCE_FLAGS );
+    }
+
     private static void putDependencies ( final Header<RpmTag> header, final Collection<Dependency> dependencies, final RpmTag namesTag, final RpmTag versionsTag, final RpmTag flagsTag )
     {
         if ( dependencies.isEmpty () )
@@ -89,6 +110,26 @@ public final class Dependencies
     public static List<Dependency> getObsoletes ( final ReadableHeader<RpmTag> header )
     {
         return getDependencies ( header, RpmTag.OBSOLETE_NAME, RpmTag.OBSOLETE_VERSION, RpmTag.OBSOLETE_FLAGS );
+    }
+
+    public static List<Dependency> getSuggests ( final ReadableHeader<RpmTag> header )
+    {
+        return getDependencies ( header, RpmTag.SUGGEST_NAME, RpmTag.SUGGEST_VERSION, RpmTag.SUGGEST_FLAGS );
+    }
+
+    public static List<Dependency> getRecommends ( final ReadableHeader<RpmTag> header )
+    {
+        return getDependencies ( header, RpmTag.RECOMMEND_NAME, RpmTag.RECOMMEND_VERSION, RpmTag.RECOMMEND_FLAGS );
+    }
+
+    public static List<Dependency> getSupplements ( final ReadableHeader<RpmTag> header )
+    {
+        return getDependencies ( header, RpmTag.SUPPLEMENT_NAME, RpmTag.SUPPLEMENT_VERSION, RpmTag.SUPPLEMENT_FLAGS );
+    }
+
+    public static List<Dependency> getEnhances ( final ReadableHeader<RpmTag> header )
+    {
+        return getDependencies ( header, RpmTag.ENHANCE_NAME, RpmTag.ENHANCE_VERSION, RpmTag.ENHANCE_FLAGS );
     }
 
     private static List<Dependency> getDependencies ( final ReadableHeader<RpmTag> header, final RpmTag namesTag, final RpmTag versionsTag, final RpmTag flagsTag )

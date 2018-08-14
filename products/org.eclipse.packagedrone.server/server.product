@@ -18,7 +18,6 @@
    <windowImages/>
 
    <launcher>
-      <solaris/>
       <win useIco="false">
          <bmp/>
       </win>

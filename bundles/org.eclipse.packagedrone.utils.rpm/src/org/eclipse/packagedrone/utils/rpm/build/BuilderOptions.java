@@ -27,6 +27,8 @@ public class BuilderOptions
 
     private OpenOption[] openOptions;
 
+    private RpmFileNameProvider fileNameProvider = RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
+
     public BuilderOptions ()
     {
     }
@@ -63,5 +65,15 @@ public class BuilderOptions
         {
             this.openOptions = Arrays.copyOf ( openOptions, openOptions.length );
         }
+    }
+
+    public RpmFileNameProvider getFileNameProvider ()
+    {
+        return this.fileNameProvider;
+    }
+
+    public void setFileNameProvider ( final RpmFileNameProvider fileNameProvider )
+    {
+        this.fileNameProvider = fileNameProvider != null ? fileNameProvider : RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
     }
 }

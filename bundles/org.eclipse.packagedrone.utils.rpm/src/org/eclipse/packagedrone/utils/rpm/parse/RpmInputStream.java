@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBH SYSTEMS GmbH.
+ * Copyright (c) 2015, 2018 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Red Hat Inc
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.parse;
 
@@ -92,7 +93,7 @@ public class RpmInputStream extends InputStream
         if ( this.payloadStream == null )
         {
             this.payloadStream = setupPayloadStream ();
-            this.cpioStream = new CpioArchiveInputStream ( this.payloadStream ); // we did ensure that we only support CPIO before
+            this.cpioStream = new CpioArchiveInputStream ( this.payloadStream, "UTF-8" ); // we did ensure that we only support CPIO before
         }
     }
 

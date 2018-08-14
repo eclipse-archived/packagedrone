@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.tests;
 
+import static java.util.EnumSet.of;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -24,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.bouncycastle.openpgp.PGPException;
+import org.eclipse.packagedrone.utils.rpm.FileFlags;
 import org.eclipse.packagedrone.utils.rpm.HashAlgorithm;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
@@ -186,12 +189,12 @@ public class WriterTest
             } );
 
             ctx.addFile ( "/etc/test3/file1", IN_BASE.resolve ( "file1" ), BuilderContext.pathProvider ().customize ( finfo -> {
-                finfo.setConfiguration ( true );
+                finfo.setFileFlags ( of ( FileFlags.CONFIGURATION ) );
             } ) );
 
             ctx.addFile ( "/etc/test3/file2", new ByteArrayInputStream ( "foo".getBytes ( StandardCharsets.UTF_8 ) ), finfo -> {
                 finfo.setTimestamp ( LocalDateTime.of ( 2014, 1, 1, 0, 0 ).toInstant ( ZoneOffset.UTC ) );
-                finfo.setConfiguration ( true );
+                finfo.setFileFlags ( of ( FileFlags.CONFIGURATION ) );
             } );
 
             ctx.addSymbolicLink ( "/etc/test3/file3", "/etc/test3/file1" );
@@ -213,6 +216,8 @@ public class WriterTest
             outFile = builder.getTargetFile ();
 
             builder.build ();
+
+            System.out.format ( "Minimum required RPM version: %s%n", builder.getRequiredRpmVersion () );
         }
 
         try ( final RpmInputStream in = new RpmInputStream ( new BufferedInputStream ( Files.newInputStream ( outFile ) ) ) )
@@ -220,4 +225,51 @@ public class WriterTest
             Dumper.dumpAll ( in );
         }
     }
+
+    @Test
+    public void test4 () throws IOException, InterruptedException
+    {
+        final Path outFile;
+
+        try ( RpmBuilder builder = new RpmBuilder ( "test4", "1.0.0", "1", "noarch", OUT_BASE ) )
+        {
+            final PackageInformation pinfo = builder.getInformation ();
+
+            pinfo.setLicense ( "EPL" );
+            pinfo.setSummary ( "Foo bar" );
+            pinfo.setVendor ( "Eclipse Package Drone Project" );
+            pinfo.setDescription ( "This is a test package" );
+            pinfo.setDistribution ( "Eclipse Package Drone" );
+
+            // set some flags
+
+            builder.addConflicts ( "name-conflicts", "1.0", RpmDependencyFlags.LESS );
+            builder.addRequirement ( "name-requires", "1.0", RpmDependencyFlags.GREATER );
+            builder.addObsoletes ( "name-obsoletes", "1.0", RpmDependencyFlags.LESS );
+            builder.addProvides ( "name-provides", "1.0" );
+
+            builder.addSuggests ( "name-suggests", "1.0", RpmDependencyFlags.GREATER );
+            builder.addRecommends ( "name-recommends", "1.0", RpmDependencyFlags.GREATER );
+            builder.addSupplements ( "name-supplements", "1.0", RpmDependencyFlags.GREATER );
+            builder.addEnhances ( "name-enhances", "1.0", RpmDependencyFlags.GREATER );
+
+            // now do the build
+
+            outFile = builder.getTargetFile ();
+
+            builder.build ();
+
+            System.out.format ( "Minimum required RPM version: %s%n", builder.getRequiredRpmVersion () );
+        }
+
+        try ( final RpmInputStream in = new RpmInputStream ( new BufferedInputStream ( Files.newInputStream ( outFile ) ) ) )
+        {
+            Dumper.dumpAll ( in );
+        }
+
+        final ProcessBuilder pb = new ProcessBuilder ( "rpm", "-q", "--qf", "%{conflicts}\n%{requires}\n%{obsoletes}\n%{provides}\\n%{suggests}\\n%{recommends}\\n%{supplements}\\n%{enhances}", "-p", outFile.toString () );
+        pb.inheritIO ();
+        pb.start ().waitFor ();
+    }
+
 }

@@ -7,9 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
- *     Red Hat Inc - fix an issue with no-files RPMs
- *          - allowing the target name for the customizer
- *          - allow lead arch/os override
+ *     Red Hat Inc
  *     Yariv Amar - customize RPM final file name
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
@@ -44,7 +42,6 @@ import org.eclipse.packagedrone.utils.rpm.Architecture;
 import org.eclipse.packagedrone.utils.rpm.FileFlags;
 import org.eclipse.packagedrone.utils.rpm.OperatingSystem;
 import org.eclipse.packagedrone.utils.rpm.PathName;
-import org.eclipse.packagedrone.utils.rpm.RpmLead;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.RpmVersion;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
@@ -95,6 +92,51 @@ public class RpmBuilder implements AutoCloseable
     private interface RecorderFunction<T>
     {
         public Result record ( PayloadRecorder recorder, String targetName, T data, Consumer<CpioArchiveEntry> customizer ) throws IOException;
+    }
+
+    /**
+     * Known versions of RPM.
+     * <p>
+     * This is a enum of known versions of the RPM tool itself. It is incomplete
+     * and should be used to ensure compatibility of created RPM file with
+     * certain versions of RPM. The first known version we track is "4.11",
+     * which may not be correct either.
+     */
+    public static enum Version
+    {
+        V4_11 ( "4.11" ),
+        V4_12 ( "4.12" );
+
+        private final String versionString;
+
+        private Version ( final String versionString )
+        {
+            this.versionString = versionString;
+        }
+
+        @Override
+        public String toString ()
+        {
+            return this.versionString;
+        }
+
+        public static Optional<Version> fromVersionString ( final String versionString )
+        {
+            if ( versionString == null )
+            {
+                return Optional.empty ();
+            }
+
+            for ( final Version version : Version.values () )
+            {
+                if ( version.versionString.equals ( versionString ) )
+                {
+                    return Optional.of ( version );
+                }
+            }
+
+            return Optional.empty ();
+        }
     }
 
     public static class FileEntry
@@ -302,6 +344,8 @@ public class RpmBuilder implements AutoCloseable
 
         private String url;
 
+        private String sourcePackage;
+
         public void setDistribution ( final String distribution )
         {
             this.distribution = distribution;
@@ -401,6 +445,16 @@ public class RpmBuilder implements AutoCloseable
         {
             return this.url;
         }
+
+        public void setSourcePackage ( final String sourcePackage )
+        {
+            this.sourcePackage = sourcePackage;
+        }
+
+        public String getSourcePackage ()
+        {
+            return this.sourcePackage;
+        }
     }
 
     private static abstract class BuilderContextImpl implements BuilderContext
@@ -494,6 +548,14 @@ public class RpmBuilder implements AutoCloseable
 
     private final Set<Dependency> obsoletes = new HashSet<> ();
 
+    private final Set<Dependency> suggests = new HashSet<> ();
+
+    private final Set<Dependency> recommends = new HashSet<> ();
+
+    private final Set<Dependency> supplements = new HashSet<> ();
+
+    private final Set<Dependency> enhances = new HashSet<> ();
+
     private final Map<String, FileEntry> files = new HashMap<> ();
 
     private PackageInformation information = new PackageInformation ();
@@ -510,37 +572,9 @@ public class RpmBuilder implements AutoCloseable
 
     private OperatingSystem leadOverrideOperatingSystem;
 
-    private RpmFileNameProvider rpmFileNameProvider = LEGACY_FILENAME_PROVIDER;
+    private Version requiredRpmVersion = Version.V4_11;
 
-    /**
-     * this provider is the legacy file name format, using "-" before the "arch.rpm"
-     * it is here, and set as the default for backwards compatibility
-     */
-    public static final RpmFileNameProvider LEGACY_FILENAME_PROVIDER = new RpmFileNameProvider () {
-
-        @Override
-        public String getRpmFileName ( final RpmBuilder rpmBuilder )
-        {
-            final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( rpmBuilder.getName (), rpmBuilder.getVersion () ) );
-            sb.append ( '-' ).append ( rpmBuilder.getArchitecture () ).append ( ".rpm" );
-            return sb.toString ();
-        }
-    };
-
-    /**
-     * this rpm file name provider follows the standard RPM file name as
-     * {@code <name>-<version>-<release>.<architecture>.rpm}
-     */
-    public static final RpmFileNameProvider DEFAULT_FILENAME_PROVIDER = new RpmFileNameProvider () {
-
-        @Override
-        public String getRpmFileName ( final RpmBuilder rpmBuilder )
-        {
-            final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( rpmBuilder.getName (), rpmBuilder.getVersion () ) );
-            sb.append ( '.' ).append ( rpmBuilder.getArchitecture () ).append ( ".rpm" );
-            return sb.toString ();
-        }
-    };
+    private Consumer<Header<RpmTag>> headerCustomizer;
 
     public RpmBuilder ( final String name, final String version, final String release, final Path target ) throws IOException
     {
@@ -607,6 +641,14 @@ public class RpmBuilder implements AutoCloseable
         this.leadOverrideOperatingSystem = leadOverrideOperatingSystem;
     }
 
+    public void setHeaderCustomizer ( final Consumer<Header<RpmTag>> headerCustomizer )
+    {
+        this.headerCustomizer = headerCustomizer;
+    }
+
+    /**
+     * Fill extra requirements the RPM file itself may have
+     */
     private void fillRequirements ()
     {
         this.requirements.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
@@ -651,11 +693,16 @@ public class RpmBuilder implements AutoCloseable
         this.header.putI18nString ( RpmTag.GROUP, this.information.getGroup () );
         this.header.putString ( RpmTag.ARCH, this.architecture );
         this.header.putString ( RpmTag.OS, this.information.getOperatingSystem () );
+        this.header.putStringOptional ( RpmTag.SOURCE_PACKAGE, this.information.getSourcePackage () );
 
         Dependencies.putProvides ( this.header, this.provides );
         Dependencies.putRequirements ( this.header, this.requirements );
         Dependencies.putConflicts ( this.header, this.conflicts );
         Dependencies.putObsoletes ( this.header, this.obsoletes );
+        Dependencies.putSuggests ( this.header, this.suggests );
+        Dependencies.putRecommends ( this.header, this.recommends );
+        Dependencies.putSupplements ( this.header, this.supplements );
+        Dependencies.putEnhances ( this.header, this.enhances );
 
         if ( !this.files.isEmpty () )
         {
@@ -787,7 +834,7 @@ public class RpmBuilder implements AutoCloseable
 
     private String makeDefaultFileName ()
     {
-        return this.rpmFileNameProvider.getRpmFileName ( this );
+        return this.options.getFileNameProvider ().getRpmFileName ( this.name, this.version, this.architecture );
     }
 
     /**
@@ -860,7 +907,12 @@ public class RpmBuilder implements AutoCloseable
 
         leadBuilder.fillFlagsFromHeader ( this.header, createLeadArchitectureMapper (), createLeadOperatingSystemMapper () );
 
-        try ( RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.options.getOpenOptions () ) )
+        if ( this.headerCustomizer != null )
+        {
+            this.headerCustomizer.accept ( this.header );
+        }
+
+        try ( final RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.options.getOpenOptions () ) )
         {
             writer.addAllSignatureProcessors ( this.signatureProcessors );
             writer.setPayload ( this.recorder );
@@ -897,6 +949,16 @@ public class RpmBuilder implements AutoCloseable
         this.recorder.close ();
     }
 
+    private void triggerVersion ( final Version version )
+    {
+        if ( version.compareTo ( this.requiredRpmVersion ) <= 0 )
+        {
+            return;
+        }
+
+        this.requiredRpmVersion = version;
+    }
+
     public void addRequirement ( final String name, final String version, final RpmDependencyFlags... flags )
     {
         this.requirements.add ( new Dependency ( name, version, flags ) );
@@ -915,6 +977,30 @@ public class RpmBuilder implements AutoCloseable
     public void addObsoletes ( final String name, final String version, final RpmDependencyFlags... flags )
     {
         this.obsoletes.add ( new Dependency ( name, version, flags ) );
+    }
+
+    public void addSuggests ( final String name, final String version, final RpmDependencyFlags... flags )
+    {
+        triggerVersion ( Version.V4_12 );
+        this.suggests.add ( new Dependency ( name, version, flags ) );
+    }
+
+    public void addRecommends ( final String name, final String version, final RpmDependencyFlags... flags )
+    {
+        triggerVersion ( Version.V4_12 );
+        this.recommends.add ( new Dependency ( name, version, flags ) );
+    }
+
+    public void addSupplements ( final String name, final String version, final RpmDependencyFlags... flags )
+    {
+        triggerVersion ( Version.V4_12 );
+        this.supplements.add ( new Dependency ( name, version, flags ) );
+    }
+
+    public void addEnhances ( final String name, final String version, final RpmDependencyFlags... flags )
+    {
+        triggerVersion ( Version.V4_12 );
+        this.enhances.add ( new Dependency ( name, version, flags ) );
     }
 
     private void addFile ( final String targetName, final Path sourcePath, final int mode, final Instant mtime, final Consumer<FileEntry> customizer ) throws IOException
@@ -1174,17 +1260,16 @@ public class RpmBuilder implements AutoCloseable
         }
     }
 
-    public void setRpmFileNameProvider ( final RpmFileNameProvider provider )
+    /**
+     * Return the minimum required version of RPM for supporting all features of
+     * this generated RPM.
+     *
+     * @return After the method {@link #build()} was called it returns the
+     *         minimum required version of RPM. Before it will return the
+     *         default version {@link Version#V4_11}.
+     */
+    public Version getRequiredRpmVersion ()
     {
-        if ( provider == null )
-        {
-            throw new IllegalArgumentException ( "RPM file name provider must not be null, " );
-        }
-        this.rpmFileNameProvider = provider;
-    }
-
-    public RpmFileNameProvider getRpmFileNameProvider ()
-    {
-        return this.rpmFileNameProvider;
+        return this.requiredRpmVersion;
     }
 }

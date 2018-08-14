@@ -3,7 +3,7 @@
       id="org.eclipse.packagedrone.product.server.root"
       label="Package Drone Server Runtme Root Files"
       version="1.0.0.qualifier"
-      provider-name="IBH SYSTEMS GmbH">
+      provider-name="Eclipse Package Drone">
 
    <description>
       Eclipse Package Drone Server Product - root files

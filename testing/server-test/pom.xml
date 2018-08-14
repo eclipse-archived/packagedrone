@@ -100,7 +100,7 @@
 		<dependency>
 			<groupId>org.eclipse.packagedrone</groupId>
 			<artifactId>org.eclipse.packagedrone.repo.api</artifactId>
-			<version>${project.version}</version>
+			<version>0.14.2</version>
 		</dependency>
 	</dependencies>
 
