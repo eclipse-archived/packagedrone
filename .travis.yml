@@ -9,20 +9,6 @@ env:
    global:
       secure: "djD5g15xDWYZ4aIJ/iSiKOcOYFAYYKbKqNXA1W4wUvqa7xuNBs892Puqd6xHrEG48+69XtwpvggwlbULCHB+NfyCjCT9PKn/N0MuLTcgdPq89QOaeskOqC/mFOkBEaXeNudQdbcbygeNdSYzcK9GyqhyS5USzZlNLymjxK+nkzyG9yeOZknKXSGNxISSscZtE3xliozBLzENlKWFnFc9kuDOSPX8+8FdMMYy90nEqTEoxsomHJDBijWanf2a+VyB/cmEvy/Y2KjZoSrGaxPiQ7i6xzkadCKI1hkE5Br4YzT49Si6wEWxKmOKqsqpKDKBUuRnSRlRJMA4nGle/TpPDFO3vfEv8pdbjwhB/8+c9OOU607w6tnhQ6iVY2hZbozRcbFTSGUVQpYLuWWzIu5qrMwtIFiZ9KS7Avrf6y6lixH0eOUW6mzQqd/7JET/0PHjwzNCMCb/qyqvuYaxLIcpTMHdhUZ+2FFwrds4WpsIcq2+QtGbth0hMUrxMWtzlR4+vsCfrEh7LBAXQlteNBQKh7rCJR4JJGskgWKgdd1kDdKBcsmIcEDLY1ARnSWvb/vq8xd90DSCHkm26emfO2jf/tAshTpLq3X0h6bbi8BgKca2yKCPTBPCxVYLFjsQjGay7DpDh0ElKFFDJ8Z2PrBqQDh6CaXPorXiQcgpm2wPXR4="
 
-before_install:
- - wget -O maven.tar.gz http://www-eu.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
- - mkdir maven
- - cd maven ; tar --strip-components 1 -xzf ../maven.tar.gz ; cd ..
- - chmod a+x maven/bin/mvn
- - export M2_HOME=$PWD/maven
- - export PATH=$PWD/maven/bin:${PATH}
- - hash -r
-
-before_script:
- - export M2_HOME=$PWD/maven
- - export PATH=$PWD/maven/bin:${PATH}
- - hash -r
-
 install:
  - cd runtime && travis_retry mvn package && cd ..
 
