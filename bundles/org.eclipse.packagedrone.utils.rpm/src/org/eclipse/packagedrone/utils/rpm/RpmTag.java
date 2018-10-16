@@ -89,6 +89,7 @@ public enum RpmTag implements RpmBaseTag
     PAYLOAD_FLAGS ( 1126 ),
     PLATFORM ( 1132 ),
     LONGSIZE ( 5009 ),
+    FILE_DIGESTALGO ( 5011 ),
     RECOMMEND_NAME ( 5046 ),
     RECOMMEND_VERSION ( 5047 ),
     RECOMMEND_FLAGS ( 5048 ),

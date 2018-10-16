@@ -12,6 +12,7 @@ package org.eclipse.packagedrone.utils.rpm.build;
 
 import java.io.IOException;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Optional;
 
 public interface PayloadProvider
 {
@@ -44,4 +45,25 @@ public interface PayloadProvider
      *             if anything goes wrong
      */
     public long getArchiveSize () throws IOException;
+
+    /**
+     * The compression method for this compressed archive file
+     *
+     * @return the compression method for this compressed archive file
+     */
+    String getPayloadCoding ();
+
+    /**
+     * The compression flags for this compressed archive file, if any
+     *
+     * @return the compression flags for this compressed archive file, if any
+     */
+    Optional<String> getPayloadFlags ();
+
+    /**
+     * The algorithm to used for generating file checksum digests as defined in {@link org.bouncycastle.bcpg.HashAlgorithmTags}
+     *
+     * @return the algorithm to used for generating file checksum digests as defined in {@link org.bouncycastle.bcpg.HashAlgorithmTags}
+     */
+    Integer getFileDigestAlgorithm ();
 }

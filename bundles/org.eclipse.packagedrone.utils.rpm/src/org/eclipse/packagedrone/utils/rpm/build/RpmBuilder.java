@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -38,6 +39,8 @@ import java.util.function.ToLongFunction;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
+import org.apache.commons.compress.compressors.zstandard.ZstdUtils;
+import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.eclipse.packagedrone.utils.rpm.Architecture;
 import org.eclipse.packagedrone.utils.rpm.FileFlags;
 import org.eclipse.packagedrone.utils.rpm.OperatingSystem;
@@ -136,6 +139,89 @@ public class RpmBuilder implements AutoCloseable
             }
 
             return Optional.empty ();
+        }
+    }
+
+    public static class Feature
+    {
+        private String name;
+
+        private String evr;
+
+        private EnumSet<RpmDependencyFlags> flags;
+
+        private String description;
+
+        public Feature ()
+        {
+
+        }
+
+        public Feature ( String name, String evr, EnumSet<RpmDependencyFlags> flags, String description )
+        {
+            this.name = name;
+            this.evr = evr;
+            this.flags = flags;
+            this.description = description;
+        }
+
+        public String getName ()
+        {
+            return name;
+        }
+
+        public void setName ( String name )
+        {
+            this.name = name;
+        }
+
+        public String getEvr ()
+        {
+            return evr;
+        }
+
+        public void setEvr ( String evr )
+        {
+            this.evr = evr;
+        }
+
+        public EnumSet<RpmDependencyFlags> getFlags ()
+        {
+            return flags;
+        }
+
+        public void setFlags( EnumSet<RpmDependencyFlags> flags )
+        {
+            this.flags = flags;
+        }
+
+        public String getDescription ()
+        {
+            return description;
+        }
+
+        public void setDescription( String description )
+        {
+            this.description = description;
+        }
+    }
+
+    public static List<Feature> features = new ArrayList<> ();
+
+    static
+    {
+        features.add ( new Feature ( "rpmlib(VersionedDependencies)", "3.0.3-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "PreReq:, Provides:, and Obsoletes: dependencies support versions." ) );
+        features.add ( new Feature ( "rpmlib(CompressedFileNames)", "3.0.4-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "file name(s) stored as (dirName,baseName,dirIndex) tuple, not as path." ) );
+        features.add ( new Feature ( "rpmlib(PayloadIsBzip2)", "3.0.5-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload can be compressed using bzip2." ) );
+        features.add ( new Feature ( "rpmlib(ExplicitPackageProvide)", "4.0-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package name-version-release is not implicitly provided." ) );
+        features.add ( new Feature ( "rpmlib(HeaderLoadSortsTags)", "4.0.1-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "header tags are always sorted after being loaded." ) );
+        features.add ( new Feature ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload file(s) have \"./\" prefix." ) );
+        features.add ( new Feature ( "rpmlib(PayloadIsLzma)", "4.4.2-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload can be compressed using lzma." ) );
+        features.add ( new Feature ( "rpmlib(PayloadIsXz)", "5.2-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload can be compressed using xz." ) );
+
+        if ( ZstdUtils.isZstdCompressionAvailable () )
+        {
+            features.add ( new Feature ( "rpmlib(PayloadIsZstd)", "5.4.18-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload can be compressed using zstd." ) );
         }
     }
 
@@ -603,7 +689,7 @@ public class RpmBuilder implements AutoCloseable
 
         this.targetFile = makeTargetFile ( targetFile );
 
-        this.recorder = new PayloadRecorder ( true );
+        this.recorder = new PayloadRecorder ( true, this.options.getPayloadCoding (), this.options.getPayloadFlags (), this.options.getFileDigestAlgorithm () );
 
         addDefaultSignatureProcessors ();
     }
@@ -626,8 +712,9 @@ public class RpmBuilder implements AutoCloseable
     public void addDefaultSignatureProcessors ()
     {
         addSignatureProcessor ( SignatureProcessors.size () );
-        addSignatureProcessor ( SignatureProcessors.md5 () );
+        addSignatureProcessor ( SignatureProcessors.sha256Header () );
         addSignatureProcessor ( SignatureProcessors.sha1Header () );
+        addSignatureProcessor ( SignatureProcessors.md5 () );
         addSignatureProcessor ( SignatureProcessors.payloadSize () );
     }
 
@@ -651,8 +738,34 @@ public class RpmBuilder implements AutoCloseable
      */
     private void fillRequirements ()
     {
-        this.requirements.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
         this.requirements.add ( new Dependency ( "rpmlib(CompressedFileNames)", "3.0.4-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+
+        if ( !this.options.getFileDigestAlgorithm ().equals ( HashAlgorithmTags.MD5 ) )
+        {
+            this.requirements.add ( new Dependency ( "rpmlib(FileDigests)", "4.6.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+        }
+
+        this.requirements.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+
+        switch ( options.getPayloadCoding() )
+        {
+            case "none":
+                break;
+            case "gzip":
+                break;
+            case "bzip2":
+                this.requirements.add ( new Dependency ( "rpmlib(PayloadIsBzip2)", "3.0.5-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+                break;
+            case "lzma":
+                this.requirements.add ( new Dependency ( "rpmlib(PayloadIsLzma)", "4.4.6-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+                break;
+            case "xz":
+                this.requirements.add ( new Dependency ( "rpmlib(PayloadIsXz)", "5.2-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+                break;
+            case "zstd":
+                this.requirements.add ( new Dependency ( "rpmlib(PayloadIsZstd)", "5.4.18-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+                break;
+        }
     }
 
     private void fillProvides ()
@@ -663,8 +776,17 @@ public class RpmBuilder implements AutoCloseable
     private void fillHeader ()
     {
         this.header.putString ( RpmTag.PAYLOAD_FORMAT, "cpio" );
-        this.header.putString ( RpmTag.PAYLOAD_CODING, "gzip" );
-        this.header.putString ( RpmTag.PAYLOAD_FLAGS, "9" );
+
+        if ( !recorder.getPayloadCoding ().equals ( "none" ) )
+        {
+            this.header.putString ( RpmTag.PAYLOAD_CODING, recorder.getPayloadCoding () );
+        }
+
+        if ( recorder.getPayloadFlags ().isPresent () )
+        {
+            this.header.putString ( RpmTag.PAYLOAD_FLAGS, recorder.getPayloadFlags ().get () );
+        }
+
         this.header.putStringArray ( 100, "C" );
 
         this.header.putString ( RpmTag.NAME, this.name );
@@ -706,6 +828,11 @@ public class RpmBuilder implements AutoCloseable
 
         if ( !this.files.isEmpty () )
         {
+            if ( !this.options.getFileDigestAlgorithm ().equals ( HashAlgorithmTags.MD5 ) )
+            {
+               this.header.putInt ( RpmTag.FILE_DIGESTALGO, this.options.getFileDigestAlgorithm () );
+            }
+
             final FileEntry[] files = this.files.values ().toArray ( new FileEntry[this.files.size ()] );
             Arrays.sort ( files, comparing ( FileEntry::getTargetName ) );
 
@@ -1126,7 +1253,7 @@ public class RpmBuilder implements AutoCloseable
 
         entry.setSize ( result.getSize () );
         entry.setTargetSize ( result.getSize () );
-        entry.setDigest ( result.getSha1 () != null ? Rpms.toHex ( result.getSha1 () ).toLowerCase () : "" );
+        entry.setDigest ( result.getDigest () != null ? Rpms.toHex ( result.getDigest () ).toLowerCase () : "" );
         entry.setTargetName ( targetName );
 
         // run customizer

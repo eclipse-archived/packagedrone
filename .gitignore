@@ -1,2 +1,5 @@
+.settings/
 target/
+.classpath
 .polyglot.build.properties
+.project

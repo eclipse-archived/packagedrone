@@ -21,6 +21,10 @@ import java.util.Arrays;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
+import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdUtils;
 import org.eclipse.packagedrone.utils.rpm.RpmBaseTag;
 import org.eclipse.packagedrone.utils.rpm.RpmLead;
 import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
@@ -28,8 +32,6 @@ import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tukaani.xz.LZMAInputStream;
-import org.tukaani.xz.XZInputStream;
 
 import com.google.common.io.CountingInputStream;
 
@@ -122,7 +124,7 @@ public class RpmInputStream extends InputStream
 
         if ( payloadCoding == null || payloadCoding.isEmpty () )
         {
-            payloadCoding = "gzip";
+            payloadCoding = "none";
         }
 
         if ( !"cpio".equals ( payloadFormat ) )
@@ -139,9 +141,16 @@ public class RpmInputStream extends InputStream
             case "bzip2":
                 return new BZip2CompressorInputStream ( this.in );
             case "lzma":
-                return new LZMAInputStream ( this.in );
+                return new LZMACompressorInputStream ( this.in );
             case "xz":
-                return new XZInputStream ( this.in );
+                return new XZCompressorInputStream ( this.in );
+            case "zstd":
+                if ( !ZstdUtils.isZstdCompressionAvailable () )
+                {
+                    throw new IOException( "Zstandard compression is not available" );
+                }
+
+                return new ZstdCompressorInputStream ( this.in );
             default:
                 throw new IOException ( String.format ( "Unknown coding: %s", payloadCoding ) );
         }

@@ -14,6 +14,8 @@ import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
+import org.bouncycastle.bcpg.HashAlgorithmTags;
+
 /**
  * Options which control the build process of the {@link RpmBuilder}
  * <p>
@@ -29,6 +31,12 @@ public class BuilderOptions
 
     private RpmFileNameProvider fileNameProvider = RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
 
+    private String payloadCoding = "gzip";
+
+    private String payloadFlags;
+
+    private Integer fileDigestAlgorithm = HashAlgorithmTags.MD5;
+
     public BuilderOptions ()
     {
     }
@@ -37,6 +45,9 @@ public class BuilderOptions
     {
         setLongMode ( other.longMode );
         setOpenOptions ( other.openOptions );
+        setPayloadCoding ( other.payloadCoding );
+        setPayloadFlags ( other.payloadFlags );
+        setFileDigestAlgorithm ( other.fileDigestAlgorithm );
     }
 
     public LongMode getLongMode ()
@@ -75,5 +86,35 @@ public class BuilderOptions
     public void setFileNameProvider ( final RpmFileNameProvider fileNameProvider )
     {
         this.fileNameProvider = fileNameProvider != null ? fileNameProvider : RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
+    }
+
+    public String getPayloadCoding ()
+    {
+        return this.payloadCoding;
+    }
+
+    public void setPayloadCoding ( final String payloadCoding )
+    {
+        this.payloadCoding = payloadCoding == null ? "gzip" : payloadCoding;
+    }
+
+    public String getPayloadFlags ()
+    {
+        return this.payloadFlags;
+    }
+
+    public void setPayloadFlags ( final String payloadFlags )
+    {
+        this.payloadFlags = payloadFlags;
+    }
+
+    public Integer getFileDigestAlgorithm ()
+    {
+        return this.fileDigestAlgorithm;
+    }
+
+    public void setFileDigestAlgorithm ( Integer fileDigestAlgorithm )
+    {
+        this.fileDigestAlgorithm = fileDigestAlgorithm == null ? HashAlgorithmTags.MD5 : fileDigestAlgorithm;
     }
 }

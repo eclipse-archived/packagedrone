@@ -26,12 +26,23 @@ import java.nio.file.StandardOpenOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.zip.GZIPOutputStream;
+import java.util.zip.Deflater;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipParameters;
+import org.apache.commons.compress.compressors.lzma.LZMACompressorOutputStream;
+import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdUtils;
+import org.apache.commons.compress.utils.CharsetNames;
+import org.bouncycastle.bcpg.HashAlgorithmTags;
+import org.tukaani.xz.LZMA2Options;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingOutputStream;
@@ -42,12 +53,12 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     {
         private final long size;
 
-        private final byte[] sha1;
+        private final byte[] digest;
 
-        private Result ( final long size, final byte[] sha1 )
+        private Result ( final long size, final byte[] digest )
         {
             this.size = size;
-            this.sha1 = sha1;
+            this.digest = digest;
         }
 
         public long getSize ()
@@ -55,9 +66,9 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
             return this.size;
         }
 
-        public byte[] getSha1 ()
+        public byte[] getDigest ()
         {
-            return this.sha1;
+            return this.digest;
         }
     }
 
@@ -77,12 +88,25 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     private boolean closed;
 
+    private String payloadCoding;
+
+    private Optional<String> payloadFlags;
+
+    private Integer fileDigestAlgorithm;
+
+    private String fileDigestAlgorithmName;
+
     public PayloadRecorder () throws IOException
     {
-        this ( true );
+        this ( true, "gzip", null, HashAlgorithmTags.MD5  );
     }
 
     public PayloadRecorder ( final boolean autoFinish ) throws IOException
+    {
+        this ( autoFinish, "gzip", null, HashAlgorithmTags.MD5 );
+    }
+
+    public PayloadRecorder ( final boolean autoFinish, final String payloadCoding, final String payloadFlags, final Integer fileDigestAlgorithm ) throws IOException
     {
         this.autoFinish = autoFinish;
 
@@ -94,12 +118,137 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
             this.payloadCounter = new CountingOutputStream ( this.fileStream );
 
-            final GZIPOutputStream payloadStream = new GZIPOutputStream ( this.payloadCounter );
+            final OutputStream payloadStream;
+
+            this.payloadCoding = payloadCoding;
+
+            this.payloadFlags = Optional.ofNullable ( payloadFlags );
+
+            switch ( this.payloadCoding )
+            {
+                case "none":
+                    payloadStream = this.payloadCounter;
+                    break;
+                case "gzip":
+                    GzipParameters parameters = new GzipParameters ();
+                    int compressionLevel;
+
+                    if ( this.payloadFlags.isPresent () )
+                    {
+                        compressionLevel = Integer.parseInt ( this.payloadFlags.get ().substring ( 0, 1 ) );
+                    }
+                    else
+                    {
+                        compressionLevel = Deflater.BEST_COMPRESSION;
+                        this.payloadFlags = Optional.ofNullable ( String.valueOf ( compressionLevel ) );
+                    }
+
+                    parameters.setCompressionLevel ( compressionLevel );
+
+                    payloadStream = new GzipCompressorOutputStream ( this.payloadCounter, parameters );
+                    break;
+                case "bzip2":
+                    int blockSize;
+
+                    if ( this.payloadFlags.isPresent () )
+                    {
+                        blockSize = Integer.parseInt ( this.payloadFlags.get ().substring ( 0, 1 ) );
+                    }
+                    else
+                    {
+                        blockSize = BZip2CompressorOutputStream.MAX_BLOCKSIZE;
+                        this.payloadFlags = Optional.ofNullable ( String.valueOf ( blockSize ) );
+                    }
+
+                    payloadStream = new BZip2CompressorOutputStream ( this.payloadCounter, blockSize );
+                    break;
+                case "lzma":
+                    payloadStream = new LZMACompressorOutputStream ( this.payloadCounter );
+                    break;
+                case "xz":
+                    int preset;
+
+                    if ( this.payloadFlags.isPresent () )
+                    {
+                        preset = Integer.parseInt ( this.payloadFlags.get ().substring ( 0, 1 ) );
+                    }
+                    else
+                    {
+                        preset = LZMA2Options.PRESET_DEFAULT;
+                        this.payloadFlags = Optional.ofNullable ( String.valueOf ( preset ) );
+                    }
+
+                    payloadStream = new XZCompressorOutputStream ( this.payloadCounter, preset );
+                    break;
+                case "zstd":
+                    if ( !ZstdUtils.isZstdCompressionAvailable () )
+                    {
+                        throw new IOException( "Zstandard compression is not available" );
+                    }
+
+                    int level;
+
+                    if ( this.payloadFlags.isPresent () )
+                    {
+                        level = Integer.parseInt ( this.payloadFlags.get ().substring ( 0, 1 ) );
+                    }
+                    else
+                    {
+                        level = 3;
+                    }
+
+                    payloadStream = new ZstdCompressorOutputStream ( this.payloadCounter, level );
+                    break;
+                default:
+                    throw new IOException ( String.format ( "Unknown payload coding: %s", payloadCoding ) );
+            }
+
+            this.fileDigestAlgorithm = fileDigestAlgorithm;
+
+            switch ( this.fileDigestAlgorithm )
+            {
+                case HashAlgorithmTags.MD5:
+                    this.fileDigestAlgorithmName = "MD5";
+                    break;
+                case HashAlgorithmTags.SHA1:
+                    this.fileDigestAlgorithmName = "SHA-1";
+                    break;
+                case HashAlgorithmTags.RIPEMD160:
+                    this.fileDigestAlgorithmName = "RIPE-MD160";
+                    break;
+                case HashAlgorithmTags.DOUBLE_SHA:
+                    this.fileDigestAlgorithmName = "Double-SHA";
+                    break;
+                case HashAlgorithmTags.MD2:
+                    this.fileDigestAlgorithmName = "MD2";
+                    break;
+                case HashAlgorithmTags.TIGER_192:
+                    this.fileDigestAlgorithmName = "Tiger-192";
+                    break;
+                case HashAlgorithmTags.HAVAL_5_160:
+                    this.fileDigestAlgorithmName = "Haval-5-160";
+                    break;
+                case HashAlgorithmTags.SHA256:
+                    this.fileDigestAlgorithmName = "SHA-256";
+                    break;
+                case HashAlgorithmTags.SHA384:
+                    this.fileDigestAlgorithmName = "SHA-384";
+                    break;
+                case HashAlgorithmTags.SHA512:
+                    this.fileDigestAlgorithmName = "SHA-512";
+                    break;
+                case HashAlgorithmTags.SHA224:
+                    this.fileDigestAlgorithmName = "SHA-224";
+                    break;
+                default:
+                    throw new IOException ( "Unknown file digest algorithm: " + this.fileDigestAlgorithm );
+            }
+
             this.archiveCounter = new CountingOutputStream ( payloadStream );
 
             // setup archive stream
 
-            this.archiveStream = new CpioArchiveOutputStream ( this.archiveCounter, CpioConstants.FORMAT_NEW, 4, "UTF-8" );
+            this.archiveStream = new CpioArchiveOutputStream ( this.archiveCounter, CpioConstants.FORMAT_NEW, 4, CharsetNames.UTF_8 );
         }
         catch ( final IOException e )
         {
@@ -117,7 +266,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     {
         final long size = Files.size ( path );
 
-        final CpioArchiveEntry entry = new CpioArchiveEntry ( targetPath );
+        final CpioArchiveEntry entry = new CpioArchiveEntry ( CpioConstants.FORMAT_NEW, targetPath );
         entry.setSize ( size );
 
         if ( customizer != null )
@@ -156,7 +305,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     {
         final long size = data.remaining ();
 
-        final CpioArchiveEntry entry = new CpioArchiveEntry ( targetPath );
+        final CpioArchiveEntry entry = new CpioArchiveEntry ( CpioConstants.FORMAT_NEW, targetPath );
         entry.setSize ( size );
 
         if ( customizer != null )
@@ -196,7 +345,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     private MessageDigest createDigest () throws NoSuchAlgorithmException
     {
-        return MessageDigest.getInstance ( "MD5" );
+        return MessageDigest.getInstance ( this.fileDigestAlgorithmName );
     }
 
     public Result addFile ( final String targetPath, final InputStream stream ) throws IOException
@@ -224,7 +373,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     public Result addDirectory ( final String targetPath, final Consumer<CpioArchiveEntry> customizer ) throws IOException
     {
-        final CpioArchiveEntry entry = new CpioArchiveEntry ( targetPath );
+        final CpioArchiveEntry entry = new CpioArchiveEntry ( CpioConstants.FORMAT_NEW, targetPath );
 
         if ( customizer != null )
         {
@@ -241,7 +390,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     {
         final byte[] bytes = linkTo.getBytes ( StandardCharsets.UTF_8 );
 
-        final CpioArchiveEntry entry = new CpioArchiveEntry ( targetPath );
+        final CpioArchiveEntry entry = new CpioArchiveEntry ( CpioConstants.FORMAT_NEW, targetPath );
         entry.setSize ( bytes.length );
 
         if ( customizer != null )
@@ -294,6 +443,24 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     }
 
     @Override
+    public String getPayloadCoding ()
+    {
+        return this.payloadCoding;
+    }
+
+    @Override
+    public Optional<String> getPayloadFlags ()
+    {
+        return this.payloadFlags;
+    }
+
+    @Override
+    public Integer getFileDigestAlgorithm ()
+    {
+        return this.fileDigestAlgorithm;
+    }
+
+    @Override
     public FileChannel openChannel () throws IOException
     {
         checkFinished ( true );
@@ -339,5 +506,4 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
             Files.deleteIfExists ( this.tempFile );
         }
     }
-
 }
