@@ -126,9 +126,6 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
             switch ( this.payloadCoding )
             {
-                case "none":
-                    payloadStream = this.payloadCounter;
-                    break;
                 case "gzip":
                     GzipParameters parameters = new GzipParameters ();
                     int compressionLevel;

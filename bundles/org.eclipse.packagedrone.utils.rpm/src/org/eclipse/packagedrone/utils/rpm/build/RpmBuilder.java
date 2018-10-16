@@ -749,8 +749,6 @@ public class RpmBuilder implements AutoCloseable
 
         switch ( options.getPayloadCoding() )
         {
-            case "none":
-                break;
             case "gzip":
                 break;
             case "bzip2":
@@ -777,10 +775,7 @@ public class RpmBuilder implements AutoCloseable
     {
         this.header.putString ( RpmTag.PAYLOAD_FORMAT, "cpio" );
 
-        if ( !recorder.getPayloadCoding ().equals ( "none" ) )
-        {
-            this.header.putString ( RpmTag.PAYLOAD_CODING, recorder.getPayloadCoding () );
-        }
+        this.header.putString ( RpmTag.PAYLOAD_CODING, recorder.getPayloadCoding () );
 
         if ( recorder.getPayloadFlags ().isPresent () )
         {

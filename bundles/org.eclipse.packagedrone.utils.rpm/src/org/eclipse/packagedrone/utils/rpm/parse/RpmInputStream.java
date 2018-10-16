@@ -124,7 +124,7 @@ public class RpmInputStream extends InputStream
 
         if ( payloadCoding == null || payloadCoding.isEmpty () )
         {
-            payloadCoding = "none";
+            payloadCoding = "gzip";
         }
 
         if ( !"cpio".equals ( payloadFormat ) )
@@ -134,8 +134,6 @@ public class RpmInputStream extends InputStream
 
         switch ( payloadCoding )
         {
-            case "none":
-                return this.in;
             case "gzip":
                 return new GzipCompressorInputStream ( this.in );
             case "bzip2":
