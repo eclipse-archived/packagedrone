@@ -250,7 +250,7 @@
             <!-- common -->
             
             <mavenGet group="commons-io" artifact="commons-io" version="2.4" />
-            <mavenGet group="org/apache/commons" artifact="commons-compress" version="1.9"/>
+            <mavenGet group="org/apache/commons" artifact="commons-compress" version="1.18"/>
             
             <!-- for jdeb -->
             
