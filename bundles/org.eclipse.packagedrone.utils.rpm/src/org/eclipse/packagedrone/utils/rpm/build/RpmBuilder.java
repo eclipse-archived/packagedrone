@@ -108,7 +108,8 @@ public class RpmBuilder implements AutoCloseable
     public static enum Version
     {
         V4_11 ( "4.11" ),
-        V4_12 ( "4.12" );
+        V4_12 ( "4.12" ),
+        V4_14 ( "4.14" );
 
         private final String versionString;
 
