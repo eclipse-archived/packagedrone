@@ -24,7 +24,7 @@ public interface RpmFileNameProvider
      * <p>
      * this provider is the legacy file name format, using "-" before the
      * "arch.rpm" it is here, and set as the default for backwards compatibility
-     * <p>
+     * </p>
      */
     public static final RpmFileNameProvider LEGACY_FILENAME_PROVIDER = ( name, version, architecture ) -> {
         final StringBuilder sb = new StringBuilder ( RpmLead.toLeadName ( name, version ) );
