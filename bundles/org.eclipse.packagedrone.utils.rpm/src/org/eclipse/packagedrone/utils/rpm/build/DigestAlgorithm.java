@@ -50,11 +50,11 @@ public enum DigestAlgorithm
 
     public static DigestAlgorithm fromTag ( int tag ) throws IOException
     {
-        for ( DigestAlgorithm DigestAlgorithm : DigestAlgorithm.values () )
+        for ( DigestAlgorithm digestAlgorithm : DigestAlgorithm.values () )
         {
-            if ( tag == DigestAlgorithm.getTag () )
+            if ( tag == digestAlgorithm.getTag () )
             {
-                return DigestAlgorithm;
+                return digestAlgorithm;
             }
         }
 
