@@ -29,7 +29,7 @@ public class BuilderOptions
 
     private RpmFileNameProvider fileNameProvider = RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
 
-    private String payloadCoding = "gzip";
+    private PayloadCoding payloadCoding = PayloadCoding.GZIP;
 
     private String payloadFlags;
 
@@ -86,12 +86,12 @@ public class BuilderOptions
         this.fileNameProvider = fileNameProvider != null ? fileNameProvider : RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
     }
 
-    public String getPayloadCoding ()
+    public PayloadCoding getPayloadCoding ()
     {
         return this.payloadCoding;
     }
 
-    public void setPayloadCoding ( final String payloadCoding )
+    public void setPayloadCoding ( final PayloadCoding payloadCoding )
     {
         this.payloadCoding = payloadCoding;
     }

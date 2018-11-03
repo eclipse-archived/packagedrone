@@ -51,7 +51,7 @@ public interface PayloadProvider
      *
      * @return the compression method for this compressed archive file
      */
-    String getPayloadCoding ();
+    PayloadCoding getPayloadCoding ();
 
     /**
      * The compression flags for this compressed archive file, if any

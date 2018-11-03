@@ -78,7 +78,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     private boolean closed;
 
-    private String payloadCoding;
+    private PayloadCoding payloadCoding;
 
     private Optional<String> payloadFlags;
 
@@ -88,15 +88,15 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     public PayloadRecorder () throws IOException
     {
-        this ( true, "gzip", null, DigestAlgorithm.MD5  );
+        this ( true, PayloadCoding.GZIP, null, DigestAlgorithm.MD5  );
     }
 
     public PayloadRecorder ( final boolean autoFinish ) throws IOException
     {
-        this ( autoFinish, "gzip", null, DigestAlgorithm.MD5 );
+        this ( autoFinish, PayloadCoding.GZIP, null, DigestAlgorithm.MD5 );
     }
 
-    public PayloadRecorder ( final boolean autoFinish, final String payloadCoding, final String payloadFlags, final DigestAlgorithm fileDigestAlgorithm ) throws IOException
+    public PayloadRecorder ( final boolean autoFinish, final PayloadCoding payloadCoding, final String payloadFlags, final DigestAlgorithm fileDigestAlgorithm ) throws IOException
     {
         this.autoFinish = autoFinish;
 
@@ -315,7 +315,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     }
 
     @Override
-    public String getPayloadCoding ()
+    public PayloadCoding getPayloadCoding ()
     {
         return this.payloadCoding;
     }

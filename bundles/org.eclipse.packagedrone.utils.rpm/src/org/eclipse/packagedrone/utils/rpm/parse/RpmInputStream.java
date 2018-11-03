@@ -132,12 +132,18 @@ public class RpmInputStream extends InputStream
             throw new IOException ( "Payload coding must be a single string" );
         }
 
+        final PayloadCoding coding;
+
         if ( payloadCoding == null )
         {
-            payloadCoding = "gzip";
+            coding = PayloadCoding.GZIP;
+        }
+        else
+        {
+            coding = PayloadCoding.fromCoding ( payloadCoding );
         }
 
-        return PayloadCoding.createInputStream ( payloadCoding, this.in );
+        return PayloadCoding.createInputStream ( coding, this.in );
     }
 
     public CpioArchiveInputStream getCpioStream ()

@@ -71,10 +71,8 @@ public enum PayloadCoding
         throw new IOException ( String.format ( "Unknown coding: %s", coding ) );
     }
 
-    public static Optional<Dependency> getDependency ( String coding ) throws IOException
+    public static Optional<Dependency> getDependency ( PayloadCoding payloadCoding ) throws IOException
     {
-        final PayloadCoding payloadCoding = PayloadCoding.fromCoding ( coding );
-
         switch ( payloadCoding )
         {
             case NONE:
@@ -90,14 +88,12 @@ public enum PayloadCoding
             case ZSTD:
                 return Optional.of ( new Dependency ( "PayloadIsZstd", "5.4.18-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
             default:
-                throw new IOException ( String.format ( "Unknown coding: %s", coding ) );
+                throw new IOException ( String.format ( "Unknown coding: %s", payloadCoding ) );
         }
     }
 
-    public static InputStream createInputStream ( String coding, InputStream in ) throws IOException
+    public static InputStream createInputStream ( PayloadCoding payloadCoding, InputStream in ) throws IOException
     {
-        final PayloadCoding payloadCoding = PayloadCoding.fromCoding ( coding );
-
         switch ( payloadCoding )
         {
             case NONE:
@@ -118,14 +114,12 @@ public enum PayloadCoding
 
                 return new ZstdCompressorInputStream ( in );
             default:
-                throw new IOException ( String.format ( "Unknown coding: %s", coding ) );
+                throw new IOException ( String.format ( "Unknown coding: %s", payloadCoding ) );
         }
     }
 
-    public static OutputStream createOutputStream ( String coding, OutputStream out, Optional<String> optionalFlags ) throws IOException
+    public static OutputStream createOutputStream ( PayloadCoding payloadCoding, OutputStream out, Optional<String> optionalFlags ) throws IOException
     {
-        final PayloadCoding payloadCoding = PayloadCoding.fromCoding ( coding );
-
         final String flags;
 
         switch ( payloadCoding )
@@ -196,6 +190,6 @@ public enum PayloadCoding
                 return new ZstdCompressorOutputStream ( out, level );
         }
 
-        throw new IOException ( String.format ( "Unknown coding: %s", coding ) );
+        throw new IOException ( String.format ( "Unknown coding: %s", payloadCoding ) );
     }
 }

@@ -809,7 +809,7 @@ public class RpmBuilder implements AutoCloseable
 
         if ( recorder.getPayloadCoding () != null )
         {
-            this.header.putString ( RpmTag.PAYLOAD_CODING, recorder.getPayloadCoding () );
+            this.header.putString ( RpmTag.PAYLOAD_CODING, recorder.getPayloadCoding ().getCoding () );
         }
 
         if ( recorder.getPayloadFlags ().isPresent () )
