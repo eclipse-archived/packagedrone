@@ -28,21 +28,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.zip.Deflater;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipParameters;
-import org.apache.commons.compress.compressors.lzma.LZMACompressorOutputStream;
-import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
-import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream;
-import org.apache.commons.compress.compressors.zstandard.ZstdUtils;
 import org.apache.commons.compress.utils.CharsetNames;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
-import org.tukaani.xz.LZMA2Options;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingOutputStream;
@@ -118,87 +109,9 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
             this.payloadCounter = new CountingOutputStream ( this.fileStream );
 
-            final OutputStream payloadStream;
-
             this.payloadCoding = payloadCoding;
 
             this.payloadFlags = Optional.ofNullable ( payloadFlags );
-
-            switch ( this.payloadCoding )
-            {
-                case "gzip":
-                    GzipParameters parameters = new GzipParameters ();
-                    int compressionLevel;
-
-                    if ( this.payloadFlags.isPresent () )
-                    {
-                        compressionLevel = Integer.parseInt ( this.payloadFlags.get ().substring ( 0, 1 ) );
-                    }
-                    else
-                    {
-                        compressionLevel = Deflater.BEST_COMPRESSION;
-                        this.payloadFlags = Optional.ofNullable ( String.valueOf ( compressionLevel ) );
-                    }
-
-                    parameters.setCompressionLevel ( compressionLevel );
-
-                    payloadStream = new GzipCompressorOutputStream ( this.payloadCounter, parameters );
-                    break;
-                case "bzip2":
-                    int blockSize;
-
-                    if ( this.payloadFlags.isPresent () )
-                    {
-                        blockSize = Integer.parseInt ( this.payloadFlags.get ().substring ( 0, 1 ) );
-                    }
-                    else
-                    {
-                        blockSize = BZip2CompressorOutputStream.MAX_BLOCKSIZE;
-                        this.payloadFlags = Optional.ofNullable ( String.valueOf ( blockSize ) );
-                    }
-
-                    payloadStream = new BZip2CompressorOutputStream ( this.payloadCounter, blockSize );
-                    break;
-                case "lzma":
-                    payloadStream = new LZMACompressorOutputStream ( this.payloadCounter );
-                    break;
-                case "xz":
-                    int preset;
-
-                    if ( this.payloadFlags.isPresent () )
-                    {
-                        preset = Integer.parseInt ( this.payloadFlags.get ().substring ( 0, 1 ) );
-                    }
-                    else
-                    {
-                        preset = LZMA2Options.PRESET_DEFAULT;
-                        this.payloadFlags = Optional.ofNullable ( String.valueOf ( preset ) );
-                    }
-
-                    payloadStream = new XZCompressorOutputStream ( this.payloadCounter, preset );
-                    break;
-                case "zstd":
-                    if ( !ZstdUtils.isZstdCompressionAvailable () )
-                    {
-                        throw new IOException( "Zstandard compression is not available" );
-                    }
-
-                    int level;
-
-                    if ( this.payloadFlags.isPresent () )
-                    {
-                        level = Integer.parseInt ( this.payloadFlags.get ().substring ( 0, 1 ) );
-                    }
-                    else
-                    {
-                        level = 3;
-                    }
-
-                    payloadStream = new ZstdCompressorOutputStream ( this.payloadCounter, level );
-                    break;
-                default:
-                    throw new IOException ( String.format ( "Unknown payload coding: %s", payloadCoding ) );
-            }
 
             this.fileDigestAlgorithm = fileDigestAlgorithm;
 
@@ -238,8 +151,10 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
                     this.fileDigestAlgorithmName = "SHA-224";
                     break;
                 default:
-                    throw new IOException ( "Unknown file digest algorithm: " + this.fileDigestAlgorithm );
+                    throw new IOException ( String.format ( "Unknown file digest algorithm: %s", this.fileDigestAlgorithm ) );
             }
+
+            final OutputStream payloadStream = PayloadCoding.createOutputStream ( this.payloadCoding, this.payloadCounter, this.payloadFlags );
 
             this.archiveCounter = new CountingOutputStream ( payloadStream );
 

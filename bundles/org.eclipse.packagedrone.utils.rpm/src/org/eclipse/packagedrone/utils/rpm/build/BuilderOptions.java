@@ -95,7 +95,7 @@ public class BuilderOptions
 
     public void setPayloadCoding ( final String payloadCoding )
     {
-        this.payloadCoding = payloadCoding == null ? "gzip" : payloadCoding;
+        this.payloadCoding = payloadCoding;
     }
 
     public String getPayloadFlags ()

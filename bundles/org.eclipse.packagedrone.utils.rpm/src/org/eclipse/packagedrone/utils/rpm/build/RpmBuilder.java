@@ -736,8 +736,9 @@ public class RpmBuilder implements AutoCloseable
 
     /**
      * Fill extra requirements the RPM file itself may have
+     * @throws IOException
      */
-    private void fillRequirements ()
+    private void fillRequirements () throws IOException
     {
         this.requirements.add ( new Dependency ( "rpmlib(CompressedFileNames)", "3.0.4-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
 
@@ -748,22 +749,11 @@ public class RpmBuilder implements AutoCloseable
 
         this.requirements.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
 
-        switch ( options.getPayloadCoding() )
+        final Optional<Dependency> optionalDependency = PayloadCoding.getDependency ( options.getPayloadCoding () );
+
+        if ( optionalDependency.isPresent () )
         {
-            case "gzip":
-                break;
-            case "bzip2":
-                this.requirements.add ( new Dependency ( "rpmlib(PayloadIsBzip2)", "3.0.5-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
-                break;
-            case "lzma":
-                this.requirements.add ( new Dependency ( "rpmlib(PayloadIsLzma)", "4.4.6-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
-                break;
-            case "xz":
-                this.requirements.add ( new Dependency ( "rpmlib(PayloadIsXz)", "5.2-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
-                break;
-            case "zstd":
-                this.requirements.add ( new Dependency ( "rpmlib(PayloadIsZstd)", "5.4.18-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
-                break;
+            this.requirements.add ( optionalDependency.get() );
         }
     }
 
@@ -776,7 +766,10 @@ public class RpmBuilder implements AutoCloseable
     {
         this.header.putString ( RpmTag.PAYLOAD_FORMAT, "cpio" );
 
-        this.header.putString ( RpmTag.PAYLOAD_CODING, recorder.getPayloadCoding () );
+        if ( recorder.getPayloadCoding () != null )
+        {
+            this.header.putString ( RpmTag.PAYLOAD_CODING, recorder.getPayloadCoding () );
+        }
 
         if ( recorder.getPayloadFlags ().isPresent () )
         {
