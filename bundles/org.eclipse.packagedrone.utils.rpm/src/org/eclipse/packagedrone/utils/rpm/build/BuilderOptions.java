@@ -111,7 +111,7 @@ public class BuilderOptions
         return this.fileDigestAlgorithm;
     }
 
-    public void setFileDigestAlgorithm ( DigestAlgorithm fileDigestAlgorithm )
+    public void setFileDigestAlgorithm ( final DigestAlgorithm fileDigestAlgorithm )
     {
         this.fileDigestAlgorithm = fileDigestAlgorithm == null ? DigestAlgorithm.MD5 : fileDigestAlgorithm;
     }

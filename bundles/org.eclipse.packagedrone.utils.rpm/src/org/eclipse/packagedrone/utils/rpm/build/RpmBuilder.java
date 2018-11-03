@@ -146,7 +146,7 @@ public class RpmBuilder implements AutoCloseable
     {
         private String description;
 
-        public Feature ( String name, String version, String description )
+        public Feature ( final String name, final String version, final String description )
         {
             super ( "rpmlib(" + name + ")", version, RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL );
             this.description = description;
@@ -157,7 +157,7 @@ public class RpmBuilder implements AutoCloseable
             return description;
         }
 
-        public void setDescription ( String description )
+        public void setDescription ( final String description )
         {
             this.description = description;
         }

@@ -32,7 +32,7 @@ public enum DigestAlgorithm
 
     private int tag;
 
-    private DigestAlgorithm ( String algorithm, int tag )
+    private DigestAlgorithm ( final String algorithm, final int tag )
     {
         this.algorithm = algorithm;
         this.tag = tag;
@@ -48,7 +48,7 @@ public enum DigestAlgorithm
         return tag;
     }
 
-    public static DigestAlgorithm fromTag ( int tag ) throws IOException
+    public static DigestAlgorithm fromTag ( final int tag ) throws IOException
     {
         for ( DigestAlgorithm digestAlgorithm : DigestAlgorithm.values () )
         {

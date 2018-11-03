@@ -43,7 +43,7 @@ public enum PayloadCoding
 
     private String coding;
 
-    private PayloadCoding ( String coding )
+    private PayloadCoding ( final String coding )
     {
         this.coding = coding;
     }
@@ -53,7 +53,7 @@ public enum PayloadCoding
         return coding;
     }
 
-    public static PayloadCoding fromCoding ( String coding ) throws IOException
+    public static PayloadCoding fromCoding ( final String coding ) throws IOException
     {
         if ( coding == null )
         {
@@ -71,7 +71,7 @@ public enum PayloadCoding
         throw new IOException ( String.format ( "Unknown coding: %s", coding ) );
     }
 
-    public static Optional<Dependency> getDependency ( PayloadCoding payloadCoding ) throws IOException
+    public static Optional<Dependency> getDependency ( final PayloadCoding payloadCoding ) throws IOException
     {
         switch ( payloadCoding )
         {
@@ -92,7 +92,7 @@ public enum PayloadCoding
         }
     }
 
-    public static InputStream createInputStream ( PayloadCoding payloadCoding, InputStream in ) throws IOException
+    public static InputStream createInputStream ( final PayloadCoding payloadCoding, final InputStream in ) throws IOException
     {
         switch ( payloadCoding )
         {
@@ -118,7 +118,7 @@ public enum PayloadCoding
         }
     }
 
-    public static OutputStream createOutputStream ( PayloadCoding payloadCoding, OutputStream out, Optional<String> optionalFlags ) throws IOException
+    public static OutputStream createOutputStream ( final PayloadCoding payloadCoding, final OutputStream out, final Optional<String> optionalFlags ) throws IOException
     {
         final String flags;
 
