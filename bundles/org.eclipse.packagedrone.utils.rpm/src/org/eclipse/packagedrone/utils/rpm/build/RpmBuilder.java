@@ -40,7 +40,6 @@ import java.util.function.ToLongFunction;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 import org.apache.commons.compress.compressors.zstandard.ZstdUtils;
-import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.eclipse.packagedrone.utils.rpm.Architecture;
 import org.eclipse.packagedrone.utils.rpm.FileFlags;
 import org.eclipse.packagedrone.utils.rpm.OperatingSystem;
@@ -742,7 +741,7 @@ public class RpmBuilder implements AutoCloseable
     {
         this.requirements.add ( new Dependency ( "rpmlib(CompressedFileNames)", "3.0.4-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
 
-        if ( !this.options.getFileDigestAlgorithm ().equals ( HashAlgorithmTags.MD5 ) )
+        if ( !this.options.getFileDigestAlgorithm ().equals ( DigestAlgorithm.MD5 ) )
         {
             this.requirements.add ( new Dependency ( "rpmlib(FileDigests)", "4.6.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
         }
@@ -817,9 +816,9 @@ public class RpmBuilder implements AutoCloseable
 
         if ( !this.files.isEmpty () )
         {
-            if ( !this.options.getFileDigestAlgorithm ().equals ( HashAlgorithmTags.MD5 ) )
+            if ( !this.options.getFileDigestAlgorithm ().equals ( DigestAlgorithm.MD5 ) )
             {
-               this.header.putInt ( RpmTag.FILE_DIGESTALGO, this.options.getFileDigestAlgorithm () );
+               this.header.putInt ( RpmTag.FILE_DIGESTALGO, this.options.getFileDigestAlgorithm ().getTag () );
             }
 
             final FileEntry[] files = this.files.values ().toArray ( new FileEntry[this.files.size ()] );

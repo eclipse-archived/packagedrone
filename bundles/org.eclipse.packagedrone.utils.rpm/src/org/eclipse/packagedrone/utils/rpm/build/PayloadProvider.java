@@ -61,9 +61,11 @@ public interface PayloadProvider
     Optional<String> getPayloadFlags ();
 
     /**
-     * The algorithm to used for generating file checksum digests as defined in {@link org.bouncycastle.bcpg.HashAlgorithmTags}
+     * The algorithm used for generating file checksum digests whose ordinal is
+     * defined in {@link org.bouncycastle.bcpg.HashAlgorithmTags}
      *
-     * @return the algorithm to used for generating file checksum digests as defined in {@link org.bouncycastle.bcpg.HashAlgorithmTags}
+     * @return the algorithm used for generating file checksum digests whose
+     *         ordinal is defined in {@link org.bouncycastle.bcpg.HashAlgorithmTags}
      */
-    Integer getFileDigestAlgorithm ();
+    DigestAlgorithm getFileDigestAlgorithm ();
 }

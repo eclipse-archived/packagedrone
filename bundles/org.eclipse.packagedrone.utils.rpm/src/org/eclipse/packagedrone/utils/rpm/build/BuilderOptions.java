@@ -14,8 +14,6 @@ import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
-import org.bouncycastle.bcpg.HashAlgorithmTags;
-
 /**
  * Options which control the build process of the {@link RpmBuilder}
  * <p>
@@ -35,7 +33,7 @@ public class BuilderOptions
 
     private String payloadFlags;
 
-    private Integer fileDigestAlgorithm = HashAlgorithmTags.MD5;
+    private DigestAlgorithm fileDigestAlgorithm = DigestAlgorithm.MD5;
 
     public BuilderOptions ()
     {
@@ -108,13 +106,13 @@ public class BuilderOptions
         this.payloadFlags = payloadFlags;
     }
 
-    public Integer getFileDigestAlgorithm ()
+    public DigestAlgorithm getFileDigestAlgorithm ()
     {
         return this.fileDigestAlgorithm;
     }
 
-    public void setFileDigestAlgorithm ( Integer fileDigestAlgorithm )
+    public void setFileDigestAlgorithm ( DigestAlgorithm fileDigestAlgorithm )
     {
-        this.fileDigestAlgorithm = fileDigestAlgorithm == null ? HashAlgorithmTags.MD5 : fileDigestAlgorithm;
+        this.fileDigestAlgorithm = fileDigestAlgorithm == null ? DigestAlgorithm.MD5 : fileDigestAlgorithm;
     }
 }

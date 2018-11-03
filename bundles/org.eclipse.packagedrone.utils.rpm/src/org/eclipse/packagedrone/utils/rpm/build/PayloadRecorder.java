@@ -33,7 +33,6 @@ import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 import org.apache.commons.compress.utils.CharsetNames;
-import org.bouncycastle.bcpg.HashAlgorithmTags;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingOutputStream;
@@ -83,23 +82,25 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     private Optional<String> payloadFlags;
 
-    private Integer fileDigestAlgorithm;
+    private DigestAlgorithm fileDigestAlgorithm;
 
     private String fileDigestAlgorithmName;
 
     public PayloadRecorder () throws IOException
     {
-        this ( true, "gzip", null, HashAlgorithmTags.MD5  );
+        this ( true, "gzip", null, DigestAlgorithm.MD5  );
     }
 
     public PayloadRecorder ( final boolean autoFinish ) throws IOException
     {
-        this ( autoFinish, "gzip", null, HashAlgorithmTags.MD5 );
+        this ( autoFinish, "gzip", null, DigestAlgorithm.MD5 );
     }
 
-    public PayloadRecorder ( final boolean autoFinish, final String payloadCoding, final String payloadFlags, final Integer fileDigestAlgorithm ) throws IOException
+    public PayloadRecorder ( final boolean autoFinish, final String payloadCoding, final String payloadFlags, final DigestAlgorithm fileDigestAlgorithm ) throws IOException
     {
         this.autoFinish = autoFinish;
+
+        this.fileDigestAlgorithm = fileDigestAlgorithm;
 
         this.tempFile = Files.createTempFile ( "rpm-", null );
 
@@ -112,47 +113,6 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
             this.payloadCoding = payloadCoding;
 
             this.payloadFlags = Optional.ofNullable ( payloadFlags );
-
-            this.fileDigestAlgorithm = fileDigestAlgorithm;
-
-            switch ( this.fileDigestAlgorithm )
-            {
-                case HashAlgorithmTags.MD5:
-                    this.fileDigestAlgorithmName = "MD5";
-                    break;
-                case HashAlgorithmTags.SHA1:
-                    this.fileDigestAlgorithmName = "SHA-1";
-                    break;
-                case HashAlgorithmTags.RIPEMD160:
-                    this.fileDigestAlgorithmName = "RIPE-MD160";
-                    break;
-                case HashAlgorithmTags.DOUBLE_SHA:
-                    this.fileDigestAlgorithmName = "Double-SHA";
-                    break;
-                case HashAlgorithmTags.MD2:
-                    this.fileDigestAlgorithmName = "MD2";
-                    break;
-                case HashAlgorithmTags.TIGER_192:
-                    this.fileDigestAlgorithmName = "Tiger-192";
-                    break;
-                case HashAlgorithmTags.HAVAL_5_160:
-                    this.fileDigestAlgorithmName = "Haval-5-160";
-                    break;
-                case HashAlgorithmTags.SHA256:
-                    this.fileDigestAlgorithmName = "SHA-256";
-                    break;
-                case HashAlgorithmTags.SHA384:
-                    this.fileDigestAlgorithmName = "SHA-384";
-                    break;
-                case HashAlgorithmTags.SHA512:
-                    this.fileDigestAlgorithmName = "SHA-512";
-                    break;
-                case HashAlgorithmTags.SHA224:
-                    this.fileDigestAlgorithmName = "SHA-224";
-                    break;
-                default:
-                    throw new IOException ( String.format ( "Unknown file digest algorithm: %s", this.fileDigestAlgorithm ) );
-            }
 
             final OutputStream payloadStream = PayloadCoding.createOutputStream ( this.payloadCoding, this.payloadCounter, this.payloadFlags );
 
@@ -257,7 +217,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     private MessageDigest createDigest () throws NoSuchAlgorithmException
     {
-        return MessageDigest.getInstance ( this.fileDigestAlgorithmName );
+        return MessageDigest.getInstance ( this.fileDigestAlgorithm.getAlgorithm () );
     }
 
     public Result addFile ( final String targetPath, final InputStream stream ) throws IOException
@@ -367,7 +327,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     }
 
     @Override
-    public Integer getFileDigestAlgorithm ()
+    public DigestAlgorithm getFileDigestAlgorithm ()
     {
         return this.fileDigestAlgorithm;
     }
