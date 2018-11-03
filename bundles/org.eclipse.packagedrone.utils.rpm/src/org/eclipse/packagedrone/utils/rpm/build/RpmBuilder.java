@@ -25,7 +25,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -142,57 +142,14 @@ public class RpmBuilder implements AutoCloseable
         }
     }
 
-    public static class Feature
+    public static class Feature extends Dependency
     {
-        private String name;
-
-        private String evr;
-
-        private EnumSet<RpmDependencyFlags> flags;
-
         private String description;
 
-        public Feature ()
+        public Feature ( String name, String version, String description )
         {
-
-        }
-
-        public Feature ( String name, String evr, EnumSet<RpmDependencyFlags> flags, String description )
-        {
-            this.name = name;
-            this.evr = evr;
-            this.flags = flags;
+            super ( "rpmlib(" + name + ")", version, RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL );
             this.description = description;
-        }
-
-        public String getName ()
-        {
-            return name;
-        }
-
-        public void setName ( String name )
-        {
-            this.name = name;
-        }
-
-        public String getEvr ()
-        {
-            return evr;
-        }
-
-        public void setEvr ( String evr )
-        {
-            this.evr = evr;
-        }
-
-        public EnumSet<RpmDependencyFlags> getFlags ()
-        {
-            return flags;
-        }
-
-        public void setFlags( EnumSet<RpmDependencyFlags> flags )
-        {
-            this.flags = flags;
         }
 
         public String getDescription ()
@@ -200,29 +157,114 @@ public class RpmBuilder implements AutoCloseable
             return description;
         }
 
-        public void setDescription( String description )
+        public void setDescription ( String description )
         {
             this.description = description;
         }
+
+        @Override
+        public int hashCode ()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ( this.getFlags() == null ? 0 : this.getFlags().hashCode () );
+            result = prime * result + ( this.getName() == null ? 0 : this.getName().hashCode () );
+            result = prime * result + ( this.getVersion() == null ? 0 : this.getVersion().hashCode () );
+            result = prime * result + ( this.getDescription() == null ? 0 : this.getDescription().hashCode () );
+            return result;
+        }
+
+        @Override
+        public boolean equals ( final Object obj )
+        {
+            if ( this == obj )
+            {
+                return true;
+            }
+            if ( obj == null )
+            {
+                return false;
+            }
+            if ( getClass () != obj.getClass () )
+            {
+                return false;
+            }
+            final Feature other = (Feature)obj;
+            if ( this.getFlags() == null )
+            {
+                if ( other.getFlags() != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.getFlags().equals ( other.getFlags() ) )
+            {
+                return false;
+            }
+            if ( this.getName() == null )
+            {
+                if ( other.getName() != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.getName().equals ( other.getName() ) )
+            {
+                return false;
+            }
+            if ( this.getVersion() == null )
+            {
+                if ( other.getVersion() != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.getVersion().equals ( other.getVersion() ) )
+            {
+                return false;
+            }
+            if ( this.getDescription() == null )
+            {
+                if ( other.getDescription() != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.getDescription().equals ( other.getDescription() ) )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString ()
+        {
+            return String.format ( "[%s, %s, %s, %s]", this.getName(), this.getVersion(), this.getFlags(), this.getDescription() );
+        }
+
     }
 
-    public static List<Feature> features = new ArrayList<> ();
+    private static List<Feature> features = new ArrayList<> ();
 
     static
     {
-        features.add ( new Feature ( "rpmlib(VersionedDependencies)", "3.0.3-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "PreReq:, Provides:, and Obsoletes: dependencies support versions." ) );
-        features.add ( new Feature ( "rpmlib(CompressedFileNames)", "3.0.4-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "file name(s) stored as (dirName,baseName,dirIndex) tuple, not as path." ) );
-        features.add ( new Feature ( "rpmlib(PayloadIsBzip2)", "3.0.5-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload can be compressed using bzip2." ) );
-        features.add ( new Feature ( "rpmlib(ExplicitPackageProvide)", "4.0-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package name-version-release is not implicitly provided." ) );
-        features.add ( new Feature ( "rpmlib(HeaderLoadSortsTags)", "4.0.1-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "header tags are always sorted after being loaded." ) );
-        features.add ( new Feature ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload file(s) have \"./\" prefix." ) );
-        features.add ( new Feature ( "rpmlib(PayloadIsLzma)", "4.4.2-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload can be compressed using lzma." ) );
-        features.add ( new Feature ( "rpmlib(PayloadIsXz)", "5.2-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload can be compressed using xz." ) );
+
+        features.add ( new Feature ( "VersionedDependencies", "3.0.3-1", "PreReq:, Provides:, and Obsoletes: dependencies support versions." ) );
+        features.add ( new Feature ( "CompressedFileNames", "3.0.4-1", "file name(s) stored as (dirName,baseName,dirIndex) tuple, not as path." ) );
+        features.add ( new Feature ( "PayloadIsBzip2", "3.0.5-1", "package payload can be compressed using bzip2." ) );
+        features.add ( new Feature ( "ExplicitPackageProvide", "4.0-1", "package name-version-release is not implicitly provided." ) );
+        features.add ( new Feature ( "HeaderLoadSortsTags", "4.0.1-1", "header tags are always sorted after being loaded." ) );
+        features.add ( new Feature ( "PayloadFilesHavePrefix", "4.0-1", "package payload file(s) have \"./\" prefix." ) );
+        features.add ( new Feature ( "PayloadIsLzma", "4.4.2-1", "package payload can be compressed using lzma." ) );
+        features.add ( new Feature ( "PayloadIsXz", "5.2-1", "package payload can be compressed using xz." ) );
 
         if ( ZstdUtils.isZstdCompressionAvailable () )
         {
-            features.add ( new Feature ( "rpmlib(PayloadIsZstd)", "5.4.18-1", EnumSet.of ( RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL ), "package payload can be compressed using zstd." ) );
+            features.add ( new Feature ( "PayloadIsZstd", "5.4.18-1", "package payload can be compressed using zstd." ) );
         }
+
+        features = Collections.unmodifiableList ( features );
     }
 
     public static class FileEntry
@@ -950,6 +992,17 @@ public class RpmBuilder implements AutoCloseable
     private String makeDefaultFileName ()
     {
         return this.options.getFileNameProvider ().getRpmFileName ( this.name, this.version, this.architecture );
+    }
+
+
+    /**
+     * Return the list of features supported by this builder.
+     *
+     * @return the list of features supported by this builder
+     */
+    public static List<Feature> getFeatures ()
+    {
+        return features;
     }
 
     /**
