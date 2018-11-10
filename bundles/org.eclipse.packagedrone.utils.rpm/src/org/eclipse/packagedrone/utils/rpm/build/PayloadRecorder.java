@@ -84,16 +84,14 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     private DigestAlgorithm fileDigestAlgorithm;
 
-    private String fileDigestAlgorithmName;
-
     public PayloadRecorder () throws IOException
     {
-        this ( true, PayloadCoding.GZIP, null, DigestAlgorithm.MD5  );
+        this ( true, PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP ), null, DigestAlgorithm.MD5  );
     }
 
     public PayloadRecorder ( final boolean autoFinish ) throws IOException
     {
-        this ( autoFinish, PayloadCoding.GZIP, null, DigestAlgorithm.MD5 );
+        this ( autoFinish, PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP ), null, DigestAlgorithm.MD5 );
     }
 
     public PayloadRecorder ( final boolean autoFinish, final PayloadCoding payloadCoding, final String payloadFlags, final DigestAlgorithm fileDigestAlgorithm ) throws IOException
@@ -114,7 +112,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
             this.payloadFlags = Optional.ofNullable ( payloadFlags );
 
-            final OutputStream payloadStream = PayloadCoding.createOutputStream ( this.payloadCoding, this.payloadCounter, this.payloadFlags );
+            final OutputStream payloadStream = this.payloadCoding.createOutputStream ( this.payloadCounter, this.payloadFlags );
 
             this.archiveCounter = new CountingOutputStream ( payloadStream );
 

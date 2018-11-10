@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
+import java.io.IOException;
 import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public class BuilderOptions
 
     private RpmFileNameProvider fileNameProvider = RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
 
-    private PayloadCoding payloadCoding = PayloadCoding.GZIP;
+    private PayloadCoding payloadCoding;
 
     private String payloadFlags;
 
@@ -86,8 +87,13 @@ public class BuilderOptions
         this.fileNameProvider = fileNameProvider != null ? fileNameProvider : RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
     }
 
-    public PayloadCoding getPayloadCoding ()
+    public PayloadCoding getPayloadCoding () throws IOException
     {
+        if ( this.payloadCoding == null )
+        {
+            this.payloadCoding = PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP );
+        }
+
         return this.payloadCoding;
     }
 

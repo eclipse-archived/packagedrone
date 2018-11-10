@@ -790,7 +790,7 @@ public class RpmBuilder implements AutoCloseable
 
         this.requirements.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
 
-        final Optional<Dependency> optionalDependency = PayloadCoding.getDependency ( options.getPayloadCoding () );
+        final Optional<Dependency> optionalDependency = options.getPayloadCoding ().getDependency ();
 
         if ( optionalDependency.isPresent () )
         {

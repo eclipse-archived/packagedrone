@@ -26,6 +26,7 @@ import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
 import org.eclipse.packagedrone.utils.rpm.build.PayloadCoding;
+import org.eclipse.packagedrone.utils.rpm.build.PayloadCodingRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,14 +137,14 @@ public class RpmInputStream extends InputStream
 
         if ( payloadCoding == null )
         {
-            coding = PayloadCoding.GZIP;
+            coding = PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP );
         }
         else
         {
-            coding = PayloadCoding.fromCoding ( payloadCoding );
+            coding = PayloadCodingRegistry.get ( payloadCoding );
         }
 
-        return PayloadCoding.createInputStream ( coding, this.in );
+        return coding.createInputStream ( this.in );
     }
 
     public CpioArchiveInputStream getCpioStream ()
