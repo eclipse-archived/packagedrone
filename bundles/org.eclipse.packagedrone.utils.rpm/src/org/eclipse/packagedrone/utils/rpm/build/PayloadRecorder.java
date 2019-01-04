@@ -33,6 +33,8 @@ import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 import org.apache.commons.compress.utils.CharsetNames;
+import org.eclipse.packagedrone.utils.rpm.coding.PayloadCoding;
+import org.eclipse.packagedrone.utils.rpm.coding.PayloadCodingRegistry;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingOutputStream;

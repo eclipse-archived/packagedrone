@@ -15,6 +15,9 @@ import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
+import org.eclipse.packagedrone.utils.rpm.coding.PayloadCoding;
+import org.eclipse.packagedrone.utils.rpm.coding.PayloadCodingRegistry;
+
 /**
  * Options which control the build process of the {@link RpmBuilder}
  * <p>

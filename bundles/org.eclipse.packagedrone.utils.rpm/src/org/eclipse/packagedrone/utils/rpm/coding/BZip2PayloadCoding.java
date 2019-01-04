@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.rpm.build;
+package org.eclipse.packagedrone.utils.rpm.coding;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,34 +16,51 @@ import java.io.OutputStream;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
+import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 
-public class NullPayloadCoding implements PayloadCoding
+public class BZip2PayloadCoding implements PayloadCoding
 {
-    protected NullPayloadCoding ()
+    protected BZip2PayloadCoding ()
     {
     }
 
     @Override
     public String getCoding ()
     {
-        return null;
+        return "bzip2";
     }
 
     @Override
     public void fillRequirements ( final Consumer<Dependency> requirementsConsumer )
     {
+        requirementsConsumer.accept ( new Dependency ( "PayloadIsBzip2", "3.0.5-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
     }
 
     @Override
     public InputStream createInputStream ( final InputStream in ) throws IOException
     {
-        return in;
+        return new BZip2CompressorInputStream ( in );
     }
 
     @Override
     public OutputStream createOutputStream ( final OutputStream out, final Optional<String> optionalFlags ) throws IOException
     {
-        return out;
+        final String flags;
+
+        final int blockSize;
+
+        if ( optionalFlags.isPresent () && ( flags = optionalFlags.get () ).length () > 0 )
+        {
+            blockSize = Integer.parseInt ( flags.substring ( 0, 1 ) );
+        }
+        else
+        {
+            blockSize = BZip2CompressorOutputStream.MAX_BLOCKSIZE;
+        }
+
+        return new BZip2CompressorOutputStream ( out, blockSize );
     }
 }

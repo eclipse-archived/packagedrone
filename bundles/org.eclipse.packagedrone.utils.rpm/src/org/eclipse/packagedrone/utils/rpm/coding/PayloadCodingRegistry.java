@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.rpm.build;
+package org.eclipse.packagedrone.utils.rpm.coding;
 
 import java.io.IOException;
 import java.util.Map;

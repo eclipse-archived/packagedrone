@@ -25,8 +25,8 @@ import org.eclipse.packagedrone.utils.rpm.RpmLead;
 import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
-import org.eclipse.packagedrone.utils.rpm.build.PayloadCoding;
-import org.eclipse.packagedrone.utils.rpm.build.PayloadCodingRegistry;
+import org.eclipse.packagedrone.utils.rpm.coding.PayloadCoding;
+import org.eclipse.packagedrone.utils.rpm.coding.PayloadCodingRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -8,7 +8,7 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-package org.eclipse.packagedrone.utils.rpm.build;
+package org.eclipse.packagedrone.utils.rpm.coding;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,38 +16,51 @@ import java.io.OutputStream;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
-import org.apache.commons.compress.compressors.lzma.LZMACompressorOutputStream;
+import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
+import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
 import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
+import org.tukaani.xz.LZMA2Options;
 
-public class LZMAPayloadCoding implements PayloadCoding
+public class XZPayloadCoding implements PayloadCoding
 {
-    protected LZMAPayloadCoding ()
+    protected XZPayloadCoding ()
     {
     }
 
     @Override
     public String getCoding ()
     {
-        return "lzma";
+        return "xz";
     }
 
     @Override
     public void fillRequirements ( final Consumer<Dependency> requirementsConsumer )
     {
-        requirementsConsumer.accept ( new Dependency ( "PayloadIsLzma", "4.4.6-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+        requirementsConsumer.accept ( new Dependency ( "PayloadIsXz", "5.2-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
     }
 
     @Override
     public InputStream createInputStream ( final InputStream in ) throws IOException
     {
-        return new LZMACompressorInputStream ( in );
+        return new XZCompressorInputStream ( in );
     }
 
     @Override
     public OutputStream createOutputStream ( final OutputStream out, final Optional<String> optionalFlags ) throws IOException
     {
-        return new LZMACompressorOutputStream ( out );
+        final String flags;
+        final int preset;
+
+        if ( optionalFlags.isPresent () && ( flags = optionalFlags.get () ).length () > 0 )
+        {
+            preset = Integer.parseInt ( flags.substring ( 0, 1 ) );
+        }
+        else
+        {
+            preset = LZMA2Options.PRESET_DEFAULT;
+        }
+
+        return new XZCompressorOutputStream ( out, preset );
     }
 }

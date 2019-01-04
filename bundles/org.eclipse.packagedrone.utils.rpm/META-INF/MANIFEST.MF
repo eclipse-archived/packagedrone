@@ -6,15 +6,16 @@ Bundle-SymbolicName: org.eclipse.packagedrone.utils.rpm
 Bundle-Version: 0.14.1.qualifier
 Bundle-Vendor: Eclipse Package Drone
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: org.eclipse.packagedrone.utils.rpm;version="0.14.0",
- org.eclipse.packagedrone.utils.rpm.app;version="0.14.0";uses:="org.eclipse.packagedrone.utils.rpm.parse",
- org.eclipse.packagedrone.utils.rpm.build;version="0.14.0";uses:="org.eclipse.packagedrone.utils.rpm.signature,org.eclipse.packagedrone.utils.rpm,org.eclipse.packagedrone.utils.rpm.header",
- org.eclipse.packagedrone.utils.rpm.deps;version="0.14.0";uses:="org.eclipse.packagedrone.utils.rpm,org.eclipse.packagedrone.utils.rpm.header",
- org.eclipse.packagedrone.utils.rpm.header;version="0.14.0";uses:="org.eclipse.packagedrone.utils.rpm",
- org.eclipse.packagedrone.utils.rpm.info;version="0.14.0";uses:="org.eclipse.packagedrone.utils.rpm.parse,org.eclipse.packagedrone.utils.rpm",
- org.eclipse.packagedrone.utils.rpm.parse;version="0.14.0";uses:="org.eclipse.packagedrone.utils.rpm,org.apache.commons.compress.archivers.cpio",
- org.eclipse.packagedrone.utils.rpm.signature;version="0.14.0";uses:="org.bouncycastle.openpgp,org.eclipse.packagedrone.utils.rpm.header",
- org.eclipse.packagedrone.utils.rpm.yum;version="0.14.0"
+Export-Package: org.eclipse.packagedrone.utils.rpm;version="0.15.0",
+ org.eclipse.packagedrone.utils.rpm.app;version="0.15.0";uses:="org.eclipse.packagedrone.utils.rpm.parse",
+ org.eclipse.packagedrone.utils.rpm.build;version="0.15.0";uses:="org.eclipse.packagedrone.utils.rpm.signature,org.eclipse.packagedrone.utils.rpm,org.eclipse.packagedrone.utils.rpm.header",
+ org.eclipse.packagedrone.utils.rpm.coding;version="0.15.0",
+ org.eclipse.packagedrone.utils.rpm.deps;version="0.15.0";uses:="org.eclipse.packagedrone.utils.rpm,org.eclipse.packagedrone.utils.rpm.header",
+ org.eclipse.packagedrone.utils.rpm.header;version="0.15.0";uses:="org.eclipse.packagedrone.utils.rpm",
+ org.eclipse.packagedrone.utils.rpm.info;version="0.15.0";uses:="org.eclipse.packagedrone.utils.rpm.parse,org.eclipse.packagedrone.utils.rpm",
+ org.eclipse.packagedrone.utils.rpm.parse;version="0.15.0";uses:="org.eclipse.packagedrone.utils.rpm,org.apache.commons.compress.archivers.cpio",
+ org.eclipse.packagedrone.utils.rpm.signature;version="0.15.0";uses:="org.bouncycastle.openpgp,org.eclipse.packagedrone.utils.rpm.header",
+ org.eclipse.packagedrone.utils.rpm.yum;version="0.15.0"
 Import-Package: com.google.common.io;version="18.0.0",
  org.apache.commons.compress.archivers;version="1.18.0",
  org.apache.commons.compress.archivers.cpio;version="1.18.0",
