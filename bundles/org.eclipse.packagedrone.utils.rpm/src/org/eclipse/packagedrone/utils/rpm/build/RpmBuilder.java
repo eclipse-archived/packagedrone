@@ -154,7 +154,7 @@ public class RpmBuilder implements AutoCloseable
 
         public String getDescription ()
         {
-            return description;
+            return this.description;
         }
 
         public void setDescription ( final String description )
@@ -167,10 +167,10 @@ public class RpmBuilder implements AutoCloseable
         {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ( this.getFlags() == null ? 0 : this.getFlags().hashCode () );
-            result = prime * result + ( this.getName() == null ? 0 : this.getName().hashCode () );
-            result = prime * result + ( this.getVersion() == null ? 0 : this.getVersion().hashCode () );
-            result = prime * result + ( this.getDescription() == null ? 0 : this.getDescription().hashCode () );
+            result = prime * result + ( getFlags () == null ? 0 : getFlags ().hashCode () );
+            result = prime * result + ( getName () == null ? 0 : getName ().hashCode () );
+            result = prime * result + ( getVersion () == null ? 0 : getVersion ().hashCode () );
+            result = prime * result + ( getDescription () == null ? 0 : getDescription ().hashCode () );
             return result;
         }
 
@@ -190,47 +190,47 @@ public class RpmBuilder implements AutoCloseable
                 return false;
             }
             final Feature other = (Feature)obj;
-            if ( this.getFlags() == null )
+            if ( getFlags () == null )
             {
-                if ( other.getFlags() != null )
+                if ( other.getFlags () != null )
                 {
                     return false;
                 }
             }
-            else if ( !this.getFlags().equals ( other.getFlags() ) )
+            else if ( !getFlags ().equals ( other.getFlags () ) )
             {
                 return false;
             }
-            if ( this.getName() == null )
+            if ( getName () == null )
             {
-                if ( other.getName() != null )
+                if ( other.getName () != null )
                 {
                     return false;
                 }
             }
-            else if ( !this.getName().equals ( other.getName() ) )
+            else if ( !getName ().equals ( other.getName () ) )
             {
                 return false;
             }
-            if ( this.getVersion() == null )
+            if ( getVersion () == null )
             {
-                if ( other.getVersion() != null )
+                if ( other.getVersion () != null )
                 {
                     return false;
                 }
             }
-            else if ( !this.getVersion().equals ( other.getVersion() ) )
+            else if ( !getVersion ().equals ( other.getVersion () ) )
             {
                 return false;
             }
-            if ( this.getDescription() == null )
+            if ( getDescription () == null )
             {
-                if ( other.getDescription() != null )
+                if ( other.getDescription () != null )
                 {
                     return false;
                 }
             }
-            else if ( !this.getDescription().equals ( other.getDescription() ) )
+            else if ( !getDescription ().equals ( other.getDescription () ) )
             {
                 return false;
             }
@@ -240,7 +240,7 @@ public class RpmBuilder implements AutoCloseable
         @Override
         public String toString ()
         {
-            return String.format ( "[%s, %s, %s, %s]", this.getName(), this.getVersion(), this.getFlags(), this.getDescription() );
+            return String.format ( "[%s, %s, %s, %s]", getName (), getVersion (), getFlags (), getDescription () );
         }
 
     }
@@ -777,6 +777,7 @@ public class RpmBuilder implements AutoCloseable
 
     /**
      * Fill extra requirements the RPM file itself may have
+     * 
      * @throws IOException
      */
     private void fillRequirements () throws IOException
@@ -789,13 +790,7 @@ public class RpmBuilder implements AutoCloseable
         }
 
         this.requirements.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
-
-        final Optional<Dependency> optionalDependency = options.getPayloadCoding ().getDependency ();
-
-        if ( optionalDependency.isPresent () )
-        {
-            this.requirements.add ( optionalDependency.get() );
-        }
+        this.options.getPayloadCoding ().fillRequirements ( this.requirements::add );
     }
 
     private void fillProvides ()
@@ -807,14 +802,14 @@ public class RpmBuilder implements AutoCloseable
     {
         this.header.putString ( RpmTag.PAYLOAD_FORMAT, "cpio" );
 
-        if ( recorder.getPayloadCoding () != null )
+        if ( this.recorder.getPayloadCoding () != null )
         {
-            this.header.putString ( RpmTag.PAYLOAD_CODING, recorder.getPayloadCoding ().getCoding () );
+            this.header.putString ( RpmTag.PAYLOAD_CODING, this.recorder.getPayloadCoding ().getCoding () );
         }
 
-        if ( recorder.getPayloadFlags ().isPresent () )
+        if ( this.recorder.getPayloadFlags ().isPresent () )
         {
-            this.header.putString ( RpmTag.PAYLOAD_FLAGS, recorder.getPayloadFlags ().get () );
+            this.header.putString ( RpmTag.PAYLOAD_FLAGS, this.recorder.getPayloadFlags ().get () );
         }
 
         this.header.putStringArray ( 100, "C" );
@@ -860,7 +855,7 @@ public class RpmBuilder implements AutoCloseable
         {
             if ( !this.options.getFileDigestAlgorithm ().equals ( DigestAlgorithm.MD5 ) )
             {
-               this.header.putInt ( RpmTag.FILE_DIGESTALGO, this.options.getFileDigestAlgorithm ().getTag () );
+                this.header.putInt ( RpmTag.FILE_DIGESTALGO, this.options.getFileDigestAlgorithm ().getTag () );
             }
 
             final FileEntry[] files = this.files.values ().toArray ( new FileEntry[this.files.size ()] );
@@ -993,7 +988,6 @@ public class RpmBuilder implements AutoCloseable
     {
         return this.options.getFileNameProvider ().getRpmFileName ( this.name, this.version, this.architecture );
     }
-
 
     /**
      * Return the list of features supported by this builder.

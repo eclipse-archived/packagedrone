@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
 
@@ -21,7 +22,6 @@ public class NullPayloadCoding implements PayloadCoding
 {
     protected NullPayloadCoding ()
     {
-
     }
 
     @Override
@@ -31,9 +31,8 @@ public class NullPayloadCoding implements PayloadCoding
     }
 
     @Override
-    public Optional<Dependency> getDependency ()
+    public void fillRequirements ( final Consumer<Dependency> requirementsConsumer )
     {
-        return Optional.empty ();
     }
 
     @Override

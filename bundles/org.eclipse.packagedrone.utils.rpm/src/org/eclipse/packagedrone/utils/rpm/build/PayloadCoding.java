@@ -13,7 +13,10 @@ package org.eclipse.packagedrone.utils.rpm.build;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
 
@@ -21,7 +24,14 @@ public interface PayloadCoding
 {
     String getCoding ();
 
-    Optional<Dependency> getDependency ();
+    void fillRequirements ( final Consumer<Dependency> requirementsConsumer );
+
+    default List<Dependency> getRequirements ()
+    {
+        final List<Dependency> result = new LinkedList<> ();
+        fillRequirements ( result::add );
+        return result;
+    }
 
     InputStream createInputStream ( final InputStream in ) throws IOException;
 

@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream;
 import org.apache.commons.compress.compressors.lzma.LZMACompressorOutputStream;
@@ -24,7 +25,6 @@ public class LZMAPayloadCoding implements PayloadCoding
 {
     protected LZMAPayloadCoding ()
     {
-
     }
 
     @Override
@@ -34,9 +34,9 @@ public class LZMAPayloadCoding implements PayloadCoding
     }
 
     @Override
-    public Optional<Dependency> getDependency ()
+    public void fillRequirements ( final Consumer<Dependency> requirementsConsumer )
     {
-        return Optional.of ( new Dependency ( "PayloadIsLzma", "4.4.6-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+        requirementsConsumer.accept ( new Dependency ( "PayloadIsLzma", "4.4.6-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
     }
 
     @Override
