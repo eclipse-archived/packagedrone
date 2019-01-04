@@ -67,7 +67,8 @@ public interface PayloadProvider
      * defined in {@link org.bouncycastle.bcpg.HashAlgorithmTags}
      *
      * @return the algorithm used for generating file checksum digests whose
-     *         ordinal is defined in {@link org.bouncycastle.bcpg.HashAlgorithmTags}
+     *         ordinal is defined in
+     *         {@link org.bouncycastle.bcpg.HashAlgorithmTags}
      */
     DigestAlgorithm getFileDigestAlgorithm ();
 }

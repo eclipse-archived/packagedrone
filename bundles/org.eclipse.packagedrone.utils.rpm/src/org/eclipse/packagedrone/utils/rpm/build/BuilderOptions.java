@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBH SYSTEMS GmbH and others.
+ * Copyright (c) 2016, 2018 IBH SYSTEMS GmbH and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
-import java.io.IOException;
 import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
 import org.eclipse.packagedrone.utils.rpm.coding.PayloadCoding;
-import org.eclipse.packagedrone.utils.rpm.coding.PayloadCodingRegistry;
 
 /**
  * Options which control the build process of the {@link RpmBuilder}
@@ -90,14 +88,9 @@ public class BuilderOptions
         this.fileNameProvider = fileNameProvider != null ? fileNameProvider : RpmFileNameProvider.LEGACY_FILENAME_PROVIDER;
     }
 
-    public PayloadCoding getPayloadCoding () throws IOException
+    public PayloadCoding getPayloadCoding ()
     {
-        if ( this.payloadCoding == null )
-        {
-            this.payloadCoding = PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP );
-        }
-
-        return this.payloadCoding;
+        return this.payloadCoding != null ? this.payloadCoding : PayloadCoding.GZIP;
     }
 
     public void setPayloadCoding ( final PayloadCoding payloadCoding )

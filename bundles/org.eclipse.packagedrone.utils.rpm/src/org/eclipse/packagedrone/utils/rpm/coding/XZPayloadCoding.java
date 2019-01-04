@@ -22,7 +22,7 @@ import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 import org.tukaani.xz.LZMA2Options;
 
-public class XZPayloadCoding implements PayloadCoding
+public class XZPayloadCoding implements PayloadCodingProvider
 {
     protected XZPayloadCoding ()
     {

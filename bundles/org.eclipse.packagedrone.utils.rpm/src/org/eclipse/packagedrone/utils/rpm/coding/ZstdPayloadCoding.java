@@ -22,7 +22,7 @@ import org.apache.commons.compress.compressors.zstandard.ZstdUtils;
 import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
 import org.eclipse.packagedrone.utils.rpm.deps.RpmDependencyFlags;
 
-public class ZstdPayloadCoding implements PayloadCoding
+public class ZstdPayloadCoding implements PayloadCodingProvider
 {
     protected ZstdPayloadCoding ()
     {

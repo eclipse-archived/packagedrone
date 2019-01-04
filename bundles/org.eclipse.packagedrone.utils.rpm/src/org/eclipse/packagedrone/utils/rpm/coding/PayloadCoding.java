@@ -10,31 +10,53 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.coding;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import org.eclipse.packagedrone.utils.rpm.deps.Dependency;
-
-public interface PayloadCoding
+public enum PayloadCoding
 {
-    String getCoding ();
+    NONE ( "none", NullPayloadCoding::new ),
+    GZIP ( "gzip", GzipPayloadCoding::new ),
+    LZMA ( "lzma", LZMAPayloadCoding::new ),
+    BZIP2 ( "bzip2", BZip2PayloadCoding::new ),
+    ZSTD ( "zstd", ZstdPayloadCoding::new ),
+    XZ ( "xz2", XZPayloadCoding::new );
 
-    void fillRequirements ( final Consumer<Dependency> requirementsConsumer );
+    private String value;
 
-    default List<Dependency> getRequirements ()
+    private Supplier<PayloadCodingProvider> newInstanceSupplier;
+
+    private PayloadCoding ( final String value, final Supplier<PayloadCodingProvider> newInstanceSupplier )
     {
-        final List<Dependency> result = new LinkedList<> ();
-        fillRequirements ( result::add );
-        return result;
+        this.value = value;
+        this.newInstanceSupplier = newInstanceSupplier;
     }
 
-    InputStream createInputStream ( final InputStream in ) throws IOException;
+    public String getValue ()
+    {
+        return this.value;
+    }
 
-    OutputStream createOutputStream ( final OutputStream out, final Optional<String> optionalFlags ) throws IOException;
+    public PayloadCodingProvider createProvider ()
+    {
+        return this.newInstanceSupplier.get ();
+    }
 
+    public static Optional<PayloadCoding> fromValue ( final String payloadCoding )
+    {
+        if ( payloadCoding == null )
+        {
+            return Optional.of ( GZIP );
+        }
+
+        for ( final PayloadCoding coding : values () )
+        {
+            if ( coding.value.equals ( payloadCoding ) )
+            {
+                return Optional.of ( coding );
+            }
+        }
+
+        return Optional.empty ();
+    }
 }

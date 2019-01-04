@@ -34,7 +34,6 @@ import org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
 import org.apache.commons.compress.utils.CharsetNames;
 import org.eclipse.packagedrone.utils.rpm.coding.PayloadCoding;
-import org.eclipse.packagedrone.utils.rpm.coding.PayloadCodingRegistry;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingOutputStream;
@@ -84,16 +83,16 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     private Optional<String> payloadFlags;
 
-    private DigestAlgorithm fileDigestAlgorithm;
+    private final DigestAlgorithm fileDigestAlgorithm;
 
     public PayloadRecorder () throws IOException
     {
-        this ( true, PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP ), null, DigestAlgorithm.MD5  );
+        this ( true, PayloadCoding.GZIP, null, DigestAlgorithm.MD5 );
     }
 
     public PayloadRecorder ( final boolean autoFinish ) throws IOException
     {
-        this ( autoFinish, PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP ), null, DigestAlgorithm.MD5 );
+        this ( autoFinish, PayloadCoding.GZIP, null, DigestAlgorithm.MD5 );
     }
 
     public PayloadRecorder ( final boolean autoFinish, final PayloadCoding payloadCoding, final String payloadFlags, final DigestAlgorithm fileDigestAlgorithm ) throws IOException
@@ -114,7 +113,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
             this.payloadFlags = Optional.ofNullable ( payloadFlags );
 
-            final OutputStream payloadStream = this.payloadCoding.createOutputStream ( this.payloadCounter, this.payloadFlags );
+            final OutputStream payloadStream = this.payloadCoding.createProvider ().createOutputStream ( this.payloadCounter, this.payloadFlags );
 
             this.archiveCounter = new CountingOutputStream ( payloadStream );
 

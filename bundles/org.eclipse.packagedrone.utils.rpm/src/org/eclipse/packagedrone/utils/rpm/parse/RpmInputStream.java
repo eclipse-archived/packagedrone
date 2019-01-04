@@ -26,7 +26,6 @@ import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
 import org.eclipse.packagedrone.utils.rpm.coding.PayloadCoding;
-import org.eclipse.packagedrone.utils.rpm.coding.PayloadCodingRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,6 +97,9 @@ public class RpmInputStream extends InputStream
 
     private InputStream setupPayloadStream () throws IOException
     {
+
+        // payload format
+
         final Object payloadFormatValue = this.payloadHeader.getTag ( RpmTag.PAYLOAD_FORMAT );
 
         if ( payloadFormatValue != null && ! ( payloadFormatValue instanceof String ) )
@@ -117,6 +119,8 @@ public class RpmInputStream extends InputStream
             throw new IOException ( String.format ( "Unknown payload format: %s", payloadFormat ) );
         }
 
+        // payload coding
+
         final Optional<Object> payloadCodingHeader = this.payloadHeader.getOptionalTag ( RpmTag.PAYLOAD_CODING );
 
         if ( !payloadCodingHeader.isPresent () )
@@ -126,25 +130,16 @@ public class RpmInputStream extends InputStream
 
         final Object payloadCodingValue = payloadCodingHeader.get ();
 
-        String payloadCoding = (String)payloadCodingValue;
+        final String payloadCoding = (String)payloadCodingValue;
 
         if ( payloadCodingValue != null && ! ( payloadCodingValue instanceof String ) )
         {
             throw new IOException ( "Payload coding must be a single string" );
         }
 
-        final PayloadCoding coding;
+        final PayloadCoding coding = PayloadCoding.fromValue ( payloadCoding ).orElseThrow ( () -> new IOException ( String.format ( "Unknown payload coding: '%s'", payloadCoding ) ) );
 
-        if ( payloadCoding == null )
-        {
-            coding = PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP );
-        }
-        else
-        {
-            coding = PayloadCodingRegistry.get ( payloadCoding );
-        }
-
-        return coding.createInputStream ( this.in );
+        return coding.createProvider ().createInputStream ( this.in );
     }
 
     public CpioArchiveInputStream getCpioStream ()
