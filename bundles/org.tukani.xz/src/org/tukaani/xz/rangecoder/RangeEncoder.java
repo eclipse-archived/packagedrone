@@ -10,10 +10,9 @@
 
 package org.tukaani.xz.rangecoder;
 
-import java.io.OutputStream;
 import java.io.IOException;
 
-public final class RangeEncoder extends RangeCoder {
+public abstract class RangeEncoder extends RangeCoder {
     private static final int MOVE_REDUCING_BITS = 4;
     private static final int BIT_PRICE_SHIFT_BITS = 4;
 
@@ -26,12 +25,9 @@ public final class RangeEncoder extends RangeCoder {
     // NOTE: int is OK for LZMA2 because a compressed chunk
     // is not more than 64 KiB, but with LZMA1 there is no chunking
     // so in theory cacheSize can grow very big. To be very safe,
-    // use long instead of int if you adapt this code for LZMA1.
-    private int cacheSize;
+    // use long instead of int since this code is used for LZMA1 too.
+    long cacheSize;
     private byte cache;
-
-    private final byte[] buf;
-    private int bufPos;
 
     static {
         for (int i = (1 << MOVE_REDUCING_BITS) / 2; i < BIT_MODEL_TOTAL;
@@ -55,42 +51,41 @@ public final class RangeEncoder extends RangeCoder {
         }
     }
 
-    public RangeEncoder(int bufSize) {
-        buf = new byte[bufSize];
-        reset();
-    }
-
     public void reset() {
         low = 0;
         range = 0xFFFFFFFF;
         cache = 0x00;
         cacheSize = 1;
-        bufPos = 0;
     }
 
     public int getPendingSize() {
-        return bufPos + cacheSize + 5 - 1;
+        // This function is only needed by users of RangeEncoderToBuffer,
+        // but providing a must-be-never-called version here makes
+        // LZMAEncoder simpler.
+        throw new Error();
     }
 
-    public int finish() {
+    public int finish() throws IOException {
         for (int i = 0; i < 5; ++i)
             shiftLow();
 
-        return bufPos;
+        // RangeEncoderToBuffer.finish() needs a return value to tell
+        // how big the finished buffer is. RangeEncoderToStream has no
+        // buffer and thus no return value is needed. Here we use a dummy
+        // value which can be overriden in RangeEncoderToBuffer.finish().
+        return -1;
     }
 
-    public void write(OutputStream out) throws IOException {
-        out.write(buf, 0, bufPos);
-    }
+    abstract void writeByte(int b) throws IOException;
 
-    private void shiftLow() {
+    private void shiftLow() throws IOException {
         int lowHi = (int)(low >>> 32);
 
         if (lowHi != 0 || low < 0xFF000000L) {
             int temp = cache;
 
             do {
-                buf[bufPos++] = (byte)(temp + lowHi);
+                writeByte(temp + lowHi);
                 temp = 0xFF;
             } while (--cacheSize != 0);
 
@@ -101,7 +96,8 @@ public final class RangeEncoder extends RangeCoder {
         low = (low & 0x00FFFFFF) << 8;
     }
 
-    public void encodeBit(short[] probs, int index, int bit) {
+    public void encodeBit(short[] probs, int index, int bit)
+            throws IOException {
         int prob = probs[index];
         int bound = (range >>> BIT_MODEL_TOTAL_BITS) * prob;
 
@@ -129,7 +125,7 @@ public final class RangeEncoder extends RangeCoder {
                       >>> MOVE_REDUCING_BITS];
     }
 
-    public void encodeBitTree(short[] probs, int symbol) {
+    public void encodeBitTree(short[] probs, int symbol) throws IOException {
         int index = 1;
         int mask = probs.length;
 
@@ -158,7 +154,8 @@ public final class RangeEncoder extends RangeCoder {
         return price;
     }
 
-    public void encodeReverseBitTree(short[] probs, int symbol) {
+    public void encodeReverseBitTree(short[] probs, int symbol)
+            throws IOException {
         int index = 1;
         symbol |= probs.length;
 
@@ -185,7 +182,7 @@ public final class RangeEncoder extends RangeCoder {
         return price;
     }
 
-    public void encodeDirectBits(int value, int count) {
+    public void encodeDirectBits(int value, int count) throws IOException {
         do {
             range >>>= 1;
             low += range & (0 - ((value >>> --count) & 1));

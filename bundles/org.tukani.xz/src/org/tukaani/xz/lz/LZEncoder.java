@@ -12,6 +12,7 @@ package org.tukaani.xz.lz;
 
 import java.io.OutputStream;
 import java.io.IOException;
+import org.tukaani.xz.ArrayCache;
 
 public abstract class LZEncoder {
     public static final int MF_HC4 = 0x04;
@@ -35,6 +36,7 @@ public abstract class LZEncoder {
     final int niceLen;
 
     final byte[] buf;
+    final int bufSize; // To avoid buf.length with an array-cached buf.
 
     int readPos = -1;
     private int readLimit = -1;
@@ -42,8 +44,9 @@ public abstract class LZEncoder {
     private int writePos = 0;
     private int pendingSize = 0;
 
-    static void normalize(int[] positions, int normalizationOffset) {
-        for (int i = 0; i < positions.length; ++i) {
+    static void normalize(int[] positions, int positionsCount,
+                          int normalizationOffset) {
+        for (int i = 0; i < positionsCount; ++i) {
             if (positions[i] <= normalizationOffset)
                 positions[i] = 0;
             else
@@ -116,15 +119,16 @@ public abstract class LZEncoder {
      */
     public static LZEncoder getInstance(
             int dictSize, int extraSizeBefore, int extraSizeAfter,
-            int niceLen, int matchLenMax, int mf, int depthLimit) {
+            int niceLen, int matchLenMax, int mf, int depthLimit,
+            ArrayCache arrayCache) {
         switch (mf) {
             case MF_HC4:
                 return new HC4(dictSize, extraSizeBefore, extraSizeAfter,
-                               niceLen, matchLenMax, depthLimit);
+                               niceLen, matchLenMax, depthLimit, arrayCache);
 
             case MF_BT4:
                 return new BT4(dictSize, extraSizeBefore, extraSizeAfter,
-                               niceLen, matchLenMax, depthLimit);
+                               niceLen, matchLenMax, depthLimit, arrayCache);
         }
 
         throw new IllegalArgumentException();
@@ -134,15 +138,20 @@ public abstract class LZEncoder {
      * Creates a new LZEncoder. See <code>getInstance</code>.
      */
     LZEncoder(int dictSize, int extraSizeBefore, int extraSizeAfter,
-              int niceLen, int matchLenMax) {
-        buf = new byte[getBufSize(dictSize, extraSizeBefore, extraSizeAfter,
-                                  matchLenMax)];
+              int niceLen, int matchLenMax, ArrayCache arrayCache) {
+        bufSize = getBufSize(dictSize, extraSizeBefore, extraSizeAfter,
+                             matchLenMax);
+        buf = arrayCache.getByteArray(bufSize, false);
 
         keepSizeBefore = extraSizeBefore + dictSize;
         keepSizeAfter = extraSizeAfter + matchLenMax;
 
         this.matchLenMax = matchLenMax;
         this.niceLen = niceLen;
+    }
+
+    public void putArraysToCache(ArrayCache arrayCache) {
+        arrayCache.putArray(buf);
     }
 
     /**
@@ -189,13 +198,13 @@ public abstract class LZEncoder {
         assert !finishing;
 
         // Move the sliding window if needed.
-        if (readPos >= buf.length - keepSizeAfter)
+        if (readPos >= bufSize - keepSizeAfter)
             moveWindow();
 
         // Try to fill the dictionary buffer. If it becomes full,
         // some of the input bytes may be left unused.
-        if (len > buf.length - writePos)
-            len = buf.length - writePos;
+        if (len > bufSize - writePos)
+            len = bufSize - writePos;
 
         System.arraycopy(in, off, buf, writePos, len);
         writePos += len;

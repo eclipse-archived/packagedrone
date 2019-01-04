@@ -82,6 +82,41 @@ public final class SignatureProcessors
         };
     }
 
+    public static SignatureProcessor sha256Header ()
+    {
+        return new SignatureProcessor () {
+
+            private String value;
+
+            @Override
+            public void feedHeader ( final ByteBuffer header )
+            {
+                try
+                {
+                    final MessageDigest md = MessageDigest.getInstance ( "SHA-256" );
+                    md.update ( header.slice () );
+                    this.value = Rpms.toHex ( md.digest () ).toLowerCase ();
+                }
+                catch ( final NoSuchAlgorithmException e )
+                {
+                    throw new RuntimeException ( e );
+                }
+            }
+
+            @Override
+            public void feedPayloadData ( final ByteBuffer data )
+            {
+                // we only work with the header
+            }
+
+            @Override
+            public void finish ( final Header<RpmSignatureTag> signature )
+            {
+                signature.putString ( RpmSignatureTag.SHA256HEADER, this.value );
+            }
+        };
+    }
+
     public static SignatureProcessor sha1Header ()
     {
         return new SignatureProcessor () {

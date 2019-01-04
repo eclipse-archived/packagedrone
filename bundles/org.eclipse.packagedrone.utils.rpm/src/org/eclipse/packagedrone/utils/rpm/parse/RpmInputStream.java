@@ -17,19 +17,18 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.eclipse.packagedrone.utils.rpm.RpmBaseTag;
 import org.eclipse.packagedrone.utils.rpm.RpmLead;
 import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.Rpms;
+import org.eclipse.packagedrone.utils.rpm.build.PayloadCoding;
+import org.eclipse.packagedrone.utils.rpm.build.PayloadCodingRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tukaani.xz.LZMAInputStream;
-import org.tukaani.xz.XZInputStream;
 
 import com.google.common.io.CountingInputStream;
 
@@ -100,29 +99,17 @@ public class RpmInputStream extends InputStream
     private InputStream setupPayloadStream () throws IOException
     {
         final Object payloadFormatValue = this.payloadHeader.getTag ( RpmTag.PAYLOAD_FORMAT );
-        final Object payloadCodingValue = this.payloadHeader.getTag ( RpmTag.PAYLOAD_CODING );
 
         if ( payloadFormatValue != null && ! ( payloadFormatValue instanceof String ) )
         {
             throw new IOException ( "Payload format must be a single string" );
         }
 
-        if ( payloadFormatValue != null && ! ( payloadCodingValue instanceof String ) )
-        {
-            throw new IOException ( "Payload coding must be a single string" );
-        }
-
         String payloadFormat = (String)payloadFormatValue;
-        String payloadCoding = (String)payloadCodingValue;
 
-        if ( payloadFormat == null || payloadFormat.isEmpty () )
+        if ( payloadFormat == null )
         {
             payloadFormat = "cpio";
-        }
-
-        if ( payloadCoding == null || payloadCoding.isEmpty () )
-        {
-            payloadCoding = "gzip";
         }
 
         if ( !"cpio".equals ( payloadFormat ) )
@@ -130,21 +117,34 @@ public class RpmInputStream extends InputStream
             throw new IOException ( String.format ( "Unknown payload format: %s", payloadFormat ) );
         }
 
-        switch ( payloadCoding )
+        final Optional<Object> payloadCodingHeader = this.payloadHeader.getOptionalTag ( RpmTag.PAYLOAD_CODING );
+
+        if ( !payloadCodingHeader.isPresent () )
         {
-            case "none":
-                return this.in;
-            case "gzip":
-                return new GzipCompressorInputStream ( this.in );
-            case "bzip2":
-                return new BZip2CompressorInputStream ( this.in );
-            case "lzma":
-                return new LZMAInputStream ( this.in );
-            case "xz":
-                return new XZInputStream ( this.in );
-            default:
-                throw new IOException ( String.format ( "Unknown coding: %s", payloadCoding ) );
+            return this.in;
         }
+
+        final Object payloadCodingValue = payloadCodingHeader.get ();
+
+        String payloadCoding = (String)payloadCodingValue;
+
+        if ( payloadCodingValue != null && ! ( payloadCodingValue instanceof String ) )
+        {
+            throw new IOException ( "Payload coding must be a single string" );
+        }
+
+        final PayloadCoding coding;
+
+        if ( payloadCoding == null )
+        {
+            coding = PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP );
+        }
+        else
+        {
+            coding = PayloadCodingRegistry.get ( payloadCoding );
+        }
+
+        return coding.createInputStream ( this.in );
     }
 
     public CpioArchiveInputStream getCpioStream ()

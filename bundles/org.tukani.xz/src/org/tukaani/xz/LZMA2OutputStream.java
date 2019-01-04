@@ -13,18 +13,20 @@ package org.tukaani.xz;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import org.tukaani.xz.lz.LZEncoder;
-import org.tukaani.xz.rangecoder.RangeEncoder;
+import org.tukaani.xz.rangecoder.RangeEncoderToBuffer;
 import org.tukaani.xz.lzma.LZMAEncoder;
 
 class LZMA2OutputStream extends FinishableOutputStream {
     static final int COMPRESSED_SIZE_MAX = 64 << 10;
 
+    private final ArrayCache arrayCache;
+
     private FinishableOutputStream out;
     private final DataOutputStream outData;
 
-    private final LZEncoder lz;
-    private final RangeEncoder rc;
-    private final LZMAEncoder lzma;
+    private LZEncoder lz;
+    private RangeEncoderToBuffer rc;
+    private LZMAEncoder lzma;
 
     private final int props; // Cannot change props on the fly for now.
     private boolean dictResetNeeded = true;
@@ -51,13 +53,15 @@ class LZMA2OutputStream extends FinishableOutputStream {
                                                options.getMatchFinder());
     }
 
-    LZMA2OutputStream(FinishableOutputStream out, LZMA2Options options) {
+    LZMA2OutputStream(FinishableOutputStream out, LZMA2Options options,
+                      ArrayCache arrayCache) {
         if (out == null)
             throw new NullPointerException();
 
+        this.arrayCache = arrayCache;
         this.out = out;
         outData = new DataOutputStream(out);
-        rc = new RangeEncoder(COMPRESSED_SIZE_MAX);
+        rc = new RangeEncoderToBuffer(COMPRESSED_SIZE_MAX, arrayCache);
 
         int dictSize = options.getDictSize();
         int extraSizeBefore = getExtraSizeBefore(dictSize);
@@ -65,7 +69,8 @@ class LZMA2OutputStream extends FinishableOutputStream {
                 options.getLc(), options.getLp(), options.getPb(),
                 options.getMode(),
                 dictSize, extraSizeBefore, options.getNiceLen(),
-                options.getMatchFinder(), options.getDepthLimit());
+                options.getMatchFinder(), options.getDepthLimit(),
+                this.arrayCache);
 
         lz = lzma.getLZEncoder();
 
@@ -198,6 +203,12 @@ class LZMA2OutputStream extends FinishableOutputStream {
         }
 
         finished = true;
+
+        lzma.putArraysToCache(arrayCache);
+        lzma = null;
+        lz = null;
+        rc.putArraysToCache(arrayCache);
+        rc = null;
     }
 
     public void flush() throws IOException {
@@ -232,8 +243,6 @@ class LZMA2OutputStream extends FinishableOutputStream {
                 exception = e;
                 throw e;
             }
-
-            finished = true;
         }
     }
 

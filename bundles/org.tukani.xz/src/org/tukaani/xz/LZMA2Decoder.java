@@ -29,7 +29,7 @@ class LZMA2Decoder extends LZMA2Coder implements FilterDecoder {
         return LZMA2InputStream.getMemoryUsage(dictSize);
     }
 
-    public InputStream getInputStream(InputStream in) {
-        return new LZMA2InputStream(in, dictSize);
+    public InputStream getInputStream(InputStream in, ArrayCache arrayCache) {
+        return new LZMA2InputStream(in, dictSize, null, arrayCache);
     }
 }

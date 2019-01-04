@@ -19,6 +19,7 @@ public enum RpmSignatureTag implements RpmBaseTag
     RSAHEADER ( 268 ),
     SHA1HEADER ( 269 ),
     LONGARCHIVESIZE ( 271 ),
+    SHA256HEADER ( 273 ),
 
     SIZE ( 1000 ),
     PGP ( 1002 ),

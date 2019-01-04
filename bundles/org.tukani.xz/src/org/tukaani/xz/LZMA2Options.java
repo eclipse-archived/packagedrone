@@ -529,11 +529,12 @@ public class LZMA2Options extends FilterOptions {
                : LZMA2OutputStream.getMemoryUsage(this);
     }
 
-    public FinishableOutputStream getOutputStream(FinishableOutputStream out) {
+    public FinishableOutputStream getOutputStream(FinishableOutputStream out,
+                                                  ArrayCache arrayCache) {
         if (mode == MODE_UNCOMPRESSED)
-            return new UncompressedLZMA2OutputStream(out);
+            return new UncompressedLZMA2OutputStream(out, arrayCache);
 
-        return new LZMA2OutputStream(out, this);
+        return new LZMA2OutputStream(out, this, arrayCache);
     }
 
     /**
@@ -562,8 +563,9 @@ public class LZMA2Options extends FilterOptions {
         return LZMA2InputStream.getMemoryUsage(d + 1);
     }
 
-    public InputStream getInputStream(InputStream in) throws IOException {
-        return new LZMA2InputStream(in, dictSize);
+    public InputStream getInputStream(InputStream in, ArrayCache arrayCache)
+            throws IOException {
+        return new LZMA2InputStream(in, dictSize, presetDict, arrayCache);
     }
 
     FilterEncoder getFilterEncoder() {

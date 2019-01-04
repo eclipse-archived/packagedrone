@@ -25,6 +25,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -38,6 +39,7 @@ import java.util.function.ToLongFunction;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
+import org.apache.commons.compress.compressors.zstandard.ZstdUtils;
 import org.eclipse.packagedrone.utils.rpm.Architecture;
 import org.eclipse.packagedrone.utils.rpm.FileFlags;
 import org.eclipse.packagedrone.utils.rpm.OperatingSystem;
@@ -105,7 +107,8 @@ public class RpmBuilder implements AutoCloseable
     public static enum Version
     {
         V4_11 ( "4.11" ),
-        V4_12 ( "4.12" );
+        V4_12 ( "4.12" ),
+        V4_14 ( "4.14" );
 
         private final String versionString;
 
@@ -137,6 +140,131 @@ public class RpmBuilder implements AutoCloseable
 
             return Optional.empty ();
         }
+    }
+
+    public static class Feature extends Dependency
+    {
+        private String description;
+
+        public Feature ( final String name, final String version, final String description )
+        {
+            super ( "rpmlib(" + name + ")", version, RpmDependencyFlags.RPMLIB, RpmDependencyFlags.EQUAL );
+            this.description = description;
+        }
+
+        public String getDescription ()
+        {
+            return description;
+        }
+
+        public void setDescription ( final String description )
+        {
+            this.description = description;
+        }
+
+        @Override
+        public int hashCode ()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ( this.getFlags() == null ? 0 : this.getFlags().hashCode () );
+            result = prime * result + ( this.getName() == null ? 0 : this.getName().hashCode () );
+            result = prime * result + ( this.getVersion() == null ? 0 : this.getVersion().hashCode () );
+            result = prime * result + ( this.getDescription() == null ? 0 : this.getDescription().hashCode () );
+            return result;
+        }
+
+        @Override
+        public boolean equals ( final Object obj )
+        {
+            if ( this == obj )
+            {
+                return true;
+            }
+            if ( obj == null )
+            {
+                return false;
+            }
+            if ( getClass () != obj.getClass () )
+            {
+                return false;
+            }
+            final Feature other = (Feature)obj;
+            if ( this.getFlags() == null )
+            {
+                if ( other.getFlags() != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.getFlags().equals ( other.getFlags() ) )
+            {
+                return false;
+            }
+            if ( this.getName() == null )
+            {
+                if ( other.getName() != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.getName().equals ( other.getName() ) )
+            {
+                return false;
+            }
+            if ( this.getVersion() == null )
+            {
+                if ( other.getVersion() != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.getVersion().equals ( other.getVersion() ) )
+            {
+                return false;
+            }
+            if ( this.getDescription() == null )
+            {
+                if ( other.getDescription() != null )
+                {
+                    return false;
+                }
+            }
+            else if ( !this.getDescription().equals ( other.getDescription() ) )
+            {
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        public String toString ()
+        {
+            return String.format ( "[%s, %s, %s, %s]", this.getName(), this.getVersion(), this.getFlags(), this.getDescription() );
+        }
+
+    }
+
+    private static List<Feature> features = new ArrayList<> ();
+
+    static
+    {
+
+        features.add ( new Feature ( "VersionedDependencies", "3.0.3-1", "PreReq:, Provides:, and Obsoletes: dependencies support versions." ) );
+        features.add ( new Feature ( "CompressedFileNames", "3.0.4-1", "file name(s) stored as (dirName,baseName,dirIndex) tuple, not as path." ) );
+        features.add ( new Feature ( "PayloadIsBzip2", "3.0.5-1", "package payload can be compressed using bzip2." ) );
+        features.add ( new Feature ( "ExplicitPackageProvide", "4.0-1", "package name-version-release is not implicitly provided." ) );
+        features.add ( new Feature ( "HeaderLoadSortsTags", "4.0.1-1", "header tags are always sorted after being loaded." ) );
+        features.add ( new Feature ( "PayloadFilesHavePrefix", "4.0-1", "package payload file(s) have \"./\" prefix." ) );
+        features.add ( new Feature ( "PayloadIsLzma", "4.4.2-1", "package payload can be compressed using lzma." ) );
+        features.add ( new Feature ( "PayloadIsXz", "5.2-1", "package payload can be compressed using xz." ) );
+
+        if ( ZstdUtils.isZstdCompressionAvailable () )
+        {
+            features.add ( new Feature ( "PayloadIsZstd", "5.4.18-1", "package payload can be compressed using zstd." ) );
+        }
+
+        features = Collections.unmodifiableList ( features );
     }
 
     public static class FileEntry
@@ -603,7 +731,7 @@ public class RpmBuilder implements AutoCloseable
 
         this.targetFile = makeTargetFile ( targetFile );
 
-        this.recorder = new PayloadRecorder ( true );
+        this.recorder = new PayloadRecorder ( true, this.options.getPayloadCoding (), this.options.getPayloadFlags (), this.options.getFileDigestAlgorithm () );
 
         addDefaultSignatureProcessors ();
     }
@@ -626,8 +754,9 @@ public class RpmBuilder implements AutoCloseable
     public void addDefaultSignatureProcessors ()
     {
         addSignatureProcessor ( SignatureProcessors.size () );
-        addSignatureProcessor ( SignatureProcessors.md5 () );
+        addSignatureProcessor ( SignatureProcessors.sha256Header () );
         addSignatureProcessor ( SignatureProcessors.sha1Header () );
+        addSignatureProcessor ( SignatureProcessors.md5 () );
         addSignatureProcessor ( SignatureProcessors.payloadSize () );
     }
 
@@ -648,11 +777,25 @@ public class RpmBuilder implements AutoCloseable
 
     /**
      * Fill extra requirements the RPM file itself may have
+     * @throws IOException
      */
-    private void fillRequirements ()
+    private void fillRequirements () throws IOException
     {
-        this.requirements.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
         this.requirements.add ( new Dependency ( "rpmlib(CompressedFileNames)", "3.0.4-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+
+        if ( !this.options.getFileDigestAlgorithm ().equals ( DigestAlgorithm.MD5 ) )
+        {
+            this.requirements.add ( new Dependency ( "rpmlib(FileDigests)", "4.6.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+        }
+
+        this.requirements.add ( new Dependency ( "rpmlib(PayloadFilesHavePrefix)", "4.0-1", RpmDependencyFlags.LESS, RpmDependencyFlags.EQUAL, RpmDependencyFlags.RPMLIB ) );
+
+        final Optional<Dependency> optionalDependency = options.getPayloadCoding ().getDependency ();
+
+        if ( optionalDependency.isPresent () )
+        {
+            this.requirements.add ( optionalDependency.get() );
+        }
     }
 
     private void fillProvides ()
@@ -663,8 +806,17 @@ public class RpmBuilder implements AutoCloseable
     private void fillHeader ()
     {
         this.header.putString ( RpmTag.PAYLOAD_FORMAT, "cpio" );
-        this.header.putString ( RpmTag.PAYLOAD_CODING, "gzip" );
-        this.header.putString ( RpmTag.PAYLOAD_FLAGS, "9" );
+
+        if ( recorder.getPayloadCoding () != null )
+        {
+            this.header.putString ( RpmTag.PAYLOAD_CODING, recorder.getPayloadCoding ().getCoding () );
+        }
+
+        if ( recorder.getPayloadFlags ().isPresent () )
+        {
+            this.header.putString ( RpmTag.PAYLOAD_FLAGS, recorder.getPayloadFlags ().get () );
+        }
+
         this.header.putStringArray ( 100, "C" );
 
         this.header.putString ( RpmTag.NAME, this.name );
@@ -706,6 +858,11 @@ public class RpmBuilder implements AutoCloseable
 
         if ( !this.files.isEmpty () )
         {
+            if ( !this.options.getFileDigestAlgorithm ().equals ( DigestAlgorithm.MD5 ) )
+            {
+               this.header.putInt ( RpmTag.FILE_DIGESTALGO, this.options.getFileDigestAlgorithm ().getTag () );
+            }
+
             final FileEntry[] files = this.files.values ().toArray ( new FileEntry[this.files.size ()] );
             Arrays.sort ( files, comparing ( FileEntry::getTargetName ) );
 
@@ -835,6 +992,17 @@ public class RpmBuilder implements AutoCloseable
     private String makeDefaultFileName ()
     {
         return this.options.getFileNameProvider ().getRpmFileName ( this.name, this.version, this.architecture );
+    }
+
+
+    /**
+     * Return the list of features supported by this builder.
+     *
+     * @return the list of features supported by this builder
+     */
+    public static List<Feature> getFeatures ()
+    {
+        return features;
     }
 
     /**
@@ -1126,7 +1294,7 @@ public class RpmBuilder implements AutoCloseable
 
         entry.setSize ( result.getSize () );
         entry.setTargetSize ( result.getSize () );
-        entry.setDigest ( result.getSha1 () != null ? Rpms.toHex ( result.getSha1 () ).toLowerCase () : "" );
+        entry.setDigest ( result.getDigest () != null ? Rpms.toHex ( result.getDigest () ).toLowerCase () : "" );
         entry.setTargetName ( targetName );
 
         // run customizer

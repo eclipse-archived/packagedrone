@@ -75,6 +75,11 @@ import org.tukaani.xz.index.BlockInfo;
  */
 public class SeekableXZInputStream extends SeekableInputStream {
     /**
+     * Cache for big arrays.
+     */
+    private final ArrayCache arrayCache;
+
+    /**
      * The input stream containing XZ compressed data.
      */
     private SeekableInputStream in;
@@ -97,7 +102,8 @@ public class SeekableXZInputStream extends SeekableInputStream {
      * The list is in reverse order: The first element is
      * the last Stream in the file.
      */
-    private final ArrayList streams = new ArrayList();
+    private final ArrayList<IndexDecoder> streams
+            = new ArrayList<IndexDecoder>();
 
     /**
      * Bitmask of all Check IDs seen.
@@ -136,6 +142,11 @@ public class SeekableXZInputStream extends SeekableInputStream {
      * this to point to the Check of the first Stream.
      */
     private Check check;
+
+    /**
+     * Flag indicating if the integrity checks will be verified.
+     */
+    private final boolean verifyCheck;
 
     /**
      * Decoder of the current XZ Block, if any.
@@ -205,6 +216,43 @@ public class SeekableXZInputStream extends SeekableInputStream {
     }
 
     /**
+     * Creates a new seekable XZ decompressor without a memory usage limit.
+     * <p>
+     * This is identical to
+     * <code>SeekableXZInputStream(SeekableInputStream)</code> except that
+     * this also takes the <code>arrayCache</code> argument.
+     *
+     * @param       in          seekable input stream containing one or more
+     *                          XZ Streams; the whole input stream is used
+     *
+     * @param       arrayCache  cache to be used for allocating large arrays
+     *
+     * @throws      XZFormatException
+     *                          input is not in the XZ format
+     *
+     * @throws      CorruptedInputException
+     *                          XZ data is corrupt or truncated
+     *
+     * @throws      UnsupportedOptionsException
+     *                          XZ headers seem valid but they specify
+     *                          options not supported by this implementation
+     *
+     * @throws      EOFException
+     *                          less than 6 bytes of input was available
+     *                          from <code>in</code>, or (unlikely) the size
+     *                          of the underlying stream got smaller while
+     *                          this was reading from it
+     *
+     * @throws      IOException may be thrown by <code>in</code>
+     *
+     * @since 1.7
+     */
+    public SeekableXZInputStream(SeekableInputStream in, ArrayCache arrayCache)
+            throws IOException {
+        this(in, -1, arrayCache);
+    }
+
+    /**
      * Creates a new seekable XZ decomporessor with an optional
      * memory usage limit.
      *
@@ -239,6 +287,168 @@ public class SeekableXZInputStream extends SeekableInputStream {
      */
     public SeekableXZInputStream(SeekableInputStream in, int memoryLimit)
             throws IOException {
+        this(in, memoryLimit, true);
+    }
+
+    /**
+     * Creates a new seekable XZ decomporessor with an optional
+     * memory usage limit.
+     * <p>
+     * This is identical to
+     * <code>SeekableXZInputStream(SeekableInputStream,int)</code>
+     * except that this also takes the <code>arrayCache</code> argument.
+     *
+     * @param       in          seekable input stream containing one or more
+     *                          XZ Streams; the whole input stream is used
+     *
+     * @param       memoryLimit memory usage limit in kibibytes (KiB)
+     *                          or <code>-1</code> to impose no
+     *                          memory usage limit
+     *
+     * @param       arrayCache  cache to be used for allocating large arrays
+     *
+     * @throws      XZFormatException
+     *                          input is not in the XZ format
+     *
+     * @throws      CorruptedInputException
+     *                          XZ data is corrupt or truncated
+     *
+     * @throws      UnsupportedOptionsException
+     *                          XZ headers seem valid but they specify
+     *                          options not supported by this implementation
+     *
+     * @throws      MemoryLimitException
+     *                          decoded XZ Indexes would need more memory
+     *                          than allowed by the memory usage limit
+     *
+     * @throws      EOFException
+     *                          less than 6 bytes of input was available
+     *                          from <code>in</code>, or (unlikely) the size
+     *                          of the underlying stream got smaller while
+     *                          this was reading from it
+     *
+     * @throws      IOException may be thrown by <code>in</code>
+     *
+     * @since 1.7
+     */
+    public SeekableXZInputStream(SeekableInputStream in, int memoryLimit,
+                                 ArrayCache arrayCache)
+            throws IOException {
+        this(in, memoryLimit, true, arrayCache);
+    }
+
+    /**
+     * Creates a new seekable XZ decomporessor with an optional
+     * memory usage limit and ability to disable verification
+     * of integrity checks.
+     * <p>
+     * Note that integrity check verification should almost never be disabled.
+     * Possible reasons to disable integrity check verification:
+     * <ul>
+     *   <li>Trying to recover data from a corrupt .xz file.</li>
+     *   <li>Speeding up decompression. This matters mostly with SHA-256
+     *   or with files that have compressed extremely well. It's recommended
+     *   that integrity checking isn't disabled for performance reasons
+     *   unless the file integrity is verified externally in some other
+     *   way.</li>
+     * </ul>
+     * <p>
+     * <code>verifyCheck</code> only affects the integrity check of
+     * the actual compressed data. The CRC32 fields in the headers
+     * are always verified.
+     *
+     * @param       in          seekable input stream containing one or more
+     *                          XZ Streams; the whole input stream is used
+     *
+     * @param       memoryLimit memory usage limit in kibibytes (KiB)
+     *                          or <code>-1</code> to impose no
+     *                          memory usage limit
+     *
+     * @param       verifyCheck if <code>true</code>, the integrity checks
+     *                          will be verified; this should almost never
+     *                          be set to <code>false</code>
+     *
+     * @throws      XZFormatException
+     *                          input is not in the XZ format
+     *
+     * @throws      CorruptedInputException
+     *                          XZ data is corrupt or truncated
+     *
+     * @throws      UnsupportedOptionsException
+     *                          XZ headers seem valid but they specify
+     *                          options not supported by this implementation
+     *
+     * @throws      MemoryLimitException
+     *                          decoded XZ Indexes would need more memory
+     *                          than allowed by the memory usage limit
+     *
+     * @throws      EOFException
+     *                          less than 6 bytes of input was available
+     *                          from <code>in</code>, or (unlikely) the size
+     *                          of the underlying stream got smaller while
+     *                          this was reading from it
+     *
+     * @throws      IOException may be thrown by <code>in</code>
+     *
+     * @since 1.6
+     */
+    public SeekableXZInputStream(SeekableInputStream in, int memoryLimit,
+                                 boolean verifyCheck)
+            throws IOException {
+        this(in, memoryLimit, verifyCheck, ArrayCache.getDefaultCache());
+    }
+
+    /**
+     * Creates a new seekable XZ decomporessor with an optional
+     * memory usage limit and ability to disable verification
+     * of integrity checks.
+     * <p>
+     * This is identical to
+     * <code>SeekableXZInputStream(SeekableInputStream,int,boolean)</code>
+     * except that this also takes the <code>arrayCache</code> argument.
+     *
+     * @param       in          seekable input stream containing one or more
+     *                          XZ Streams; the whole input stream is used
+     *
+     * @param       memoryLimit memory usage limit in kibibytes (KiB)
+     *                          or <code>-1</code> to impose no
+     *                          memory usage limit
+     *
+     * @param       verifyCheck if <code>true</code>, the integrity checks
+     *                          will be verified; this should almost never
+     *                          be set to <code>false</code>
+     *
+     * @param       arrayCache  cache to be used for allocating large arrays
+     *
+     * @throws      XZFormatException
+     *                          input is not in the XZ format
+     *
+     * @throws      CorruptedInputException
+     *                          XZ data is corrupt or truncated
+     *
+     * @throws      UnsupportedOptionsException
+     *                          XZ headers seem valid but they specify
+     *                          options not supported by this implementation
+     *
+     * @throws      MemoryLimitException
+     *                          decoded XZ Indexes would need more memory
+     *                          than allowed by the memory usage limit
+     *
+     * @throws      EOFException
+     *                          less than 6 bytes of input was available
+     *                          from <code>in</code>, or (unlikely) the size
+     *                          of the underlying stream got smaller while
+     *                          this was reading from it
+     *
+     * @throws      IOException may be thrown by <code>in</code>
+     *
+     * @since 1.7
+     */
+    public SeekableXZInputStream(SeekableInputStream in, int memoryLimit,
+                                 boolean verifyCheck, ArrayCache arrayCache)
+            throws IOException {
+        this.arrayCache = arrayCache;
+        this.verifyCheck = verifyCheck;
         this.in = in;
         DataInputStream inData = new DataInputStream(in);
 
@@ -371,9 +581,9 @@ public class SeekableXZInputStream extends SeekableInputStream {
         // Store the relative offsets of the Streams. This way we don't
         // need to recalculate them in this class when seeking; the
         // IndexDecoder instances will handle them.
-        IndexDecoder prev = (IndexDecoder)streams.get(streams.size() - 1);
+        IndexDecoder prev = streams.get(streams.size() - 1);
         for (int i = streams.size() - 2; i >= 0; --i) {
-            IndexDecoder cur = (IndexDecoder)streams.get(i);
+            IndexDecoder cur = streams.get(i);
             cur.setOffsets(prev);
             prev = cur;
         }
@@ -382,7 +592,7 @@ public class SeekableXZInputStream extends SeekableInputStream {
         // The blockNumber will be left to -1 so that .hasNext()
         // and .setNext() work to get the first Block when starting
         // to decompress from the beginning of the file.
-        IndexDecoder first = (IndexDecoder)streams.get(streams.size() - 1);
+        IndexDecoder first = streams.get(streams.size() - 1);
         curBlockInfo = new BlockInfo(first);
 
         // queriedBlockInfo needs to be allocated too. The Stream used for
@@ -666,13 +876,48 @@ public class SeekableXZInputStream extends SeekableInputStream {
     /**
      * Closes the stream and calls <code>in.close()</code>.
      * If the stream was already closed, this does nothing.
+     * <p>
+     * This is equivalent to <code>close(true)</code>.
      *
      * @throws  IOException if thrown by <code>in.close()</code>
      */
     public void close() throws IOException {
+        close(true);
+    }
+
+    /**
+     * Closes the stream and optionally calls <code>in.close()</code>.
+     * If the stream was already closed, this does nothing.
+     * If <code>close(false)</code> has been called, a further
+     * call of <code>close(true)</code> does nothing (it doesn't call
+     * <code>in.close()</code>).
+     * <p>
+     * If you don't want to close the underlying <code>InputStream</code>,
+     * there is usually no need to worry about closing this stream either;
+     * it's fine to do nothing and let the garbage collector handle it.
+     * However, if you are using {@link ArrayCache}, <code>close(false)</code>
+     * can be useful to put the allocated arrays back to the cache without
+     * closing the underlying <code>InputStream</code>.
+     * <p>
+     * Note that if you successfully reach the end of the stream
+     * (<code>read</code> returns <code>-1</code>), the arrays are
+     * automatically put back to the cache by that <code>read</code> call. In
+     * this situation <code>close(false)</code> is redundant (but harmless).
+     *
+     * @throws  IOException if thrown by <code>in.close()</code>
+     *
+     * @since 1.7
+     */
+    public void close(boolean closeInput) throws IOException {
         if (in != null) {
+            if (blockDecoder != null) {
+                blockDecoder.close();
+                blockDecoder = null;
+            }
+
             try {
-                in.close();
+                if (closeInput)
+                    in.close();
             } finally {
                 in = null;
             }
@@ -773,7 +1018,12 @@ public class SeekableXZInputStream extends SeekableInputStream {
         // Check if we are seeking to or past the end of the file.
         if (seekPos >= uncompressedSize) {
             curPos = seekPos;
-            blockDecoder = null;
+
+            if (blockDecoder != null) {
+                blockDecoder.close();
+                blockDecoder = null;
+            }
+
             endReached = true;
             return;
         }
@@ -831,7 +1081,7 @@ public class SeekableXZInputStream extends SeekableInputStream {
         // Locate the Stream that contains the target position.
         IndexDecoder index;
         for (int i = 0; ; ++i) {
-            index = (IndexDecoder)streams.get(i);
+            index = streams.get(i);
             if (index.hasUncompressedOffset(pos))
                 break;
         }
@@ -862,7 +1112,7 @@ public class SeekableXZInputStream extends SeekableInputStream {
         // Search the Stream that contains the given Block and then
         // search the Block from that Stream.
         for (int i = 0; ; ++i) {
-            IndexDecoder index = (IndexDecoder)streams.get(i);
+            IndexDecoder index = streams.get(i);
             if (index.hasRecord(blockNumber)) {
                 index.setBlockInfo(info, blockNumber);
                 return;
@@ -878,9 +1128,15 @@ public class SeekableXZInputStream extends SeekableInputStream {
         try {
             // Set it to null first so that GC can collect it if memory
             // runs tight when initializing a new BlockInputStream.
-            blockDecoder = null;
-            blockDecoder = new BlockInputStream(in, check, memoryLimit,
-                    curBlockInfo.unpaddedSize, curBlockInfo.uncompressedSize);
+            if (blockDecoder != null) {
+                blockDecoder.close();
+                blockDecoder = null;
+            }
+
+            blockDecoder = new BlockInputStream(
+                    in, check, verifyCheck, memoryLimit,
+                    curBlockInfo.unpaddedSize, curBlockInfo.uncompressedSize,
+                    arrayCache);
         } catch (MemoryLimitException e) {
             // BlockInputStream doesn't know how much memory we had
             // already needed so we need to recreate the exception.

@@ -26,12 +26,13 @@ import java.nio.file.StandardOpenOption;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream;
 import org.apache.commons.compress.archivers.cpio.CpioConstants;
+import org.apache.commons.compress.utils.CharsetNames;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingOutputStream;
@@ -42,12 +43,12 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     {
         private final long size;
 
-        private final byte[] sha1;
+        private final byte[] digest;
 
-        private Result ( final long size, final byte[] sha1 )
+        private Result ( final long size, final byte[] digest )
         {
             this.size = size;
-            this.sha1 = sha1;
+            this.digest = digest;
         }
 
         public long getSize ()
@@ -55,9 +56,9 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
             return this.size;
         }
 
-        public byte[] getSha1 ()
+        public byte[] getDigest ()
         {
-            return this.sha1;
+            return this.digest;
         }
     }
 
@@ -77,14 +78,27 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     private boolean closed;
 
+    private PayloadCoding payloadCoding;
+
+    private Optional<String> payloadFlags;
+
+    private DigestAlgorithm fileDigestAlgorithm;
+
     public PayloadRecorder () throws IOException
     {
-        this ( true );
+        this ( true, PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP ), null, DigestAlgorithm.MD5  );
     }
 
     public PayloadRecorder ( final boolean autoFinish ) throws IOException
     {
+        this ( autoFinish, PayloadCodingRegistry.get ( PayloadCodingRegistry.GZIP ), null, DigestAlgorithm.MD5 );
+    }
+
+    public PayloadRecorder ( final boolean autoFinish, final PayloadCoding payloadCoding, final String payloadFlags, final DigestAlgorithm fileDigestAlgorithm ) throws IOException
+    {
         this.autoFinish = autoFinish;
+
+        this.fileDigestAlgorithm = fileDigestAlgorithm;
 
         this.tempFile = Files.createTempFile ( "rpm-", null );
 
@@ -94,12 +108,17 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
             this.payloadCounter = new CountingOutputStream ( this.fileStream );
 
-            final GZIPOutputStream payloadStream = new GZIPOutputStream ( this.payloadCounter );
+            this.payloadCoding = payloadCoding;
+
+            this.payloadFlags = Optional.ofNullable ( payloadFlags );
+
+            final OutputStream payloadStream = this.payloadCoding.createOutputStream ( this.payloadCounter, this.payloadFlags );
+
             this.archiveCounter = new CountingOutputStream ( payloadStream );
 
             // setup archive stream
 
-            this.archiveStream = new CpioArchiveOutputStream ( this.archiveCounter, CpioConstants.FORMAT_NEW, 4, "UTF-8" );
+            this.archiveStream = new CpioArchiveOutputStream ( this.archiveCounter, CpioConstants.FORMAT_NEW, 4, CharsetNames.UTF_8 );
         }
         catch ( final IOException e )
         {
@@ -117,7 +136,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     {
         final long size = Files.size ( path );
 
-        final CpioArchiveEntry entry = new CpioArchiveEntry ( targetPath );
+        final CpioArchiveEntry entry = new CpioArchiveEntry ( CpioConstants.FORMAT_NEW, targetPath );
         entry.setSize ( size );
 
         if ( customizer != null )
@@ -156,7 +175,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     {
         final long size = data.remaining ();
 
-        final CpioArchiveEntry entry = new CpioArchiveEntry ( targetPath );
+        final CpioArchiveEntry entry = new CpioArchiveEntry ( CpioConstants.FORMAT_NEW, targetPath );
         entry.setSize ( size );
 
         if ( customizer != null )
@@ -196,7 +215,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     private MessageDigest createDigest () throws NoSuchAlgorithmException
     {
-        return MessageDigest.getInstance ( "MD5" );
+        return MessageDigest.getInstance ( this.fileDigestAlgorithm.getAlgorithm () );
     }
 
     public Result addFile ( final String targetPath, final InputStream stream ) throws IOException
@@ -224,7 +243,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
 
     public Result addDirectory ( final String targetPath, final Consumer<CpioArchiveEntry> customizer ) throws IOException
     {
-        final CpioArchiveEntry entry = new CpioArchiveEntry ( targetPath );
+        final CpioArchiveEntry entry = new CpioArchiveEntry ( CpioConstants.FORMAT_NEW, targetPath );
 
         if ( customizer != null )
         {
@@ -241,7 +260,7 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     {
         final byte[] bytes = linkTo.getBytes ( StandardCharsets.UTF_8 );
 
-        final CpioArchiveEntry entry = new CpioArchiveEntry ( targetPath );
+        final CpioArchiveEntry entry = new CpioArchiveEntry ( CpioConstants.FORMAT_NEW, targetPath );
         entry.setSize ( bytes.length );
 
         if ( customizer != null )
@@ -294,6 +313,24 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
     }
 
     @Override
+    public PayloadCoding getPayloadCoding ()
+    {
+        return this.payloadCoding;
+    }
+
+    @Override
+    public Optional<String> getPayloadFlags ()
+    {
+        return this.payloadFlags;
+    }
+
+    @Override
+    public DigestAlgorithm getFileDigestAlgorithm ()
+    {
+        return this.fileDigestAlgorithm;
+    }
+
+    @Override
     public FileChannel openChannel () throws IOException
     {
         checkFinished ( true );
@@ -339,5 +376,4 @@ public class PayloadRecorder implements AutoCloseable, PayloadProvider
             Files.deleteIfExists ( this.tempFile );
         }
     }
-
 }
