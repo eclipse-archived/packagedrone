@@ -161,7 +161,6 @@ public class WriterTest
         }
     }
 
-    @SuppressWarnings ( "deprecation" )
     @Test
     public void test3 () throws IOException, PGPException
     {
