@@ -20,7 +20,7 @@ public enum PayloadCoding
     LZMA ( "lzma", LZMAPayloadCoding::new ),
     BZIP2 ( "bzip2", BZip2PayloadCoding::new ),
     ZSTD ( "zstd", ZstdPayloadCoding::new ),
-    XZ ( "xz2", XZPayloadCoding::new );
+    XZ ( "xz", XZPayloadCoding::new );
 
     private String value;
 
