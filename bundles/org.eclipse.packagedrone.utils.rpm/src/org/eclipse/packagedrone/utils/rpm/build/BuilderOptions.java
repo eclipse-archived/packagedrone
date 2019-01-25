@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.build;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
@@ -37,6 +39,8 @@ public class BuilderOptions
 
     private DigestAlgorithm fileDigestAlgorithm = DigestAlgorithm.MD5;
 
+    private Charset headerCharset = StandardCharsets.UTF_8;
+
     public BuilderOptions ()
     {
     }
@@ -48,6 +52,7 @@ public class BuilderOptions
         setPayloadCoding ( other.payloadCoding );
         setPayloadFlags ( other.payloadFlags );
         setFileDigestAlgorithm ( other.fileDigestAlgorithm );
+        setHeaderCharset ( other.headerCharset );
     }
 
     public LongMode getLongMode ()
@@ -116,5 +121,15 @@ public class BuilderOptions
     public void setFileDigestAlgorithm ( final DigestAlgorithm fileDigestAlgorithm )
     {
         this.fileDigestAlgorithm = fileDigestAlgorithm == null ? DigestAlgorithm.MD5 : fileDigestAlgorithm;
+    }
+
+    public Charset getHeaderCharset ()
+    {
+        return this.headerCharset;
+    }
+
+    public void setHeaderCharset ( final Charset headerCharset )
+    {
+        this.headerCharset = headerCharset == null ? StandardCharsets.UTF_8 : headerCharset;
     }
 }

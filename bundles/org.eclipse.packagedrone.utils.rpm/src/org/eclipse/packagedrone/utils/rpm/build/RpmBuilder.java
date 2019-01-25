@@ -1074,7 +1074,7 @@ public class RpmBuilder implements AutoCloseable
             this.headerCustomizer.accept ( this.header );
         }
 
-        try ( final RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.options.getOpenOptions () ) )
+        try ( final RpmWriter writer = new RpmWriter ( this.targetFile, leadBuilder, this.header, this.options.getHeaderCharset (), this.options.getOpenOptions () ) )
         {
             writer.addAllSignatureProcessors ( this.signatureProcessors );
             writer.setPayload ( this.recorder );
