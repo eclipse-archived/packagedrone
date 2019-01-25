@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -65,21 +66,27 @@ public class RpmWriter implements AutoCloseable
 
     private final List<SignatureProcessor> signatureProcessors = new LinkedList<> ();
 
-    public RpmWriter ( final Path path, final Supplier<RpmLead> leadProvider, final Header<RpmTag> header, final OpenOption... options ) throws IOException
+    public RpmWriter ( final Path path, final Supplier<RpmLead> leadProvider, final Header<RpmTag> header, final Charset headerCharset, final OpenOption... options ) throws IOException
     {
         requireNonNull ( path );
         requireNonNull ( leadProvider );
         requireNonNull ( header );
+        requireNonNull ( headerCharset );
 
         this.file = FileChannel.open ( path, options != null && options.length > 0 ? options : DEFAULT_OPEN_OPTIONS );
         this.lead = leadProvider.get ();
 
-        this.header = Headers.render ( header.makeEntries (), true, Rpms.IMMUTABLE_TAG_HEADER );
+        this.header = Headers.render ( header.makeEntries (headerCharset), true, Rpms.IMMUTABLE_TAG_HEADER );
     }
 
     public RpmWriter ( final Path path, final LeadBuilder leadBuilder, final Header<RpmTag> header, final OpenOption... options ) throws IOException
     {
-        this ( path, leadBuilder::build, header, options );
+        this ( path, leadBuilder::build, header, StandardCharsets.UTF_8, options );
+    }
+
+    public RpmWriter ( final Path path, final LeadBuilder leadBuilder, final Header<RpmTag> header, final Charset headerCharset, final OpenOption... options ) throws IOException
+    {
+        this ( path, leadBuilder::build, header, headerCharset, options );
     }
 
     public void addSignatureProcessor ( final SignatureProcessor processor )

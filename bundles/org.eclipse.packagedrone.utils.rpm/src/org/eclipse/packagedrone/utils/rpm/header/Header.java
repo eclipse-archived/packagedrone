@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,6 +61,7 @@ public class Header<T extends RpmBaseTag> implements ReadableHeader<T>
     }
 
     private final Map<Integer, Object> entries = new LinkedHashMap<> ();
+    private static Charset charset = StandardCharsets.UTF_8;
 
     public Header ( final HeaderEntry[] entries )
     {
@@ -290,6 +292,27 @@ public class Header<T extends RpmBaseTag> implements ReadableHeader<T>
         return Optional.ofNullable ( get ( tag ) );
     }
 
+
+    /**
+     * Make an array of header entries with given charset
+     * <p>
+     * <strong>Note:</strong> Further updates on this instance will not update
+     * the returned array. This is actually a copy of the current state.
+     * </p>
+     *
+     * @param charset the charset of choice
+     * @return a new array of all header entries, unsorted
+     */
+    public HeaderEntry[] makeEntries ( Charset charset )
+    {
+        if ( charset == null )
+        {
+            throw new IllegalArgumentException ( "'charset' cannot be null" );
+        }
+        Header.charset = charset;
+        return this.entries.entrySet ().stream ().map ( Header::makeEntry ).toArray ( num -> new HeaderEntry[num] );
+    }
+
     /**
      * Make an array of header entries
      * <p>
@@ -301,7 +324,7 @@ public class Header<T extends RpmBaseTag> implements ReadableHeader<T>
      */
     public HeaderEntry[] makeEntries ()
     {
-        return this.entries.entrySet ().stream ().map ( Header::makeEntry ).toArray ( num -> new HeaderEntry[num] );
+        return makeEntries ( StandardCharsets.UTF_8 );
     }
 
     private static HeaderEntry makeEntry ( final Map.Entry<Integer, Object> entry )
@@ -433,7 +456,7 @@ public class Header<T extends RpmBaseTag> implements ReadableHeader<T>
         {
             if ( string != null )
             {
-                out.write ( string.getBytes ( StandardCharsets.UTF_8 ) );
+                out.write ( string.getBytes (charset) );
             }
             out.write ( 0 );
         }
