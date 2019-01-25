@@ -86,7 +86,7 @@ public class Uploader
 
             if ( !"jar".equals ( cp.getExtension () ) )
             {
-                cp = cp.replaceExtension ( "pom" );
+                cp = cp.replaceExtension ( "jar" );
             }
 
             final Set<String> parents = this.target.findArtifacts ( cp );
