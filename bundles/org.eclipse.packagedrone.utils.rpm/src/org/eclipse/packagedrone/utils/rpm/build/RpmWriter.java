@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.text.Normalizer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -142,19 +143,11 @@ public class RpmWriter implements AutoCloseable
         // write package name
 
         {
-            final ByteBuffer nameData = StandardCharsets.UTF_8.encode ( this.lead.getName () );
-            final int len = nameData.remaining ();
-            if ( len > 66 )
-            {
-                throw new IOException ( "Name exceeds 66 bytes" );
-            }
-
-            lead.put ( nameData );
-            if ( len < 66 )
-            {
-                // fill up
-                lead.put ( Rpms.EMPTY_128, 0, 66 - len );
-            }
+            final String name = this.lead.getName ();
+            final byte[] nameEncoded = ( !Normalizer.isNormalized( name, Normalizer.Form.NFC ) ? Normalizer.normalize( name, Normalizer.Form.NFC ) : name ).getBytes( StandardCharsets.UTF_8 );
+            final byte[] nameData = new byte[66];
+            System.arraycopy( nameEncoded, 0, nameData, 0, nameEncoded.length < nameData.length ? nameEncoded.length : nameData.length - 1 );
+            lead.put( nameData );
         }
 
         // 2 bytes OS
