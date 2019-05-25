@@ -76,6 +76,7 @@ public enum RpmTag implements RpmBaseTag
     FILE_DEVICES ( 1095 ),
     FILE_INODES ( 1096 ),
     FILE_LANGS ( 1097 ),
+    PREFIXES ( 1098 ),
     PROVIDE_FLAGS ( 1112 ),
     PROVIDE_VERSION ( 1113 ),
     OBSOLETE_FLAGS ( 1114 ),
