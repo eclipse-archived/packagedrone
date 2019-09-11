@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Walker Funk - Trident Systems Inc. - limit repo to only signed rpms when signing enabled
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.rpm.yum.internal;
 
@@ -46,6 +47,8 @@ public class YumChannelAggregator implements ChannelAggregator
 
     private final XmlToolsFactory xml;
 
+    private boolean isSigning = false;
+
     public YumChannelAggregator ( final XmlToolsFactory xml )
     {
         this.xml = xml;
@@ -69,6 +72,7 @@ public class YumChannelAggregator implements ChannelAggregator
 
             ssref = services.iterator ().next ();
             signingService = this.context.getService ( ssref );
+            this.isSigning = true;
         }
 
         try
@@ -88,20 +92,22 @@ public class YumChannelAggregator implements ChannelAggregator
             creator.process ( repoContext -> {
                 for ( final ArtifactInformation art : context.getArtifacts () )
                 {
-                    final RpmInformation info = RpmInformationsJson.fromJson ( art.getMetaData ().get ( Constants.KEY_INFO ) );
-
-                    if ( info == null )
+                    if ( ( this.isSigning && art.getMetaData ().containsKey ( Constants.KEY_RSA ) ) || !this.isSigning )
                     {
-                        continue;
+                        final RpmInformation info = RpmInformationsJson.fromJson(art.getMetaData().get(Constants.KEY_INFO));
+
+                        if (info == null) {
+                            continue;
+                        }
+
+                        final String sha1 = art.getMetaData().get(KEY_SHA1);
+                        final Map<HashAlgorithm, String> checksums = Collections.singletonMap(HashAlgorithm.SHA1, sha1);
+
+                        final String location = String.format("pool/%s/%s", art.getId(), art.getName());
+                        final RepositoryCreator.FileInformation file = new RepositoryCreator.FileInformation(art.getCreationInstant(), art.getSize(), location);
+
+                        repoContext.addPackage(file, info, checksums, HashAlgorithm.SHA1);
                     }
-
-                    final String sha1 = art.getMetaData ().get ( KEY_SHA1 );
-                    final Map<HashAlgorithm, String> checksums = Collections.singletonMap ( HashAlgorithm.SHA1, sha1 );
-
-                    final String location = String.format ( "pool/%s/%s", art.getId (), art.getName () );
-                    final RepositoryCreator.FileInformation file = new RepositoryCreator.FileInformation ( art.getCreationInstant (), art.getSize (), location );
-
-                    repoContext.addPackage ( file, info, checksums, HashAlgorithm.SHA1 );
                 }
             } );
 

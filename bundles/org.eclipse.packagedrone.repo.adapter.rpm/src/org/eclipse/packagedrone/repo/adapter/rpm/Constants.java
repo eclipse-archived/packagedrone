@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Walker Funk - Trident Systems Inc. - rpm signing components
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.rpm;
 
@@ -18,7 +19,11 @@ public final class Constants
 
     public static final String RPM_ASPECT_ID = "rpm";
 
+    public static final String RPM_SIGN_ASPECT_ID = "rpm.signer";
+
     public static final String YUM_ASPECT_ID = "yum";
+
+    public static final MetaKey KEY_RSA = new MetaKey ( GROUP_ID, "rsa" );
 
     public static final MetaKey KEY_INFO = new MetaKey ( RPM_ASPECT_ID, "info" );
 

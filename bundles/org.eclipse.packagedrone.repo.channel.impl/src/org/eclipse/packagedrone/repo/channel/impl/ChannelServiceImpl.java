@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Walker Funk - Trident Systems Inc. - added system call to delete function to delete empty directories
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.impl;
 
@@ -28,6 +29,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.lang.Runtime;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.IOException;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.aspect.ChannelAspectProcessor;
@@ -493,6 +498,17 @@ public class ChannelServiceImpl implements ChannelService, DeployAuthService
             deleteChannel ( instance );
 
             channel.get ().delete ();
+
+            final String cmd = "rm -rf " + System.getProperty ( "drone.storage.base" ) + "/channels/" + instance.getChannelId ();
+
+            try
+            {
+                Process p = Runtime.getRuntime().exec(cmd);
+            }
+            catch ( Exception e )
+            {
+                throw new RuntimeException ( "Could not remove channel " + instance.getChannelId () + " files/directories" );
+            }
 
             return true;
         }
