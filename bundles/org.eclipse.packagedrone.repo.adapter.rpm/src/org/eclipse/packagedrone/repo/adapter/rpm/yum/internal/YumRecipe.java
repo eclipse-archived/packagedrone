@@ -19,7 +19,7 @@ public class YumRecipe implements Recipe
     @Override
     public LinkTarget setup ( final String channelId, final AspectableChannel channel )
     {
-        channel.addAspects ( true, "rpm", "yum" );
+        channel.addAspects ( true, "rpm", "yum", "rpm.signer" );
         return null;
     }
 }

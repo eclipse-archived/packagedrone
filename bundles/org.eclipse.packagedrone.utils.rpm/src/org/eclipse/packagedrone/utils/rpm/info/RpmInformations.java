@@ -7,10 +7,12 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Walker Funk - Trident Systems Inc. - asArmored method for armoring signature data
  *******************************************************************************/
 package org.eclipse.packagedrone.utils.rpm.info;
 
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,11 +22,14 @@ import java.util.Set;
 
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream;
+import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
 import org.eclipse.packagedrone.utils.rpm.info.RpmInformation.Dependency;
 import org.eclipse.packagedrone.utils.rpm.parse.InputHeader;
 import org.eclipse.packagedrone.utils.rpm.parse.RpmInputStream;
+import org.bouncycastle.bcpg.ArmoredOutputStream;
+import org.bouncycastle.openpgp.PGPException;
 
 public final class RpmInformations
 {
@@ -215,6 +220,30 @@ public final class RpmInformations
         }
 
         return name;
+    }
+
+    public static String asArmored ( final Object value ) throws PGPException
+    {
+        if ( value == null )
+        {
+            return null;
+        }
+        try
+        {
+            byte[] castVal = ( byte[] ) value;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream ();
+            ArmoredOutputStream aos = new ArmoredOutputStream ( baos );
+            aos.setHeader ( "Version", VersionInformation.VERSIONED_PRODUCT );
+
+            aos.write( castVal );
+            aos.flush ();
+            aos.close ();
+            return new String ( baos.toByteArray () );
+        }
+        catch ( Exception e )
+        {
+            throw new PGPException ( "Error armoring signature data", e );
+        }
     }
 
     public static String asString ( final Object value )

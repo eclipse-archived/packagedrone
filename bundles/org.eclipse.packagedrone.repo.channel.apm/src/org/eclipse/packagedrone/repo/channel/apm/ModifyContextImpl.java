@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Walker Funk - Trident Systems Inc. - added system call to clear function to delete empty directories
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.channel.apm;
 
@@ -30,6 +31,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.lang.Runtime;
 
 import org.eclipse.packagedrone.repo.MetaKey;
 import org.eclipse.packagedrone.repo.channel.ArtifactInformation;
@@ -822,6 +824,16 @@ public class ModifyContextImpl implements ModifyContext, AspectableContext
 
         this.state.setNumberOfArtifacts ( 0L );
         this.state.setNumberOfBytes ( 0L );
+
+        final String cmd = "rm -rf " + System.getProperty ( "drone.storage.base" ) + "/channels/" + this.channelId + "/blobs/data/*";
+        try
+        {
+            Process p = Runtime.getRuntime().exec( new String[] {"sh", "-c", cmd} );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException ( "Could not remove channel " + this.channelId + " data directories" );
+        }
     }
 
     @Override

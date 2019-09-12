@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
+ *     Walker Funk - Trident Systems Inc. - rpm signing components
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.signing.pgp.internal;
 
@@ -16,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.BCPGOutputStream;
@@ -32,6 +34,12 @@ import org.bouncycastle.openpgp.operator.bc.BcPGPDigestCalculatorProvider;
 import org.eclipse.packagedrone.VersionInformation;
 import org.eclipse.packagedrone.repo.signing.SigningService;
 import org.eclipse.packagedrone.utils.security.pgp.SigningStream;
+import org.eclipse.packagedrone.utils.rpm.signature.RsaHeaderSignatureProcessor;
+import org.eclipse.packagedrone.utils.rpm.signature.PgpHeaderSignatureProcessor;
+import org.eclipse.packagedrone.utils.rpm.signature.SignatureProcessors;
+import org.eclipse.packagedrone.utils.rpm.build.RpmRebuilder;
+import org.eclipse.packagedrone.utils.rpm.HashAlgorithm;
+import org.eclipse.packagedrone.utils.rpm.parse.RpmParserStream;
 
 public abstract class AbstractSecretKeySigningService implements SigningService
 {
@@ -123,6 +131,17 @@ public abstract class AbstractSecretKeySigningService implements SigningService
         signature.encode ( new BCPGOutputStream ( armoredOutput ) );
 
         armoredOutput.close ();
+    }
+
+    @Override
+    public void signRpm ( Path path, RpmParserStream in ) throws Exception
+    {
+        RsaHeaderSignatureProcessor rhsp = new RsaHeaderSignatureProcessor ( this.privateKey, HashAlgorithm.SHA256 );
+        RpmRebuilder rpmRebuilder = new RpmRebuilder ( path, in.getLead (), in.getSignatureHeader (), in.getPayloadHeader () );
+        rpmRebuilder.setPayload ( in.getPayloadStreamer () );
+        rpmRebuilder.addSignatureProcessor ( rhsp );
+        in.close ();
+        rpmRebuilder.close ();
     }
 
     private static String trimTrailing ( final String line )

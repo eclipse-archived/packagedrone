@@ -8,6 +8,7 @@
  * Contributors:
  *     IBH SYSTEMS GmbH - initial API and implementation
  *     Bachmann electronic GmbH - #86 Adding 'release' rpm metadata tag
+ *     Walker Funk - Trident Systems Inc. rpm rsa signature extraction
  *******************************************************************************/
 package org.eclipse.packagedrone.repo.adapter.rpm.internal;
 
@@ -21,6 +22,7 @@ import org.eclipse.packagedrone.repo.adapter.rpm.Constants;
 import org.eclipse.packagedrone.repo.adapter.rpm.RpmInformationsJson;
 import org.eclipse.packagedrone.repo.aspect.extract.Extractor;
 import org.eclipse.packagedrone.utils.rpm.RpmTag;
+import org.eclipse.packagedrone.utils.rpm.RpmSignatureTag;
 import org.eclipse.packagedrone.utils.rpm.info.RpmInformation;
 import org.eclipse.packagedrone.utils.rpm.info.RpmInformations;
 import org.eclipse.packagedrone.utils.rpm.parse.RpmInputStream;
@@ -54,6 +56,12 @@ public class RpmExtractor implements Extractor
             metadata.put ( "release", RpmInformations.asString ( in.getPayloadHeader ().getTag ( RpmTag.RELEASE ) ) );
 
             metadata.put ( Constants.KEY_INFO.getKey (), RpmInformationsJson.toJson ( info ) );
+
+            String signature = RpmInformations.asArmored ( in.getSignatureHeader ().getTag ( RpmSignatureTag.RSAHEADER ) );
+            if ( signature != null && signature != "" )
+            {
+                metadata.put ( Constants.KEY_RSA.getKey (), signature );
+            }
         }
         catch ( final Exception e )
         {
