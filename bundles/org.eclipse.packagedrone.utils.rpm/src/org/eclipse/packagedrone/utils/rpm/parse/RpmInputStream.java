@@ -53,10 +53,11 @@ public class RpmInputStream extends InputStream
 
     private final CountingInputStream count;
 
-    public RpmInputStream ( final InputStream in )
+    public RpmInputStream ( final InputStream in ) throws IOException
     {
         this.count = new CountingInputStream ( in );
         this.in = new DataInputStream ( this.count );
+        ensureInit ();
     }
 
     @Override
@@ -147,21 +148,18 @@ public class RpmInputStream extends InputStream
         return this.cpioStream;
     }
 
-    public RpmLead getLead () throws IOException
+    public RpmLead getLead ()
     {
-        ensureInit ();
         return this.lead;
     }
 
-    public InputHeader<RpmSignatureTag> getSignatureHeader () throws IOException
+    public InputHeader<RpmSignatureTag> getSignatureHeader ()
     {
-        ensureInit ();
         return this.signatureHeader;
     }
 
-    public InputHeader<RpmTag> getPayloadHeader () throws IOException
+    public InputHeader<RpmTag> getPayloadHeader ()
     {
-        ensureInit ();
         return this.payloadHeader;
     }
 
@@ -283,37 +281,32 @@ public class RpmInputStream extends InputStream
     // forward methods
 
     @Override
-    public void reset () throws IOException
+    public void reset ()
     {
-        ensureInit ();
         this.payloadStream.reset ();
     }
 
     @Override
-    public int read () throws IOException
+    public int read ()
     {
-        ensureInit ();
         return this.payloadStream.read ();
     }
 
     @Override
-    public long skip ( final long n ) throws IOException
+    public long skip ( final long n )
     {
-        ensureInit ();
         return this.payloadStream.skip ( n );
     }
 
     @Override
-    public int available () throws IOException
+    public int available ()
     {
-        ensureInit ();
         return this.payloadStream.available ();
     }
 
     @Override
     public int read ( final byte[] b ) throws IOException
     {
-        ensureInit ();
         return this.payloadStream.read ( b );
     }
 
