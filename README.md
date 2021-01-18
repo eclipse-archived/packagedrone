@@ -1,6 +1,6 @@
 # Eclipse Package Drone™
 
-Package Drone is a software artifact repository with an initial focus on OSGi(Open Services Gateway initiative).
+Package Drone is a software artifact repository with an initial focus on OSGi (Open Services Gateway initiative).
 The system can be enhanced by plugins to also support other types of artifacts
 and repository interfaces.
 
